@@ -1,0 +1,3 @@
+lawsOfTheWall/SpaldingLawOfTheWall/SpaldingLawOfTheWall.C
+
+LIB = $(FOAM_USER_LIBBIN)/libWallModelledLES
