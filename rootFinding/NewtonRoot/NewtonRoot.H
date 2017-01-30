@@ -25,7 +25,7 @@ Class
     NewtontRoot
 
 Description
-
+    Newton root finder.
 Author
     Timofey Mukha. All rights reserved.
 
@@ -38,6 +38,7 @@ SourceFiles
 #define NewtonRoot_H
 
 #include "scalar.H"
+#include <functional>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -48,19 +49,21 @@ namespace Foam
                       Class NewtonRoot Declaration
 \*---------------------------------------------------------------------------*/
 
-//template<typename Func>
 class NewtonRoot
 {
     // Private data
 
         //- Pointer to the function
-        scalar (*f_) (scalar);
+        std::function<scalar(scalar)> f_;
 
         //- Pointer to the derivative
-        scalar (*d_) (scalar) ;
+        std::function<scalar(scalar)> d_;
 
         //- Tolerance
         const scalar eps_;
+        
+        //- Maximum number of iterations
+        const label maxIter_;
 
 
 public:
@@ -74,7 +77,10 @@ public:
     // Constructors
 
         //- Construct given a function
-        NewtonRoot(scalar (*f) (scalar), scalar (*d) (scalar), const scalar eps);
+        NewtonRoot(std::function<scalar(scalar)>,
+                   std::function<scalar(scalar)>,
+                   const scalar eps,
+                   const label maxIter);
 
 
     // Destructor - default
@@ -83,19 +89,13 @@ public:
     // Member Functions
 
         //- Return root
-        scalar root(scalar xN) const;
+        scalar root(scalar guess) const;
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#ifdef NoRepository
-#   include "NewtonRoot.C"
-#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

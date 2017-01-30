@@ -1,11 +1,14 @@
-EXE_INC = \
+EXE_INC = -std=c++0x \
 -I$(LIB_SRC)/finiteVolume/lnInclude \
 -I$(LIB_SRC)/OpenFOAM/lnInclude \
 -I$(LIB_SRC)/meshTools/lnInclude \
 -I$(LIB_SRC)/sampling/lnInclude \
--I../../../rootFinding/NewtonRoot
+-I../../../lnInclude
 
-LIB_LIBS = \
+
+EXE_LIBS = \
+-L$(FOAM_USER_LIBBIN) \
+-lWallModelledLES \
 -lfiniteVolume \
 -lOpenFOAM \
 -lmeshTools \

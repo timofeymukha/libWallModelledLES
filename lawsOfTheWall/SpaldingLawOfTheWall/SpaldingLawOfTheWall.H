@@ -60,17 +60,14 @@ class SpaldingLawOfTheWall: public LawOfTheWall
         //- The B model constant
         scalar B;
         
-        //- The value of viscosity
-        scalar nu;
-
 public:
 
     // Constructors
         //- Construct given viscosity
-        SpaldingLawOfTheWall(scalar nu);
+        SpaldingLawOfTheWall();
     
         //- Construct provided kappa, B and viscosity
-        SpaldingLawOfTheWall(scalar kappa, scalar B, scalar nu);
+        SpaldingLawOfTheWall(scalar kappa, scalar B);
 
     // Destructor
         virtual ~SpaldingLawOfTheWall() {};
@@ -78,11 +75,11 @@ public:
     // Member Functions
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(scalar u, scalar y, scalar uTau) const;
+        virtual scalar value(scalar u, scalar y, scalar uTau, scalar nu) const;
         
         //- Return the value of the derivative of the implicit function
         //  defining the law
-        scalar derivativeValue(scalar u, scalar y, scalar uTau) const;
+        scalar derivativeValue(scalar u, scalar y, scalar uTau, scalar nu) const;
 };
 
 

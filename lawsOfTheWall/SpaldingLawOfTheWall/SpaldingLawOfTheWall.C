@@ -38,24 +38,21 @@ Authors
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall(scalar nu)
+Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall()
 :
     kappa(0.4),
-    B(5.5),
-    nu(nu)
+    B(5.5)
 {}
 
 
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
     scalar kappa,
-    scalar B,
-    scalar nu
+    scalar B
 )
 :
     kappa(kappa),
-    B(B),
-    nu(nu)
+    B(B)
 {}
 
 
@@ -65,7 +62,8 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
 (
     scalar u,
     scalar y,
-    scalar uTau
+    scalar uTau,
+    scalar nu
 ) const
 {
     scalar uPlus = u/uTau;
@@ -78,11 +76,12 @@ Foam::scalar Foam::SpaldingLawOfTheWall::derivativeValue
 (
     scalar u,
     scalar y,
-    scalar uTau
+    scalar uTau,
+    scalar nu        
 ) const
 {
     scalar uPlus = u/uTau;
-    return -y/nu - u/sqr(uTau) - kappa*uPlus/uTau*exp(kappa*B)
+    return -y/nu - u/sqr(uTau) - kappa*uPlus/uTau*exp(-kappa*B)
            *(exp(kappa*uPlus) - 1 - kappa*uPlus - 0.5*sqr(kappa*uPlus));
 }
 // ************************************************************************* //

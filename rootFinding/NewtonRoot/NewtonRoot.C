@@ -25,34 +25,31 @@ Class
     NewtonRoot
 
 Description
-    Newton root finder for better stability.
-    Function is provided as a template parameter function object, evaluated
-    using operator()(const scalar x)
+    Newton root finder.
 
 Author
-    Aleksandar Jemcov.  All rights reserved.
+    Timofey Mukha.  All rights reserved.
 
 \*---------------------------------------------------------------------------*/
 
 #include "NewtonRoot.H"
 #include "error.H"
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-const Foam::label Foam::NewtonRoot::maxIter = 60;
+#include <functional>
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::NewtonRoot::NewtonRoot
 (
-    scalar (*f) (scalar),
-    scalar (*d) (scalar),
-    const scalar eps
+    std::function<scalar(scalar)> f,
+    std::function<scalar(scalar)> d,
+    const scalar eps,
+    const label maxIter
 )
 :
     f_(f),
     d_(d),
-    eps_(eps)
+    eps_(eps),
+    maxIter_(maxIter)
 {}
 
 
@@ -60,37 +57,42 @@ Foam::NewtonRoot::NewtonRoot
 
 Foam::scalar Foam::NewtonRoot::root
 (
-    scalar xOld
+    scalar x0
 ) const
 {
-    if (0 == d_(xOld))
+    scalar guess = x0;
+    if (0 == d_(guess))
     {
         FatalErrorIn
         (
-            "Foam::scalar Foam::NewtonRoot<Func, Deriv>::root\n"
+            "Foam::scalar Foam::NewtonRoot::root\n"
             "(\n"
-            "    const scalar xOld,\n"
+            "    scalar xOld,\n"
             ") const"
-        )   << "Jacobian equal to zero.  f'(xN) = " << d_(xOld)
+        )   << "Jacobian equal to zero.  f'(xN) = " << d_(guess)
             << abort(FatalError); }
 
 
-    for (label nIter = 0; nIter < maxIter; ++nIter)
+    //Info<< "Newton initial" << guess << endl;
+    for (label nIter = 0; nIter < maxIter_; ++nIter)
     {
-        scalar f = this->f_(xOld);
-        scalar d = this->d_(xOld);
+        scalar f = this->f_(guess);
+        scalar d = this->d_(guess);
 
-        scalar xNew = xOld - f/d;
+        scalar xNew = guess - f/d;
 
-        if (mag(xNew - xOld) <= this->eps_)
+     /*   if (mag(xNew - guess) <= this->eps_)
         {
+      //      Info<< "Newton guess" << guess << " " << nIter << endl;
+      //      Info<< "Newton new" << xNew << " " << nIter << endl;
             return xNew;
-        }
-
-        xOld = xNew;
+        } */
+        
+        guess = xNew;
+       // Info<< guess << endl;
     }
 
-    return xOld;
+    return guess;
 }
 
 

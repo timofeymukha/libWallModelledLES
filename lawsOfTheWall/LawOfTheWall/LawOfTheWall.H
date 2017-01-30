@@ -62,7 +62,7 @@ public:
     // Member Functions
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(scalar u, scalar y, scalar uTau) const = 0;
+        virtual scalar value(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
 };
 
 

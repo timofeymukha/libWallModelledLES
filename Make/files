@@ -1,3 +1,6 @@
+rootFinding/NewtonRoot/NewtonRoot.C
 lawsOfTheWall/SpaldingLawOfTheWall/SpaldingLawOfTheWall.C
+wallModels/wallModelFvPatchScalarField.C
+wallModels/spaldingWallModelFvPatchScalarField.C
 
 LIB = $(FOAM_USER_LIBBIN)/libWallModelledLES
