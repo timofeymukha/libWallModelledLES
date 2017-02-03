@@ -39,7 +39,8 @@ SourceFiles
 #define spaldingWallModelFvPatchScalarField_H
 
 #include "wallModelFvPatchScalarField.H"
-#include "SpaldingLawOfTheWall.H"
+#include "LawOfTheWall.H"
+#include "RootFinder.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -57,7 +58,10 @@ class spaldingWallModelFvPatchScalarField
 protected:
     
     // Protected Data
-        
+        //RootFinder & rootFinder_;
+    
+        //- The "law of the wall" to be used
+        autoPtr<LawOfTheWall> law_;
     
     // Protected Member Functions
 
@@ -95,7 +99,7 @@ public:
         );
 
         //- Construct by mapping given
-        //  nutUSpaldingWallFunctionFvPatchScalarField
+        //  spaldingWallModelFvPatchScalarField
         //  onto a new patch
         spaldingWallModelFvPatchScalarField
         (

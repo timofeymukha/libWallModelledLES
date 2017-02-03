@@ -31,7 +31,7 @@ Authors
     Timofey Mukha.  All rights reserved.
 
 SourceFiles
-    NewtonRoot.C
+    LawOfTheWall.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -39,6 +39,11 @@ SourceFiles
 #define LawOfTheWall_H
 
 #include "scalar.H"
+#include "dictionary.H"
+#include "word.H"
+#include "typeInfo.H"
+#include "runTimeSelectionTables.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -54,15 +59,45 @@ class LawOfTheWall
 
 public:
 
+    TypeName("LawOfTheWall");
+    
     // Constructors
+        LawOfTheWall() {}
+    
+        LawOfTheWall(const dictionary &) {}
 
     // Destructor
         virtual ~LawOfTheWall() {}
 
+        
+    // RTS table "Dictionary"    
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        LawOfTheWall,
+        Dictionary,
+        (
+            const dictionary & dict
+        ),
+        (dict)
+    )    
+    
+    // Selectors
+    static autoPtr<LawOfTheWall> New 
+    (
+        const dictionary & dict
+    );
+        
     // Member Functions
+    
+        //- Print the model coefficients
+        virtual void printCoeffs() const = 0; 
 
         //- Return the value of the implicit function defining the law
         virtual scalar value(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
+
+        virtual scalar derivative(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
+
 };
 
 

@@ -22,26 +22,26 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    SpaldingLawOfTheWall
+    NewtonRootFinder
 
 Description
-    The law of the wall proposed by Spalding.
-
-Authors
-    Timofey Mukha.  All rights reserved.
+    Root finder based on Newton's method.
+Author
+    Timofey Mukha. All rights reserved.
 
 SourceFiles
-    SpaldingLawOfTheWall.C
+    NewtonRootFinder.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef SpaldingLawOfTheWall_H
-#define SpaldingLawOfTheWall_H
+#ifndef NewtonRootFinder_H
+#define NewtonRootFinder_H
 
+#include "RootFinder.H"
 #include "scalar.H"
+#include "word.H"
 #include "typeInfo.H"
-#include "dictionary.H"
-#include "LawOfTheWall.H"
+#include <functional>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -49,59 +49,56 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class SpaldingLawOfTheWall Declaration
+                      Class NewtonRoot Declaration
 \*---------------------------------------------------------------------------*/
 
-class SpaldingLawOfTheWall: public LawOfTheWall
+class NewtonRootFinder : public RootFinder
 {
-    
     // Private data
-        
-        //- The kappa model constant
-        scalar kappa_;
-        
-        //- The B model constant
-        scalar B_;
-        
+
+        //- Pointer to the derivative
+        std::function<scalar(scalar)> d_;
+
 public:
-    
-    TypeName("Spalding");
 
+    TypeName("Newton");
+    
     // Constructors
-        //- Construct with default values
-        SpaldingLawOfTheWall();
-    
-        //- Construct provided kappa, B and viscosity
-        SpaldingLawOfTheWall(scalar kappa, scalar B);
-        
-        //- Construct provided dictionary
-        SpaldingLawOfTheWall(const dictionary &);
 
-    // Destructor
-        virtual ~SpaldingLawOfTheWall() {};
+        //- Construct given name, function, its derivative, tolerance and max number of iterations
+        NewtonRootFinder
+        (
+            const word & rootFinderName,
+            std::function<scalar(scalar)> f,
+            std::function<scalar(scalar)> d,
+            const scalar eps,
+            const label maxIter
+        );
+        
+        //- Construct given a function, its derivative, and dictionary
+        NewtonRootFinder
+        (
+            std::function<scalar(scalar)> f,
+            std::function<scalar(scalar)> d,
+            const dictionary & dict
+        );
+
+        
+    // Destructor - default
+        virtual ~NewtonRootFinder(){};
 
     // Member Functions
-        
-        scalar kappa() const
-        {
-            return kappa_;
-        }
-        
-        scalar B() const
-        {
-            return B_;
-        }
-        
-        //- Print the model coefficients
-        virtual void printCoeffs() const;
 
-        //- Return the value of the implicit function defining the law
-        virtual scalar value(scalar u, scalar y, scalar uTau, scalar nu) const;
+        //- Return root
+        scalar root(scalar x0) const;
         
-        //- Return the value of the derivative of the implicit function
-        //  defining the law
-        virtual scalar derivative(scalar u, scalar y, scalar uTau, scalar nu) const;
+        //- Set the implicit function defining the derivative
+        virtual void setDerivative(std::function<scalar(scalar)> d)
+        {
+            d_ = d;
+        }
 };
+
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

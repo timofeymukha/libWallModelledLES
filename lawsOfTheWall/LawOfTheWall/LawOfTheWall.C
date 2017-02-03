@@ -22,81 +22,58 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    NewtontRoot
+    LawOfTheWall
 
 Description
-    Newton root finder.
-Author
-    Timofey Mukha. All rights reserved.
+    Base class for laws of the wall.
 
-SourceFiles
-    NewtonRoot.C
+Authors
+    Timofey Mukha.  All rights reserved.
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef NewtonRoot_H
-#define NewtonRoot_H
-
 #include "scalar.H"
-#include <functional>
+#include "dictionary.H"
+#include "word.H"
+#include "typeInfo.H"
+#include "runTimeSelectionTables.H"
+#include "addToRunTimeSelectionTable.H"
+#include "LawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+    defineTypeNameAndDebug(LawOfTheWall, 0);
+    defineRunTimeSelectionTable(LawOfTheWall, Dictionary);
+    
 
-/*---------------------------------------------------------------------------*\
-                      Class NewtonRoot Declaration
-\*---------------------------------------------------------------------------*/
-
-class NewtonRoot
+autoPtr<LawOfTheWall> LawOfTheWall::New 
+(
+    const dictionary & dict
+)
 {
-    // Private data
+    word lawName(dict.lookup("type"));
+    
+    DictionaryConstructorTable::iterator cstrIter =
+    DictionaryConstructorTablePtr_->find(lawName);
 
-        //- Pointer to the function
-        std::function<scalar(scalar)> f_;
+    if (cstrIter == DictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorIn
+        (
+            "LawOfTheWall::New(const dictionary&)"
+        ) << "Unknown LawOfTheWall type "
+        << lawName << nl << nl
+        << "Valid LawOfTheWall types are :" << endl
+        << DictionaryConstructorTablePtr_->sortedToc()
+        << exit(FatalError);
+    }
 
-        //- Pointer to the derivative
-        std::function<scalar(scalar)> d_;
-
-        //- Tolerance
-        const scalar eps_;
+    return cstrIter()(dict);  
+}
         
-        //- Maximum number of iterations
-        const label maxIter_;
-
-
-public:
-
-    // Static data members
-
-        //- Maximum number of iterations
-        static const label maxIter;
-
-
-    // Constructors
-
-        //- Construct given a function
-        NewtonRoot(std::function<scalar(scalar)>,
-                   std::function<scalar(scalar)>,
-                   const scalar eps,
-                   const label maxIter);
-
-
-    // Destructor - default
-
-
-    // Member Functions
-
-        //- Return root
-        scalar root(scalar guess) const;
-};
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#endif

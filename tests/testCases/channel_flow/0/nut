@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.2.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      nuSgs;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -1 0 0 0 0];
+
+internalField   uniform 1e-4;
+
+boundaryField
+{
+    bottomWall
+    {
+        type			spaldingWallModel;
+        value			uniform 0;
+
+        RootFinder
+        {
+            type    Bisection;
+            eps     0.001;
+            maxIter 15;
+            bracket 3;
+        }
+
+        Law
+        {
+            type    Spalding;
+            kappa   0.4;
+            B       5.5;
+        }
+    }
+    topWall
+    {
+        type			nutUSpaldingWallFunction;
+        Cmu             0.09;
+        kappa           0.42;
+        E               8.52;
+        value			uniform 0;
+    }
+    left
+    {
+        type            cyclic;
+    }
+    right
+    {
+        type            cyclic;
+    }
+    inlet
+    {
+        type            cyclic;
+    }
+    outlet
+    {
+        type            cyclic;
+    }
+}
+
+
+// ************************************************************************* //

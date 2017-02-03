@@ -54,6 +54,11 @@ class wallModelFvPatchScalarField
     public fixedValueFvPatchScalarField
 {
 protected:
+    
+    // Protected data
+    
+        //- The dictionary defining the boundary condition
+        dictionary dict_;
 
     // Protected Member Functions
 

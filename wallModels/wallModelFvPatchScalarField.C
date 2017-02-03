@@ -107,7 +107,8 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     const dictionary& dict
 )
 :
-    fixedValueFvPatchScalarField(p, iF, dict)
+    fixedValueFvPatchScalarField(p, iF, dict),
+    dict_(dict)
 {
     checkType();
 }

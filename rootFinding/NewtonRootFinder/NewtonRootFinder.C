@@ -32,30 +32,54 @@ Author
 
 \*---------------------------------------------------------------------------*/
 
-#include "NewtonRoot.H"
+#include "NewtonRootFinder.H"
+#include "word.H"
 #include "error.H"
+#include "typeInfo.H"
+#include "dictionary.H"
+#include "runTimeSelectionTables.H"
+#include "addToRunTimeSelectionTable.H"
 #include <functional>
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(NewtonRootFinder, 0);
+    addToRunTimeSelectionTable(RootFinder, NewtonRootFinder, Word);
+    addToRunTimeSelectionTable(RootFinder, NewtonRootFinder, Dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::NewtonRoot::NewtonRoot
+Foam::NewtonRootFinder::NewtonRootFinder
 (
+    const word & rootFinderName, 
     std::function<scalar(scalar)> f,
     std::function<scalar(scalar)> d,
     const scalar eps,
     const label maxIter
 )
 :
-    f_(f),
-    d_(d),
-    eps_(eps),
-    maxIter_(maxIter)
+    RootFinder(rootFinderName, f, d, eps, maxIter),
+    d_(d)
+{}
+
+Foam::NewtonRootFinder::NewtonRootFinder
+(
+    std::function<scalar(scalar)> f,
+    std::function<scalar(scalar)> d,
+    const dictionary & dict
+)
+:
+    RootFinder(f, d, dict),
+    d_(d)
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar Foam::NewtonRoot::root
+Foam::scalar Foam::NewtonRootFinder::root
 (
     scalar x0
 ) const
@@ -81,16 +105,19 @@ Foam::scalar Foam::NewtonRoot::root
 
         scalar xNew = guess - f/d;
 
-     /*   if (mag(xNew - guess) <= this->eps_)
+        if (mag(xNew - guess)/mag(guess) <= this->eps_)
         {
       //      Info<< "Newton guess" << guess << " " << nIter << endl;
       //      Info<< "Newton new" << xNew << " " << nIter << endl;
             return xNew;
-        } */
+        }
         
         guess = xNew;
        // Info<< guess << endl;
     }
+    
+    WarningIn("Foam::NewtonRootFinder::root()")
+        << "The method did not converge to desired tolerance." << nl;
 
     return guess;
 }

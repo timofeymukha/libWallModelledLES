@@ -1,4 +1,7 @@
-rootFinding/NewtonRoot/NewtonRoot.C
+rootFinding/RootFinder/RootFinder.C
+rootFinding/NewtonRootFinder/NewtonRootFinder.C
+rootFinding/BisectionRootFinder/BisectionRootFinder.C
+lawsOfTheWall/LawOfTheWall/LawOfTheWall.C
 lawsOfTheWall/SpaldingLawOfTheWall/SpaldingLawOfTheWall.C
 wallModels/wallModelFvPatchScalarField.C
 wallModels/spaldingWallModelFvPatchScalarField.C

@@ -33,16 +33,25 @@ Authors
  \*---------------------------------------------------------------------------*/
 
 #include "SpaldingLawOfTheWall.H"
+#include "dictionary.H"
 #include "error.H"
+#include "addToRunTimeSelectionTable.H"
+
+namespace Foam
+{
+    defineTypeNameAndDebug(SpaldingLawOfTheWall, 0);
+    addToRunTimeSelectionTable(LawOfTheWall, SpaldingLawOfTheWall, Dictionary);
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall()
 :
-    kappa(0.4),
-    B(5.5)
-{}
+    kappa_(0.4),
+    B_(5.5)
+{
+    printCoeffs();
+}
 
 
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
@@ -51,12 +60,35 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
     scalar B
 )
 :
-    kappa(kappa),
-    B(B)
-{}
+    kappa_(kappa),
+    B_(B)
+{
+    printCoeffs();
+}
+
+Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
+(
+    const Foam::dictionary & dict
+)
+:
+    LawOfTheWall(dict),
+    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
+    B_(dict.lookupOrDefault<scalar>("B", 5.5))
+{
+    printCoeffs();
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::SpaldingLawOfTheWall::printCoeffs() const
+{
+    Info<< nl << "Spalding law of the wall" << nl;
+    Info<< "{" << incrIndent << nl;
+    Info<< indent << "kappa" << indent << kappa_ << nl;
+    Info<< indent << "B" << indent <<  B_ << nl;
+    Info<< "}" << nl << nl;
+}
 
 Foam::scalar Foam::SpaldingLawOfTheWall::value
 (
@@ -67,12 +99,12 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
 ) const
 {
     scalar uPlus = u/uTau;
-    return uPlus + exp(-kappa*B)*(exp(kappa*uPlus) - 1 - kappa*uPlus
-         - 0.5*sqr(kappa*uPlus) - 1./6*kappa*uPlus*sqr(kappa*uPlus))
+    return uPlus + exp(-kappa_*B_)*(exp(kappa_*uPlus) - 1 - kappa_*uPlus
+         - 0.5*sqr(kappa_*uPlus) - 1./6*kappa_*uPlus*sqr(kappa_*uPlus))
          - y*uTau/nu;
 }
 
-Foam::scalar Foam::SpaldingLawOfTheWall::derivativeValue
+Foam::scalar Foam::SpaldingLawOfTheWall::derivative
 (
     scalar u,
     scalar y,
@@ -81,7 +113,8 @@ Foam::scalar Foam::SpaldingLawOfTheWall::derivativeValue
 ) const
 {
     scalar uPlus = u/uTau;
-    return -y/nu - u/sqr(uTau) - kappa*uPlus/uTau*exp(-kappa*B)
-           *(exp(kappa*uPlus) - 1 - kappa*uPlus - 0.5*sqr(kappa*uPlus));
+    return -y/nu - u/sqr(uTau) - kappa_*uPlus/uTau*exp(-kappa_*B_)
+           *(exp(kappa_*uPlus) - 1 - kappa_*uPlus - 0.5*sqr(kappa_*uPlus));
 }
 // ************************************************************************* //
+}

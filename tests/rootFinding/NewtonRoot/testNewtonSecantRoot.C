@@ -1,5 +1,5 @@
 #include "fvCFD.H"
-#include "NewtonRoot.H"
+#include "NewtonRootFinder.H"
 #include <functional>
 
 using std::placeholders::_1;
@@ -24,12 +24,18 @@ int main(int argc, char *argv[])
     Foo foo;
     label maxIter = 20;
 
-    std::function<scalar(scalar)> value = std::bind(&Foo::val, &foo, _1, 1);
+    std::function<scalar(scalar)> value = std::bind(&Foo::val, &foo, _1, 4);
     std::function<scalar(scalar)> deriv = std::bind(&Foo::deriv, &foo, _1);
 
-    NewtonRoot rootFinder = NewtonRoot(value, deriv, 1e-10, maxIter);
+    // Construct normally
+    NewtonRootFinder rootFinder = NewtonRootFinder("Newton", value, deriv, 1e-10, maxIter);
 
-    Info<< rootFinder.root(2.);
+    Info<< rootFinder.root(2.) << endl;;
+
+    // Now through the RTS
+    Foam::autoPtr<RootFinder>  rootFinder2 = RootFinder::New("Newton", value, deriv, 1e-10, maxIter);
+
+    Info<< rootFinder2->root(2.);
 
     return 0;
 }

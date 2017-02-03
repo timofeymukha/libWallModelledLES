@@ -22,26 +22,26 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    SpaldingLawOfTheWall
+    BisectionRootFinder
 
 Description
-    The law of the wall proposed by Spalding.
-
-Authors
-    Timofey Mukha.  All rights reserved.
+    Root finder based on the bisection method.
+Author
+    Timofey Mukha. All rights reserved.
 
 SourceFiles
-    SpaldingLawOfTheWall.C
+    BisectionRootFinder.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef SpaldingLawOfTheWall_H
-#define SpaldingLawOfTheWall_H
+#ifndef BisectionRootFinder_H
+#define BisectionRootFinder_H
 
+#include "RootFinder.H"
 #include "scalar.H"
+#include "word.H"
 #include "typeInfo.H"
-#include "dictionary.H"
-#include "LawOfTheWall.H"
+#include <functional>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -49,59 +49,56 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class SpaldingLawOfTheWall Declaration
+                      Class BisectionRoot Declaration
 \*---------------------------------------------------------------------------*/
 
-class SpaldingLawOfTheWall: public LawOfTheWall
+class BisectionRootFinder : public RootFinder
 {
-    
     // Private data
-        
-        //- The kappa model constant
-        scalar kappa_;
-        
-        //- The B model constant
-        scalar B_;
-        
+    
+    // - The bracket defining the interval where the root will be searched
+    scalar bracket_;
+
 public:
-    
-    TypeName("Spalding");
 
+    TypeName("Bisection");
+    
     // Constructors
-        //- Construct with default values
-        SpaldingLawOfTheWall();
-    
-        //- Construct provided kappa, B and viscosity
-        SpaldingLawOfTheWall(scalar kappa, scalar B);
-        
-        //- Construct provided dictionary
-        SpaldingLawOfTheWall(const dictionary &);
 
-    // Destructor
-        virtual ~SpaldingLawOfTheWall() {};
+        //- Construct given a function and its derivative
+        BisectionRootFinder
+        (
+            const word & rootFinderName,
+            std::function<scalar(scalar)>,
+            std::function<scalar(scalar)>,
+            const scalar eps,
+            const label maxIter
+        );
+
+        //- Construct given a function, its derivative and dict
+        BisectionRootFinder
+        (
+            std::function<scalar(scalar)>,
+            std::function<scalar(scalar)>,
+            const dictionary & dict
+        );
+        
+    // Destructor - default
+        virtual ~BisectionRootFinder(){};
 
     // Member Functions
-        
-        scalar kappa() const
-        {
-            return kappa_;
-        }
-        
-        scalar B() const
-        {
-            return B_;
-        }
-        
-        //- Print the model coefficients
-        virtual void printCoeffs() const;
 
-        //- Return the value of the implicit function defining the law
-        virtual scalar value(scalar u, scalar y, scalar uTau, scalar nu) const;
+        //- return the bracket
+        scalar bracket() const
+        {
+            return bracket_;
+        }
         
-        //- Return the value of the derivative of the implicit function
-        //  defining the law
-        virtual scalar derivative(scalar u, scalar y, scalar uTau, scalar nu) const;
+        //- Return root
+        scalar root(scalar x0) const;
+        
 };
+
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

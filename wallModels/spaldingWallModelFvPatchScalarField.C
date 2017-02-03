@@ -30,7 +30,7 @@ Description
 Authors
     Timofey Mukha.  All rights reserved.
 
-
+ * 
 \*---------------------------------------------------------------------------*/
 
 #include "spaldingWallModelFvPatchScalarField.H"
@@ -39,12 +39,16 @@ Authors
 #include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
 #include "SpaldingLawOfTheWall.H"
-#include "NewtonRoot.H"
+#include "LawOfTheWall.H"
+#include "NewtonRootFinder.H"
+#include "dictionary.H"
 #include <functional>
 
 using namespace std::placeholders;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+Foam::scalar dummyf(Foam::scalar x){return 0;}
 
 namespace Foam
 {
@@ -178,13 +182,12 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTau
 
     tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
     scalarField& uTau = tuTau();
-
-    SpaldingLawOfTheWall law;
-    scalar eps = 0.01;
-    label maxIter = 15;
-    
+       
     std::function<scalar(scalar)> value;
-    std::function<scalar(scalar)> derivValue;      
+    std::function<scalar(scalar)> derivValue;
+        
+    dictionary rootFinderDict = dict_.subDict("RootFinder");
+    autoPtr<RootFinder> rootFinder = RootFinder::New(dummyf, dummyf, rootFinderDict);
     
     forAll(uTau, faceI)
     {
@@ -194,17 +197,19 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTau
 
         if (ut > ROOTVSMALL)
         {
-            value = std::bind(&SpaldingLawOfTheWall::value, &law, magUp[faceI], y[faceI], _1, nuw[faceI]);
-            derivValue = std::bind(&SpaldingLawOfTheWall::derivativeValue, &law, magUp[faceI], y[faceI], _1, nuw[faceI]);
+            value = std::bind(&LawOfTheWall::value, &law_(), magUp[faceI], y[faceI], _1, nuw[faceI]);
+            derivValue = std::bind(&LawOfTheWall::derivative, &law_(), magUp[faceI], y[faceI], _1, nuw[faceI]);
             
        //     Info<< "Value " << value(ut)<<endl;
         //    Info<< "Derivative " << derivValue(ut)<<endl;
             
-            NewtonRoot rootFinder(value, derivValue, eps, maxIter);
-            uTau[faceI] = max(0.0, rootFinder.root(ut));
+            rootFinder->setFunction(value);
+            rootFinder->setDerivative(derivValue);
+            uTau[faceI] = max(0.0, rootFinder->root(ut));
         //    Info<< uTau[faceI] << endl;
         }
     }
+    
     return tuTau;
 }
 
@@ -219,6 +224,7 @@ spaldingWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF)
+    //rootFinder_(RootFinder::New("Newton", dummyf, dummyf, 0.01, 15)())
 {}
 
 
@@ -232,8 +238,8 @@ spaldingWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(ptf, p, iF, mapper)
+    //rootFinder_(RootFinder::New("Newton", dummyf, dummyf, 0.01, 15)())
 {}
-
 
 spaldingWallModelFvPatchScalarField::
 spaldingWallModelFvPatchScalarField
@@ -243,7 +249,9 @@ spaldingWallModelFvPatchScalarField
     const dictionary& dict
 )
 :
-    wallModelFvPatchScalarField(p, iF, dict)
+    wallModelFvPatchScalarField(p, iF, dict),
+    //rootFinder_(RootFinder::New(dummyf, dummyf, dict.subDict("rootFinder"))())
+    law_(LawOfTheWall::New(dict.subDict("Law")))
 {}
 
 
@@ -254,6 +262,7 @@ spaldingWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf)
+    //rootFinder_(RootFinder::New("Newton", dummyf, dummyf, 0.01, 15)())
 {}
 
 
@@ -265,6 +274,7 @@ spaldingWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf, iF)
+    //rootFinder_(RootFinder::New("Newton", dummyf, dummyf, 0.01, 15)())
 {}
 
 
