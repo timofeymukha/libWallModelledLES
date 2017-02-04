@@ -40,6 +40,8 @@ SourceFiles
 #include "volFields.H"
 #include "wallFvPatch.H"
 #include "addToRunTimeSelectionTable.H"
+#include "objectRegistry.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -80,9 +82,11 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    fixedValueFvPatchScalarField(p, iF)
+    fixedValueFvPatchScalarField(p, iF),
+    cellIndexList_(patch().size())
 {
     checkType();
+    createCellIndexList();
 }
 
 
@@ -94,9 +98,11 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     const fvPatchFieldMapper& mapper
 )
 :
-    fixedValueFvPatchScalarField(ptf, p, iF, mapper)
+    fixedValueFvPatchScalarField(ptf, p, iF, mapper),
+    cellIndexList_(patch().size())
 {
     checkType();
+    createCellIndexList();
 }
 
 
@@ -108,9 +114,12 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF, dict),
-    dict_(dict)
+    dict_(dict),
+    cellIndexList_(patch().size()),
+    h_(patch().size())
 {
     checkType();
+    createCellIndexList();
 }
 
 
@@ -119,9 +128,11 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     const wallModelFvPatchScalarField& wfpsf
 )
 :
-    fixedValueFvPatchScalarField(wfpsf)
+    fixedValueFvPatchScalarField(wfpsf),
+    cellIndexList_(patch().size())
 {
     checkType();
+    createCellIndexList();
 }
 
 
@@ -131,14 +142,71 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    fixedValueFvPatchScalarField(wfpsf, iF)
+    fixedValueFvPatchScalarField(wfpsf, iF),
+    cellIndexList_(patch().size())
 {
     checkType();
+    createCellIndexList();
 }
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void wallModelFvPatchScalarField::createCellIndexList()
+{
+    // Try to read h from dictionary
+   // if (dict_.found(word("h")))
+    //{
+    h_ = dict_.lookupOrDefault<scalar>("h", 0);
+    //}            
+    /*else
+    {
+        const tmp<vectorField> tdelta = patch().delta();
+        const vectorField delta = tdelta();
+        h_ = mag(delta);
+    }*/
+    
+   
+    const label size = patch().size();
+    
+    labelList testCellIndexList(size);
+        
+    const fvMesh & mesh = patch().boundaryMesh().mesh();
+    
+    const vectorField & faceCentres = patch().Cf();
+    const tmp<vectorField> tfaceNormals = patch().nf();
+    const vectorField faceNormals = tfaceNormals();
+    const tmp<vectorField> tcellCentres = patch().Cn();
+    const vectorField cellCentres = tcellCentres();
+
+    
+    //Info << faceNormals << endl;
+    //Info << faceCentres << endl;
+    //Info << cellCentres << endl;
+    
+    vector point;
+    for (label i=0; i<size; i++)
+    {
+      
+        point = faceCentres[i] - faceNormals[i]*h_[i];
+        Info << point << nl;
+        cellIndexList_[i] = mesh.findCell(point);
+        testCellIndexList[i] = mesh.findCell(cellCentres[i]);
+        
+        if (cellIndexList_[i] == -1)
+        {
+            FatalErrorIn
+            (
+            "void Foam::wallModelFvPatchScalarField::createCellIndexList()\n"
+            )   << "Failed to find sampling cell for face " << i
+                << " with face centre " << faceCentres[i] << abort(FatalError);     
+        }
+    }
+    
+    Info << cellIndexList_ << nl;
+    Info << testCellIndexList << nl;
+    
+}
 
 void wallModelFvPatchScalarField::updateCoeffs()
 {

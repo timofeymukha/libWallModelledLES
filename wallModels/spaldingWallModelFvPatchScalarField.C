@@ -160,6 +160,7 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTau
     const scalarField& magGradU
 ) const
 {
+
     const label patchi = patch().index();
 
     const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
@@ -171,9 +172,23 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTau
         )
     );
     const scalarField& y = turbModel.y()[patchi];
+    
+    const vectorField & U = turbModel.U().internalField();
 
     const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
     const scalarField magUp(mag(Uw.patchInternalField() - Uw));
+    
+    scalarField magUp2(patch().size());
+    
+    forAll(magUp2, i)
+    {
+        magUp2[i] = mag(U[cellIndexList_[i]] - Uw[i]);
+    }
+    
+    Info << magUp << nl;
+    Info << magUp2 << nl;
+    Info << "y " << y << nl;
+    Info << "h " << h_ << nl;
 
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
@@ -197,8 +212,8 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTau
 
         if (ut > ROOTVSMALL)
         {
-            value = std::bind(&LawOfTheWall::value, &law_(), magUp[faceI], y[faceI], _1, nuw[faceI]);
-            derivValue = std::bind(&LawOfTheWall::derivative, &law_(), magUp[faceI], y[faceI], _1, nuw[faceI]);
+            value = std::bind(&LawOfTheWall::value, &law_(), magUp2[faceI], h_[faceI], _1, nuw[faceI]);
+            derivValue = std::bind(&LawOfTheWall::derivative, &law_(), magUp2[faceI], h_[faceI], _1, nuw[faceI]);
             
        //     Info<< "Value " << value(ut)<<endl;
         //    Info<< "Derivative " << derivValue(ut)<<endl;
@@ -209,7 +224,7 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTau
         //    Info<< uTau[faceI] << endl;
         }
     }
-    
+        
     return tuTau;
 }
 

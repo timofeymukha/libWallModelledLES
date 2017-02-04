@@ -24,11 +24,12 @@ boundaryField
     bottomWall
     {
         type			spaldingWallModel;
+        h               0.3;
         value			uniform 0;
 
         RootFinder
         {
-            type    Bisection;
+            type    Newton;
             eps     0.001;
             maxIter 15;
             bracket 3;

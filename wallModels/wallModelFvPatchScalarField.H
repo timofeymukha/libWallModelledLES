@@ -59,6 +59,12 @@ protected:
     
         //- The dictionary defining the boundary condition
         dictionary dict_;
+        
+        labelList cellIndexList_;
+        
+        //- The distance from the wall that data is sampled from
+        scalarField h_;
+        
 
     // Protected Member Functions
 
@@ -122,6 +128,21 @@ public:
 
     // Member functions
 
+        //- Create list of cell-indices from where data is sampled
+        void createCellIndexList();
+        
+        //- Return the list of cell-indices that are used to sample data
+        labelList cellIndexList() const
+        {
+            return cellIndexList_;
+        }
+        
+        //- Return h
+        scalarField h() const
+        {
+            return h_;
+        }
+        
         // Evaluation functions
 
             //- Update the coefficients associated with the patch field
