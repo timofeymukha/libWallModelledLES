@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-spaldingWallModel
+LOTWWallModel
 
 Description
     Base abstract class for LES wall models.
@@ -33,14 +33,13 @@ Authors
  * 
 \*---------------------------------------------------------------------------*/
 
-#include "spaldingWallModelFvPatchScalarField.H"
+#include "LOTWWallModelFvPatchScalarField.H"
 #include "turbulenceModel.H"
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
 #include "SpaldingLawOfTheWall.H"
 #include "LawOfTheWall.H"
-#include "NewtonRootFinder.H"
 #include "dictionary.H"
 #include <functional>
 
@@ -55,7 +54,7 @@ namespace Foam
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
-tmp<scalarField> spaldingWallModelFvPatchScalarField::calcNut() const
+tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
 {
     const label patchi = patch().index();
 
@@ -84,7 +83,7 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcNut() const
     );
 }
 
-tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTauBench
+tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTauBench
 (
     const scalarField& magGradU
 ) const
@@ -155,7 +154,7 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTauBench
     return tuTau;
 }
 
-tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTau
+tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
 (
     const scalarField& magGradU
 ) const
@@ -176,19 +175,19 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTau
     const vectorField & U = turbModel.U().internalField();
 
     const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
-    const scalarField magUp(mag(Uw.patchInternalField() - Uw));
+    const scalarField magUp2(mag(Uw.patchInternalField() - Uw));
     
-    scalarField magUp2(patch().size());
+    scalarField magUp(patch().size());
     
-    forAll(magUp2, i)
+    forAll(magUp, i)
     {
-        magUp2[i] = mag(U[cellIndexList_[i]] - Uw[i]);
+        magUp[i] = mag(U[cellIndexList_[i]] - Uw[i]);
     }
     
-    Info << magUp << nl;
-    Info << magUp2 << nl;
-    Info << "y " << y << nl;
-    Info << "h " << h_ << nl;
+   // Info << magUp << nl;
+   // Info << magUp2 << nl;
+   // Info << "y " << y << nl;
+   // Info << "h " << h_ << nl;
 
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
@@ -207,21 +206,15 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTau
     forAll(uTau, faceI)
     {
         scalar ut = sqrt((nutw[faceI] + nuw[faceI])*magGradU[faceI]);
-      //  Info<< "Face " << faceI << " " << "Inital utau " << ut << endl;
-      //  Info<< "nut " << nutw[faceI] << " gradU " << magGradU[faceI] << endl; 
 
         if (ut > ROOTVSMALL)
         {
-            value = std::bind(&LawOfTheWall::value, &law_(), magUp2[faceI], h_[faceI], _1, nuw[faceI]);
+            value = std::bind(&LawOfTheWall::value, &law_(), magUp[faceI], h_[faceI], _1, nuw[faceI]);
             derivValue = std::bind(&LawOfTheWall::derivative, &law_(), magUp2[faceI], h_[faceI], _1, nuw[faceI]);
-            
-       //     Info<< "Value " << value(ut)<<endl;
-        //    Info<< "Derivative " << derivValue(ut)<<endl;
-            
+
             rootFinder->setFunction(value);
             rootFinder->setDerivative(derivValue);
             uTau[faceI] = max(0.0, rootFinder->root(ut));
-        //    Info<< uTau[faceI] << endl;
         }
     }
         
@@ -231,33 +224,31 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::calcUTau
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-spaldingWallModelFvPatchScalarField::
-spaldingWallModelFvPatchScalarField
+LOTWWallModelFvPatchScalarField::
+LOTWWallModelFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
     wallModelFvPatchScalarField(p, iF)
-    //rootFinder_(RootFinder::New("Newton", dummyf, dummyf, 0.01, 15)())
 {}
 
 
-spaldingWallModelFvPatchScalarField::
-spaldingWallModelFvPatchScalarField
+LOTWWallModelFvPatchScalarField::
+LOTWWallModelFvPatchScalarField
 (
-    const spaldingWallModelFvPatchScalarField& ptf,
+    const LOTWWallModelFvPatchScalarField& ptf,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
     wallModelFvPatchScalarField(ptf, p, iF, mapper)
-    //rootFinder_(RootFinder::New("Newton", dummyf, dummyf, 0.01, 15)())
 {}
 
-spaldingWallModelFvPatchScalarField::
-spaldingWallModelFvPatchScalarField
+LOTWWallModelFvPatchScalarField::
+LOTWWallModelFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
@@ -265,37 +256,34 @@ spaldingWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF, dict),
-    //rootFinder_(RootFinder::New(dummyf, dummyf, dict.subDict("rootFinder"))())
     law_(LawOfTheWall::New(dict.subDict("Law")))
 {}
 
 
-spaldingWallModelFvPatchScalarField::
-spaldingWallModelFvPatchScalarField
+LOTWWallModelFvPatchScalarField::
+LOTWWallModelFvPatchScalarField
 (
-    const spaldingWallModelFvPatchScalarField& wfpsf
+    const LOTWWallModelFvPatchScalarField& wfpsf
 )
 :
     wallModelFvPatchScalarField(wfpsf)
-    //rootFinder_(RootFinder::New("Newton", dummyf, dummyf, 0.01, 15)())
 {}
 
 
-spaldingWallModelFvPatchScalarField::
-spaldingWallModelFvPatchScalarField
+LOTWWallModelFvPatchScalarField::
+LOTWWallModelFvPatchScalarField
 (
-    const spaldingWallModelFvPatchScalarField& wfpsf,
+    const LOTWWallModelFvPatchScalarField& wfpsf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
     wallModelFvPatchScalarField(wfpsf, iF)
-    //rootFinder_(RootFinder::New("Newton", dummyf, dummyf, 0.01, 15)())
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-tmp<scalarField> spaldingWallModelFvPatchScalarField::yPlus() const
+tmp<scalarField> LOTWWallModelFvPatchScalarField::yPlus() const
 {
     const label patchi = patch().index();
 
@@ -316,7 +304,7 @@ tmp<scalarField> spaldingWallModelFvPatchScalarField::yPlus() const
 }
 
 
-void spaldingWallModelFvPatchScalarField::write(Ostream& os) const
+void LOTWWallModelFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
     writeLocalEntries(os);
@@ -329,7 +317,7 @@ void spaldingWallModelFvPatchScalarField::write(Ostream& os) const
 makePatchTypeField
 (
     fvPatchScalarField,
-    spaldingWallModelFvPatchScalarField
+    LOTWWallModelFvPatchScalarField
 );
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

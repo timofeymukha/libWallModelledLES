@@ -189,7 +189,7 @@ void wallModelFvPatchScalarField::createCellIndexList()
     {
       
         point = faceCentres[i] - faceNormals[i]*h_[i];
-        Info << point << nl;
+   //     Info << point << nl;
         cellIndexList_[i] = mesh.findCell(point);
         testCellIndexList[i] = mesh.findCell(cellCentres[i]);
         
@@ -203,8 +203,8 @@ void wallModelFvPatchScalarField::createCellIndexList()
         }
     }
     
-    Info << cellIndexList_ << nl;
-    Info << testCellIndexList << nl;
+    //Info << cellIndexList_ << nl;
+   // Info << testCellIndexList << nl;
     
 }
 

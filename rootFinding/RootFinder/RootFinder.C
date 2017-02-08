@@ -91,7 +91,6 @@ autoPtr<RootFinder> RootFinder::New
 {
     word rootFinderName = dict.lookup("type");
 
-    Info << rootFinderName;
     DictionaryConstructorTable::iterator cstrIter =
     DictionaryConstructorTablePtr_->find(rootFinderName);
 

@@ -22,21 +22,21 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-spaldingWallModel
+LOTWWallModel
 
 Description
-    Class for the wall model based on Spalding's law of the wall.
+    Class for the wall models based on a Law of The Wall.
 
 Authors
     Timofey Mukha.  All rights reserved.
 
 SourceFiles
-    spaldingWallModelFvPatchScalarField.C
+    LOTWWallModelFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef spaldingWallModelFvPatchScalarField_H
-#define spaldingWallModelFvPatchScalarField_H
+#ifndef LOTWWallModelFvPatchScalarField_H
+#define LOTWWallModelFvPatchScalarField_H
 
 #include "wallModelFvPatchScalarField.H"
 #include "LawOfTheWall.H"
@@ -48,10 +48,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-          Class spaldingWallModelPatchScalarField Declaration
+          Class LOTWWallModelPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class spaldingWallModelFvPatchScalarField
+class LOTWWallModelFvPatchScalarField
 :
     public wallModelFvPatchScalarField
 {
@@ -78,20 +78,20 @@ protected:
 public:
 
     //- Runtime type information
-    TypeName("spaldingWallModel");
+    TypeName("LOTWWallModel");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        spaldingWallModelFvPatchScalarField
+        LOTWWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        spaldingWallModelFvPatchScalarField
+        LOTWWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
@@ -99,20 +99,20 @@ public:
         );
 
         //- Construct by mapping given
-        //  spaldingWallModelFvPatchScalarField
+        //  LOTWWallModelFvPatchScalarField
         //  onto a new patch
-        spaldingWallModelFvPatchScalarField
+        LOTWWallModelFvPatchScalarField
         (
-            const spaldingWallModelFvPatchScalarField&,
+            const LOTWWallModelFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct as copy
-        spaldingWallModelFvPatchScalarField
+        LOTWWallModelFvPatchScalarField
         (
-            const spaldingWallModelFvPatchScalarField&
+            const LOTWWallModelFvPatchScalarField&
         );
 
         //- Construct and return a clone
@@ -120,14 +120,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new spaldingWallModelFvPatchScalarField(*this)
+                new LOTWWallModelFvPatchScalarField(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        spaldingWallModelFvPatchScalarField
+        LOTWWallModelFvPatchScalarField
         (
-            const spaldingWallModelFvPatchScalarField&,
+            const LOTWWallModelFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -139,7 +139,7 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new spaldingWallModelFvPatchScalarField(*this, iF)
+                new LOTWWallModelFvPatchScalarField(*this, iF)
             );
         }
 

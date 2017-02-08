@@ -23,23 +23,23 @@ boundaryField
 {
     bottomWall
     {
-        type			spaldingWallModel;
+        type			LOTWWallModel;
         h               0.3;
         value			uniform 0;
 
         RootFinder
         {
             type    Newton;
-            eps     0.001;
-            maxIter 15;
-            bracket 3;
+            eps     0.0001;
+            maxIter 45;
         }
 
         Law
         {
-            type    Spalding;
+            //type    Spalding;
+            type    WernerWengle;
             kappa   0.4;
-            B       5.5;
+            //B       5.5;
         }
     }
     topWall

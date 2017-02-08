@@ -96,8 +96,6 @@ Foam::scalar Foam::NewtonRootFinder::root
         )   << "Jacobian equal to zero.  f'(xN) = " << d_(guess)
             << abort(FatalError); }
 
-
-    //Info<< "Newton initial" << guess << endl;
     for (label nIter = 0; nIter < maxIter_; ++nIter)
     {
         scalar f = this->f_(guess);
@@ -107,13 +105,10 @@ Foam::scalar Foam::NewtonRootFinder::root
 
         if (mag(xNew - guess)/mag(guess) <= this->eps_)
         {
-      //      Info<< "Newton guess" << guess << " " << nIter << endl;
-      //      Info<< "Newton new" << xNew << " " << nIter << endl;
             return xNew;
         }
         
         guess = xNew;
-       // Info<< guess << endl;
     }
     
     WarningIn("Foam::NewtonRootFinder::root()")
