@@ -83,8 +83,10 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    cellIndexList_(patch().size())
+    cellIndexList_(patch().size()),
+    h_(patch().size())
 {
+    //Info << "From patch and field" << nl;
     checkType();
     createCellIndexList();
 }
@@ -99,8 +101,10 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
-    cellIndexList_(patch().size())
+    cellIndexList_(patch().size()),
+    h_(patch().size())
 {
+    //Info << "From patchField, patch, field and mapper" << nl;
     checkType();
     createCellIndexList();
 }
@@ -118,6 +122,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     cellIndexList_(patch().size()),
     h_(patch().size())
 {
+    //Info << "From patch, field and dict" << nl;
     checkType();
     createCellIndexList();
 }
@@ -129,8 +134,10 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wfpsf),
-    cellIndexList_(patch().size())
+    cellIndexList_(patch().size()),
+    h_(patch().size())
 {
+    //Info << "From patchField" << nl;
     checkType();
     createCellIndexList();
 }
@@ -143,8 +150,10 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wfpsf, iF),
-    cellIndexList_(patch().size())
+    cellIndexList_(patch().size()),
+    h_(patch().size())
 {
+    //Info << "From patchField and field" << nl;
     checkType();
     createCellIndexList();
 }
@@ -154,6 +163,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
 void wallModelFvPatchScalarField::createCellIndexList()
 {
+    Info<<"Building sample cell index list for patch " << patch().name() << nl;
     // Try to read h from dictionary
    // if (dict_.found(word("h")))
     //{
@@ -185,11 +195,11 @@ void wallModelFvPatchScalarField::createCellIndexList()
     //Info << cellCentres << endl;
     
     vector point;
-    for (label i=0; i<size; i++)
+    forAll(faceCentres, i)
     {
       
         point = faceCentres[i] - faceNormals[i]*h_[i];
-   //     Info << point << nl;
+        //Info << point << nl;
         cellIndexList_[i] = mesh.findCell(point);
         testCellIndexList[i] = mesh.findCell(cellCentres[i]);
         
@@ -223,7 +233,10 @@ void wallModelFvPatchScalarField::updateCoeffs()
 
 void wallModelFvPatchScalarField::write(Ostream& os) const
 {
+    Info << "writing" << nl;
     fvPatchField<scalar>::write(os);
+    Info << dict_ << nl;
+    dict_.write(os);
     writeEntry("value", os);
 }
 
