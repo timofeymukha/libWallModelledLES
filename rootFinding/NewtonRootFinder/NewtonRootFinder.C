@@ -85,13 +85,15 @@ Foam::scalar Foam::NewtonRootFinder::root
 ) const
 {
     scalar guess = x0;
+    scalar error = 0;
+
     if (0 == d_(guess))
     {
         FatalErrorIn
         (
             "Foam::scalar Foam::NewtonRoot::root\n"
             "(\n"
-            "    scalar xOld,\n"
+            "    scalar x0,\n"
             ") const"
         )   << "Jacobian equal to zero.  f'(xN) = " << d_(guess)
             << abort(FatalError); }
@@ -102,14 +104,17 @@ Foam::scalar Foam::NewtonRootFinder::root
         scalar d = this->d_(guess);
 
         scalar xNew = guess - f/d;
-
-        if (mag(xNew - guess)/mag(guess) <= this->eps_)
+        
+        error = mag(xNew - guess)/mag(guess);
+        if (error <= this->eps_)
         {
             return xNew;
         }
         
         guess = xNew;
     }
+
+    //Info<< "error " << error   << nl;
     
     WarningIn("Foam::NewtonRootFinder::root()")
         << "The method did not converge to desired tolerance." << nl;
