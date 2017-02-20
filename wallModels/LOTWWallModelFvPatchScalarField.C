@@ -307,8 +307,8 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::yPlus() const
 void LOTWWallModelFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
+    wallModelFvPatchScalarField::write(os);
     writeLocalEntries(os);
-    writeEntry("value", os);
 }
 
 
