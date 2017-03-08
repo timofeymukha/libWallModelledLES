@@ -101,12 +101,14 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
+    dict_(ptf.dict_),
     cellIndexList_(patch().size()),
     h_(patch().size())
 {
     //Info << "From patchField, patch, field and mapper" << nl;
     checkType();
     createCellIndexList();
+    
 }
 
 
@@ -134,6 +136,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wfpsf),
+    dict_(wfpsf.dict_),
     cellIndexList_(patch().size()),
     h_(patch().size())
 {

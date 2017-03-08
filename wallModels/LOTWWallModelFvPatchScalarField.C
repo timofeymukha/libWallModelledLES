@@ -40,6 +40,7 @@ Authors
 #include "addToRunTimeSelectionTable.H"
 #include "SpaldingLawOfTheWall.H"
 #include "LawOfTheWall.H"
+#include "RootFinder.H"
 #include "dictionary.H"
 #include <functional>
 
@@ -244,7 +245,8 @@ LOTWWallModelFvPatchScalarField
     const fvPatchFieldMapper& mapper
 )
 :
-    wallModelFvPatchScalarField(ptf, p, iF, mapper)
+    wallModelFvPatchScalarField(ptf, p, iF, mapper),
+    rootFinder_(ptf.rootFinder_)
 {}
 
 LOTWWallModelFvPatchScalarField::
@@ -256,6 +258,7 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF, dict),
+    rootFinder_(RootFinder::New(dict.subDict("RootFinder"))),
     law_(LawOfTheWall::New(dict.subDict("Law")))
 {}
 
