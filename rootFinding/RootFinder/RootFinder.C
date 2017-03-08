@@ -49,7 +49,13 @@ namespace Foam
     defineTypeNameAndDebug(RootFinder, 0);
     defineRunTimeSelectionTable(RootFinder, Word);
     defineRunTimeSelectionTable(RootFinder, Dictionary);
+    defineRunTimeSelectionTable(RootFinder, DictionaryOnly);
 
+// Dummy function to initialize the root finders
+scalar rootFinderDummy(scalar)
+{
+    return 0;
+}   
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
 
@@ -70,7 +76,7 @@ autoPtr<RootFinder> RootFinder::New
         FatalErrorIn
         (
             "RootFinder::New(const word&, std::function<scalar(scalar)> f,"
-                "std::function<scalar(scalar)> d, const scalar eps"
+                "std::function<scalar(scalar)> d, const scalar eps,"
                 "const label maxIter)"
         ) << "Unknown RootFinder type "
         << rootFinderName << nl << nl
@@ -108,6 +114,31 @@ autoPtr<RootFinder> RootFinder::New
     }
 
     return cstrIter()(f, d, dict);
+}
+
+autoPtr<RootFinder> RootFinder::New 
+(
+    const dictionary & dict
+)
+{
+    word rootFinderName = dict.lookup("type");
+
+    DictionaryOnlyConstructorTable::iterator cstrIter =
+    DictionaryOnlyConstructorTablePtr_->find(rootFinderName);
+
+    if (cstrIter == DictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorIn
+        (
+            "RootFinder::New(const dictionary & dict)"
+        ) << "Unknown RootFinder type "
+        << rootFinderName << nl << nl
+        << "Valid RootFinder types are :" << endl
+        << DictionaryConstructorTablePtr_->sortedToc()
+        << exit(FatalError);
+    }
+
+    return cstrIter()(dict);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

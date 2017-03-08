@@ -33,6 +33,7 @@ Author
 \*---------------------------------------------------------------------------*/
 
 #include "NewtonRootFinder.H"
+#include "RootFinder.H"
 #include "word.H"
 #include "error.H"
 #include "typeInfo.H"
@@ -48,6 +49,7 @@ namespace Foam
     defineTypeNameAndDebug(NewtonRootFinder, 0);
     addToRunTimeSelectionTable(RootFinder, NewtonRootFinder, Word);
     addToRunTimeSelectionTable(RootFinder, NewtonRootFinder, Dictionary);
+    addToRunTimeSelectionTable(RootFinder, NewtonRootFinder, DictionaryOnly);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -76,6 +78,14 @@ Foam::NewtonRootFinder::NewtonRootFinder
     d_(d)
 {}
 
+Foam::NewtonRootFinder::NewtonRootFinder
+(
+    const dictionary & dict
+)
+:
+    RootFinder(dict),
+    d_(rootFinderDummy)
+{}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

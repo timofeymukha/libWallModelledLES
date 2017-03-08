@@ -48,10 +48,15 @@ Author
 namespace Foam
 {
 
+// Dummy function to initialize the root finder
+scalar rootFinderDummy(scalar);
+
+
 /*---------------------------------------------------------------------------*\
                       Class RootFinder Declaration
 \*---------------------------------------------------------------------------*/
 
+    
 class RootFinder
 {
 
@@ -99,6 +104,17 @@ public:
         eps_(dict.lookupOrDefault<scalar>("eps", 1e-2)),
         maxIter_(dict.lookupOrDefault<label>("maxIter", 15))
         {};
+        
+        RootFinder 
+        (        
+            const dictionary& dict
+        )
+        :
+        f_(rootFinderDummy),
+        eps_(dict.lookupOrDefault<scalar>("eps", 1e-2)),
+        maxIter_(dict.lookupOrDefault<label>("maxIter", 15))
+        {};
+
 
     // Destructor
         virtual ~RootFinder() {};
@@ -132,6 +148,18 @@ public:
         ),
         (f, d, dict)
     )
+    
+    // RTS table "DictionaryOnly"    
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        RootFinder,
+        DictionaryOnly,
+        (
+            const dictionary & dict
+        ),
+        (dict)
+    )
         
     // Selectors
     static autoPtr<RootFinder> New 
@@ -149,6 +177,11 @@ public:
         std::function<scalar(scalar)> d,
         const dictionary & dict
     );
+    
+    static autoPtr<RootFinder> New 
+    (
+        const dictionary & dict
+    );
    
     // Member Functions
 
@@ -163,6 +196,7 @@ public:
         
         //- Set the implicit function defining the derivative
         virtual void setDerivative(std::function<scalar(scalar)> d){}
+        
 
 };
 

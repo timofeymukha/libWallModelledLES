@@ -82,6 +82,12 @@ public:
             std::function<scalar(scalar)> d,
             const dictionary & dict
         );
+        
+        //- Construct given  dictionary
+        NewtonRootFinder
+        (
+            const dictionary & dict
+        );
 
         
     // Destructor - default

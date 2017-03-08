@@ -47,6 +47,7 @@ namespace Foam
     defineTypeNameAndDebug(BisectionRootFinder, 0);
     addToRunTimeSelectionTable(RootFinder, BisectionRootFinder, Word);
     addToRunTimeSelectionTable(RootFinder, BisectionRootFinder, Dictionary);
+    addToRunTimeSelectionTable(RootFinder, BisectionRootFinder, DictionaryOnly);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -74,6 +75,16 @@ Foam::BisectionRootFinder::BisectionRootFinder
     RootFinder(f, d, dict),
     bracket_(dict.lookupOrDefault<scalar>("bracket", 3.0))
 {}
+
+Foam::BisectionRootFinder::BisectionRootFinder
+(
+            const dictionary & dict
+)
+:
+    RootFinder(dict),
+    bracket_(dict.lookupOrDefault<scalar>("bracket", 3.0))
+{}
+
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

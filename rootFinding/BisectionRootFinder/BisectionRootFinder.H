@@ -83,6 +83,12 @@ public:
             const dictionary & dict
         );
         
+        //- Construct given dict
+        BisectionRootFinder
+        (
+            const dictionary & dict
+        );
+        
     // Destructor - default
         virtual ~BisectionRootFinder(){};
 
