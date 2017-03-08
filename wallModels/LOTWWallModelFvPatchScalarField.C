@@ -171,7 +171,7 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
             dimensionedInternalField().group()
         )
     );
-    const scalarField& y = turbModel.y()[patchi];
+    //const scalarField& y = turbModel.y()[patchi];
     
     const vectorField & U = turbModel.U().internalField();
 
@@ -201,8 +201,8 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
     std::function<scalar(scalar)> value;
     std::function<scalar(scalar)> derivValue;
         
-    dictionary rootFinderDict = dict_.subDict("RootFinder");
-    autoPtr<RootFinder> rootFinder = RootFinder::New(dummyf, dummyf, rootFinderDict);
+    //dictionary rootFinderDict = dict_.subDict("RootFinder");
+    //autoPtr<RootFinder> rootFinder = RootFinder::New(dummyf, dummyf, rootFinderDict);
     
     forAll(uTau, faceI)
     {
@@ -213,9 +213,9 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
             value = std::bind(&LawOfTheWall::value, &law_(), magUp[faceI], h_[faceI], _1, nuw[faceI]);
             derivValue = std::bind(&LawOfTheWall::derivative, &law_(), magUp2[faceI], h_[faceI], _1, nuw[faceI]);
 
-            rootFinder->setFunction(value);
-            rootFinder->setDerivative(derivValue);
-            uTau[faceI] = max(0.0, rootFinder->root(ut));
+            const_cast<RootFinder &>(rootFinder_()).setFunction(value);
+            const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
+            uTau[faceI] = max(0.0, rootFinder_->root(ut));
         }
     }
         
@@ -246,7 +246,8 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
-    rootFinder_(ptf.rootFinder_)
+    rootFinder_(ptf.rootFinder_),
+    law_(ptf.law_)
 {}
 
 LOTWWallModelFvPatchScalarField::
@@ -269,7 +270,9 @@ LOTWWallModelFvPatchScalarField
     const LOTWWallModelFvPatchScalarField& wfpsf
 )
 :
-    wallModelFvPatchScalarField(wfpsf)
+    wallModelFvPatchScalarField(wfpsf),
+    rootFinder_(wfpsf.rootFinder_),
+    law_(wfpsf.law_)
 {}
 
 
@@ -280,7 +283,9 @@ LOTWWallModelFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    wallModelFvPatchScalarField(wfpsf, iF)
+    wallModelFvPatchScalarField(wfpsf, iF),
+    rootFinder_(wfpsf.rootFinder_),
+    law_(wfpsf.law_)
 {}
 
 

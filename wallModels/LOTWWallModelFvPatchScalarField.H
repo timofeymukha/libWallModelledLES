@@ -58,7 +58,7 @@ class LOTWWallModelFvPatchScalarField
 protected:
     
     // Protected Data
-        autoPtr<RootFinder> & rootFinder_;
+        autoPtr<RootFinder>  rootFinder_;
     
         //- The "law of the wall" to be used
         autoPtr<LawOfTheWall> law_;
