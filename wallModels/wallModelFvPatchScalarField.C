@@ -167,17 +167,6 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 void wallModelFvPatchScalarField::createCellIndexList()
 {
     Info<<"Building sample cell index list for patch " << patch().name() << nl;
-    // Try to read h from dictionary
-   // if (dict_.found(word("h")))
-    //{
-    //}            
-    /*else
-    {
-        const tmp<vectorField> tdelta = patch().delta();
-        const vectorField delta = tdelta();
-        h_ = mag(delta);
-    }*/
-    
    
     const label size = patch().size();
     
@@ -199,6 +188,10 @@ void wallModelFvPatchScalarField::createCellIndexList()
     vector point;
     forAll(faceCentres, i)
     {
+        if (h_[i] == 0)
+        {
+            h_[i] = mag(cellCentres[i] - faceCentres[i]);
+        }
       
         point = faceCentres[i] - faceNormals[i]*h_[i];
         //Info << point << nl;
@@ -215,7 +208,7 @@ void wallModelFvPatchScalarField::createCellIndexList()
         }
     }
     
-    //Info << cellIndexList_ << nl;
+  //  Info << cellIndexList_ << nl;
    // Info << testCellIndexList << nl;
     
 }
