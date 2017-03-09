@@ -71,8 +71,11 @@ autoPtr<LawOfTheWall> LawOfTheWall::New
         << DictionaryConstructorTablePtr_->sortedToc()
         << exit(FatalError);
     }
+    
+    dictionary temp(dict);
+    temp.remove("type");
 
-    return cstrIter()(dict);  
+    return cstrIter()(temp);  
 }
  
 autoPtr<LawOfTheWall> LawOfTheWall::New 
@@ -113,13 +116,11 @@ void LawOfTheWall::write(Ostream & os) const
 
     for (int i=0; i<dictSize; i++)
     {
-        os.writeKeyword(keys[i]) <<  constDict_[keys[i]][0]<< token::END_STATEMENT  << endl;
+        os.writeKeyword(keys[i]) << constDict_[keys[i]][0] 
+                                 << token::END_STATEMENT  << endl;
     }
-    if (!constDict_.found("type"))
-    {
-        os.writeKeyword("type") << type() << token::END_STATEMENT << endl;
-        
-    }
+   
+    os.writeKeyword("type") << type() << token::END_STATEMENT << endl;
     os.writeKeyword("}") << endl;
 }
 
