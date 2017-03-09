@@ -54,39 +54,6 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::NewtonRootFinder::NewtonRootFinder
-(
-    const word & rootFinderName, 
-    std::function<scalar(scalar)> f,
-    std::function<scalar(scalar)> d,
-    const scalar eps,
-    const label maxIter
-)
-:
-    RootFinder(rootFinderName, f, d, eps, maxIter),
-    d_(d)
-{}
-
-Foam::NewtonRootFinder::NewtonRootFinder
-(
-    std::function<scalar(scalar)> f,
-    std::function<scalar(scalar)> d,
-    const dictionary & dict
-)
-:
-    RootFinder(f, d, dict),
-    d_(d)
-{}
-
-Foam::NewtonRootFinder::NewtonRootFinder
-(
-    const dictionary & dict
-)
-:
-    RootFinder(dict),
-    d_(rootFinderDummy)
-{}
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::scalar Foam::NewtonRootFinder::root
@@ -131,6 +98,5 @@ Foam::scalar Foam::NewtonRootFinder::root
 
     return guess;
 }
-
 
 // ************************************************************************* //

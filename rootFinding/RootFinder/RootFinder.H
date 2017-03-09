@@ -65,6 +65,9 @@ protected:
     //- Pointer to the function
     std::function<scalar(scalar)> f_;
     
+    //- Pointer to the derivative
+    std::function<scalar(scalar)> d_;
+    
      //- Tolerance
     const scalar eps_;
         
@@ -89,10 +92,11 @@ public:
         )
         :
         f_(f),
+        d_(d),
         eps_(eps),
         maxIter_(maxIter)
         {};
-        
+             
         RootFinder 
         (        
             std::function<scalar(scalar)> f,
@@ -101,6 +105,7 @@ public:
         )
         :
         f_(f),
+        d_(d),
         eps_(dict.lookupOrDefault<scalar>("eps", 1e-2)),
         maxIter_(dict.lookupOrDefault<label>("maxIter", 15))
         {};
@@ -111,6 +116,7 @@ public:
         )
         :
         f_(rootFinderDummy),
+        d_(rootFinderDummy),
         eps_(dict.lookupOrDefault<scalar>("eps", 1e-2)),
         maxIter_(dict.lookupOrDefault<label>("maxIter", 15))
         {};
@@ -160,7 +166,8 @@ public:
         ),
         (dict)
     )
-        
+    
+      
     // Selectors
     static autoPtr<RootFinder> New 
     (
@@ -186,7 +193,7 @@ public:
     // Member Functions
 
         //- Return root
-        virtual scalar root(scalar guess) const = 0;
+        virtual scalar root(scalar) const = 0;
         
         //- Set the implicit function defining the equation
         void setFunction(std::function<scalar(scalar)> f)
@@ -195,8 +202,35 @@ public:
         }
         
         //- Set the implicit function defining the derivative
-        virtual void setDerivative(std::function<scalar(scalar)> d){}
+        virtual void setDerivative(std::function<scalar(scalar)> d)
+        {
+            d_ = d;
+        }
         
+        //- Get eps_
+        scalar eps() const
+        {
+            return eps_;
+        }
+                
+        //- Get maxIter_
+        label maxIter() const
+        {
+            return maxIter_;
+        }
+        
+        std::function<scalar(scalar)> f() const
+        {
+            return f_;
+        }
+        
+        std::function<scalar(scalar)> d() const
+        {
+            return d_;
+        }
+        
+        virtual void write(Ostream& os) const;
+
 
 };
 

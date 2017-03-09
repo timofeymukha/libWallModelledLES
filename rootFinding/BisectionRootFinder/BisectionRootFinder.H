@@ -103,6 +103,14 @@ public:
         //- Return root
         scalar root(scalar x0) const;
         
+        
+        virtual void write(Ostream& os) const
+        {
+            RootFinder::write(os);
+            os.writeKeyword("bracket") << bracket_ << token::END_STATEMENT << endl;
+            os.writeKeyword("}") << endl;
+        }
+        
 };
 
 

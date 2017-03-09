@@ -141,6 +141,18 @@ autoPtr<RootFinder> RootFinder::New
     return cstrIter()(dict);
 }
 
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void RootFinder::write(Ostream & os) const
+{
+    os.writeKeyword("RootFinder") << endl;
+    os.writeKeyword("{") << endl;
+    os.writeKeyword("type") << type() << token::END_STATEMENT << endl;
+    os.writeKeyword("eps") << eps_ << token::END_STATEMENT << endl;
+    os.writeKeyword("maxIter") << maxIter_ << token::END_STATEMENT << endl;
+    
+}
+    
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam

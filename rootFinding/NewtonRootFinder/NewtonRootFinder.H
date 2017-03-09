@@ -54,10 +54,6 @@ namespace Foam
 
 class NewtonRootFinder : public RootFinder
 {
-    // Private data
-
-        //- Pointer to the derivative
-        std::function<scalar(scalar)> d_;
 
 public:
 
@@ -73,7 +69,10 @@ public:
             std::function<scalar(scalar)> d,
             const scalar eps,
             const label maxIter
-        );
+        )
+        :
+        RootFinder(rootFinderName, f, d, eps, maxIter)
+        {}
         
         //- Construct given a function, its derivative, and dictionary
         NewtonRootFinder
@@ -81,14 +80,21 @@ public:
             std::function<scalar(scalar)> f,
             std::function<scalar(scalar)> d,
             const dictionary & dict
-        );
+        )
+        :
+        RootFinder(f, d, dict)
+        {}         
+        
         
         //- Construct given  dictionary
         NewtonRootFinder
         (
             const dictionary & dict
-        );
-
+        )
+        :
+        RootFinder(dict)
+        {}         
+       
         
     // Destructor - default
         virtual ~NewtonRootFinder(){};
@@ -98,12 +104,14 @@ public:
         //- Return root
         scalar root(scalar x0) const;
         
-        //- Set the implicit function defining the derivative
-        virtual void setDerivative(std::function<scalar(scalar)> d)
+        virtual void write(Ostream& os) const
         {
-            d_ = d;
+            RootFinder::write(os);
+            os.writeKeyword("}") << endl;
         }
+
 };
+       
 
 
 
