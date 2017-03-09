@@ -41,20 +41,20 @@ namespace Foam
 {
     defineTypeNameAndDebug(SpaldingLawOfTheWall, 0);
     addToRunTimeSelectionTable(LawOfTheWall, SpaldingLawOfTheWall, Dictionary);
-
+    addToRunTimeSelectionTable(LawOfTheWall, SpaldingLawOfTheWall, TypeAndDictionary);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall()
+/*Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall()
 :
     kappa_(0.4),
     B_(5.5)
 {
     printCoeffs();
-}
+}*/
 
 
-Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
+/*Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
     scalar kappa,
     scalar B
@@ -64,11 +64,24 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
     B_(B)
 {
     printCoeffs();
-}
+}*/
 
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
     const Foam::dictionary & dict
+)
+:
+    LawOfTheWall(dict),
+    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
+    B_(dict.lookupOrDefault<scalar>("B", 5.5))
+{
+    printCoeffs();
+}
+
+Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
+(
+    const word & lawName,
+    const dictionary & dict
 )
 :
     LawOfTheWall(dict),

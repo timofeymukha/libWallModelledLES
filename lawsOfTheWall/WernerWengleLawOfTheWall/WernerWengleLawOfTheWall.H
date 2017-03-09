@@ -69,13 +69,15 @@ public:
 
     // Constructors
         //- Construct with default values
-        WernerWengleLawOfTheWall();
+    //    WernerWengleLawOfTheWall();
     
         //- Construct provided kappa, B and viscosity
-        WernerWengleLawOfTheWall(scalar A, scalar B);
+      //  WernerWengleLawOfTheWall(scalar A, scalar B);
         
         //- Construct provided dictionary
         WernerWengleLawOfTheWall(const dictionary &);
+        
+        WernerWengleLawOfTheWall(const word &, const dictionary &);
 
     // Destructor
         virtual ~WernerWengleLawOfTheWall() {};

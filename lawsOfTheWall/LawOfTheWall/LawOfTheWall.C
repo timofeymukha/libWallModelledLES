@@ -46,8 +46,10 @@ namespace Foam
 {
     defineTypeNameAndDebug(LawOfTheWall, 0);
     defineRunTimeSelectionTable(LawOfTheWall, Dictionary);
+    defineRunTimeSelectionTable(LawOfTheWall, TypeAndDictionary);
     
-
+// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
+    
 autoPtr<LawOfTheWall> LawOfTheWall::New 
 (
     const dictionary & dict
@@ -72,7 +74,54 @@ autoPtr<LawOfTheWall> LawOfTheWall::New
 
     return cstrIter()(dict);  
 }
+ 
+autoPtr<LawOfTheWall> LawOfTheWall::New 
+(
+    const word & lawName,
+    const dictionary & dict
+)
+{
+    
+    TypeAndDictionaryConstructorTable::iterator cstrIter =
+    TypeAndDictionaryConstructorTablePtr_->find(lawName);
+
+    if (cstrIter == TypeAndDictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorIn
+        (
+            "LawOfTheWall::New(const word & lawName, const dictionary&)"
+        ) << "Unknown LawOfTheWall type "
+        << lawName << nl << nl
+        << "Valid LawOfTheWall types are :" << endl
+        << TypeAndDictionaryConstructorTablePtr_->sortedToc()
+        << exit(FatalError);
+    }
+
+    return cstrIter()(lawName, dict);  
+}
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void LawOfTheWall::write(Ostream & os) const
+{
+    
+    auto keys = constDict_.keys();
+    label dictSize = constDict_.keys().size();
+    
+    os.writeKeyword("Law") << endl;
+    os.writeKeyword("{") << endl;
+
+    for (int i=0; i<dictSize; i++)
+    {
+        os.writeKeyword(keys[i]) <<  constDict_[keys[i]][0]<< token::END_STATEMENT  << endl;
+    }
+    if (!constDict_.found("type"))
+    {
+        os.writeKeyword("type") << type() << token::END_STATEMENT << endl;
         
+    }
+    os.writeKeyword("}") << endl;
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

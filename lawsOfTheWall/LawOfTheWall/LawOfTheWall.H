@@ -56,15 +56,25 @@ namespace Foam
 
 class LawOfTheWall
 {
+protected:
+    
+    dictionary constDict_;
 
 public:
 
     TypeName("LawOfTheWall");
     
     // Constructors
-        LawOfTheWall() {}
     
-        LawOfTheWall(const dictionary &) {}
+        LawOfTheWall(const dictionary & dict)
+        :
+        constDict_(dict)
+        {}
+        
+        LawOfTheWall(const word& lawName, const dictionary & dict)
+        :
+        constDict_(dict)
+        {}
 
     // Destructor
         virtual ~LawOfTheWall() {}
@@ -80,11 +90,31 @@ public:
             const dictionary & dict
         ),
         (dict)
-    )    
+    )
+
+    // RTS table "TypeAndDictionary"    
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        LawOfTheWall,
+        TypeAndDictionary,
+        (
+            const word & lawName,
+            const dictionary & dict
+        ),
+        (lawName, dict)
+    )  
+    
     
     // Selectors
     static autoPtr<LawOfTheWall> New 
     (
+        const dictionary & dict
+    );
+    
+    static autoPtr<LawOfTheWall> New 
+    (
+        const word & lawName,
         const dictionary & dict
     );
         
@@ -97,6 +127,13 @@ public:
         virtual scalar value(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
 
         virtual scalar derivative(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
+        
+        virtual void write(Ostream & os) const; 
+        
+        dictionary constDict() const
+        {
+            return constDict_;
+        }
 
 };
 

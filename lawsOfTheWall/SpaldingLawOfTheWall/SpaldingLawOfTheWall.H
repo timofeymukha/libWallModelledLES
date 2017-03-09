@@ -69,13 +69,16 @@ public:
 
     // Constructors
         //- Construct with default values
-        SpaldingLawOfTheWall();
+    //    SpaldingLawOfTheWall();
     
         //- Construct provided kappa, B and viscosity
-        SpaldingLawOfTheWall(scalar kappa, scalar B);
+    //    SpaldingLawOfTheWall(scalar kappa, scalar B);
         
         //- Construct provided dictionary
         SpaldingLawOfTheWall(const dictionary &);
+        
+        //- Construct provided name and dictionary
+        SpaldingLawOfTheWall(const word & lawname, const dictionary &);
 
     // Destructor
         virtual ~SpaldingLawOfTheWall() {};

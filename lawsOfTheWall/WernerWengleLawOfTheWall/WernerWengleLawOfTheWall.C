@@ -41,20 +41,21 @@ namespace Foam
 {
     defineTypeNameAndDebug(WernerWengleLawOfTheWall, 0);
     addToRunTimeSelectionTable(LawOfTheWall, WernerWengleLawOfTheWall, Dictionary);
+    addToRunTimeSelectionTable(LawOfTheWall, WernerWengleLawOfTheWall, TypeAndDictionary);
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall()
+/*Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall()
 :
     A_(8.3),
     B_(1./7)
 {
     printCoeffs();
-}
+}*/
 
 
-Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
+/*Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
     scalar A,
     scalar B
@@ -64,11 +65,24 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
     B_(B)
 {
     printCoeffs();
+}*/
+
+Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
+(
+    const dictionary & dict
+)
+:
+    LawOfTheWall(dict),
+    A_(dict.lookupOrDefault<scalar>("A", 8.3)),
+    B_(dict.lookupOrDefault<scalar>("B", 1./7))
+{
+    printCoeffs();
 }
 
 Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
-    const Foam::dictionary & dict
+    const word & lawName,
+    const dictionary & dict
 )
 :
     LawOfTheWall(dict),
