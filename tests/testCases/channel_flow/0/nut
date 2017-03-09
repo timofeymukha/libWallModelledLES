@@ -24,21 +24,21 @@ boundaryField
     bottomWall
     {
         type			LOTWWallModel;
-        h               0.3;
-        value			uniform 0;
+        h               0.0;
+        value			uniform 1;
 
         RootFinder
         {
             type    Newton;
-            eps     0.0001;
-            maxIter 45;
+            eps     0.01;
+            maxIter 10;
         }
 
         Law
         {
-            //type    Spalding;
-            type    WernerWengle;
-            kappa   0.4;
+            type    Spalding;
+            //type    WernerWengle;
+            //kappa   0.4;
             //B       5.5;
         }
     }

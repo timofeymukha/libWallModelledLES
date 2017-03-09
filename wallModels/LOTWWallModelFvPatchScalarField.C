@@ -61,6 +61,7 @@ void LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
     
 tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
 {
+    Info << "Updating nut" << endl;
     const label patchi = patch().index();
 
     const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>

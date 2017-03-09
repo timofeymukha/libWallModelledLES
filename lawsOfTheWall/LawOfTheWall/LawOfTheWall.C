@@ -113,14 +113,14 @@ void LawOfTheWall::write(Ostream & os) const
     
     os.writeKeyword("Law") << endl;
     os.writeKeyword("{") << endl;
-
+    os.writeKeyword("type") << type() << token::END_STATEMENT << endl;
+   
     for (int i=0; i<dictSize; i++)
     {
         os.writeKeyword(keys[i]) << constDict_[keys[i]][0] 
                                  << token::END_STATEMENT  << endl;
     }
    
-    os.writeKeyword("type") << type() << token::END_STATEMENT << endl;
     os.writeKeyword("}") << endl;
 }
 

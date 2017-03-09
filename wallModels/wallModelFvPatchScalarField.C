@@ -102,12 +102,14 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
     dict_(ptf.dict_),
-    cellIndexList_(patch().size()),
-    h_(patch().size(), 0)
+    //cellIndexList_(patch().size()),
+    cellIndexList_(ptf.cellIndexList_),
+    //h_(patch().size(), 0)
+    h_(ptf.h_)
 {
     //Info << "From patchField, patch, field and mapper" << nl;
     checkType();
-    createCellIndexList();
+    //createCellIndexList();
     
 }
 
@@ -132,33 +134,39 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
 wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
-    const wallModelFvPatchScalarField& wfpsf
+    const wallModelFvPatchScalarField& wmpsf
 )
 :
-    fixedValueFvPatchScalarField(wfpsf),
-    dict_(wfpsf.dict_),
-    cellIndexList_(patch().size()),
-    h_(patch().size(), 0)
+    fixedValueFvPatchScalarField(wmpsf),
+    dict_(wmpsf.dict_),
+    //cellIndexList_(patch().size()),
+   // h_(patch().size(), 0)
+    cellIndexList_(wmpsf.cellIndexList_),
+    //h_(patch().size(), 0)
+    h_(wmpsf.h_)
 {
     //Info << "From patchField" << nl;
     checkType();
-    createCellIndexList();
+    //createCellIndexList();
 }
 
 
 wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
-    const wallModelFvPatchScalarField& wfpsf,
+    const wallModelFvPatchScalarField& wmpsf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    fixedValueFvPatchScalarField(wfpsf, iF),
-    cellIndexList_(patch().size()),
-    h_(patch().size())
+    fixedValueFvPatchScalarField(wmpsf, iF),
+    //cellIndexList_(patch().size()),
+    //h_(patch().size())
+    cellIndexList_(wmpsf.cellIndexList_),
+    //h_(patch().size(), 0)
+    h_(wmpsf.h_)
 {
     //Info << "From patchField and field" << nl;
     checkType();
-    createCellIndexList();
+    //createCellIndexList();
 }
 
 
@@ -229,8 +237,10 @@ void wallModelFvPatchScalarField::updateCoeffs()
 void wallModelFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
-    writeLocalEntries(os);
     writeEntry("value", os);
+    writeLocalEntries(os);
+    
+
 }
 
 

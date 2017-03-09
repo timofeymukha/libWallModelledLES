@@ -56,12 +56,8 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar Foam::NewtonRootFinder::root
-(
-    scalar x0
-) const
+Foam::scalar Foam::NewtonRootFinder::root(scalar guess) const
 {
-    scalar guess = x0;
     scalar error = 0;
 
     if (0 == d_(guess))
@@ -77,21 +73,19 @@ Foam::scalar Foam::NewtonRootFinder::root
 
     for (label nIter = 0; nIter < maxIter_; ++nIter)
     {
-        scalar f = this->f_(guess);
-        scalar d = this->d_(guess);
+        scalar f = f_(guess);
+        scalar d = d_(guess);
 
         scalar xNew = guess - f/d;
         
         error = mag(xNew - guess)/mag(guess);
-        if (error <= this->eps_)
+        if (error <= eps_)
         {
             return xNew;
         }
         
         guess = xNew;
     }
-
-    //Info<< "error " << error   << nl;
     
     WarningIn("Foam::NewtonRootFinder::root()")
         << "The method did not converge to desired tolerance." << nl;
