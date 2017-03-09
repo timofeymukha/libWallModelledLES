@@ -36,6 +36,7 @@ SourceFiles
 \*---------------------------------------------------------------------------*/
 
 #include "wallModelFvPatchScalarField.H"
+#include "meshSearch.H"
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
 #include "wallFvPatch.H"
@@ -125,10 +126,13 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     dict_(dict),
     cellIndexList_(patch().size()),
     h_(patch().size(), dict.lookupOrDefault<scalar>("h", 0))
+    //h_(dict.lookupOrDefault<scalarField>("h", scalarField(patch().size(), 0)))
 {
-    //Info << "From patch, field and dict" << nl;
+//    Pout << "From patch, field and dict" << nl;
     checkType();
+ //   Pout << "Checked type" << nl;
     createCellIndexList();
+ //   Pout << "Built cell indexing" << nl;
 }
 
 
@@ -174,13 +178,20 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
 void wallModelFvPatchScalarField::createCellIndexList()
 {
-    Info<<"Building sample cell index list for patch " << patch().name() << nl;
+    Info<<"Building sample cell index list for patch " << patch().name()
+        << "...";
    
+
     const label size = patch().size();
+
+    //Pout << "Patch size " << size << nl;
     
     labelList testCellIndexList(size);
         
     const fvMesh & mesh = patch().boundaryMesh().mesh();
+
+
+    meshSearch ms(mesh);
     
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();
@@ -193,18 +204,23 @@ void wallModelFvPatchScalarField::createCellIndexList()
     //Info << faceCentres << endl;
     //Info << cellCentres << endl;
     
+    //Pout << "Starting point search" << nl;
     vector point;
     forAll(faceCentres, i)
     {
-        if (h_[i] == 0)
+        if (h_[i] == 0 || !ms.isInside(point))
         {
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
         }
       
         point = faceCentres[i] - faceNormals[i]*h_[i];
-        //Info << point << nl;
-        cellIndexList_[i] = mesh.findCell(point);
-        testCellIndexList[i] = mesh.findCell(cellCentres[i]);
+        //Pout <<  point << nl;
+        //Pout <<  ms.isInside(point) << nl;
+        //cellIndexList_[i] = mesh.findCell(point);
+        cellIndexList_[i] = ms.findNearestCell(point, 0, false);
+        testCellIndexList[i] = ms.findNearestCell(point, 0, false);
+        //testCellIndexList[i] = mesh.findCell(cellCentres[i]);
+        //Pout <<  point << nl;
         
         if (cellIndexList_[i] == -1)
         {
@@ -216,9 +232,10 @@ void wallModelFvPatchScalarField::createCellIndexList()
         }
     }
     
-  //  Info << cellIndexList_ << nl;
-   // Info << testCellIndexList << nl;
+    //Info << cellIndexList_ << nl;
+    //Info << testCellIndexList << nl;
     
+    Info << "Done" << endl; 
 }
 
 void wallModelFvPatchScalarField::updateCoeffs()
@@ -237,8 +254,9 @@ void wallModelFvPatchScalarField::updateCoeffs()
 void wallModelFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
-    writeEntry("value", os);
     writeLocalEntries(os);
+//    os.writeKeyword("h") << h_ << token::END_STATEMENT << endl;
+    writeEntry("value", os);
     
 
 }

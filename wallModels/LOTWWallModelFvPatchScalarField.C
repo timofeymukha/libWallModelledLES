@@ -61,7 +61,7 @@ void LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
     
 tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
 {
-    Info << "Updating nut" << endl;
+    //Pout << "Updating nut" << endl;
     const label patchi = patch().index();
 
     const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
@@ -77,11 +77,15 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
     
+    //Pout << "Updating u_tau" << endl;
     scalarField uTauNew = calcUTau(magGradU);
+    //Pout << "Updating u_tau bench" << endl;
     scalarField uTauBench = calcUTauBench(magGradU);
+    //Pout << "Done" << endl;
+    
+    if (patch().size() > 0)
+        Info<< uTauNew[1] << " " << uTauBench[1] << endl;
 
-    Info<< uTauNew[1] << " " << uTauBench[1] << endl;
-      
     return max
     (
         scalar(0),
@@ -181,7 +185,6 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
     const vectorField & U = turbModel.U().internalField();
 
     const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
-    const scalarField magUp2(mag(Uw.patchInternalField() - Uw));
     
     scalarField magUp(patch().size());
     
@@ -190,10 +193,8 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
         magUp[i] = mag(U[cellIndexList_[i]] - Uw[i]);
     }
     
-   // Info << magUp << nl;
-   // Info << magUp2 << nl;
-   // Info << "y " << y << nl;
-   // Info << "h " << h_ << nl;
+    //Pout << magUp << nl;
+    //Pout << "h " << h_ << nl;
 
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
@@ -206,23 +207,26 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
     std::function<scalar(scalar)> value;
     std::function<scalar(scalar)> derivValue;
         
-    //dictionary rootFinderDict = dict_.subDict("RootFinder");
-    //autoPtr<RootFinder> rootFinder = RootFinder::New(dummyf, dummyf, rootFinderDict);
-    
+    //Pout << "starting face loop" << nl;
     forAll(uTau, faceI)
     {
         scalar ut = sqrt((nutw[faceI] + nuw[faceI])*magGradU[faceI]);
+       // Pout << "guess " << ut << nl;
 
         if (ut > ROOTVSMALL)
         {
             value = std::bind(&LawOfTheWall::value, &law_(), magUp[faceI], h_[faceI], _1, nuw[faceI]);
-            derivValue = std::bind(&LawOfTheWall::derivative, &law_(), magUp2[faceI], h_[faceI], _1, nuw[faceI]);
+            derivValue = std::bind(&LawOfTheWall::derivative, &law_(), magUp[faceI], h_[faceI], _1, nuw[faceI]);
+      //      Pout << "binding" << nl;
 
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
             const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
+      //      Pout << "rooroott" << nl;
             uTau[faceI] = max(0.0, rootFinder_->root(ut));
         }
     }
+    //Pout << "done with face loop" << nl;
+
         
     return tuTau;
 }

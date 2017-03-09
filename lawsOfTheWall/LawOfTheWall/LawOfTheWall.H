@@ -105,7 +105,6 @@ public:
         (lawName, dict)
     )  
     
-    
     // Selectors
     static autoPtr<LawOfTheWall> New 
     (

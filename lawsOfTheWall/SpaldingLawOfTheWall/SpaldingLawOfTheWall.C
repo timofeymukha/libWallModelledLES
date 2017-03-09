@@ -74,9 +74,7 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
     LawOfTheWall(dict),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
     B_(dict.lookupOrDefault<scalar>("B", 5.5))
-{
-    printCoeffs();
-}
+{}
 
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
@@ -87,9 +85,7 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
     LawOfTheWall(dict),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
     B_(dict.lookupOrDefault<scalar>("B", 5.5))
-{
-    printCoeffs();
-}
+{}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
