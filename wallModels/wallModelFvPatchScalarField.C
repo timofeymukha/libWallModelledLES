@@ -84,7 +84,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF),
     cellIndexList_(patch().size()),
-    h_(patch().size())
+    h_(patch().size(), 0)
 {
     //Info << "From patch and field" << nl;
     checkType();
@@ -103,7 +103,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
     dict_(ptf.dict_),
     cellIndexList_(patch().size()),
-    h_(patch().size())
+    h_(patch().size(), 0)
 {
     //Info << "From patchField, patch, field and mapper" << nl;
     checkType();
@@ -122,7 +122,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(p, iF, dict),
     dict_(dict),
     cellIndexList_(patch().size()),
-    h_(patch().size())
+    h_(patch().size(), dict.lookupOrDefault<scalar>("h", 0))
 {
     //Info << "From patch, field and dict" << nl;
     checkType();
@@ -138,7 +138,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(wfpsf),
     dict_(wfpsf.dict_),
     cellIndexList_(patch().size()),
-    h_(patch().size())
+    h_(patch().size(), 0)
 {
     //Info << "From patchField" << nl;
     checkType();
@@ -170,7 +170,6 @@ void wallModelFvPatchScalarField::createCellIndexList()
     // Try to read h from dictionary
    // if (dict_.found(word("h")))
     //{
-    h_ = dict_.lookupOrDefault<scalar>("h", 0);
     //}            
     /*else
     {
@@ -238,9 +237,10 @@ void wallModelFvPatchScalarField::write(Ostream& os) const
 {
     Info << "writing" << nl;
     fvPatchField<scalar>::write(os);
-    Info << dict_ << nl;
-    dict_.write(os);
-    writeEntry("value", os);
+    //Info << dict_ << nl;
+    writeLocalEntries(os);
+    //dict_.write(os);
+    //writeEntry("value", os);
 }
 
 

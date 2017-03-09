@@ -58,13 +58,15 @@ class LOTWWallModelFvPatchScalarField
 protected:
     
     // Protected Data
-        autoPtr<RootFinder>  rootFinder_;
+        autoPtr<RootFinder> rootFinder_;
     
         //- The "law of the wall" to be used
         autoPtr<LawOfTheWall> law_;
     
     // Protected Member Functions
-
+        //- Write root finder and law properties to stream
+        virtual void writeLocalEntries(Ostream &) const;
+        
         //- Calculate the turbulence viscosity
         virtual tmp<scalarField> calcNut() const;
 

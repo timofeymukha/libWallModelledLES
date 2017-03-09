@@ -48,13 +48,17 @@ using namespace std::placeholders;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-Foam::scalar dummyf(Foam::scalar x){return 0;}
-
 namespace Foam
 {
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
+void LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
+{
+    rootFinder_->write(os);
+    law_->write(os);
+}    
+    
 tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
 {
     const label patchi = patch().index();
@@ -246,9 +250,15 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
-    rootFinder_(ptf.rootFinder_),
-    law_(ptf.law_)
-{}
+    rootFinder_(RootFinder::New(ptf.rootFinder_->type(),
+                                ptf.rootFinder_->f(),
+                                ptf.rootFinder_->d(),
+                                ptf.rootFinder_->eps(),
+                                ptf.rootFinder_->maxIter())),
+    law_(LawOfTheWall::New(ptf.law_->type(),
+                           ptf.law_->constDict()))
+{
+}
 
 LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
@@ -314,8 +324,7 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::yPlus() const
 
 void LOTWWallModelFvPatchScalarField::write(Ostream& os) const
 {
-    fvPatchField<scalar>::write(os);
-    wallModelFvPatchScalarField::write(os);
+    //wallModelFvPatchScalarField::write(os);
     writeLocalEntries(os);
 }
 
