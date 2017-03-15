@@ -57,13 +57,13 @@ protected:
     
     // Protected data
     
-        //- The dictionary defining the boundary condition
-        dictionary dict_;
-        
+
         labelList cellIndexList_;
         
         //- The distance from the wall that data is sampled from
         scalarField h_;
+        
+        
         
 
     // Protected Member Functions

@@ -102,7 +102,6 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
-    dict_(ptf.dict_),
     //cellIndexList_(patch().size()),
     cellIndexList_(ptf.cellIndexList_),
     //h_(patch().size(), 0)
@@ -123,16 +122,38 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF, dict),
-    dict_(dict),
     cellIndexList_(patch().size()),
-    h_(patch().size(), dict.lookupOrDefault<scalar>("h", 0))
+    //h_(patch().size(), dict.lookupOrDefault<scalar>("h", 0))
+    h_(patch().size(), 0)    
     //h_(dict.lookupOrDefault<scalarField>("h", scalarField(patch().size(), 0)))
 {
 //    Pout << "From patch, field and dict" << nl;
     checkType();
  //   Pout << "Checked type" << nl;
+    
+    
+    db().store
+    (
+        new volScalarField
+        (
+        IOobject
+        (
+            "h",
+            db().time().timeName(),
+            db(),
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        patch().boundaryMesh().mesh()
+        )
+    );
+    
+    
     createCellIndexList();
  //   Pout << "Built cell indexing" << nl;
+    
+    
+
 }
 
 
@@ -142,7 +163,6 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf),
-    dict_(wmpsf.dict_),
     //cellIndexList_(patch().size()),
    // h_(patch().size(), 0)
     cellIndexList_(wmpsf.cellIndexList_),
@@ -181,8 +201,12 @@ void wallModelFvPatchScalarField::createCellIndexList()
     Info<<"Building sample cell index list for patch " << patch().name()
         << "...";
    
-
     const label size = patch().size();
+    const label patchIndex = patch().index();
+    
+    const volScalarField & h = db().objectRegistry::lookupObject<volScalarField> ("h");
+    h_ = h.boundaryField()[patchIndex];
+
 
     //Pout << "Patch size " << size << nl;
     
@@ -205,6 +229,8 @@ void wallModelFvPatchScalarField::createCellIndexList()
     //Info << cellCentres << endl;
     
     //Pout << "Starting point search" << nl;
+    
+    
     vector point;
     forAll(faceCentres, i)
     {

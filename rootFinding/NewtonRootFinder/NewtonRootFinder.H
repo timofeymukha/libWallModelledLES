@@ -107,6 +107,7 @@ public:
         virtual void write(Ostream& os) const
         {
             RootFinder::write(os);
+            os << decrIndent;
             os.writeKeyword("}") << endl;
         }
 

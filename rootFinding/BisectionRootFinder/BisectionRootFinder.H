@@ -107,7 +107,9 @@ public:
         virtual void write(Ostream& os) const
         {
             RootFinder::write(os);
-            os.writeKeyword("bracket") << bracket_ << token::END_STATEMENT << endl;
+            os.writeKeyword("bracket") << bracket_ << token::END_STATEMENT
+                                       << endl;
+            os << decrIndent;
             os.writeKeyword("}") << endl;
         }
         
