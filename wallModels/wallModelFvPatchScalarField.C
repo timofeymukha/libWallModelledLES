@@ -132,21 +132,47 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
  //   Pout << "Checked type" << nl;
     
     
-    db().store
-    (
-        new volScalarField
+    if (!db().found("h"))
+    {
+        db().store
         (
-        IOobject
+            new volScalarField
+            (
+                IOobject
+                (
+                    "h",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh()
+            )
+        );
+    }
+    
+    const volScalarField & h = db().objectRegistry::lookupObject<volScalarField> ("h");
+    
+    if (!db().found("uTau"))
+    {
+        db().store
         (
-            "h",
-            db().time().timeName(),
-            db(),
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        patch().boundaryMesh().mesh()
-        )
-    );
+            new volScalarField
+            (
+                IOobject
+                (
+                    "uTau",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                dimensionedScalar("uTau", dimensionSet(0,1,-1,0,0,0,0), 0.0),
+                h.boundaryField().types()
+            )
+        );
+    }
     
     
     createCellIndexList();

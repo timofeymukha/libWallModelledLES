@@ -227,7 +227,10 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
     }
     //Pout << "done with face loop" << nl;
 
-        
+    volScalarField & uTauField = const_cast<volScalarField &>(db().lookupObject<volScalarField>("uTau"));
+     
+    uTauField.boundaryField()[patch().index()] == uTau;
+    
     return tuTau;
 }
 
