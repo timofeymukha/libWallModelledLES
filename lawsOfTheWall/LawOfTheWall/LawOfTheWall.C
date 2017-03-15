@@ -112,7 +112,7 @@ void LawOfTheWall::write(Ostream & os) const
     label dictSize = constDict_.keys().size();
     
     os.writeKeyword("Law") << endl;
-    os.writeKeyword("{") << endl;
+    os.writeKeyword("{") << incrIndent << endl;
     os.writeKeyword("type") << type() << token::END_STATEMENT << endl;
    
     for (int i=0; i<dictSize; i++)
@@ -121,6 +121,7 @@ void LawOfTheWall::write(Ostream & os) const
                                  << token::END_STATEMENT  << endl;
     }
    
+    os << decrIndent;
     os.writeKeyword("}") << endl;
 }
 
