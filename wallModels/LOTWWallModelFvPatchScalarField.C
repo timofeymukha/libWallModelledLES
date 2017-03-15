@@ -186,12 +186,33 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
 
     const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
     
-    scalarField magUp(patch().size());
     
+    const tmp<vectorField> tfaceNormals = patch().nf();
+    const vectorField faceNormals = tfaceNormals();
+    
+    scalarField magUp(patch().size());
+    vectorField Up(patch().size());
+    vectorField Unormal(patch().size());
+    vectorField Upar(patch().size());
+    scalarField magUpar(patch().size());
+            
     forAll(magUp, i)
-    {
+    {   
+        Up[i] = U[cellIndexList_[i]] - Uw[i];
         magUp[i] = mag(U[cellIndexList_[i]] - Uw[i]);
+        Unormal[i] = -faceNormals[i]*(Up[i] & -faceNormals[i]);
+        Upar[i] = Up[i] - Unormal[i];
+        magUpar[i] = mag(Upar[i]);
     }
+    
+    /*Info << "Normals " << faceNormals << nl << nl;;
+    Info << Up << nl << nl;
+    Info << "Unormal " << Unormal << nl << nl;
+    Info << "Upar " << Upar << nl;
+    Info << "diff " << magUp - sqrt((sqr(magUpar) + sqr(mag(Unormal)))) << nl;
+    */
+    
+            
     
     //Pout << magUp << nl;
     //Pout << "h " << h_ << nl;
@@ -308,27 +329,6 @@ LOTWWallModelFvPatchScalarField
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-tmp<scalarField> LOTWWallModelFvPatchScalarField::yPlus() const
-{
-    const label patchi = patch().index();
-
-    const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
-    (
-        IOobject::groupName
-        (
-            turbulenceModel::propertiesName,
-            dimensionedInternalField().group()
-        )
-    );
-    const scalarField& y = turbModel.y()[patchi];
-    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
-    const tmp<scalarField> tnuw = turbModel.nu(patchi);
-    const scalarField& nuw = tnuw();
-
-    return y*calcUTau(mag(Uw.snGrad()))/nuw;
-}
-
 
 void LOTWWallModelFvPatchScalarField::write(Ostream& os) const
 {

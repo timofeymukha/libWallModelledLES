@@ -202,7 +202,7 @@ void wallModelFvPatchScalarField::createFields() const
         );
     }
     
-    const volScalarField & h = db().objectRegistry::lookupObject<volScalarField> ("h");
+    const volScalarField & h = db().lookupObject<volScalarField> ("h");
     
     if (!db().found("uTau"))
     {
@@ -236,7 +236,7 @@ void wallModelFvPatchScalarField::createCellIndexList()
     const label size = patch().size();
     const label patchIndex = patch().index();
     
-    const volScalarField & h = db().objectRegistry::lookupObject<volScalarField> ("h");
+    const volScalarField & h = db().lookupObject<volScalarField> ("h");
     h_ = h.boundaryField()[patchIndex];
 
 
