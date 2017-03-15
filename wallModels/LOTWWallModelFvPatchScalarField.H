@@ -75,6 +75,9 @@ protected:
         
         //- Benchmark for calculating the friction velocity
         virtual tmp<scalarField> calcUTauBench(const scalarField& magGradU) const;
+        
+        
+        void createFields() const;
 
 
 public:

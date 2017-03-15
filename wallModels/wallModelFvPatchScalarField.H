@@ -62,9 +62,8 @@ protected:
         
         //- The distance from the wall that data is sampled from
         scalarField h_;
-        
-        
-        
+          
+        void createFields() const;
 
     // Protected Member Functions
 
