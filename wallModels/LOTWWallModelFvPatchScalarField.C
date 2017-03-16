@@ -63,7 +63,7 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
 {
     if (debug)
     {
-        Pout<< "Updating nut for patch " << patch().name() << nl;        
+        Info<< "Updating nut for patch " << patch().name() << nl;        
     }
 
     
@@ -102,10 +102,14 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
        // reduce( uTauBenchPerProc, sumOp<scalarList>() );
         //Pout<< sum(uTauNewPerProc)/Pstream::nProcs() << " "
         //    << sum(uTauBenchPerProc)/Pstream::nProcs() << nl;
-        
+       
+        scalar diff = mag(sum(uTauNew)/patch().size() - sum(uTauBench)/patch().size())/(sum(uTauBench)/patch().size())*100;
+        if (diff > 1)
+        {
         Pout<< "Average uTau/uTauBench " << sum(uTauNew)/patch().size() << " "
-            << sum(uTauBench)/patch().size() << ", patch " << patch().name()
+            << sum(uTauBench)/patch().size() << " " << diff << ", patch " << patch().name()
             << nl;
+        }
     }
     return max
     (
