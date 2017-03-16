@@ -76,7 +76,11 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
     A_(dict.lookupOrDefault<scalar>("A", 8.3)),
     B_(dict.lookupOrDefault<scalar>("B", 1./7))
 {
-    printCoeffs();
+    if (debug)
+    {        
+        printCoeffs();
+    }
+    
 }
 
 Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
@@ -89,7 +93,10 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
     A_(dict.lookupOrDefault<scalar>("A", 8.3)),
     B_(dict.lookupOrDefault<scalar>("B", 1./7))
 {
-    printCoeffs();
+    if (debug)
+    {        
+        printCoeffs();
+    }
 }
 
 
@@ -98,10 +105,10 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 void Foam::WernerWengleLawOfTheWall::printCoeffs() const
 {
     Info<< nl << "WernerWengle law of the wall" << nl;
-    Info<< "{" << incrIndent << nl;
+    Info<< token::BEGIN_BLOCK << incrIndent << nl;
     Info<< indent << "A" << indent << A_ << nl;
     Info<< indent << "B" << indent <<  B_ << nl;
-    Info<< "}" << nl << nl;
+    Info<< token::END_BLOCK << nl << nl;
 }
 
 Foam::scalar Foam::WernerWengleLawOfTheWall::value

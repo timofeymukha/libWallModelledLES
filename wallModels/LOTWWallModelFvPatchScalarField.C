@@ -61,7 +61,12 @@ void LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
     
 tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
 {
-    //Pout << "Updating nut" << endl;
+    if (debug)
+    {
+        Pout<< "Updating nut for patch " << patch().name() << nl;        
+    }
+
+    
     const label patchi = patch().index();
 
     const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
@@ -72,24 +77,40 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
             dimensionedInternalField().group()
         )
     );
+    
     const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
     const scalarField magGradU(mag(Uw.snGrad()));
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
     
-    //Pout << "Updating u_tau" << endl;
-    scalarField uTauNew = calcUTau(magGradU);
-    //Pout << "Updating u_tau bench" << endl;
-    scalarField uTauBench = calcUTauBench(magGradU);
-    //Pout << "Done" << endl;
-    
-    if (patch().size() > 0)
-        Info<< uTauNew[1] << " " << uTauBench[1] << endl;
 
+ 
+    if ((patch().size() > 0) && (debug))
+    {
+        scalarField uTauNew = calcUTau();
+        scalarField uTauBench = calcUTauBench(magGradU);
+        
+       // scalarList uTauNewPerProc(Pstream::nProcs(), 0.0);
+       // scalarList uTauBenchPerProc(Pstream::nProcs(), 0.0);
+       // label thisProcNb = Pstream::myProcNo();
+        
+        
+      //  uTauNewPerProc[thisProcNb] = sum(uTauNew)/patch().size();
+       // uTauBenchPerProc[thisProcNb] = sum(uTauBench)/patch().size();
+        
+       // reduce( uTauNewPerProc, sumOp<scalarList>() );
+       // reduce( uTauBenchPerProc, sumOp<scalarList>() );
+        //Pout<< sum(uTauNewPerProc)/Pstream::nProcs() << " "
+        //    << sum(uTauBenchPerProc)/Pstream::nProcs() << nl;
+        
+        Pout<< "Average uTau/uTauBench " << sum(uTauNew)/patch().size() << " "
+            << sum(uTauBench)/patch().size() << ", patch " << patch().name()
+            << nl;
+    }
     return max
     (
         scalar(0),
-        sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw
+        sqr(calcUTau())/(magGradU + ROOTVSMALL) - nuw
     );
 }
 
@@ -164,10 +185,7 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTauBench
     return tuTau;
 }
 
-tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
-(
-    const scalarField& magGradU
-) const
+tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
 {
 
     const label patchi = patch().index();
@@ -184,8 +202,8 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau
     
     const vectorField & U = turbModel.U().internalField();
 
-    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
-    
+    const fvPatchVectorField & Uw = turbModel.U().boundaryField()[patchi];
+    const scalarField magGradU(mag(Uw.snGrad()));
     
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField faceNormals = tfaceNormals();

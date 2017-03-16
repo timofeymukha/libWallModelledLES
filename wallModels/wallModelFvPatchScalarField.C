@@ -6,16 +6,16 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is part of libWallModelledLES.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
+    libWallModelledLES is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    libWallModelledLES is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
@@ -28,7 +28,7 @@ Description
     Base abstract class for LES wall models.
 
 Authors
-    Timofey Mukha.  All rights reserved.
+    Timofey Mukha. All rights reserved.
 
 SourceFiles
     wallModel.C
@@ -61,7 +61,7 @@ void wallModelFvPatchScalarField::checkType()
     if (!isA<wallFvPatch>(patch()))
     {
         FatalErrorIn("wallModelFvPatchScalarField::checkType()")
-            << "Invalid wall function specification" << nl
+            << "Invalid wall model specification" << nl
             << "    Patch type for patch " << patch().name()
             << " must be wall" << nl
             << "    Current patch type is " << patch().type() << nl << endl
@@ -73,112 +73,6 @@ void wallModelFvPatchScalarField::checkType()
 void wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
 }
-
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-wallModelFvPatchScalarField::wallModelFvPatchScalarField
-(
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF
-)
-:
-    fixedValueFvPatchScalarField(p, iF),
-    cellIndexList_(patch().size()),
-    h_(patch().size(), 0)
-{
-    //Info << "From patch and field" << nl;
-    checkType();
-    createFields();
-    createCellIndexList();
-}
-
-
-wallModelFvPatchScalarField::wallModelFvPatchScalarField
-(
-    const wallModelFvPatchScalarField& ptf,
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
-    const fvPatchFieldMapper& mapper
-)
-:
-    fixedValueFvPatchScalarField(ptf, p, iF, mapper),
-    //cellIndexList_(patch().size()),
-    cellIndexList_(ptf.cellIndexList_),
-    //h_(patch().size(), 0)
-    h_(ptf.h_)
-{
-    //Info << "From patchField, patch, field and mapper" << nl;
-    checkType();
-    //createCellIndexList();
-    
-}
-
-
-wallModelFvPatchScalarField::wallModelFvPatchScalarField
-(
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
-    const dictionary& dict
-)
-:
-    fixedValueFvPatchScalarField(p, iF, dict),
-    cellIndexList_(patch().size()),
-    //h_(patch().size(), dict.lookupOrDefault<scalar>("h", 0))
-    h_(patch().size(), 0)    
-    //h_(dict.lookupOrDefault<scalarField>("h", scalarField(patch().size(), 0)))
-{
-//    Pout << "From patch, field and dict" << nl;
-    checkType();
- //   Pout << "Checked type" << nl;
-    
-    
-    createFields();
-    createCellIndexList();
- //   Pout << "Built cell indexing" << nl;
-    
-    
-
-}
-
-
-wallModelFvPatchScalarField::wallModelFvPatchScalarField
-(
-    const wallModelFvPatchScalarField& wmpsf
-)
-:
-    fixedValueFvPatchScalarField(wmpsf),
-    //cellIndexList_(patch().size()),
-   // h_(patch().size(), 0)
-    cellIndexList_(wmpsf.cellIndexList_),
-    //h_(patch().size(), 0)
-    h_(wmpsf.h_)
-{
-    //Info << "From patchField" << nl;
-    checkType();
-    //createCellIndexList();
-}
-
-
-wallModelFvPatchScalarField::wallModelFvPatchScalarField
-(
-    const wallModelFvPatchScalarField& wmpsf,
-    const DimensionedField<scalar, volMesh>& iF
-)
-:
-    fixedValueFvPatchScalarField(wmpsf, iF),
-    //cellIndexList_(patch().size()),
-    //h_(patch().size())
-    cellIndexList_(wmpsf.cellIndexList_),
-    //h_(patch().size(), 0)
-    h_(wmpsf.h_)
-{
-    //Info << "From patchField and field" << nl;
-    checkType();
-    //createCellIndexList();
-}
-
-// * * * * * * * * * * * * *  Protected Functions  * * * * * * * * * * * * * //
 
 void wallModelFvPatchScalarField::createFields() const
 {
@@ -226,13 +120,141 @@ void wallModelFvPatchScalarField::createFields() const
     }    
 }
 
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+wallModelFvPatchScalarField::wallModelFvPatchScalarField
+(
+    const fvPatch& p,
+    const DimensionedField<scalar, volMesh>& iF
+)
+:
+    fixedValueFvPatchScalarField(p, iF),
+    cellIndexList_(patch().size()),
+    h_(patch().size(), 0)
+{
+    if (debug)
+    {
+        Info << "Constructing wallModelFvPatchScalarField "
+             << "from fvPatch and DimensionedField for patch " << patch().name()
+             <<  nl;
+    }
+    
+    checkType();
+    createFields();
+    createCellIndexList();
+}
+
+
+wallModelFvPatchScalarField::wallModelFvPatchScalarField
+(
+    const wallModelFvPatchScalarField& ptf,
+    const fvPatch& p,
+    const DimensionedField<scalar, volMesh>& iF,
+    const fvPatchFieldMapper& mapper
+)
+:
+    fixedValueFvPatchScalarField(ptf, p, iF, mapper),
+    cellIndexList_(ptf.cellIndexList_),
+    h_(ptf.h_)
+{
+    if (debug)
+    {
+        Info<< "Constructing wallModelFvPatchScalarField "
+            << "from copy, fvPatch, DimensionedField, and fvPatchFieldMapper"
+            << " for patch " << patch().name() << nl;
+    }
+
+    checkType();
+    //createCellIndexList();
+    
+}
+
+
+wallModelFvPatchScalarField::wallModelFvPatchScalarField
+(
+    const fvPatch& p,
+    const DimensionedField<scalar, volMesh>& iF,
+    const dictionary& dict
+)
+:
+    fixedValueFvPatchScalarField(p, iF, dict),
+    cellIndexList_(patch().size()),
+    //h_(patch().size(), dict.lookupOrDefault<scalar>("h", 0))
+    h_(patch().size(), 0)    
+{
+    if (debug)
+    {
+        Info<< "Constructing wallModelFvPatchScalarField "
+            << "from fvPatch, DimensionedField, and dictionary for patch "
+            << patch().name() << nl;
+    }
+    
+//    Pout << "From patch, field and dict" << nl;
+    checkType();
+ //   Pout << "Checked type" << nl;
+    
+    
+    createFields();
+    createCellIndexList();
+ //   Pout << "Built cell indexing" << nl;
+    
+    
+
+}
+
+
+wallModelFvPatchScalarField::wallModelFvPatchScalarField
+(
+    const wallModelFvPatchScalarField& wmpsf
+)
+:
+    fixedValueFvPatchScalarField(wmpsf),
+    cellIndexList_(wmpsf.cellIndexList_),
+    h_(wmpsf.h_)
+{
+    if (debug)
+    {
+        Info<< "Constructing wallModelFvPatchScalarField "
+            << "from copy for patch " << patch().name() << nl;           
+    }
+
+    checkType();
+    //createCellIndexList();
+}
+
+
+wallModelFvPatchScalarField::wallModelFvPatchScalarField
+(
+    const wallModelFvPatchScalarField& wmpsf,
+    const DimensionedField<scalar, volMesh>& iF
+)
+:
+    fixedValueFvPatchScalarField(wmpsf, iF),
+    cellIndexList_(wmpsf.cellIndexList_),
+    h_(wmpsf.h_)
+{
+    if (debug)
+    {
+        Info<< "Constructing wallModelFvPatchScalarField "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+    
+    checkType();
+    //createCellIndexList();
+}
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void wallModelFvPatchScalarField::createCellIndexList()
 {
-    Info<<"Building sample cell index list for patch " << patch().name()
-        << "...";
-   
+    if (debug)
+    {
+        Info<<"Building sample cell index list for patch " << patch().name()
+            << nl;   
+    }
+    
     const label size = patch().size();
     const label patchIndex = patch().index();
     
@@ -260,40 +282,52 @@ void wallModelFvPatchScalarField::createCellIndexList()
     //Info << faceCentres << endl;
     //Info << cellCentres << endl;
     
-    //Pout << "Starting point search" << nl;
-    
-    
     vector point;
     forAll(faceCentres, i)
     {
-        if (h_[i] == 0 || !ms.isInside(point))
+        if (h_[i] == 0)
         {
+            if (debug > 1)
+            {
+                Pout<< "h is 0, for face " << i << " on patch " 
+                    << patch().name() << ", using distance to Cn." << nl;   
+                
+            }
+            
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
         }
       
         point = faceCentres[i] - faceNormals[i]*h_[i];
-        //Pout <<  point << nl;
-        //Pout <<  ms.isInside(point) << nl;
-        //cellIndexList_[i] = mesh.findCell(point);
+
+        
+        if (!ms.isInside(point))
+        {
+            if (debug)
+            {
+                Pout<< "Point " << point << "is outside the domain. "
+                    << "Using Cn." << nl;    
+            }
+            
+            point = cellCentres[i];
+        }
+        
         cellIndexList_[i] = ms.findNearestCell(point, 0, false);
         testCellIndexList[i] = ms.findNearestCell(point, 0, false);
-        //testCellIndexList[i] = mesh.findCell(cellCentres[i]);
-        //Pout <<  point << nl;
         
         if (cellIndexList_[i] == -1)
         {
             FatalErrorIn
             (
             "void Foam::wallModelFvPatchScalarField::createCellIndexList()\n"
-            )   << "Failed to find sampling cell for face " << i
-                << " with face centre " << faceCentres[i] << abort(FatalError);     
+            )   << "Failed to find sampling cell for face " << i << "on patch "
+                << patch().name() << ", with face centre " << faceCentres[i]
+                << abort(FatalError);     
+                 
         }
     }
     
     //Info << cellIndexList_ << nl;
     //Info << testCellIndexList << nl;
-    
-    Info << "Done" << endl; 
 }
 
 void wallModelFvPatchScalarField::updateCoeffs()

@@ -87,9 +87,11 @@ Foam::scalar Foam::NewtonRootFinder::root(scalar guess) const
         guess = xNew;
     }
     
-    WarningIn("Foam::NewtonRootFinder::root()")
-        << "The method did not converge to desired tolerance." << nl;
-
+    if (debug)
+    {
+        WarningIn("Foam::NewtonRootFinder::root()")
+            << "The method did not converge to desired tolerance." << nl;
+    }
     return guess;
 }
 
