@@ -117,7 +117,29 @@ void wallModelFvPatchScalarField::createFields() const
                 h.boundaryField().types()
             )
         );
-    }    
+    }
+
+    if ((!db().found("uTauBench")) && (debug > 1))
+    {
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "uTauBench",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                dimensionedScalar("uTauBench", dimensionSet(0,1,-1,0,0,0,0), 0.0),
+                h.boundaryField().types()
+            )
+        );
+    }
+    
 }
 
 
@@ -135,9 +157,9 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info << "Constructing wallModelFvPatchScalarField "
-             << "from fvPatch and DimensionedField for patch " << patch().name()
-             <<  nl;
+        Info<< "Constructing wallModelFvPatchScalarField "
+            << "from fvPatch and DimensionedField for patch " << patch().name()
+            <<  nl;
     }
     
     checkType();
@@ -257,8 +279,8 @@ void wallModelFvPatchScalarField::createCellIndexList()
     
     const label size = patch().size();
     const label patchIndex = patch().index();
-    
-    const volScalarField & h = db().lookupObject<volScalarField> ("h");
+    volScalarField & h = const_cast<volScalarField &>(
+        db().lookupObject<volScalarField> ("h"));
     h_ = h.boundaryField()[patchIndex];
 
 
@@ -276,6 +298,8 @@ void wallModelFvPatchScalarField::createCellIndexList()
     const vectorField faceNormals = tfaceNormals();
     const tmp<vectorField> tcellCentres = patch().Cn();
     const vectorField cellCentres = tcellCentres();
+    
+    const labelUList & faceCells = patch().faceCells();
 
     
     //Info << faceNormals << endl;
@@ -295,39 +319,54 @@ void wallModelFvPatchScalarField::createCellIndexList()
             }
             
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
+            cellIndexList_[i] = ms.findNearestCell(cellCentres[i], 0, false);
+            testCellIndexList[i] = ms.findNearestCell(cellCentres[i], 0, false);
+            
         }
-      
-        point = faceCentres[i] - faceNormals[i]*h_[i];
-
-        
-        if (!ms.isInside(point))
+        else
         {
-            if (debug)
+            point = faceCentres[i] - faceNormals[i]*h_[i];
+
+            if (!ms.isInside(point))
             {
-                Pout<< "Point " << point << "is outside the domain. "
-                    << "Using Cn." << nl;    
+                if (debug)
+                {
+                    Pout<< "Point " << point << "is outside the domain. "
+                        << "Using Cn." << nl;    
+                }
+
+                point = cellCentres[i];
+            }
+
+            cellIndexList_[i] = ms.findNearestCell(point, -1, false);
+            testCellIndexList[i] = ms.findNearestCell(cellCentres[i], -1, false);
+
+            if (cellIndexList_[i] == -1)
+            {
+                FatalErrorIn
+                (
+                "void Foam::wallModelFvPatchScalarField::createCellIndexList()\n"
+                )   << "Failed to find sampling cell for face " << i << "on patch "
+                    << patch().name() << ", with face centre " << faceCentres[i]
+                    << abort(FatalError);     
+
             }
             
-            point = cellCentres[i];
-        }
-        
-        cellIndexList_[i] = ms.findNearestCell(point, 0, false);
-        testCellIndexList[i] = ms.findNearestCell(point, 0, false);
-        
-        if (cellIndexList_[i] == -1)
-        {
-            FatalErrorIn
-            (
-            "void Foam::wallModelFvPatchScalarField::createCellIndexList()\n"
-            )   << "Failed to find sampling cell for face " << i << "on patch "
-                << patch().name() << ", with face centre " << faceCentres[i]
-                << abort(FatalError);     
-                 
+            h_[i] = mag(mesh.C()[cellIndexList_[i]] - faceCentres[i]);
         }
     }
     
-    //Info << cellIndexList_ << nl;
-    //Info << testCellIndexList << nl;
+//    Pout << cellIndexList_ - testCellIndexList << nl;
+//    Pout << cellIndexList_ - faceCells << nl;
+
+/*    vectorField sampleCellsCC(size);
+    
+    forAll(sampleCellsCC, i)
+    {
+        sampleCellsCC[i] = mesh.C()[cellIndexList_[i]];
+    }
+*/    
+    h.boundaryField()[patch().index()] == h_;
 }
 
 void wallModelFvPatchScalarField::updateCoeffs()

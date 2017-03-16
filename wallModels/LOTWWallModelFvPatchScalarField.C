@@ -103,7 +103,10 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
         //Pout<< sum(uTauNewPerProc)/Pstream::nProcs() << " "
         //    << sum(uTauBenchPerProc)/Pstream::nProcs() << nl;
        
-        scalar diff = mag(sum(uTauNew)/patch().size() - sum(uTauBench)/patch().size())/(sum(uTauBench)/patch().size())*100;
+        scalar avrgNew = sum(uTauNew)/patch().size();
+        scalar avrgBench = sum(uTauBench)/patch().size();
+        scalar diff = mag(avrgNew - avrgBench)/avrgBench*100;
+        
         if (diff > 1)
         {
         Pout<< "Average uTau/uTauBench " << sum(uTauNew)/patch().size() << " "
@@ -186,6 +189,13 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTauBench
          //   Info<<uTau[faceI]<< endl;
         }
     }
+    if (db().found("uTauBench"))
+    {
+    volScalarField & uTauField = const_cast<volScalarField &>(
+                                    db().lookupObject<volScalarField>("uTauBench"));
+     
+    uTauField.boundaryField()[patch().index()] == uTau;
+    }
     return tuTau;
 }
 
@@ -221,7 +231,7 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     forAll(magUp, i)
     {   
         Up[i] = U[cellIndexList_[i]] - Uw[i];
-        magUp[i] = mag(U[cellIndexList_[i]] - Uw[i]);
+        magUp[i] = mag(Up[i]);
         Unormal[i] = -faceNormals[i]*(Up[i] & -faceNormals[i]);
         Upar[i] = Up[i] - Unormal[i];
         magUpar[i] = mag(Upar[i]);
@@ -240,9 +250,9 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     //Pout << "h " << h_ << nl;
 
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
-    const scalarField& nuw = tnuw();
+    const scalarField & nuw = tnuw();
 
-    const scalarField& nutw = *this;
+    const scalarField & nutw = *this;
 
     tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
     scalarField& uTau = tuTau();
@@ -258,8 +268,11 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
 
         if (ut > ROOTVSMALL)
         {
-            value = std::bind(&LawOfTheWall::value, &law_(), magUp[faceI], h_[faceI], _1, nuw[faceI]);
-            derivValue = std::bind(&LawOfTheWall::derivative, &law_(), magUp[faceI], h_[faceI], _1, nuw[faceI]);
+            value = std::bind(&LawOfTheWall::value, &law_(), magUp[faceI], 
+                              h_[faceI], _1, nuw[faceI]);
+            
+            derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
+                                   magUp[faceI], h_[faceI], _1, nuw[faceI]);
       //      Pout << "binding" << nl;
 
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
@@ -270,7 +283,8 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     }
     //Pout << "done with face loop" << nl;
 
-    volScalarField & uTauField = const_cast<volScalarField &>(db().lookupObject<volScalarField>("uTau"));
+    volScalarField & uTauField = const_cast<volScalarField &>(
+                                    db().lookupObject<volScalarField>("uTau"));
      
     uTauField.boundaryField()[patch().index()] == uTau;
     
