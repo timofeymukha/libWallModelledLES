@@ -319,8 +319,8 @@ void wallModelFvPatchScalarField::createCellIndexList()
             }
             
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
-            cellIndexList_[i] = ms.findNearestCell(cellCentres[i], 0, false);
-            testCellIndexList[i] = ms.findNearestCell(cellCentres[i], 0, false);
+            cellIndexList_[i] = ms.findNearestCell(cellCentres[i], -1, true);
+            testCellIndexList[i] = ms.findNearestCell(cellCentres[i], -1, true);
             
         }
         else
@@ -338,8 +338,8 @@ void wallModelFvPatchScalarField::createCellIndexList()
                 point = cellCentres[i];
             }
 
-            cellIndexList_[i] = ms.findNearestCell(point, -1, false);
-            testCellIndexList[i] = ms.findNearestCell(cellCentres[i], -1, false);
+            cellIndexList_[i] = ms.findNearestCell(point, -1, true);
+            testCellIndexList[i] = ms.findNearestCell(cellCentres[i], -1, true);
 
             if (cellIndexList_[i] == -1)
             {
