@@ -104,6 +104,7 @@ public:
         //- Return root
         scalar root(scalar x0) const;
         
+        //- Write
         virtual void write(Ostream& os) const
         {
             RootFinder::write(os);

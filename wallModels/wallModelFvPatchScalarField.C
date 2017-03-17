@@ -77,6 +77,7 @@ void wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 void wallModelFvPatchScalarField::createFields() const
 {
    
+    // Create and register h field, if not there already
     if (!db().found("h"))
     {
         db().store
@@ -96,8 +97,11 @@ void wallModelFvPatchScalarField::createFields() const
         );
     }
     
-    const volScalarField & h = db().lookupObject<volScalarField> ("h");
+    const volScalarField & h = db().lookupObject<volScalarField>("h");
     
+    
+    // Create and register uTau field, if not there already.
+    // This holds uTau as computed by the wall model.
     if (!db().found("uTau"))
     {
         db().store
@@ -119,6 +123,8 @@ void wallModelFvPatchScalarField::createFields() const
         );
     }
 
+    // For debugging, create a field that stores uTau as computed by
+    // The built-in Spalding law wall model.
     if ((!db().found("uTauBench")) && (debug > 1))
     {
         db().store
@@ -212,17 +218,9 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
             << patch().name() << nl;
     }
     
-//    Pout << "From patch, field and dict" << nl;
     checkType();
- //   Pout << "Checked type" << nl;
-    
-    
     createFields();
-    createCellIndexList();
- //   Pout << "Built cell indexing" << nl;
-    
-    
-
+    createCellIndexList();  
 }
 
 
@@ -277,38 +275,39 @@ void wallModelFvPatchScalarField::createCellIndexList()
             << nl;   
     }
     
-    const label size = patch().size();
+    //const label size = patch().size();
     const label patchIndex = patch().index();
-    volScalarField & h = const_cast<volScalarField &>(
-        db().lookupObject<volScalarField> ("h"));
+    
+    // Grab h for the current patch
+    volScalarField & h = 
+        const_cast<volScalarField &>(db().lookupObject<volScalarField> ("h"));
+    
     h_ = h.boundaryField()[patchIndex];
 
-
-    //Pout << "Patch size " << size << nl;
     
-    labelList testCellIndexList(size);
-        
+    //labelList testCellIndexList(size);
+
+    // Grab the mesh
     const fvMesh & mesh = patch().boundaryMesh().mesh();
 
-
+    // Create a searcher for the mesh
     meshSearch ms(mesh);
     
+    // Grab face centres, normal and adjacent cells' centres
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField faceNormals = tfaceNormals();
     const tmp<vectorField> tcellCentres = patch().Cn();
     const vectorField cellCentres = tcellCentres();
     
+    // Grab the indices of adjacent cells
     const labelUList & faceCells = patch().faceCells();
 
-    
-    //Info << faceNormals << endl;
-    //Info << faceCentres << endl;
-    //Info << cellCentres << endl;
-    
     vector point;
     forAll(faceCentres, i)
     {
+        // If h is zero, set it to distance to adjacent cell's centre
+        // Set the cellIndexList component accordingly.
         if (h_[i] == 0)
         {
             if (debug > 1)
@@ -319,14 +318,18 @@ void wallModelFvPatchScalarField::createCellIndexList()
             }
             
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
-            cellIndexList_[i] = ms.findNearestCell(cellCentres[i], -1, true);
-            testCellIndexList[i] = ms.findNearestCell(cellCentres[i], -1, true);
+            cellIndexList_[i] = faceCells[i];
+                    //ms.findNearestCell(cellCentres[i], -1, true);
+            //testCellIndexList[i] = ms.findNearestCell(cellCentres[i], -1, true);
             
         }
         else
         {
+            // Grab the point h away along the face normal
             point = faceCentres[i] - faceNormals[i]*h_[i];
 
+            // Check that point is inside the (processor) domain
+            // Otherwise fall back to adjacent cell's centre.
             if (!ms.isInside(point))
             {
                 if (debug)
@@ -338,8 +341,10 @@ void wallModelFvPatchScalarField::createCellIndexList()
                 point = cellCentres[i];
             }
 
+            // Find the cell where the point is located
             cellIndexList_[i] = ms.findNearestCell(point, -1, true);
-            testCellIndexList[i] = ms.findNearestCell(cellCentres[i], -1, true);
+            
+            /*testCellIndexList[i] = ms.findNearestCell(cellCentres[i], -1, true);
 
             if (cellIndexList_[i] == -1)
             {
@@ -350,22 +355,15 @@ void wallModelFvPatchScalarField::createCellIndexList()
                     << patch().name() << ", with face centre " << faceCentres[i]
                     << abort(FatalError);     
 
-            }
+            }*/
             
+            // Set h to the distance between face centre and located cell's
+            // center
             h_[i] = mag(mesh.C()[cellIndexList_[i]] - faceCentres[i]);
         }
     }
     
-//    Pout << cellIndexList_ - testCellIndexList << nl;
-//    Pout << cellIndexList_ - faceCells << nl;
-
-/*    vectorField sampleCellsCC(size);
-    
-    forAll(sampleCellsCC, i)
-    {
-        sampleCellsCC[i] = mesh.C()[cellIndexList_[i]];
-    }
-*/    
+    // Assignt computed h_ to the global h field
     h.boundaryField()[patch().index()] == h_;
 }
 
@@ -376,6 +374,7 @@ void wallModelFvPatchScalarField::updateCoeffs()
         return;
     }
 
+    // Compute nut and assign
     operator==(calcNut());
 
     fixedValueFvPatchScalarField::updateCoeffs();
@@ -386,10 +385,7 @@ void wallModelFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
     writeLocalEntries(os);
-//    os.writeKeyword("h") << h_ << token::END_STATEMENT << endl;
-    writeEntry("value", os);
-    
-
+    writeEntry("value", os);  
 }
 
 

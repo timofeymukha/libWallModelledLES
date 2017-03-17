@@ -56,7 +56,8 @@ class BisectionRootFinder : public RootFinder
 {
     // Private data
     
-    // - The bracket defining the interval where the root will be searched
+    //- The bracket defining the interval where the root will be searched
+    //  [1/bracket*guess; bracket*guess]
     scalar bracket_;
 
 public:
@@ -83,7 +84,7 @@ public:
             const dictionary & dict
         );
         
-        //- Construct given dict
+        //- Construct given dicttionary
         BisectionRootFinder
         (
             const dictionary & dict

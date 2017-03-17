@@ -60,6 +60,7 @@ Foam::scalar Foam::NewtonRootFinder::root(scalar guess) const
 {
     scalar error = 0;
 
+    // Crash if derivative is zero
     if (0 == d_(guess))
     {
         FatalErrorIn
@@ -79,6 +80,7 @@ Foam::scalar Foam::NewtonRootFinder::root(scalar guess) const
         scalar xNew = guess - f/d;
         
         error = mag(xNew - guess)/mag(guess);
+    
         if (error <= eps_)
         {
             return xNew;

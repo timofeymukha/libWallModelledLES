@@ -58,6 +58,7 @@ class LawOfTheWall
 {
 protected:
     
+    //- Dictionary holding the model constants that the law uses
     dictionary constDict_;
 
 public:
@@ -79,56 +80,62 @@ public:
     // Destructor
         virtual ~LawOfTheWall() {}
 
-        
-    // RTS table "Dictionary"    
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        LawOfTheWall,
-        Dictionary,
+    
+    // RTS tables
+        // RTS table "Dictionary"    
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            LawOfTheWall,
+            Dictionary,
+            (
+                const dictionary & dict
+            ),
+            (dict)
+        )
+
+        // RTS table "TypeAndDictionary"    
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            LawOfTheWall,
+            TypeAndDictionary,
+            (
+                const word & lawName,
+                const dictionary & dict
+            ),
+            (lawName, dict)
+        )  
+    
+    // Selectors
+        static autoPtr<LawOfTheWall> New 
         (
             const dictionary & dict
-        ),
-        (dict)
-    )
+        );
 
-    // RTS table "TypeAndDictionary"    
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        LawOfTheWall,
-        TypeAndDictionary,
+        static autoPtr<LawOfTheWall> New 
         (
             const word & lawName,
             const dictionary & dict
-        ),
-        (lawName, dict)
-    )  
-    
-    // Selectors
-    static autoPtr<LawOfTheWall> New 
-    (
-        const dictionary & dict
-    );
-    
-    static autoPtr<LawOfTheWall> New 
-    (
-        const word & lawName,
-        const dictionary & dict
-    );
+        );
         
     // Member Functions
     
-        //- Print the model coefficients
+        //- Print info
         virtual void printCoeffs() const = 0; 
 
         //- Return the value of the implicit function defining the law
         virtual scalar value(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
 
-        virtual scalar derivative(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
+        //- Return the value of the  derivative of the implicit function
+        //  defining the law
+        virtual scalar 
+        derivative(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
         
+        //- Write information about the law to stream
         virtual void write(Ostream & os) const; 
         
+        //- Get the dictionary with the constants
         dictionary constDict() const
         {
             return constDict_;

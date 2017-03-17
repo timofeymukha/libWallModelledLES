@@ -69,6 +69,7 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
     
     const label patchi = patch().index();
 
+    // Grab turbulence model to get fields access
     const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
     (
         IOobject::groupName
@@ -78,42 +79,39 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
         )
     );
     
+    // Velocity at the boundary (in case of moving boundary)
     const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
+    
+    // Magnitude of wall-normal velocity gradient
     const scalarField magGradU(mag(Uw.snGrad()));
+    
+    // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
     
-
- 
+    // Debug output
     if ((patch().size() > 0) && (debug))
     {
+        // Compute uTau using current model and the default Spalding model
         scalarField uTauNew = calcUTau();
         scalarField uTauBench = calcUTauBench(magGradU);
-        
-       // scalarList uTauNewPerProc(Pstream::nProcs(), 0.0);
-       // scalarList uTauBenchPerProc(Pstream::nProcs(), 0.0);
-       // label thisProcNb = Pstream::myProcNo();
-        
-        
-      //  uTauNewPerProc[thisProcNb] = sum(uTauNew)/patch().size();
-       // uTauBenchPerProc[thisProcNb] = sum(uTauBench)/patch().size();
-        
-       // reduce( uTauNewPerProc, sumOp<scalarList>() );
-       // reduce( uTauBenchPerProc, sumOp<scalarList>() );
-        //Pout<< sum(uTauNewPerProc)/Pstream::nProcs() << " "
-        //    << sum(uTauBenchPerProc)/Pstream::nProcs() << nl;
-       
+               
+        // Average (not-weighted). As usual, value is local to processor
         scalar avrgNew = sum(uTauNew)/patch().size();
         scalar avrgBench = sum(uTauBench)/patch().size();
+        
+        // Compute relative error
         scalar diff = mag(avrgNew - avrgBench)/avrgBench*100;
         
+        // If error > 1 percent, report
         if (diff > 1)
         {
-        Pout<< "Average uTau/uTauBench " << sum(uTauNew)/patch().size() << " "
-            << sum(uTauBench)/patch().size() << " " << diff << ", patch " << patch().name()
-            << nl;
+            Pout<< "Average uTau/uTauBench/diff " << sum(uTauNew)/patch().size() 
+                << " " << sum(uTauBench)/patch().size() << " " << diff
+                << ", patch " << patch().name() << nl;
         }
     }
+    
     return max
     (
         scalar(0),
@@ -156,8 +154,7 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTauBench
     forAll(uTau, faceI)
     {
         scalar ut = sqrt((nutw[faceI] + nuw[faceI])*magGradU[faceI]);
-        //Info<< "Face " << faceI << " " << "Inital utau " << ut << endl;
-        //Info<< "nut " << nutw[faceI] << " gradU " << magGradU[faceI] << endl; 
+
         if (ut > ROOTVSMALL)
         {
             int iter = 0;
@@ -172,13 +169,12 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTauBench
                     - ut*y[faceI]/nuw[faceI]
                     + magUp[faceI]/ut
                     + 1/E_*(fkUu - 1.0/6.0*kUu*sqr(kUu));
-             //   Info<< "Value " << f<<endl;
 
                 scalar df =
                     y[faceI]/nuw[faceI]
                   + magUp[faceI]/sqr(ut)
                   + 1/E_*kUu*fkUu/ut;
-            //    Info<< "Derivative " << df<<endl;
+
                 scalar uTauNew = ut + f/df;
                 err = mag((ut - uTauNew)/ut);
                 ut = uTauNew;
@@ -186,9 +182,10 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTauBench
             } while (ut > ROOTVSMALL && err > 0.01 && ++iter < 10);
 
             uTau[faceI] = max(0.0, ut);
-         //   Info<<uTau[faceI]<< endl;
+
         }
     }
+    
     if (db().found("uTauBench"))
     {
     volScalarField & uTauField = const_cast<volScalarField &>(
@@ -214,16 +211,25 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     );
     //const scalarField& y = turbModel.y()[patchi];
     
+    // Velocity in internal field
     const vectorField & U = turbModel.U().internalField();
 
+    // Velocity on boundary
     const fvPatchVectorField & Uw = turbModel.U().boundaryField()[patchi];
-    const scalarField magGradU(mag(Uw.snGrad()));
     
+    // Magnitude of wall-normal gradient
+    const scalarField magGradU(mag(Uw.snGrad()));
+   
+    // Face normals
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField faceNormals = tfaceNormals();
     
-    scalarField magUp(patch().size());
+   
+    // Velocity relative to boundary and its magnitude
     vectorField Up(patch().size());
+    scalarField magUp(patch().size());
+ 
+    // Normal and parallel components
     vectorField Unormal(patch().size());
     vectorField Upar(patch().size());
     scalarField magUpar(patch().size());
@@ -232,7 +238,11 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     {   
         Up[i] = U[cellIndexList_[i]] - Uw[i];
         magUp[i] = mag(Up[i]);
+        
+        // Normal component as dot product with (inwards) face normal
         Unormal[i] = -faceNormals[i]*(Up[i] & -faceNormals[i]);
+        
+        // Subtract normal component to get the parallel one
         Upar[i] = Up[i] - Unormal[i];
         magUpar[i] = mag(Upar[i]);
     }
@@ -243,49 +253,53 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     Info << "Upar " << Upar << nl;
     Info << "diff " << magUp - sqrt((sqr(magUpar) + sqr(mag(Unormal)))) << nl;
     */
-    
-            
-    
-    //Pout << magUp << nl;
-    //Pout << "h " << h_ << nl;
 
+    // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField & nuw = tnuw();
 
+    // Turbulent viscosity
     const scalarField & nutw = *this;
 
+    // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
     scalarField& uTau = tuTau();
-       
+    
+    // Function to give to the root finder
     std::function<scalar(scalar)> value;
     std::function<scalar(scalar)> derivValue;
         
-    //Pout << "starting face loop" << nl;
+    // Compute uTau for each face
     forAll(uTau, faceI)
     {
+        // Starting guess using definition
         scalar ut = sqrt((nutw[faceI] + nuw[faceI])*magGradU[faceI]);
-       // Pout << "guess " << ut << nl;
 
         if (ut > ROOTVSMALL)
         {
+            // Construct functions dependant on a single parameter (uTau)
+            // from functions given by the law of the wall
+            // NOTE we currently still use magUp, not magUpar
             value = std::bind(&LawOfTheWall::value, &law_(), magUp[faceI], 
                               h_[faceI], _1, nuw[faceI]);
             
             derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
                                    magUp[faceI], h_[faceI], _1, nuw[faceI]);
-      //      Pout << "binding" << nl;
 
+            // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
             const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
-      //      Pout << "rooroott" << nl;
+      
+            // Compute root to get uTau
             uTau[faceI] = max(0.0, rootFinder_->root(ut));
         }
     }
-    //Pout << "done with face loop" << nl;
 
-    volScalarField & uTauField = const_cast<volScalarField &>(
-                                    db().lookupObject<volScalarField>("uTau"));
+    // Grab global uTau field
+    volScalarField & uTauField = 
+        const_cast<volScalarField &>(db().lookupObject<volScalarField>("uTau"));
      
+    // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryField()[patch().index()] == uTau;
     
     return tuTau;

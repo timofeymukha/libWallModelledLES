@@ -88,6 +88,7 @@ Foam::BisectionRootFinder::BisectionRootFinder
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+// This one probably needs some work
 Foam::scalar Foam::BisectionRootFinder::root
 (
     scalar x1
@@ -95,6 +96,7 @@ Foam::scalar Foam::BisectionRootFinder::root
 {
     scalar f, fMid, dx, rtb, xMid;
 
+    // Create interval based on bracket and initial guess
     scalar x0 = 1/bracket_*x1;
     x1 = bracket_*x1;
     
@@ -102,6 +104,9 @@ Foam::scalar Foam::BisectionRootFinder::root
     f = f_(x0);
     
   
+    // Crash if root is not bracketed. We might want to fall back to
+    // [0, bracket*x1] first, since uTau > 0. This may be needed in the first
+    // iterations of the solver
     if (f*fMid >= 0)
     {
         FatalErrorIn
@@ -138,6 +143,7 @@ Foam::scalar Foam::BisectionRootFinder::root
             rtb = xMid;
         }
 
+        // Note that this is the absolute error, and we use relative in Newton..
         if (mag(dx)/rtb < eps_ || mag(fMid) < SMALL)
         {
             return rtb;

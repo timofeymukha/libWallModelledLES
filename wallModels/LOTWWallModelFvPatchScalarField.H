@@ -58,13 +58,15 @@ class LOTWWallModelFvPatchScalarField
 protected:
     
     // Protected Data
+    
+        //- Pointer to the root finder
         autoPtr<RootFinder> rootFinder_;
     
-        //- The "law of the wall" to be used
+        //- Pointer to the LOTW to be used
         autoPtr<LawOfTheWall> law_;
     
     // Protected Member Functions
-        //- Write root finder and law properties to stream
+        //- Write root finder and LOTW properties to stream
         virtual void writeLocalEntries(Ostream &) const;
         
         //- Calculate the turbulence viscosity
@@ -74,11 +76,9 @@ protected:
         virtual tmp<scalarField> calcUTau() const;
         
         //- Benchmark for calculating the friction velocity
+        //  using the default Spalding wall model
         virtual tmp<scalarField> calcUTauBench(const scalarField& magGradU) const;
         
-
-
-
 public:
 
     //- Runtime type information

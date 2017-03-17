@@ -68,7 +68,7 @@ protected:
     //- Pointer to the derivative
     std::function<scalar(scalar)> d_;
     
-     //- Tolerance
+     //- Target relative error
     const scalar eps_;
         
     //- Maximum number of iterations
@@ -107,7 +107,7 @@ public:
         f_(f),
         d_(d),
         eps_(dict.lookupOrDefault<scalar>("eps", 1e-2)),
-        maxIter_(dict.lookupOrDefault<label>("maxIter", 15))
+        maxIter_(dict.lookupOrDefault<label>("maxIter", 10))
         {};
         
         RootFinder 
@@ -118,77 +118,79 @@ public:
         f_(rootFinderDummy),
         d_(rootFinderDummy),
         eps_(dict.lookupOrDefault<scalar>("eps", 1e-2)),
-        maxIter_(dict.lookupOrDefault<label>("maxIter", 15))
+        maxIter_(dict.lookupOrDefault<label>("maxIter", 10))
         {};
 
 
     // Destructor
         virtual ~RootFinder() {};
 
-    // RTS table "Word"    
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        RootFinder,
-        Word,
+    // RTS tables 
+        
+        // RTS table "Word"    
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            RootFinder,
+            Word,
+            (
+                const word& rootFinderName,
+                std::function<scalar(scalar)> f,
+                std::function<scalar(scalar)> d,
+                const scalar eps,
+                const label maxIter
+            ),
+            (rootFinderName, f, d, eps, maxIter)
+        )
+
+        // RTS table "Dictionary"    
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            RootFinder,
+            Dictionary,
+            (
+                std::function<scalar(scalar)> f,
+                std::function<scalar(scalar)> d,
+                const dictionary & dict
+            ),
+            (f, d, dict)
+        )
+
+        // RTS table "DictionaryOnly"    
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            RootFinder,
+            DictionaryOnly,
+            (
+                const dictionary & dict
+            ),
+            (dict)
+        )
+    
+      
+    // Selectors
+        static autoPtr<RootFinder> New 
         (
             const word& rootFinderName,
             std::function<scalar(scalar)> f,
             std::function<scalar(scalar)> d,
             const scalar eps,
             const label maxIter
-        ),
-        (rootFinderName, f, d, eps, maxIter)
-    )
-    
-    // RTS table "Dictionary"    
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        RootFinder,
-        Dictionary,
+        );
+
+        static autoPtr<RootFinder> New 
         (
             std::function<scalar(scalar)> f,
             std::function<scalar(scalar)> d,
             const dictionary & dict
-        ),
-        (f, d, dict)
-    )
-    
-    // RTS table "DictionaryOnly"    
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        RootFinder,
-        DictionaryOnly,
+        );
+
+        static autoPtr<RootFinder> New 
         (
             const dictionary & dict
-        ),
-        (dict)
-    )
-    
-      
-    // Selectors
-    static autoPtr<RootFinder> New 
-    (
-        const word& rootFinderName,
-        std::function<scalar(scalar)> f,
-        std::function<scalar(scalar)> d,
-        const scalar eps,
-        const label maxIter
-    );
-    
-    static autoPtr<RootFinder> New 
-    (
-        std::function<scalar(scalar)> f,
-        std::function<scalar(scalar)> d,
-        const dictionary & dict
-    );
-    
-    static autoPtr<RootFinder> New 
-    (
-        const dictionary & dict
-    );
+        );
    
     // Member Functions
 
@@ -219,11 +221,13 @@ public:
             return maxIter_;
         }
         
+        //- Get f_
         std::function<scalar(scalar)> f() const
         {
             return f_;
         }
         
+        //- Get d_
         std::function<scalar(scalar)> d() const
         {
             return d_;

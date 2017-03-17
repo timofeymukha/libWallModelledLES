@@ -57,12 +57,13 @@ protected:
     
     // Protected data
     
-
+        //- The indices of the cells that data is sampled from
         labelList cellIndexList_;
         
         //- The distance from the wall that data is sampled from
         scalarField h_;
           
+        //- Create fields and add to registry
         void createFields() const;
 
     // Protected Member Functions
@@ -144,7 +145,7 @@ public:
         
         // Evaluation functions
 
-            //- Update the coefficients associated with the patch field
+            //- Update the boundary values
             virtual void updateCoeffs();
 
 
