@@ -42,6 +42,7 @@ SourceFiles
 #include "wallFvPatch.H"
 #include "addToRunTimeSelectionTable.H"
 #include "objectRegistry.H"
+#include "turbulenceModel.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -117,11 +118,34 @@ void wallModelFvPatchScalarField::createFields() const
                     IOobject::AUTO_WRITE
                 ),
                 patch().boundaryMesh().mesh(),
-                dimensionedScalar("uTau", dimensionSet(0,1,-1,0,0,0,0), 0.0),
+                dimensionedScalar("uTau", dimVelocity, 0.0),
                 h.boundaryField().types()
             )
         );
     }
+    
+
+    if (!db().found("samplingCells"))
+    {
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "samplingCells",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                dimensionedScalar("samplingCells", dimless,0),
+                h.boundaryField().types()
+            )
+        );
+    }
+    
 
     // For debugging, create a field that stores uTau as computed by
     // The built-in Spalding law wall model.
@@ -140,7 +164,7 @@ void wallModelFvPatchScalarField::createFields() const
                     IOobject::AUTO_WRITE
                 ),
                 patch().boundaryMesh().mesh(),
-                dimensionedScalar("uTauBench", dimensionSet(0,1,-1,0,0,0,0), 0.0),
+                dimensionedScalar("uTauBench", dimVelocity, 0.0),
                 h.boundaryField().types()
             )
         );
@@ -148,6 +172,82 @@ void wallModelFvPatchScalarField::createFields() const
     
 }
 
+tmp<scalarField> wallModelFvPatchScalarField::calcUTauBench
+(
+    const scalarField& magGradU
+) const
+{
+    const label patchi = patch().index();
+
+    const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
+    (
+        IOobject::groupName
+        (
+            turbulenceModel::propertiesName,
+            dimensionedInternalField().group()
+        )
+    );
+    const scalarField& y = turbModel.y()[patchi];
+
+    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
+    const scalarField magUp(mag(Uw.patchInternalField() - Uw));
+
+    const tmp<scalarField> tnuw = turbModel.nu(patchi);
+    const scalarField& nuw = tnuw();
+
+    const scalarField& nutw = *this;
+
+    scalar kappa_ = 0.4;
+    scalar E_ = 9.02501349943;
+    
+    tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
+    scalarField& uTau = tuTau();
+  
+    
+    forAll(uTau, faceI)
+    {
+        scalar ut = sqrt((nutw[faceI] + nuw[faceI])*magGradU[faceI]);
+
+        if (ut > ROOTVSMALL)
+        {
+            int iter = 0;
+            scalar err = GREAT;
+
+            do
+            {
+                scalar kUu = min(kappa_*magUp[faceI]/ut, 50);
+                scalar fkUu = exp(kUu) - 1 - kUu*(1 + 0.5*kUu);
+
+                scalar f =
+                    - ut*y[faceI]/nuw[faceI]
+                    + magUp[faceI]/ut
+                    + 1/E_*(fkUu - 1.0/6.0*kUu*sqr(kUu));
+
+                scalar df =
+                    y[faceI]/nuw[faceI]
+                  + magUp[faceI]/sqr(ut)
+                  + 1/E_*kUu*fkUu/ut;
+
+                scalar uTauNew = ut + f/df;
+                err = mag((ut - uTauNew)/ut);
+                ut = uTauNew;
+
+            } while (ut > ROOTVSMALL && err > 0.01 && ++iter < 10);
+
+            uTau[faceI] = max(0.0, ut);
+
+        }
+    }
+    
+    if (db().found("uTauBench"))
+    {
+    volScalarField & uTauField = const_cast<volScalarField &>(
+                                    db().lookupObject<volScalarField>("uTauBench"));
+     
+    uTauField.boundaryField()[patch().index()] == uTau;
+    }
+    return tuTau;
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -363,8 +463,17 @@ void wallModelFvPatchScalarField::createCellIndexList()
         }
     }
     
-    // Assignt computed h_ to the global h field
+    // Assign computed h_ to the global h field
     h.boundaryField()[patch().index()] == h_;
+    
+    // Grab samplingCells field
+    volScalarField & samplingCells = 
+        const_cast<volScalarField &>(db().lookupObject<volScalarField> ("samplingCells"));
+    
+    forAll(cellIndexList_, i)
+    {
+        samplingCells[cellIndexList_[i]] = patchIndex; 
+    }
 }
 
 void wallModelFvPatchScalarField::updateCoeffs()

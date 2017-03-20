@@ -75,9 +75,7 @@ protected:
         //- Calculate the friction velocity
         virtual tmp<scalarField> calcUTau() const;
         
-        //- Benchmark for calculating the friction velocity
-        //  using the default Spalding wall model
-        virtual tmp<scalarField> calcUTauBench(const scalarField& magGradU) const;
+
         
 public:
 

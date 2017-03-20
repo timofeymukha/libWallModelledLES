@@ -77,6 +77,9 @@ protected:
         //- Write local wall function variables
         virtual void writeLocalEntries(Ostream&) const;
 
+        //- Benchmark for calculating the friction velocity
+        //  using the default Spalding wall model
+        tmp<scalarField> calcUTauBench(const scalarField& magGradU) const;
 
 public:
 

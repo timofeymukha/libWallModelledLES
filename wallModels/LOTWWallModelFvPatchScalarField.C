@@ -25,7 +25,7 @@ Class
 LOTWWallModel
 
 Description
-    Base abstract class for LES wall models.
+    Class for wall models based on a Law of the Wall.
 
 Authors
     Timofey Mukha.  All rights reserved.
@@ -119,82 +119,7 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
     );
 }
 
-tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTauBench
-(
-    const scalarField& magGradU
-) const
-{
-    const label patchi = patch().index();
 
-    const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
-    (
-        IOobject::groupName
-        (
-            turbulenceModel::propertiesName,
-            dimensionedInternalField().group()
-        )
-    );
-    const scalarField& y = turbModel.y()[patchi];
-
-    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
-    const scalarField magUp(mag(Uw.patchInternalField() - Uw));
-
-    const tmp<scalarField> tnuw = turbModel.nu(patchi);
-    const scalarField& nuw = tnuw();
-
-    const scalarField& nutw = *this;
-
-    scalar kappa_ = 0.4;
-    scalar E_ = 9.02501349943;
-    
-    tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
-    scalarField& uTau = tuTau();
-  
-    
-    forAll(uTau, faceI)
-    {
-        scalar ut = sqrt((nutw[faceI] + nuw[faceI])*magGradU[faceI]);
-
-        if (ut > ROOTVSMALL)
-        {
-            int iter = 0;
-            scalar err = GREAT;
-
-            do
-            {
-                scalar kUu = min(kappa_*magUp[faceI]/ut, 50);
-                scalar fkUu = exp(kUu) - 1 - kUu*(1 + 0.5*kUu);
-
-                scalar f =
-                    - ut*y[faceI]/nuw[faceI]
-                    + magUp[faceI]/ut
-                    + 1/E_*(fkUu - 1.0/6.0*kUu*sqr(kUu));
-
-                scalar df =
-                    y[faceI]/nuw[faceI]
-                  + magUp[faceI]/sqr(ut)
-                  + 1/E_*kUu*fkUu/ut;
-
-                scalar uTauNew = ut + f/df;
-                err = mag((ut - uTauNew)/ut);
-                ut = uTauNew;
-
-            } while (ut > ROOTVSMALL && err > 0.01 && ++iter < 10);
-
-            uTau[faceI] = max(0.0, ut);
-
-        }
-    }
-    
-    if (db().found("uTauBench"))
-    {
-    volScalarField & uTauField = const_cast<volScalarField &>(
-                                    db().lookupObject<volScalarField>("uTauBench"));
-     
-    uTauField.boundaryField()[patch().index()] == uTau;
-    }
-    return tuTau;
-}
 
 tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
 {
