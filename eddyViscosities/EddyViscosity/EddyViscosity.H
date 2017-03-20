@@ -22,21 +22,21 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    LawOfTheWall
+    EddyViscosity
 
 Description
-    Base class for laws of the wall.
+    Base class for 1d "mixing length"-type turbulence models.
 
 Authors
     Timofey Mukha.  All rights reserved.
 
 SourceFiles
-    LawOfTheWall.C
+    EddyViscosity.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef LawOfTheWall_H
-#define LawOfTheWall_H
+#ifndef EddyViscosity_H
+#define EddyViscosity_H
 
 #include "scalar.H"
 #include "dictionary.H"
@@ -44,41 +44,41 @@ SourceFiles
 #include "typeInfo.H"
 #include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
-
+#include "Field.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                      Class LawOfTheWall Declaration
+                      Class EddyViscosity Declaration
 \*---------------------------------------------------------------------------*/
 
-class LawOfTheWall
+class EddyViscosity
 {
 protected:
     
-    //- Dictionary holding the model constants that the law uses
+    //- Dictionary holding the model constants
     dictionary constDict_;
 
 public:
 
-    TypeName("LawOfTheWall");
+    TypeName("EddyViscosity");
     
     // Constructors
     
-        LawOfTheWall(const dictionary & dict)
+        EddyViscosity(const dictionary & dict)
         :
         constDict_(dict)
         {}
         
-        LawOfTheWall(const word& lawName, const dictionary & dict)
+        EddyViscosity(const word& modelName, const dictionary & dict)
         :
         constDict_(dict)
         {}
 
     // Destructor
-        virtual ~LawOfTheWall() {}
+        virtual ~EddyViscosity() {}
 
     
     // RTS tables
@@ -86,7 +86,7 @@ public:
         declareRunTimeSelectionTable
         (
             autoPtr,
-            LawOfTheWall,
+            EddyViscosity,
             Dictionary,
             (
                 const dictionary & dict
@@ -98,22 +98,22 @@ public:
         declareRunTimeSelectionTable
         (
             autoPtr,
-            LawOfTheWall,
+            EddyViscosity,
             TypeAndDictionary,
             (
-                const word & lawName,
+                const word & modelName,
                 const dictionary & dict
             ),
-            (lawName, dict)
+            (modelName, dict)
         )  
     
     // Selectors
-        static autoPtr<LawOfTheWall> New 
+        static autoPtr<EddyViscosity> New 
         (
             const dictionary & dict
         );
 
-        static autoPtr<LawOfTheWall> New 
+        static autoPtr<EddyViscosity> New 
         (
             const word & lawName,
             const dictionary & dict
@@ -124,14 +124,9 @@ public:
         //- Print info
         virtual void printCoeffs() const = 0; 
 
-        //- Return the value of the implicit function defining the law
-        virtual scalar
-        value(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
-
-        //- Return the value of the  derivative of the implicit function
-        //  defining the law
-        virtual scalar 
-        derivative(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
+        //- Return the value of nut
+        virtual scalarList
+        value(const scalarList & y, scalar uTau, scalar nu) const = 0;
         
         //- Write information about the law to stream
         virtual void write(Ostream & os) const; 

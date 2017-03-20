@@ -1,0 +1,112 @@
+/*---------------------------------------------------------------------------* \
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Class
+    JohnsonKingEddyViscosity
+
+Description
+    The eddy viscosity model proposed by Johnson and King.
+
+Authors
+    Timofey Mukha.  All rights reserved.
+
+ \*---------------------------------------------------------------------------*/
+
+#include "JohnsonKingEddyViscosity.H"
+#include "dictionary.H"
+#include "error.H"
+#include "addToRunTimeSelectionTable.H"
+
+namespace Foam
+{
+    defineTypeNameAndDebug(JohnsonKingEddyViscosity, 0);
+    addToRunTimeSelectionTable(EddyViscosity, JohnsonKingEddyViscosity, Dictionary);
+    addToRunTimeSelectionTable(EddyViscosity, JohnsonKingEddyViscosity, TypeAndDictionary);
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
+(
+    const dictionary & dict
+)
+:
+    EddyViscosity(dict),
+    APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
+    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
+{
+    if (debug)
+    {        
+        printCoeffs();
+    }
+    
+}
+
+Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
+(
+    const word & lawName,
+    const dictionary & dict
+)
+:
+    EddyViscosity(dict),
+    APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
+    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
+{
+    if (debug)
+    {        
+        printCoeffs();
+    }
+}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::JohnsonKingEddyViscosity::printCoeffs() const
+{
+    Info<< nl << "JohnsonKing eddy viscosity model" << nl;
+    Info<< token::BEGIN_BLOCK << incrIndent << nl;
+    Info<< indent << "APlus" << indent << APlus_ << nl;
+    Info<< indent << "kappa" << indent <<  kappa_ << nl;
+    Info<< token::END_BLOCK << nl << nl;
+}
+
+Foam::scalarList Foam::JohnsonKingEddyViscosity::value
+(
+    const scalarList & y,
+    scalar uTau,
+    scalar nu
+) const
+{  
+    const scalarList yPlus = y*uTau/nu;
+    
+    scalarList values(y.size(), 0.0);
+     
+    forAll(values, i)
+    {
+        values[i] = kappa_*uTau*y[i]*sqr(1 - exp(-yPlus[i]/APlus_));
+    }
+    return values;
+}
+
+// ************************************************************************* //
+}

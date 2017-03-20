@@ -22,23 +22,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-wallModel
+EquilibriumODEWallModel
 
 Description
-    Base abstract class for LES wall models.
+    ODE wall model with a zero source term.
 
 Authors
     Timofey Mukha.  All rights reserved.
 
 SourceFiles
-    wallModelFvPatchScalarField.C
+    EquilibriumODEWallModelFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef wallModelFvPatchScalarField_H
-#define wallModelFvPatchScalarField_H
+#ifndef EquilibriumODEWallModelFvPatchScalarField_H
+#define EquilibriumODEWallModelFvPatchScalarField_H
 
-#include "fixedValueFvPatchFields.H"
+#include "ODEWallModelFvPatchScalarField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -46,58 +46,42 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-             Class wallModelFvPatchScalarField Declaration
+          Class EquilibriumODEWallModelPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class wallModelFvPatchScalarField
+class EquilibriumODEWallModelFvPatchScalarField
 :
-    public fixedValueFvPatchScalarField
+    public ODEWallModelFvPatchScalarField
 {
 protected:
-    
-    // Protected data
-    
-        //- The indices of the cells that data is sampled from
-        labelList cellIndexList_;
         
-        //- The distance from the wall that data is sampled from
-        scalarField h_;
-          
-        //- Create fields and add to registry
-        void createFields() const;
-
     // Protected Member Functions
-
-        //- Check the type of the patch
-        virtual void checkType();
-
-        //- Calculate the turbulence viscosity
-        virtual tmp<scalarField> calcNut() const = 0;
-
-        //- Write local wall function variables
-        virtual void writeLocalEntries(Ostream&) const;
-
-        //- Benchmark for calculating the friction velocity
-        //  using the default Spalding wall model
-        tmp<scalarField> calcUTauBench(const scalarField& magGradU) const;
-
+        //- Write root finder and EquilibriumODE properties to stream
+        virtual void writeLocalEntries(Ostream &) const;
+        
+        
+        scalar source() const
+        {
+            return 0;
+        };
+        
 public:
 
     //- Runtime type information
-    TypeName("wallModel");
+    TypeName("EquilibriumODEWallModel");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        wallModelFvPatchScalarField
+        EquilibriumODEWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        wallModelFvPatchScalarField
+        EquilibriumODEWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
@@ -105,57 +89,61 @@ public:
         );
 
         //- Construct by mapping given
-        //  wallModelFvPatchScalarField
+        //  EquilibriumODEWallModelFvPatchScalarField
         //  onto a new patch
-        wallModelFvPatchScalarField
+        EquilibriumODEWallModelFvPatchScalarField
         (
-            const wallModelFvPatchScalarField&,
+            const EquilibriumODEWallModelFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct as copy
-        wallModelFvPatchScalarField
+        EquilibriumODEWallModelFvPatchScalarField
         (
-            const wallModelFvPatchScalarField&
+            const EquilibriumODEWallModelFvPatchScalarField&
         );
 
+        //- Construct and return a clone
+        virtual tmp<fvPatchScalarField> clone() const
+        {
+            return tmp<fvPatchScalarField>
+            (
+                new EquilibriumODEWallModelFvPatchScalarField(*this)
+            );
+        }
+
         //- Construct as copy setting internal field reference
-        wallModelFvPatchScalarField
+        EquilibriumODEWallModelFvPatchScalarField
         (
-            const wallModelFvPatchScalarField&,
+            const EquilibriumODEWallModelFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
+
+        //- Construct and return a clone setting internal field reference
+        virtual tmp<fvPatchScalarField> clone
+        (
+            const DimensionedField<scalar, volMesh>& iF
+        ) const
+        {
+            return tmp<fvPatchScalarField>
+            (
+                new EquilibriumODEWallModelFvPatchScalarField(*this, iF)
+            );
+        }
 
 
     // Member functions
 
-        //- Create list of cell-indices from where data is sampled
-        void createCellIndexList();
-        
-        //- Return the list of cell-indices that are used to sample data
-        labelList cellIndexList() const
-        {
-            return cellIndexList_;
-        }
-        
-        //- Return h
-        scalarField h() const
-        {
-            return h_;
-        }
-        
-        // Evaluation functions
-
-            //- Update the boundary values
-            virtual void updateCoeffs();
-
-
         // I-O
 
             //- Write
-            virtual void write(Ostream&) const;
+            virtual void write(Ostream& os) const;
+            
+        
+        
+
 };
 
 
@@ -165,5 +153,5 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#endif
 
+#endif

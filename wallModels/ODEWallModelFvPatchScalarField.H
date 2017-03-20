@@ -22,82 +22,89 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-wallModel
+ODEWallModel
 
 Description
-    Base abstract class for LES wall models.
+    Class for wall models based on an ODE.
 
 Authors
     Timofey Mukha.  All rights reserved.
 
 SourceFiles
-    wallModelFvPatchScalarField.C
+    ODEWallModelFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef wallModelFvPatchScalarField_H
-#define wallModelFvPatchScalarField_H
+#ifndef ODEWallModelFvPatchScalarField_H
+#define ODEWallModelFvPatchScalarField_H
 
-#include "fixedValueFvPatchFields.H"
-
+#include "wallModelFvPatchScalarField.H"
+#include "EddyViscosity.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-             Class wallModelFvPatchScalarField Declaration
+          Class ODEWallModelPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class wallModelFvPatchScalarField
+class ODEWallModelFvPatchScalarField
 :
-    public fixedValueFvPatchScalarField
+    public wallModelFvPatchScalarField
 {
 protected:
     
-    // Protected data
+    // Protected Data
+        //- Pointer to an eddy viscosity model    
+        autoPtr<EddyViscosity> eddyViscosity_;
     
-        //- The indices of the cells that data is sampled from
-        labelList cellIndexList_;
+        //- A list of lists of points each defining a 1d mesh between on and h
+        //  for a given face
+        scalarListList meshes_;
         
-        //- The distance from the wall that data is sampled from
-        scalarField h_;
-          
-        //- Create fields and add to registry
-        void createFields() const;
+        //- Maximum amount of iterations for coupling between uTau and nut
+        label maxIter_;
+        
+        //- Error for exiting the uTau and nut coupling loop
+        scalar eps_;
 
+    
     // Protected Member Functions
-
-        //- Check the type of the patch
-        virtual void checkType();
-
+        //- Write root finder and ODE properties to stream
+        virtual void writeLocalEntries(Ostream &) const;
+        
         //- Calculate the turbulence viscosity
-        virtual tmp<scalarField> calcNut() const = 0;
+        virtual tmp<scalarField> calcNut() const;
 
-        //- Write local wall function variables
-        virtual void writeLocalEntries(Ostream&) const;
-
-        //- Benchmark for calculating the friction velocity
-        //  using the default Spalding wall model
-        tmp<scalarField> calcUTauBench(const scalarField& magGradU) const;
-
+        //- Calculate the friction velocity
+        virtual tmp<scalarField> calcUTau() const;
+        
+        //- Create a 1d mesh for each face
+        void createMeshes();
+        
+        //- Numerical integration
+        scalar integrate(const scalarList & y, const scalarList & v) const;
+        
+        virtual scalar source() const = 0;
+        
 public:
 
     //- Runtime type information
-    TypeName("wallModel");
+    TypeName("ODEWallModel");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        wallModelFvPatchScalarField
+        ODEWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        wallModelFvPatchScalarField
+        ODEWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
@@ -105,57 +112,48 @@ public:
         );
 
         //- Construct by mapping given
-        //  wallModelFvPatchScalarField
+        //  ODEWallModelFvPatchScalarField
         //  onto a new patch
-        wallModelFvPatchScalarField
+        ODEWallModelFvPatchScalarField
         (
-            const wallModelFvPatchScalarField&,
+            const ODEWallModelFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct as copy
-        wallModelFvPatchScalarField
+        ODEWallModelFvPatchScalarField
         (
-            const wallModelFvPatchScalarField&
+            const ODEWallModelFvPatchScalarField&
         );
 
         //- Construct as copy setting internal field reference
-        wallModelFvPatchScalarField
+        ODEWallModelFvPatchScalarField
         (
-            const wallModelFvPatchScalarField&,
+            const ODEWallModelFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
 
     // Member functions
 
-        //- Create list of cell-indices from where data is sampled
-        void createCellIndexList();
-        
-        //- Return the list of cell-indices that are used to sample data
-        labelList cellIndexList() const
-        {
-            return cellIndexList_;
-        }
-        
-        //- Return h
-        scalarField h() const
-        {
-            return h_;
-        }
-        
-        // Evaluation functions
-
-            //- Update the boundary values
-            virtual void updateCoeffs();
-
-
         // I-O
 
             //- Write
-            virtual void write(Ostream&) const;
+            virtual void write(Ostream& os) const;
+            
+        scalar eps() const
+        {
+            return eps_;
+        }
+
+        scalar maxIter() const
+        {
+            return maxIter_;
+        }
+
+
 };
 
 
@@ -165,5 +163,5 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#endif
 
+#endif
