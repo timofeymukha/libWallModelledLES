@@ -170,7 +170,7 @@ void wallModelFvPatchScalarField::createFields() const
         );
     }
 
-    if ((!db().found("magGradU")) && (debug > 0))
+    if (!db().found("magGradU"))
     {
         db().store
         (
