@@ -100,6 +100,7 @@ void wallModelFvPatchScalarField::createFields() const
     
     const volScalarField & h = db().lookupObject<volScalarField>("h");
     
+
     
     // Create and register uTau field, if not there already.
     // This holds uTau as computed by the wall model.
@@ -114,7 +115,7 @@ void wallModelFvPatchScalarField::createFields() const
                     "uTau",
                     db().time().timeName(),
                     db(),
-                    IOobject::NO_READ,
+                    IOobject::READ_IF_PRESENT,
                     IOobject::AUTO_WRITE
                 ),
                 patch().boundaryMesh().mesh(),
@@ -123,7 +124,6 @@ void wallModelFvPatchScalarField::createFields() const
             )
         );
     }
-    
 
     if (!db().found("samplingCells"))
     {
@@ -165,6 +165,27 @@ void wallModelFvPatchScalarField::createFields() const
                 ),
                 patch().boundaryMesh().mesh(),
                 dimensionedScalar("uTauBench", dimVelocity, 0.0),
+                h.boundaryField().types()
+            )
+        );
+    }
+
+    if ((!db().found("magGradU")) && (debug > 0))
+    {
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "magGradU",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                dimensionedScalar("magGradU", dimVelocity/dimTime, 0.0),
                 h.boundaryField().types()
             )
         );

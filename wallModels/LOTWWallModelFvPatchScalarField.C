@@ -66,7 +66,6 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
         Info<< "Updating nut for patch " << patch().name() << nl;        
     }
 
-    
     const label patchi = patch().index();
 
     // Grab turbulence model to get fields access
@@ -144,6 +143,9 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     
     // Magnitude of wall-normal gradient
     const scalarField magGradU(mag(Uw.snGrad()));
+    volScalarField & gradUField = 
+        const_cast<volScalarField &>(db().lookupObject<volScalarField>("magGradU"));
+    gradUField.boundaryField()[patch().index()] == magGradU;
    
     // Face normals
     const tmp<vectorField> tfaceNormals = patch().nf();
@@ -193,12 +195,18 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
     std::function<scalar(scalar)> derivValue;
-        
+    
+    // Grab global uTau field
+    volScalarField & uTauField = 
+        const_cast<volScalarField &>(db().lookupObject<volScalarField>("uTau"));
+
+    scalarField uTauOld = uTauField.boundaryField()[patch().index()];
+
     // Compute uTau for each face
     forAll(uTau, faceI)
     {
-        // Starting guess using definition
-        scalar ut = sqrt((nutw[faceI] + nuw[faceI])*magGradU[faceI]);
+        // Starting guess using old values
+        scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
 
         if (ut > ROOTVSMALL)
         {
@@ -220,9 +228,6 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
         }
     }
 
-    // Grab global uTau field
-    volScalarField & uTauField = 
-        const_cast<volScalarField &>(db().lookupObject<volScalarField>("uTau"));
      
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryField()[patch().index()] == uTau;
