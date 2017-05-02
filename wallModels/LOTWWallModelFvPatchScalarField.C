@@ -78,22 +78,11 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
         )
     );
     
-    scalarField magGradU(patch().size());
     // Velocity at the boundary (in case of moving boundary)
-    if (db().found("UMean"))
-    {
-        const fvPatchVectorField & Uw =  db().lookupObject<volVectorField>("UMean").boundaryField()[patchi];
-        magGradU = mag(Uw.snGrad());
-        Info << "Using Mean" << nl;
-    }
-    else
-    {
-        const fvPatchVectorField & Uw = turbModel.U().boundaryField()[patchi];
-        magGradU = mag(Uw.snGrad());
-    }
+    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
     
     // Magnitude of wall-normal velocity gradient
-
+    const scalarField magGradU(mag(Uw.snGrad()));
     
     // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
