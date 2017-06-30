@@ -68,6 +68,10 @@ protected:
         
         //- Error for exiting the uTau and nut coupling loop
         scalar eps_;
+ 
+        //- number of points in the ODE mesh covering the distance h normal to the wall
+        label nMeshY_;
+
 
     
     // Protected Member Functions
@@ -152,6 +156,12 @@ public:
         {
             return maxIter_;
         }
+
+        scalar nMeshY() const
+        {
+            return nMeshY_;
+        }
+
 
 
 };

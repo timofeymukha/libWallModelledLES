@@ -45,8 +45,9 @@ boundaryField
 
         type	EquilibriumODEWallModel;
         value   uniform 1;  //redundant
-        maxIter   11;
-        eps      2e-3;
+        maxIter   10;
+        eps       1e-3;
+        nMeshY    5;
        
         EddyViscosity
         {

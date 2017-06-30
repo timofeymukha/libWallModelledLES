@@ -60,6 +60,7 @@ void ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
     eddyViscosity_->write(os);
     os.writeKeyword("eps") << eps_ << token::END_STATEMENT << endl;
     os.writeKeyword("maxIter") << maxIter_ << token::END_STATEMENT << endl;
+    os.writeKeyword("nMeshY") << nMeshY_ << token::END_STATEMENT << endl;
 }    
     
 
@@ -80,9 +81,9 @@ integrate(const scalarList & y, const scalarList & v) const
 
 void ODEWallModelFvPatchScalarField::createMeshes()
 {
-    // Number of points.. should be user input later
-    label n = 5;
-   
+    // Number of points in the mesh normal to the wall
+     label n=nMeshY_;
+           
     forAll(patch(), faceI)
     {
         scalar dx = h_[faceI]/(n -1);
@@ -295,7 +296,8 @@ ODEWallModelFvPatchScalarField
     wallModelFvPatchScalarField(p, iF),
     meshes_(patch().size()),
     maxIter_(10),
-    eps_(1e-3)
+    eps_(1e-3),
+    nMeshY_(5)
 {
 
     if (debug)
@@ -323,7 +325,8 @@ ODEWallModelFvPatchScalarField
                    ptf.eddyViscosity_->constDict())),
     meshes_(patch().size()),  
     maxIter_(ptf.maxIter_),
-    eps_(ptf.eps_)
+    eps_(ptf.eps_),
+    nMeshY_(ptf.nMeshY_)
 {
 
     if (debug)
@@ -350,7 +353,8 @@ ODEWallModelFvPatchScalarField
     eddyViscosity_(EddyViscosity::New(dict.subDict("EddyViscosity"))),
     meshes_(patch().size()),
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
-    eps_(dict.lookupOrDefault<scalar>("eps", 1e-3))
+    eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
+    nMeshY_(dict.lookupOrDefault<label>("nMeshY", 5))
 
 {
 
@@ -359,8 +363,6 @@ ODEWallModelFvPatchScalarField
         Info<< "Constructing ODEWallModelfvPatchScalarField (o3) "
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
-
-        Info << "saleh eps" << eps_ << "\t maxIter\t" << maxIter_<<nl;
     }
 
     createMeshes();
@@ -377,7 +379,9 @@ ODEWallModelFvPatchScalarField
     eddyViscosity_(wfpsf.eddyViscosity_),
     meshes_(patch().size()),
     maxIter_(wfpsf.maxIter_),
-    eps_(wfpsf.eps_)
+    eps_(wfpsf.eps_),
+    nMeshY_(wfpsf.nMeshY_)
+    
 {
 
     if (debug)
@@ -402,7 +406,8 @@ ODEWallModelFvPatchScalarField
     eddyViscosity_(wfpsf.eddyViscosity_),
     meshes_(patch().size()),
     maxIter_(wfpsf.maxIter_),
-    eps_(wfpsf.eps_)
+    eps_(wfpsf.eps_),
+    nMeshY_(wfpsf.nMeshY_)
 {
 
     if (debug)
