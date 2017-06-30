@@ -57,7 +57,9 @@ defineTypeNameAndDebug(ODEWallModelFvPatchScalarField, 0);
 
 void ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
-	eddyViscosity_->write(os);
+    eddyViscosity_->write(os);
+    os.writeKeyword("eps") << eps_ << token::END_STATEMENT << endl;
+    os.writeKeyword("maxIter") << maxIter_ << token::END_STATEMENT << endl;
 }    
     
 
@@ -349,6 +351,7 @@ ODEWallModelFvPatchScalarField
     meshes_(patch().size()),
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
     eps_(dict.lookupOrDefault<scalar>("eps", 1e-3))
+
 {
 
     if (debug)
@@ -356,6 +359,8 @@ ODEWallModelFvPatchScalarField
         Info<< "Constructing ODEWallModelfvPatchScalarField (o3) "
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
+
+        Info << "saleh eps" << eps_ << "\t maxIter\t" << maxIter_<<nl;
     }
 
     createMeshes();
