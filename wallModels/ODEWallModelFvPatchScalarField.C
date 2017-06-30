@@ -57,7 +57,7 @@ defineTypeNameAndDebug(ODEWallModelFvPatchScalarField, 0);
 
 void ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
-
+	eddyViscosity_->write(os);
 }    
     
 
@@ -295,6 +295,14 @@ ODEWallModelFvPatchScalarField
     maxIter_(10),
     eps_(1e-3)
 {
+
+    if (debug)
+    {
+        Info<< "Constructing ODEWallModelfvPatchScalarField (o1) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
     createMeshes();
 }
 
@@ -315,9 +323,19 @@ ODEWallModelFvPatchScalarField
     maxIter_(ptf.maxIter_),
     eps_(ptf.eps_)
 {
+
+    if (debug)
+    {
+        Info<< "Constructing ODEWallModelfvPatchScalarField (o2) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
     createMeshes();
 }
 
+
+//s this is the constructor
 ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
@@ -332,6 +350,14 @@ ODEWallModelFvPatchScalarField
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
     eps_(dict.lookupOrDefault<scalar>("eps", 1e-3))
 {
+
+    if (debug)
+    {
+        Info<< "Constructing ODEWallModelfvPatchScalarField (o3) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
     createMeshes();
 }
 
@@ -348,6 +374,14 @@ ODEWallModelFvPatchScalarField
     maxIter_(wfpsf.maxIter_),
     eps_(wfpsf.eps_)
 {
+
+    if (debug)
+    {
+        Info<< "Constructing ODEWallModelfvPatchScalarField (o4) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
     createMeshes();
 }
 
@@ -365,6 +399,14 @@ ODEWallModelFvPatchScalarField
     maxIter_(wfpsf.maxIter_),
     eps_(wfpsf.eps_)
 {
+
+    if (debug)
+    {
+        Info<< "Constructing ODEWallModelfvPatchScalarField (o5) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
     createMeshes();
 }
 

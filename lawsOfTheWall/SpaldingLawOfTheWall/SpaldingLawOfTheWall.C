@@ -102,7 +102,7 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 
 void Foam::SpaldingLawOfTheWall::printCoeffs() const
 {
-    Info<< nl << "Spalding law of the wall" << nl;
+    Info<< nl << "Spalding law of the wall" << nl;     
     Info<< token::BEGIN_BLOCK << incrIndent << nl;
     Info<< indent << "kappa" << indent << kappa_ << nl;
     Info<< indent << "B" << indent <<  B_ << nl;

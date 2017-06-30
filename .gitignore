@@ -43,3 +43,7 @@ lnInclude/
 !**/Make/options
 /tests/testCases/channel_flow/processor0/
 /tests/testCases/channel_flow/processor1/
+
+
+#info texts
+*.txt

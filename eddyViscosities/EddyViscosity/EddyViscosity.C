@@ -55,10 +55,12 @@ autoPtr<EddyViscosity> EddyViscosity::New
     const dictionary & dict
 )
 {
-    word lawName(dict.lookup("type"));
+//    word lawName(dict.lookup("type"));
+    word modelName(dict.lookup("type"));
     
     DictionaryConstructorTable::iterator cstrIter =
-    DictionaryConstructorTablePtr_->find(lawName);
+//    DictionaryConstructorTablePtr_->find(lawName);
+    DictionaryConstructorTablePtr_->find(modelName);
 
     if (cstrIter == DictionaryConstructorTablePtr_->end())
     {
@@ -66,7 +68,8 @@ autoPtr<EddyViscosity> EddyViscosity::New
         (
             "EddyViscosity::New(const dictionary&)"
         ) << "Unknown EddyViscosity type "
-        << lawName << nl << nl
+//        << lawName << nl << nl
+        << modelName << nl << nl
         << "Valid EddyViscosity types are :" << endl
         << DictionaryConstructorTablePtr_->sortedToc()
         << exit(FatalError);
@@ -74,6 +77,8 @@ autoPtr<EddyViscosity> EddyViscosity::New
     
     dictionary temp(dict);
     temp.remove("type");
+    
+    Info << "Constructing EddyVisocity E1" <<nl;
 
     return cstrIter()(temp);  
 }
@@ -111,7 +116,8 @@ void EddyViscosity::write(Ostream & os) const
     auto keys = constDict_.keys();
     label dictSize = constDict_.keys().size();
     
-    os.writeKeyword("Law") << endl;
+//    os.writeKeyword("Law") << endl;
+    os.writeKeyword("EddyViscosity") << endl;
     os.writeKeyword("{") << incrIndent << endl;
     os.writeKeyword("type") << type() << token::END_STATEMENT << endl;
    

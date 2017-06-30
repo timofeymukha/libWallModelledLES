@@ -284,7 +284,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing wallModelFvPatchScalarField "
+        Info<< "Constructing wallModelFvPatchScalarField (w1) "
             << "from fvPatch and DimensionedField for patch " << patch().name()
             <<  nl;
     }
@@ -309,7 +309,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing wallModelFvPatchScalarField "
+        Info<< "Constructing wallModelFvPatchScalarField (w2) "
             << "from copy, fvPatch, DimensionedField, and fvPatchFieldMapper"
             << " for patch " << patch().name() << nl;
     }
@@ -334,7 +334,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing wallModelFvPatchScalarField "
+        Info<< "Constructing wallModelFvPatchScalarField (w3) "
             << "from fvPatch, DimensionedField, and dictionary for patch "
             << patch().name() << nl;
     }
@@ -356,7 +356,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing wallModelFvPatchScalarField "
+        Info<< "Constructing wallModelFvPatchScalarField (w4)"
             << "from copy for patch " << patch().name() << nl;           
     }
 
@@ -377,7 +377,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing wallModelFvPatchScalarField "
+        Info<< "Constructing wallModelFvPatchScalarField (w5) "
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }

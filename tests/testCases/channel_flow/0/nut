@@ -23,9 +23,9 @@ boundaryField
 {
     bottomWall
     {
-        type			LOTWWallModel;
-        h               0.0;
-        value			uniform 1;
+/*     
+        type		        LOTWWallModel;
+        value			uniform 1;  //redundant
 
         RootFinder
         {
@@ -41,6 +41,18 @@ boundaryField
             //kappa   0.4;
             //B       5.5;
         }
+*/        
+
+        type	EquilibriumODEWallModel;
+        value   uniform 1;  //redundant
+       
+        EddyViscosity
+        {
+             type    JohnsonKing;
+             APlus   17.8;
+             kappa   0.39;
+        }
+     
     }
     topWall
     {

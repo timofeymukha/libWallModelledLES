@@ -266,9 +266,10 @@ LOTWWallModelFvPatchScalarField
                                 ptf.rootFinder_->maxIter())),
     law_(LawOfTheWall::New(ptf.law_->type(),
                            ptf.law_->constDict()))
-{
-}
+{}
 
+
+//s this is the contsructor
 LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (

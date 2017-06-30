@@ -54,7 +54,10 @@ namespace Foam
 
 void 
 EquilibriumODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
-{}       
+{
+    ODEWallModelFvPatchScalarField::writeLocalEntries(os);
+    //s this is necessary to write entries when decomposing
+}       
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -81,6 +84,8 @@ EquilibriumODEWallModelFvPatchScalarField
     ODEWallModelFvPatchScalarField(ptf, p, iF, mapper)
 {}
 
+
+//s this is the constructor used 
 EquilibriumODEWallModelFvPatchScalarField::
 EquilibriumODEWallModelFvPatchScalarField
 (
