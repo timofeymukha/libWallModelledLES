@@ -44,6 +44,10 @@ Authors
 #include "dictionary.H"
 #include <functional>
 
+//saleh, for gradient
+#include "fvcGrad.H"
+
+
 using namespace std::placeholders;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -160,6 +164,33 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     vectorField Unormal(patch().size());
     vectorField Upar(patch().size());
     scalarField magUpar(patch().size());
+
+
+
+
+    //saleh start >>>>>>>>>>>>>>>>>>>>>>>
+//    const scalarField & P = turbModel.p().internalField();
+
+    //look up pressure values
+    const volScalarField& P = db().lookupObject<volScalarField>("p");
+//    const volVectorField& UU = db().lookupObject<volVectorField>("U");
+
+
+    Pout << "pout size of P = " << P.size() <<nl;
+//    Info << "Info size of P = " << P.size() <<nl;
+    Pout << "P[0] = " << P[0] <<nl;
+
+      volVectorField GradP = fvc::grad(P);
+//    volTensorField GradU = fvc::grad(UU);
+
+
+//    Pout << "gradP[0]=" << GradP[0] << nl;
+//  vectorField& GradP = P.fvc::grad();
+//    volTensorField gradU = fvc::grad(U);
+
+
+    //Saleh end  <<<<<<<<<<<<<<<<<<<<<<<<<
+
             
     forAll(magUp, i)
     {   
