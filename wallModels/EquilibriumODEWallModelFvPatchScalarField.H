@@ -60,10 +60,10 @@ protected:
         virtual void writeLocalEntries(Ostream &) const;
         
         
-        scalar source() const
-        {
-            return 0;
-        };
+//        scalar source() const
+//        scalar source(const int &) const 
+        virtual void source(const int, const vector , vector &) const
+        {};
         
 public:
 

@@ -196,6 +196,10 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
     vectorField Unormal(patch().size());
     vectorField Upar(patch().size());
     scalarField magUpar(patch().size());
+
+    // temp vectors for computing source term
+    vector sourceFVec(0,0,0);
+    vector patchFaceNormal(0,0,0);
             
     forAll(magUp, i)
     {   
@@ -230,7 +234,7 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
     forAll(uTau, faceI)
     {
         const scalarList & y = meshes_[faceI];
-        
+
         // Starting guess using definition
         scalar tau = (nutw[faceI] + nuw[faceI])*magGradU[faceI];
         
@@ -245,7 +249,18 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
                 scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
                 scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));
 
-                scalar newTau = magUp[faceI]/integral - source()*integral2;
+
+                 // compute source term
+                patchFaceNormal=faceNormals[faceI];
+                source(faceI,patchFaceNormal,sourceFVec);
+                //Pout << "in ODE, sourceFVec = " << sourceFVec << nl;
+
+                scalar newTauT1 = sqr(Upar[faceI][0])+sqr(Upar[faceI][2]);
+                scalar newTauT2 = -2.0*integral2*(Upar[faceI][0]*sourceFVec[0]+Upar[faceI][2]*sourceFVec[2]);
+                scalar newTauT3 = integral2*(sqr(sourceFVec[0])+sqr(sourceFVec[2]));
+
+                scalar newTau = sqrt(newTauT1+newTauT2+newTauT3)/integral;
+               
                 
                 scalar error = mag(tau - newTau)/tau;
                 

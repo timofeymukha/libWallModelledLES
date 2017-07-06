@@ -10,5 +10,6 @@ wallModels/wallModelFvPatchScalarField.C
 wallModels/LOTWWallModelFvPatchScalarField.C
 wallModels/ODEWallModelFvPatchScalarField.C
 wallModels/EquilibriumODEWallModelFvPatchScalarField.C
+wallModels/PGradODEWallModelFvPatchScalarField.C
 
 LIB = $(FOAM_USER_LIBBIN)/libWallModelledLES

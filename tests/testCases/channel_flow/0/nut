@@ -38,12 +38,12 @@ boundaryField
         {
             type    Spalding;
             //type    WernerWengle;
-            //kappa   0.4;
-            //B       5.5;
+            kappa   0.4;
+            B       5.5;
         }
-*/        
+*/      
 
-        type	EquilibriumODEWallModel;
+        type	PGradODEWallModel;
         value   uniform 1;  //redundant
         maxIter   10;
         eps       1e-3;
@@ -55,6 +55,7 @@ boundaryField
              APlus   17.8;
              kappa   0.39;
         }
+
      
     }
     topWall

@@ -23,7 +23,7 @@ startTime      0;
 
 stopAt          endTime;
 
-endTime         1;
+endTime         10;
 
 deltaT          0.01
 
@@ -65,17 +65,18 @@ InfoSwitches
 */
 
 // look at DebugSwitches @ $WM_PROJECT_DIR/etc/controlDict
+
 DebugSwitches
 {
-   wallModel           2;
-   LOTWWallModel    1;
-   LawOfTheWall     2;
-    Spalding   2;
+//   wallModel           1;
+//   LOTWWallModel    1;
+//   LawOfTheWall     2;
+//    Spalding   2;
 
-   ODEWallModel  2;
-   EquilibriumODEWallModel  2;
+//   ODEWallModel  2;
+//   EquilibriumODEWallModel  2;
 
-   JohnsonKing 1;
+//   JohnsonKing 1;
 }
 
 
