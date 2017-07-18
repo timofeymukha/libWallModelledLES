@@ -75,6 +75,9 @@ autoPtr<LawOfTheWall> LawOfTheWall::New
     dictionary temp(dict);
     temp.remove("type");
 
+    Info << "Constructing LawofTheWall L1" <<nl;
+
+
     return cstrIter()(temp);  
 }
  

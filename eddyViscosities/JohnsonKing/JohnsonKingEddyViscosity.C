@@ -64,7 +64,8 @@ Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 
 Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 (
-    const word & lawName,
+//    const word & lawName,
+    const word & modelName,
     const dictionary & dict
 )
 :

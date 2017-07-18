@@ -23,7 +23,7 @@ boundaryField
 {
     bottomWall
     {
-/*     
+     /*     
         type		        LOTWWallModel;
         value			uniform 1;  //redundant
 
@@ -41,9 +41,9 @@ boundaryField
             kappa   0.4;
             B       5.5;
         }
-*/      
-
-        type	PGradODEWallModel;
+     */ 
+          
+        type	EquilibriumODEWallModel;
         value   uniform 1;  //redundant
         maxIter   10;
         eps       1e-3;
@@ -55,17 +55,60 @@ boundaryField
              APlus   17.8;
              kappa   0.39;
         }
-
      
-    }
-    topWall
-    {
-        type			nutUSpaldingWallFunction;
+      /*
+        type            nutUSpaldingWallFunction;
         Cmu             0.09;
         kappa           0.42;
         E               8.52;
-        value			uniform 0;
+        value           uniform 0;
+      */
     }
+
+    topWall
+    {
+    /*
+        type	        nutUSpaldingWallFunction;
+        Cmu             0.09;
+        kappa           0.42;
+        E               8.52;
+        value		uniform 0;
+    */
+    /*   
+        type    EquilibriumODEWallModel;
+        value   uniform 1;  //redundant
+        maxIter   10;
+        eps       1e-3;
+        nMeshY    5;
+
+        EddyViscosity
+        {
+             type    JohnsonKing;
+             APlus   17.8;
+             kappa   0.39;
+        }
+    */
+        
+        type                    LOTWWallModel;
+        value                   uniform 1;  //redundant
+
+        RootFinder
+        {
+            type    Newton;
+            eps     0.01;
+            maxIter 10;
+        }
+
+        Law
+        {
+            type    Spalding;
+            //type    WernerWengle;
+            kappa   0.4;
+            B       5.5;
+        }
+      
+    }
+
     left
     {
         type            cyclic;

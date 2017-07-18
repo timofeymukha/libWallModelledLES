@@ -123,7 +123,10 @@ EquilibriumODEWallModelFvPatchScalarField
 
 void EquilibriumODEWallModelFvPatchScalarField::write(Ostream& os) const
 {
-    wallModelFvPatchScalarField::write(os);
+//original:    wallModelFvPatchScalarField::write(os);
+//saleh  <<
+    ODEWallModelFvPatchScalarField::write(os);
+//saleh >>
 }
 
 

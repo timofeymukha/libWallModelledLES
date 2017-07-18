@@ -177,7 +177,8 @@ PGradODEWallModelFvPatchScalarField
 
 void PGradODEWallModelFvPatchScalarField::write(Ostream& os) const
 {
-    wallModelFvPatchScalarField::write(os);
+//saleh    wallModelFvPatchScalarField::write(os);
+    ODEWallModelFvPatchScalarField::write(os);
 }
 
 
