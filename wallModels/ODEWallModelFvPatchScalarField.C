@@ -254,9 +254,21 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
 
                 scalar newTauT1 = sqr(Upar[faceI][0])+sqr(Upar[faceI][2]);
                 scalar newTauT2 = -2.0*integral2*(Upar[faceI][0]*sourceFVec[0]+Upar[faceI][2]*sourceFVec[2]);
-                scalar newTauT3 = integral2*(sqr(sourceFVec[0])+sqr(sourceFVec[2]));
+                scalar newTauT3 = sqr(integral2)*(sqr(sourceFVec[0])+sqr(sourceFVec[2]));
 
-                scalar newTau = sqrt(newTauT1+newTauT2+newTauT3)/integral;
+                scalar newTauT = newTauT1+newTauT2+newTauT3;
+
+                if (newTauT < 0 ) {
+                   WarningIn("Foam::ODEWallModelFvPatchScalarField::calcUTau()")
+                        << "when calculating newTau, sqrt of a negative value occurred. " << nl;
+                };
+
+                if (integral == 0 ) {
+                   WarningIn("Foam::ODEWallModelFvPatchScalarField::calcUTau()")
+                        << "when calculating newTau, division by zero occurred. " << nl;
+                };
+
+                scalar newTau = sqrt(newTauT)/integral;
                 
                 scalar error = mag(tau - newTau)/tau;
                 
