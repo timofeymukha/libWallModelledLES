@@ -23,7 +23,7 @@ Description
     The law of the wall proposed by Werner and Wengle.
 
 Authors
-    Timofey Mukha.  All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
     WernerWengleLawOfTheWall.C

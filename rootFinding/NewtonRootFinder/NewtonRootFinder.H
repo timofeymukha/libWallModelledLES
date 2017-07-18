@@ -22,7 +22,7 @@ Class
 Description
     Root finder based on Newton's method.
 Author
-    Timofey Mukha. All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
     NewtonRootFinder.C

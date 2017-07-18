@@ -23,7 +23,7 @@ Description
     Class for wall models based on a Law of the Wall.
 
 Authors
-    Timofey Mukha.  All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh
 
  * 
 \*---------------------------------------------------------------------------*/

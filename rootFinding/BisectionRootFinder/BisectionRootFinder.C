@@ -22,7 +22,7 @@ Description
     Bisection root finder.
 
 Author
-    Timofey Mukha.  All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh
 
 \*---------------------------------------------------------------------------*/
 

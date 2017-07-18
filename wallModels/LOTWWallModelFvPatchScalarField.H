@@ -23,7 +23,7 @@ Description
     Class for the wall models based on a Law of The Wall.
 
 Authors
-    Timofey Mukha.  All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
     LOTWWallModelFvPatchScalarField.C

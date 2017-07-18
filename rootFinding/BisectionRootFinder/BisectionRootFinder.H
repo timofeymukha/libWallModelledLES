@@ -22,7 +22,7 @@ Class
 Description
     Root finder based on the bisection method.
 Author
-    Timofey Mukha. All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
     BisectionRootFinder.C

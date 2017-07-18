@@ -22,7 +22,7 @@ Class
 Description
     Base class for finding roots of non-linear algebraic equations.
 Author
-    Timofey Mukha. All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh
 
 
 \*---------------------------------------------------------------------------*/

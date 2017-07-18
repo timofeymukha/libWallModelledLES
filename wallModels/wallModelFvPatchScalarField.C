@@ -23,7 +23,7 @@ Description
     Base abstract class for LES wall models.
 
 Authors
-    Timofey Mukha. All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
     wallModel.C
