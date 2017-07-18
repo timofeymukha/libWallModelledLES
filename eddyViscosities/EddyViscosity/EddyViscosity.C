@@ -78,7 +78,7 @@ autoPtr<EddyViscosity> EddyViscosity::New
     dictionary temp(dict);
     temp.remove("type");
     
-    Info << "Constructing EddyVisocity E1" <<nl;
+    //Info << "Constructing EddyVisocity E1" <<nl;
 
     return cstrIter()(temp);  
 }
