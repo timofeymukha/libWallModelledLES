@@ -1,34 +1,45 @@
 /*---------------------------------------------------------------------------* \
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           |
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is part of libWallModelledLES.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
+    libWallModelledLES is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    libWallModelledLES is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    along with libWallModelledLES. 
+    If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    SpaldingLawOfTheWall
+    Foam::SpaldingLawOfTheWall
 
 Description
     The law of the wall proposed by Spalding.
 
+    The law is given by the following formula
+
+    \f$y^+ = u^+ +  \exp(-\kappa B) \left( \exp (\kappa B) - 1 - \kappa u^+ -
+             \frac{1}{2}(\kappa u^+)^2 - \frac{1}{6}(\kappa u^+)^3 \right)\f$
+
+    Since the formula above is differentiable, it is advised to use Newton's
+    method to solve for \f$u_\tau \f$.
+    
+    Reference:
+    \verbatim
+        Spalding, D. B. (1961).
+        A single formula for the 'law of the wall'.
+        Journal of Applied Mechanics,
+        28(3), 455-458.
+    \endverbatim
+
 Authors
-    Timofey Mukha.  All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh.
 
 SourceFiles
     SpaldingLawOfTheWall.C
@@ -68,12 +79,7 @@ public:
     TypeName("Spalding");
 
     // Constructors
-        //- Construct with default values
-    //    SpaldingLawOfTheWall();
-    
-        //- Construct provided kappa, B and viscosity
-    //    SpaldingLawOfTheWall(scalar kappa, scalar B);
-        
+      
         //- Construct provided dictionary
         SpaldingLawOfTheWall(const dictionary &);
         
