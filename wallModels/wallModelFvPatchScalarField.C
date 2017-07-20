@@ -265,7 +265,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing wallModelFvPatchScalarField "
+        Info<< "Constructing wallModelFvPatchScalarField (w1) "
             << "from fvPatch and DimensionedField for patch " << patch().name()
             <<  nl;
     }
@@ -290,7 +290,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing wallModelFvPatchScalarField "
+        Info<< "Constructing wallModelFvPatchScalarField (w2) "
             << "from copy, fvPatch, DimensionedField, and fvPatchFieldMapper"
             << " for patch " << patch().name() << nl;
     }
@@ -313,7 +313,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing wallModelFvPatchScalarField "
+        Info<< "Constructing wallModelFvPatchScalarField (w3) "
             << "from fvPatch, DimensionedField, and dictionary for patch "
             << patch().name() << nl;
     }
@@ -335,7 +335,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing wallModelFvPatchScalarField "
+        Info<< "Constructing wallModelFvPatchScalarField (w4)"
             << "from copy for patch " << patch().name() << nl;           
     }
 
@@ -356,7 +356,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing wallModelFvPatchScalarField "
+        Info<< "Constructing wallModelFvPatchScalarField (w5) "
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
@@ -389,14 +389,14 @@ void Foam::wallModelFvPatchScalarField::createCellIndexList()
     // Create a searcher for the mesh
     meshSearch ms(mesh);
     
-    // Grab face centres, normal and adjacent cells' centres
+    // Grab face centres, normal and adjacent cells' centres to each patch face
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField faceNormals = tfaceNormals();
     const tmp<vectorField> tcellCentres = patch().Cn();
     const vectorField cellCentres = tcellCentres();
     
-    // Grab the indices of adjacent cells
+    // Grab the global indices of adjacent cells 
     const labelUList & faceCells = patch().faceCells();
 
     vector point;

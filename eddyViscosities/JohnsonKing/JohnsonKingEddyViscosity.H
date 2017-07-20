@@ -31,7 +31,6 @@ Authors
 
 SourceFiles
     JohnsonKingEddyViscosity.C
-
 \*---------------------------------------------------------------------------*/
 
 #ifndef JohnsonKingEddyViscosity_H

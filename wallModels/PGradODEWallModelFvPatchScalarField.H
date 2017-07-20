@@ -22,96 +22,69 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-ODEWallModel
+PGradODEWallModel
 
 Description
-    Class for wall models based on an ODE.
+    ODE wall model with a source term equal to pressure gradient.
 
 Authors
     Timofey Mukha.  All rights reserved.
 
 SourceFiles
-    ODEWallModelFvPatchScalarField.C
+    PGradODEWallModelFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef ODEWallModelFvPatchScalarField_H
-#define ODEWallModelFvPatchScalarField_H
+#ifndef PGradODEWallModelFvPatchScalarField_H
+#define PGradODEWallModelFvPatchScalarField_H
 
-#include "wallModelFvPatchScalarField.H"
-#include "EddyViscosity.H"
+#include "ODEWallModelFvPatchScalarField.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-          Class ODEWallModelPatchScalarField Declaration
+          Class PGradODEWallModelPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class ODEWallModelFvPatchScalarField
+class PGradODEWallModelFvPatchScalarField
 :
-    public wallModelFvPatchScalarField
+    public ODEWallModelFvPatchScalarField
 {
 protected:
-    
+
     // Protected Data
-        //- Pointer to an eddy viscosity model    
-        autoPtr<EddyViscosity> eddyViscosity_;
-    
-        //- A list of lists of points each defining a 1d mesh between on and h
-        //  for a given face
-        scalarListList meshes_;
-        
-        //- Maximum amount of iterations for coupling between uTau and nut
-        label maxIter_;
-        
-        //- Error for exiting the uTau and nut coupling loop
-        scalar eps_;
- 
-        //- number of points in the ODE mesh covering the distance h normal to the wall
-        label nMeshY_;
 
-
-    
+        // Pressure Gradient at the cell centers of the whole domain
+        vectorField pressGrad_;
+        
     // Protected Member Functions
-        //- Write root finder and ODE properties to stream
+        //- Write root finder and PGradODE properties to stream
         virtual void writeLocalEntries(Ostream &) const;
         
-        //- Calculate the turbulence viscosity
-        virtual tmp<scalarField> calcNut() const;
-
-        //- Calculate the friction velocity
-        virtual tmp<scalarField> calcUTau() const;
         
-        //- Create a 1d mesh for each face
-        void createMeshes();
-        
-        //- Numerical integration
-        scalar integrate(const scalarList & y, const scalarList & v) const;
-        
-        //source term
-        virtual void source(const int, const vector, vector &) const
-        {};
-
+        //- compute and return pressure source term (vector) in the ODE eqn for wall model
+        virtual void source(const int , const vector, vector &) const;
         
 public:
 
     //- Runtime type information
-    TypeName("ODEWallModel");
+    TypeName("PGradODEWallModel");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        ODEWallModelFvPatchScalarField
+        PGradODEWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        ODEWallModelFvPatchScalarField
+        PGradODEWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
@@ -119,54 +92,65 @@ public:
         );
 
         //- Construct by mapping given
-        //  ODEWallModelFvPatchScalarField
+        //  PGradODEWallModelFvPatchScalarField
         //  onto a new patch
-        ODEWallModelFvPatchScalarField
+        PGradODEWallModelFvPatchScalarField
         (
-            const ODEWallModelFvPatchScalarField&,
+            const PGradODEWallModelFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct as copy
-        ODEWallModelFvPatchScalarField
+        PGradODEWallModelFvPatchScalarField
         (
-            const ODEWallModelFvPatchScalarField&
+            const PGradODEWallModelFvPatchScalarField&
         );
 
+        //- Construct and return a clone
+        virtual tmp<fvPatchScalarField> clone() const
+        {
+            return tmp<fvPatchScalarField>
+            (
+                new PGradODEWallModelFvPatchScalarField(*this)
+            );
+        }
+
         //- Construct as copy setting internal field reference
-        ODEWallModelFvPatchScalarField
+        PGradODEWallModelFvPatchScalarField
         (
-            const ODEWallModelFvPatchScalarField&,
+            const PGradODEWallModelFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
+        //- Construct and return a clone setting internal field reference
+        virtual tmp<fvPatchScalarField> clone
+        (
+            const DimensionedField<scalar, volMesh>& iF
+        ) const
+        {
+            return tmp<fvPatchScalarField>
+            (
+                new PGradODEWallModelFvPatchScalarField(*this, iF)
+            );
+        }
 
 
     // Member functions
+
+        //Evaluation Functions
+            //- Update the boundary values
+            virtual void updateCoeffs();
+
 
         // I-O
 
             //- Write
             virtual void write(Ostream& os) const;
             
-        scalar eps() const
-        {
-            return eps_;
-        }
-
-        scalar maxIter() const
-        {
-            return maxIter_;
-        }
-
-        scalar nMeshY() const
-        {
-            return nMeshY_;
-        }
-
-
+        
+        
 
 };
 
