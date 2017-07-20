@@ -115,7 +115,8 @@ public:
 
         static autoPtr<EddyViscosity> New 
         (
-            const word & lawName,
+//            const word & lawName,
+            const word & modelName,
             const dictionary & dict
         );
         

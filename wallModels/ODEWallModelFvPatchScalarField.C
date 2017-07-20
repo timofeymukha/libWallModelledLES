@@ -57,7 +57,10 @@ defineTypeNameAndDebug(ODEWallModelFvPatchScalarField, 0);
 
 void ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
-
+    eddyViscosity_->write(os);
+    os.writeKeyword("eps") << eps_ << token::END_STATEMENT << endl;
+    os.writeKeyword("maxIter") << maxIter_ << token::END_STATEMENT << endl;
+    os.writeKeyword("nMeshY") << nMeshY_ << token::END_STATEMENT << endl;
 }    
     
 scalar ODEWallModelFvPatchScalarField::
@@ -77,13 +80,14 @@ integrate(const scalarList & y, const scalarList & v) const
 
 void ODEWallModelFvPatchScalarField::createMeshes()
 {
-    // Number of points.. should be user input later
-    label n = 5;
-   
+
+    // Number of points in the mesh normal to the wall
+     label n=nMeshY_;
+           
     forAll(patch(), faceI)
     {
         scalar dx = h_[faceI]/(n -1);
-        
+
         meshes_[faceI].resize(n, 0.0);
         forAll(meshes_[faceI], pointI)
         {
@@ -139,7 +143,7 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcNut() const
         scalar diff = mag(avrgNew - avrgBench)/avrgBench*100;
         
         // If error > 1 percent, report
-        if (diff > 0)
+        if (diff > 1)
         {
             Pout<< "Average uTau/uTauBench/diff " << sum(uTauNew)/patch().size() 
                 << " " << sum(uTauBench)/patch().size() << " " << diff
@@ -178,7 +182,7 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
     
     // Magnitude of wall-normal gradient
     const scalarField magGradU(mag(Uw.snGrad()));
-   
+
     // Face normals
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField faceNormals = tfaceNormals();
@@ -192,6 +196,10 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
     vectorField Unormal(patch().size());
     vectorField Upar(patch().size());
     scalarField magUpar(patch().size());
+
+    // temporary vectors for computing source term
+    vector sourceFVec(0,0,0);
+    vector patchFaceNormal(0,0,0);
             
     forAll(magUp, i)
     {   
@@ -217,16 +225,13 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
     tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
     scalarField& uTau = tuTau();
     
-    // Function to give to the root finder
-    std::function<scalar(scalar)> value;
-    std::function<scalar(scalar)> derivValue;
         
     
     // Compute uTau for each face
     forAll(uTau, faceI)
     {
-        const scalarList & y = meshes_[faceI];
-        
+        const scalarList & y = meshes_[faceI]; //auxiliary points normal to the patch
+
         // Starting guess using definition
         scalar tau = (nutw[faceI] + nuw[faceI])*magGradU[faceI];
         
@@ -241,7 +246,30 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
                 scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
                 scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));
 
-                scalar newTau = magUp[faceI]/integral - source()*integral2;
+                 // compute source term
+                patchFaceNormal=faceNormals[faceI];
+                source(faceI,patchFaceNormal,sourceFVec);
+                
+                scalar newTauT0 = Upar[faceI][0] - sourceFVec[0] * integral2;
+                scalar newTauT2 = Upar[faceI][2] - sourceFVec[2] * integral2;
+                scalar newTauT  = sqr(newTauT0) + sqr(newTauT2);
+
+//                scalar newTauT1 = sqr(Upar[faceI][0])+sqr(Upar[faceI][2]);
+//                scalar newTauT2 = -2.0*integral2*(Upar[faceI][0]*sourceFVec[0]+Upar[faceI][2]*sourceFVec[2]);
+//                scalar newTauT3 = sqr(integral2)*(sqr(sourceFVec[0])+sqr(sourceFVec[2]));
+//                scalar newTauT = newTauT1+newTauT2+newTauT3;
+
+//                if (newTauT < 0 ) {
+//                   WarningIn("Foam::ODEWallModelFvPatchScalarField::calcUTau()")
+//                        << "when calculating newTau, sqrt of a negative value occurred. " << nl;
+//                };
+
+                if (integral == 0 ) {
+                   WarningIn("Foam::ODEWallModelFvPatchScalarField::calcUTau()")
+                        << "when calculating newTau, division by zero occurred. " << nl;
+                };
+
+                scalar newTau = sqrt(newTauT)/integral;
                 
                 scalar error = mag(tau - newTau)/tau;
                 
@@ -292,12 +320,21 @@ ODEWallModelFvPatchScalarField
     wallModelFvPatchScalarField(p, iF),
     meshes_(patch().size()),
     maxIter_(10),
-    eps_(1e-3)
+    eps_(1e-3),
+    nMeshY_(5)
 {
+
+    if (debug)
+    {
+        Info<< "Constructing ODEWallModelfvPatchScalarField (o1) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
     createMeshes();
 }
 
-
+//constructor when running deomposePar/reconstructPar
 ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
@@ -310,13 +347,25 @@ ODEWallModelFvPatchScalarField
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
     eddyViscosity_(EddyViscosity::New(ptf.eddyViscosity_->type(),
                    ptf.eddyViscosity_->constDict())),
-    meshes_(patch().size()),  
+//    meshes_(patch().size()),  
+    meshes_(ptf.meshes_),
     maxIter_(ptf.maxIter_),
-    eps_(ptf.eps_)
+    eps_(ptf.eps_),
+    nMeshY_(ptf.nMeshY_)
 {
-    createMeshes();
+
+    if (debug)
+    {
+        Info<< "Constructing ODEWallModelfvPatchScalarField (o2) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
+    //createMeshes();
 }
 
+
+//s this is the constructor when running the code
 ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
@@ -329,12 +378,22 @@ ODEWallModelFvPatchScalarField
     eddyViscosity_(EddyViscosity::New(dict.subDict("EddyViscosity"))),
     meshes_(patch().size()),
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
-    eps_(dict.lookupOrDefault<scalar>("eps", 1e-3))
+    eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
+    nMeshY_(dict.lookupOrDefault<label>("nMeshY", 5))
+
 {
+    if (debug)
+    {
+        Info<< "Constructing ODEWallModelfvPatchScalarField (o3) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
     createMeshes();
+
 }
 
-
+//constructor when running deomposePar/reconstructPar
 ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
@@ -343,14 +402,26 @@ ODEWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(wfpsf),
     eddyViscosity_(wfpsf.eddyViscosity_),
-    meshes_(patch().size()),
+//    meshes_(patch().size()),
+    meshes_(wfpsf.meshes_),
     maxIter_(wfpsf.maxIter_),
-    eps_(wfpsf.eps_)
+    eps_(wfpsf.eps_),
+    nMeshY_(wfpsf.nMeshY_)
+    
 {
-    createMeshes();
+
+    if (debug)
+    {
+        Info<< "Constructing ODEWallModelfvPatchScalarField (o4) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
+//    createMeshes();
 }
 
 
+//constructor when running deomposePar/reconstructPar
 ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
@@ -360,11 +431,21 @@ ODEWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(wfpsf, iF),
     eddyViscosity_(wfpsf.eddyViscosity_),
-    meshes_(patch().size()),
+//    meshes_(patch().size()),
+    meshes_(wfpsf.meshes_),
     maxIter_(wfpsf.maxIter_),
-    eps_(wfpsf.eps_)
+    eps_(wfpsf.eps_),
+    nMeshY_(wfpsf.nMeshY_)
 {
-    createMeshes();
+
+    if (debug)
+    {
+        Info<< "Constructing ODEWallModelfvPatchScalarField (o5) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
+//    createMeshes();
 }
 
 

@@ -60,6 +60,9 @@ Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New
     Foam::dictionary temp(dict);
     temp.remove("type");
 
+    //Info << "Constructing LawofTheWall L1" <<nl;
+
+
     return cstrIter()(temp);  
 }
  

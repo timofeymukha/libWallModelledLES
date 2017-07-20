@@ -59,11 +59,8 @@ protected:
         //- Write root finder and EquilibriumODE properties to stream
         virtual void writeLocalEntries(Ostream &) const;
         
-        
-        scalar source() const
-        {
-            return 0;
-        };
+        virtual void source(const int, const vector , vector &) const
+        {};
         
 public:
 
