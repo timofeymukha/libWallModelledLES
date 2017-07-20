@@ -20,7 +20,28 @@ Class
     Foam::BisectionRootFinder
 
 Description
-    Root finder based on the bisection method.
+    Root finder based on the bisection method. 
+ 
+   Controlled by three paramters:
+    the max number of iterations, the relative error tolerance and the bracket.
+    The latter is used to define the initial size of the search interval in
+    conjuction with an initial guess of the root value. If x0 is the guess then
+    the search interval is from x0/bracket to bracket*x0.
+
+    The bisection method is meant to be used with equations where the Jacobian
+    is not well defined. Currently, however, it appears to be problematic to
+    get a good initial interval size in the beginning of the simulation.
+
+    Usage
+    \verbatim
+    RootFinder
+    {
+        type       Bisection;
+        maxIter    value; (default 10)
+        eps        value; (default 0.01)
+        bracket    value; (default 3)
+    }
+    \endverbatim
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh

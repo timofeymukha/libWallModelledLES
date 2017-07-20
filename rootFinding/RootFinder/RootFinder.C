@@ -40,7 +40,7 @@ namespace Foam
 }
 
 // Dummy function to initialize the root finders
-Foam::scalar rootFinderDummy(Foam::scalar)
+Foam::scalar Foam::rootFinderDummy(Foam::scalar)
 {
     return 0;
 }   

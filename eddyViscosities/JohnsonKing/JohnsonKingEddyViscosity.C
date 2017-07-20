@@ -1,36 +1,22 @@
 /*---------------------------------------------------------------------------* \
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           |
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is part of libWallModelledLES.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
+    libWallModelledLES is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    libWallModelledLES is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    along with libWallModelledLES. 
+    If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    JohnsonKingEddyViscosity
-
-Description
-    The eddy viscosity model proposed by Johnson and King.
-
-Authors
-    Timofey Mukha.  All rights reserved.
-
- \*---------------------------------------------------------------------------*/
+\*---------------------------------------------------------------------------*/
 
 #include "JohnsonKingEddyViscosity.H"
 #include "dictionary.H"
@@ -42,7 +28,7 @@ namespace Foam
     defineTypeNameAndDebug(JohnsonKingEddyViscosity, 0);
     addToRunTimeSelectionTable(EddyViscosity, JohnsonKingEddyViscosity, Dictionary);
     addToRunTimeSelectionTable(EddyViscosity, JohnsonKingEddyViscosity, TypeAndDictionary);
-
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -64,13 +50,12 @@ Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 
 Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 (
-//    const word & lawName,
     const word & modelName,
     const dictionary & dict
 )
 :
     EddyViscosity(dict),
-    APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
+    APlus_(dict.lookupOrDefault<scalar>("APlus", 19)),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
 {
     if (debug)
@@ -110,4 +95,4 @@ Foam::scalarList Foam::JohnsonKingEddyViscosity::value
 }
 
 // ************************************************************************* //
-}
+

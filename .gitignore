@@ -40,7 +40,7 @@ lnInclude/
 
 **/Make/*
 /docs/html
-/docst/DTAGS
+/docs/DTAGS
 Make/linux64GccDPInt32Opt
 !**/Make/files
 !**/Make/options

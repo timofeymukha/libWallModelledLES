@@ -20,7 +20,9 @@ Class
     Foam::wallModelFvPatchScalarField
 
 Description
-    Base abstract class for LES wall models. Handles creating and storing fields
+    Base abstract class for LES wall models.
+    
+    Handles creating and storing fields
     used by the wall models as well as figuring what cells are used for sampling
     data. The following fields are created and stored in the registry.
     - h, the patch fields of which hold the distance to the cells used for

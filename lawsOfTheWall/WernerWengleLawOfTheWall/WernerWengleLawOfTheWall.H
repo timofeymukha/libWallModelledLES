@@ -22,6 +22,22 @@ Class
 Description
     The law of the wall proposed by Werner and Wengle.
 
+    \f{eqnarray*}{
+        u^+ &=& y^+ \quad y+ \leq 11.81\\
+        u^+ &=& A(y^+)^B \quad y+ > 11.81
+
+    \f}    
+
+    Usage:
+    \verbatim
+    Law
+    {
+        type      WernerWengle;
+        A         value; (default 8.3)
+        B         value; (default 1/7)
+    }
+    \endverbatim
+
     Reference:
     \verbatim
         Werner, H., & Wengle, H. (1993).

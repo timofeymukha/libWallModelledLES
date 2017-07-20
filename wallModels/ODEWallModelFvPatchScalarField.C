@@ -1,36 +1,21 @@
 /*---------------------------------------------------------------------------* \
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           |
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is part of libWallModelledLES.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
+    libWallModelledLES is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    libWallModelledLES is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
-Class
-ODEWallModel
-
-Description
-    Class for wall models based on an ODE.
-
-Authors
-    Timofey Mukha.  All rights reserved.
-
- * 
+    along with libWallModelledLES. 
+    If not, see <http://www.gnu.org/licenses/>.
+ 
 \*---------------------------------------------------------------------------*/
 
 #include "ODEWallModelFvPatchScalarField.H"
@@ -38,24 +23,21 @@ Authors
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
-#include "SpaldingLawOfTheWall.H"
-#include "LawOfTheWall.H"
-#include "RootFinder.H"
 #include "dictionary.H"
-#include <functional>
+#include "EddyViscosity.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+    defineTypeNameAndDebug(ODEWallModelFvPatchScalarField, 0);
+}
 
-defineTypeNameAndDebug(ODEWallModelFvPatchScalarField, 0);
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
-void ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
+void Foam::ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
     eddyViscosity_->write(os);
     os.writeKeyword("eps") << eps_ << token::END_STATEMENT << endl;
@@ -63,7 +45,8 @@ void ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
     os.writeKeyword("nMeshY") << nMeshY_ << token::END_STATEMENT << endl;
 }    
     
-scalar ODEWallModelFvPatchScalarField::
+Foam::scalar 
+Foam::ODEWallModelFvPatchScalarField::
 integrate(const scalarList & y, const scalarList & v) const
 {
     
@@ -78,7 +61,7 @@ integrate(const scalarList & y, const scalarList & v) const
     return 0.5*integral;
 }
 
-void ODEWallModelFvPatchScalarField::createMeshes()
+void Foam::ODEWallModelFvPatchScalarField::createMeshes()
 {
 
     // Number of points in the mesh normal to the wall
@@ -91,14 +74,15 @@ void ODEWallModelFvPatchScalarField::createMeshes()
         meshes_[faceI].resize(n, 0.0);
         forAll(meshes_[faceI], pointI)
         {
-            // uniform distribution for now..
+            // uniform distribution
             meshes_[faceI][pointI] = pointI*dx;
         }
     }
     
 }
 
-tmp<scalarField> ODEWallModelFvPatchScalarField::calcNut() const
+Foam::tmp<Foam::scalarField>
+Foam::ODEWallModelFvPatchScalarField::calcNut() const
 {
     if (debug)
     {
@@ -118,7 +102,7 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcNut() const
         )
     );
     
-    // Velocity at the boundary (in case of moving boundary)
+    // Velocity at the boundary
     const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
     
     // Magnitude of wall-normal velocity gradient
@@ -160,7 +144,8 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcNut() const
 }
 
 
-tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
+Foam::tmp<Foam::scalarField>
+Foam::ODEWallModelFvPatchScalarField::calcUTau() const
 {
 
     const label patchi = patch().index();
@@ -197,9 +182,8 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
     vectorField Upar(patch().size());
     scalarField magUpar(patch().size());
 
-    // temporary vectors for computing source term
-    vector sourceFVec(0,0,0);
-    vector patchFaceNormal(0,0,0);
+    // temporary vectors for computing the source term
+    vector sourceFVec(0, 0, 0);
             
     forAll(magUp, i)
     {   
@@ -223,19 +207,17 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
 
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
-    scalarField& uTau = tuTau();
-    
-        
+    scalarField & uTau = tuTau();            
     
     // Compute uTau for each face
     forAll(uTau, faceI)
     {
-        const scalarList & y = meshes_[faceI]; //auxiliary points normal to the patch
+        // Points of the 1d wall-normal mesh
+        const scalarList & y = meshes_[faceI]; 
 
         // Starting guess using definition
         scalar tau = (nutw[faceI] + nuw[faceI])*magGradU[faceI];
         
-        //Info << "Guess " << uTau[faceI] << nl;
         if (tau > ROOTVSMALL)
         {
             for (int iterI=0; iterI<maxIter_; iterI++)
@@ -245,45 +227,41 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
 
                 scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
                 scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));
-
-                 // compute source term
-                patchFaceNormal=faceNormals[faceI];
-                source(faceI,patchFaceNormal,sourceFVec);
                 
-                scalar newTauT0 = Upar[faceI][0] - sourceFVec[0] * integral2;
-                scalar newTauT2 = Upar[faceI][2] - sourceFVec[2] * integral2;
-                scalar newTauT  = sqr(newTauT0) + sqr(newTauT2);
-
-//                scalar newTauT1 = sqr(Upar[faceI][0])+sqr(Upar[faceI][2]);
-//                scalar newTauT2 = -2.0*integral2*(Upar[faceI][0]*sourceFVec[0]+Upar[faceI][2]*sourceFVec[2]);
-//                scalar newTauT3 = sqr(integral2)*(sqr(sourceFVec[0])+sqr(sourceFVec[2]));
-//                scalar newTauT = newTauT1+newTauT2+newTauT3;
-
-//                if (newTauT < 0 ) {
-//                   WarningIn("Foam::ODEWallModelFvPatchScalarField::calcUTau()")
-//                        << "when calculating newTau, sqrt of a negative value occurred. " << nl;
-//                };
-
-                if (integral == 0 ) {
-                   WarningIn("Foam::ODEWallModelFvPatchScalarField::calcUTau()")
-                        << "when calculating newTau, division by zero occurred. " << nl;
+                if (integral == 0 )
+                {
+                    WarningIn
+                    (
+                        "Foam::ODEWallModelFvPatchScalarField::calcUTau()"
+                    )
+                        << "when calculating newTau, division by zero occurred."
+                        << nl;
                 };
-
-                scalar newTau = sqrt(newTauT)/integral;
+                
+                
+                // Compute the source term
+                source(faceI, faceNormals[faceI], sourceFVec);
+                
+                scalar newTau = 
+                        sqr(magUpar[faceI]) + sqr(mag(sourceFVec)*integral2) -
+                        2*(Upar[faceI] & sourceFVec)*integral2;
+                
+                newTau  = sqrt(newTau)/integral;
                 
                 scalar error = mag(tau - newTau)/tau;
+                tau = newTau;
                 
                 if (error < eps_)
                 {
                     if (debug > 1)
                     {
-                        Info<< "tau_w converged after " << iterI
+                        Info<< "tau_w converged after " << iterI + 1
                             << " iterations." << nl;
                     }
                     break;                            
                 }
                 
-                tau = newTau;
+
                 
                 if ((debug > 1) && (iterI == maxIter_-1))
                 {
@@ -299,7 +277,10 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
 
     // Grab global uTau field
     volScalarField & uTauField = 
-        const_cast<volScalarField &>(db().lookupObject<volScalarField>("uTau"));
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("uTau")
+        );
      
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryField()[patch().index()] == uTau;
@@ -310,7 +291,7 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-ODEWallModelFvPatchScalarField::
+Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
     const fvPatch& p,
@@ -335,7 +316,7 @@ ODEWallModelFvPatchScalarField
 }
 
 //constructor when running deomposePar/reconstructPar
-ODEWallModelFvPatchScalarField::
+Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
     const ODEWallModelFvPatchScalarField& ptf,
@@ -347,7 +328,6 @@ ODEWallModelFvPatchScalarField
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
     eddyViscosity_(EddyViscosity::New(ptf.eddyViscosity_->type(),
                    ptf.eddyViscosity_->constDict())),
-//    meshes_(patch().size()),  
     meshes_(ptf.meshes_),
     maxIter_(ptf.maxIter_),
     eps_(ptf.eps_),
@@ -360,13 +340,11 @@ ODEWallModelFvPatchScalarField
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
-
-    //createMeshes();
 }
 
 
 //s this is the constructor when running the code
-ODEWallModelFvPatchScalarField::
+Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
     const fvPatch& p,
@@ -379,7 +357,7 @@ ODEWallModelFvPatchScalarField
     meshes_(patch().size()),
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
     eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
-    nMeshY_(dict.lookupOrDefault<label>("nMeshY", 5))
+    nMeshY_(dict.lookupOrDefault<label>("nMeshY", 10))
 
 {
     if (debug)
@@ -390,11 +368,11 @@ ODEWallModelFvPatchScalarField
     }
 
     createMeshes();
-
 }
 
+
 //constructor when running deomposePar/reconstructPar
-ODEWallModelFvPatchScalarField::
+Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
     const ODEWallModelFvPatchScalarField& wfpsf
@@ -402,7 +380,6 @@ ODEWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(wfpsf),
     eddyViscosity_(wfpsf.eddyViscosity_),
-//    meshes_(patch().size()),
     meshes_(wfpsf.meshes_),
     maxIter_(wfpsf.maxIter_),
     eps_(wfpsf.eps_),
@@ -416,13 +393,11 @@ ODEWallModelFvPatchScalarField
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
-
-//    createMeshes();
 }
 
 
 //constructor when running deomposePar/reconstructPar
-ODEWallModelFvPatchScalarField::
+Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
     const ODEWallModelFvPatchScalarField& wfpsf,
@@ -431,7 +406,6 @@ ODEWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(wfpsf, iF),
     eddyViscosity_(wfpsf.eddyViscosity_),
-//    meshes_(patch().size()),
     meshes_(wfpsf.meshes_),
     maxIter_(wfpsf.maxIter_),
     eps_(wfpsf.eps_),
@@ -444,19 +418,14 @@ ODEWallModelFvPatchScalarField
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
-
-//    createMeshes();
 }
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void ODEWallModelFvPatchScalarField::write(Ostream& os) const
+void Foam::ODEWallModelFvPatchScalarField::write(Ostream& os) const
 {
     wallModelFvPatchScalarField::write(os);
 }
-
-
-} // End namespace Foam
 
 // ************************************************************************* //

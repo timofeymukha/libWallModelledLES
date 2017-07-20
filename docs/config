@@ -19,6 +19,7 @@
 # text before the first occurrence of this tag. Doxygen uses libiconv (or the
 # iconv built into libc) for the transcoding. See
 # http://www.gnu.org/software/libiconv for the list of possible encodings.
+#
 
 DOXYFILE_ENCODING      = UTF-8
 
@@ -703,7 +704,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                =
+EXCLUDE                = ../tests
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

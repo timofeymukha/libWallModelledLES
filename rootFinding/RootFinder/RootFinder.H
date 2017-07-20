@@ -17,10 +17,14 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    RootFinder
+    Foam::RootFinder
 
 Description
     Base abstract class for finding roots of non-linear algebraic equations.
+
+    In the context of wall modelling the latter are provided by laws of the
+    wall. The root finders are therefore used in conjuction with the LOTW
+    wall model
  
 Authors
     Timofey Mukha, Saleh Rezaeiravesh

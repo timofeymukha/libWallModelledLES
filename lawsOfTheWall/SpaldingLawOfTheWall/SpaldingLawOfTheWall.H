@@ -22,13 +22,23 @@ Class
 Description
     The law of the wall proposed by Spalding.
 
-    The law is given by the following formula
-
-    \f$y^+ = u^+ +  \exp(-\kappa B) \left( \exp (\kappa B) - 1 - \kappa u^+ -
-             \frac{1}{2}(\kappa u^+)^2 - \frac{1}{6}(\kappa u^+)^3 \right)\f$
+    \f[
+    y^+ = u^+ +  \exp(-\kappa B) \left( \exp (\kappa B) - 1 - \kappa u^+ -
+             \frac{1}{2}(\kappa u^+)^2 - \frac{1}{6}(\kappa u^+)^3 \right)
+    \f]
 
     Since the formula above is differentiable, it is advised to use Newton's
     method to solve for \f$u_\tau \f$.
+
+    Usage:
+    \verbatim
+    Law
+    {
+        type      Spalding;
+        kappa     value; (default 0.4)
+        B         value; (default 5.5)
+    }
+    \endverbatim
     
     Reference:
     \verbatim

@@ -21,6 +21,28 @@ Class
 
 Description
     Class for the wall models based on a law of the wall.
+ 
+    Needs a root finder and a law of the wall to be defined.
+
+    Usage
+    \verbatim
+    patchName
+    {
+        type                LOTWWallModel;
+        value               uniform 0;
+        RootFinder
+        {
+            type            RootFinderType;
+            otherParams     value;
+        }
+
+        Law
+        {
+            type            LawOfTheWallType;
+            otherParams     value;
+        }
+    }
+    \endverbatim
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh

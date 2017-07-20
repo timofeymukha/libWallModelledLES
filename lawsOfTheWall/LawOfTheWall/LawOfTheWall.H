@@ -20,10 +20,12 @@ Class
     Foam::LawOfTheWall
 
 Description
-    Base abstract class for laws of the wall. The law of the wall is meant to
-    provide an implicit function \f$F(u, y, u_\tau, \nu)\f$ and its derivative,
-    which can be used to iteratively solve for \f$u_\tau\f$.
-    
+    Base abstract class for laws of the wall.
+ 
+    It is to be used in conjuction
+    with the LOTW wall model. The law of the wall provides an implicit function
+    \f$F(u, y, u_\tau, \nu)\f$ and its derivative, which can be used to
+    iteratively solve for the friction velocity.
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh.
