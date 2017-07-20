@@ -250,18 +250,20 @@ tmp<scalarField> ODEWallModelFvPatchScalarField::calcUTau() const
                  // compute source term
                 patchFaceNormal=faceNormals[faceI];
                 source(faceI,patchFaceNormal,sourceFVec);
-               // Pout << "in ODE, sourceFVec = " << sourceFVec << nl;
+                
+                scalar newTauT0 = Upar[faceI][0] - sourceFVec[0] * integral2;
+                scalar newTauT2 = Upar[faceI][2] - sourceFVec[2] * integral2;
+                scalar newTauT  = sqr(newTauT0) + sqr(newTauT2);
 
-                scalar newTauT1 = sqr(Upar[faceI][0])+sqr(Upar[faceI][2]);
-                scalar newTauT2 = -2.0*integral2*(Upar[faceI][0]*sourceFVec[0]+Upar[faceI][2]*sourceFVec[2]);
-                scalar newTauT3 = sqr(integral2)*(sqr(sourceFVec[0])+sqr(sourceFVec[2]));
+//                scalar newTauT1 = sqr(Upar[faceI][0])+sqr(Upar[faceI][2]);
+//                scalar newTauT2 = -2.0*integral2*(Upar[faceI][0]*sourceFVec[0]+Upar[faceI][2]*sourceFVec[2]);
+//                scalar newTauT3 = sqr(integral2)*(sqr(sourceFVec[0])+sqr(sourceFVec[2]));
+//                scalar newTauT = newTauT1+newTauT2+newTauT3;
 
-                scalar newTauT = newTauT1+newTauT2+newTauT3;
-
-                if (newTauT < 0 ) {
-                   WarningIn("Foam::ODEWallModelFvPatchScalarField::calcUTau()")
-                        << "when calculating newTau, sqrt of a negative value occurred. " << nl;
-                };
+//                if (newTauT < 0 ) {
+//                   WarningIn("Foam::ODEWallModelFvPatchScalarField::calcUTau()")
+//                        << "when calculating newTau, sqrt of a negative value occurred. " << nl;
+//                };
 
                 if (integral == 0 ) {
                    WarningIn("Foam::ODEWallModelFvPatchScalarField::calcUTau()")
