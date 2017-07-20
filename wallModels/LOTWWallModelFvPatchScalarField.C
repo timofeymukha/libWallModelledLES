@@ -15,17 +15,7 @@ License
     You should have received a copy of the GNU General Public License
     along with libWallModelledLES. 
     If not, see <http://www.gnu.org/licenses/>.
-
-Class
-LOTWWallModel
-
-Description
-    Class for wall models based on a Law of the Wall.
-
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
-
- * 
+ 
 \*---------------------------------------------------------------------------*/
 
 #include "LOTWWallModelFvPatchScalarField.H"
@@ -41,20 +31,16 @@ Authors
 
 using namespace std::placeholders;
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-namespace Foam
-{
-
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
-void LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
+void Foam::LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
     rootFinder_->write(os);
     law_->write(os);
 }    
     
-tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
+Foam::tmp<Foam::scalarField> 
+Foam::LOTWWallModelFvPatchScalarField::calcNut() const
 {
     if (debug)
     {
@@ -113,9 +99,8 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcNut() const
     );
 }
 
-
-
-tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
+Foam::tmp<Foam::scalarField> 
+Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
 {
 
     const label patchi = patch().index();
@@ -128,8 +113,7 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
             dimensionedInternalField().group()
         )
     );
-    //const scalarField& y = turbModel.y()[patchi];
-    
+
     // Velocity in internal field
     const vectorField & U = turbModel.U().internalField();
 
@@ -139,7 +123,11 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     // Magnitude of wall-normal gradient
     const scalarField magGradU(mag(Uw.snGrad()));
     volScalarField & gradUField = 
-        const_cast<volScalarField &>(db().lookupObject<volScalarField>("magGradU"));
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("magGradU")
+        );
+    
     gradUField.boundaryField()[patch().index()] == magGradU;
    
     // Face normals
@@ -168,13 +156,6 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
         Upar[i] = Up[i] - Unormal[i];
         magUpar[i] = mag(Upar[i]);
     }
-    
-    /*Info << "Normals " << faceNormals << nl << nl;;
-    Info << Up << nl << nl;
-    Info << "Unormal " << Unormal << nl << nl;
-    Info << "Upar " << Upar << nl;
-    Info << "diff " << magUp - sqrt((sqr(magUpar) + sqr(mag(Unormal)))) << nl;
-    */
 
     // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
@@ -193,7 +174,10 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
     
     // Grab global uTau field
     volScalarField & uTauField = 
-        const_cast<volScalarField &>(db().lookupObject<volScalarField>("uTau"));
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("uTau")
+        );
 
     scalarField uTauOld = uTauField.boundaryField()[patch().index()];
 
@@ -233,7 +217,7 @@ tmp<scalarField> LOTWWallModelFvPatchScalarField::calcUTau() const
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-LOTWWallModelFvPatchScalarField::
+Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
     const fvPatch& p,
@@ -244,7 +228,7 @@ LOTWWallModelFvPatchScalarField
 {}
 
 
-LOTWWallModelFvPatchScalarField::
+Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
     const LOTWWallModelFvPatchScalarField& ptf,
@@ -264,7 +248,7 @@ LOTWWallModelFvPatchScalarField
 {
 }
 
-LOTWWallModelFvPatchScalarField::
+Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
     const fvPatch& p,
@@ -278,7 +262,7 @@ LOTWWallModelFvPatchScalarField
 {}
 
 
-LOTWWallModelFvPatchScalarField::
+Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
     const LOTWWallModelFvPatchScalarField& wfpsf
@@ -290,7 +274,7 @@ LOTWWallModelFvPatchScalarField
 {}
 
 
-LOTWWallModelFvPatchScalarField::
+Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
     const LOTWWallModelFvPatchScalarField& wfpsf,
@@ -305,22 +289,25 @@ LOTWWallModelFvPatchScalarField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void LOTWWallModelFvPatchScalarField::write(Ostream& os) const
+void Foam::LOTWWallModelFvPatchScalarField::write(Ostream& os) const
 {
     wallModelFvPatchScalarField::write(os);
 }
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-makePatchTypeField
-(
-    fvPatchScalarField,
-    LOTWWallModelFvPatchScalarField
-);
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace Foam
+namespace Foam
+{
+    makePatchTypeField
+    (
+        fvPatchScalarField,
+        LOTWWallModelFvPatchScalarField
+    );
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//} // End namespace Foam
 
 // ************************************************************************* //

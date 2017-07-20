@@ -16,15 +16,6 @@ License
     along with libWallModelledLES. 
     If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    SpaldingLawOfTheWall
-
-Description
-    The law of the wall proposed by Spalding.
-
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh.
-
  \*---------------------------------------------------------------------------*/
 
 #include "SpaldingLawOfTheWall.H"
@@ -38,28 +29,9 @@ namespace Foam
     addToRunTimeSelectionTable(LawOfTheWall, SpaldingLawOfTheWall, Dictionary);
     addToRunTimeSelectionTable(LawOfTheWall, SpaldingLawOfTheWall, TypeAndDictionary);
 
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-/*Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall()
-:
-    kappa_(0.4),
-    B_(5.5)
-{
-    printCoeffs();
-}*/
-
-
-/*Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
-(
-    scalar kappa,
-    scalar B
-)
-:
-    kappa_(kappa),
-    B_(B)
-{
-    printCoeffs();
-}*/
 
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
@@ -75,6 +47,7 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
         printCoeffs();
     }
 }
+
 
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
@@ -130,5 +103,6 @@ Foam::scalar Foam::SpaldingLawOfTheWall::derivative
     return -y/nu - u/sqr(uTau) - kappa_*uPlus/uTau*exp(-kappa_*B_)
            *(exp(kappa_*uPlus) - 1 - kappa_*uPlus - 0.5*sqr(kappa_*uPlus));
 }
-// ************************************************************************* //
-}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+

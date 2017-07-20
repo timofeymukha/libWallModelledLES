@@ -16,16 +16,7 @@ License
     along with libWallModelledLES. 
     If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    WernerWengleLawOfTheWall
-
-Description
-    The law of the wall proposed by WernerWengle.
-
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
-
- \*---------------------------------------------------------------------------*/
+\*---------------------------------------------------------------------------*/
 
 #include "WernerWengleLawOfTheWall.H"
 #include "dictionary.H"
@@ -37,30 +28,9 @@ namespace Foam
     defineTypeNameAndDebug(WernerWengleLawOfTheWall, 0);
     addToRunTimeSelectionTable(LawOfTheWall, WernerWengleLawOfTheWall, Dictionary);
     addToRunTimeSelectionTable(LawOfTheWall, WernerWengleLawOfTheWall, TypeAndDictionary);
-
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-/*Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall()
-:
-    A_(8.3),
-    B_(1./7)
-{
-    printCoeffs();
-}*/
-
-
-/*Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
-(
-    scalar A,
-    scalar B
-)
-:
-    A_(A),
-    B_(B)
-{
-    printCoeffs();
-}*/
 
 Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
@@ -106,6 +76,7 @@ void Foam::WernerWengleLawOfTheWall::printCoeffs() const
     Info<< token::END_BLOCK << nl << nl;
 }
 
+
 Foam::scalar Foam::WernerWengleLawOfTheWall::value
 (
     scalar u,
@@ -128,6 +99,7 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::value
     }
 }
 
+
 Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
 (
     scalar u,
@@ -148,5 +120,5 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
         return -u/sqr(uTau) - A_*B_*pow(y/nu, B_)*pow(uTau, B_-1);
     }
 }
-// ************************************************************************* //
-}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

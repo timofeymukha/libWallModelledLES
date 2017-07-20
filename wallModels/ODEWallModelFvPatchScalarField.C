@@ -60,7 +60,6 @@ void ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 
 }    
     
-
 scalar ODEWallModelFvPatchScalarField::
 integrate(const scalarList & y, const scalarList & v) const
 {

@@ -15,22 +15,14 @@ License
     You should have received a copy of the GNU General Public License
     along with libWallModelledLES. 
     If not, see <http://www.gnu.org/licenses/>.
-Class
-    LawOfTheWall
-
-Description
-    Base class for laws of the wall.
-
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh.
 
 \*---------------------------------------------------------------------------*/
 
-
+#include "LawOfTheWall.H"
 #include "dictionary.H"
+#include "error.H"
 #include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
-#include "LawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -39,84 +31,89 @@ namespace Foam
     defineTypeNameAndDebug(LawOfTheWall, 0);
     defineRunTimeSelectionTable(LawOfTheWall, Dictionary);
     defineRunTimeSelectionTable(LawOfTheWall, TypeAndDictionary);
-    
+}    
+
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
     
-autoPtr<LawOfTheWall> LawOfTheWall::New 
+Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New 
 (
-    const dictionary & dict
+    const Foam::dictionary & dict
 )
 {
-    word lawName(dict.lookup("type"));
+    Foam::word lawName(dict.lookup("type"));
     
     DictionaryConstructorTable::iterator cstrIter =
-    DictionaryConstructorTablePtr_->find(lawName);
+        DictionaryConstructorTablePtr_->find(lawName);
 
     if (cstrIter == DictionaryConstructorTablePtr_->end())
     {
         FatalErrorIn
         (
             "LawOfTheWall::New(const dictionary&)"
-        ) << "Unknown LawOfTheWall type "
-        << lawName << nl << nl
-        << "Valid LawOfTheWall types are :" << endl
-        << DictionaryConstructorTablePtr_->sortedToc()
-        << exit(FatalError);
+        )   << "Unknown LawOfTheWall type "
+            << lawName << nl << nl
+            << "Valid LawOfTheWall types are :" << nl
+            << DictionaryConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
     }
     
-    dictionary temp(dict);
+    Foam::dictionary temp(dict);
     temp.remove("type");
 
     return cstrIter()(temp);  
 }
  
-autoPtr<LawOfTheWall> LawOfTheWall::New 
+
+Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New 
 (
-    const word & lawName,
-    const dictionary & dict
+    const Foam::word & lawName,
+    const Foam::dictionary & dict
 )
 {
     
     TypeAndDictionaryConstructorTable::iterator cstrIter =
-    TypeAndDictionaryConstructorTablePtr_->find(lawName);
+        TypeAndDictionaryConstructorTablePtr_->find(lawName);
 
     if (cstrIter == TypeAndDictionaryConstructorTablePtr_->end())
     {
         FatalErrorIn
         (
             "LawOfTheWall::New(const word & lawName, const dictionary&)"
-        ) << "Unknown LawOfTheWall type "
-        << lawName << nl << nl
-        << "Valid LawOfTheWall types are :" << endl
-        << TypeAndDictionaryConstructorTablePtr_->sortedToc()
-        << exit(FatalError);
+        )   << "Unknown LawOfTheWall type "
+            << lawName << nl << nl
+            << "Valid LawOfTheWall types are :" << nl
+            << TypeAndDictionaryConstructorTablePtr_->sortedToc()
+            << exit(Foam::FatalError);
     }
 
     return cstrIter()(lawName, dict);  
 }
 
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void LawOfTheWall::write(Ostream & os) const
+void Foam::LawOfTheWall::write(Foam::Ostream & os) const
 {
     
     auto keys = constDict_.keys();
-    label dictSize = constDict_.keys().size();
+    Foam::label dictSize = constDict_.keys().size();
     
-    os.writeKeyword("Law") << endl;
-    os.writeKeyword("{") << incrIndent << endl;
-    os.writeKeyword("type") << type() << token::END_STATEMENT << endl;
+    os.writeKeyword("Law") 
+        << nl;
+    os.writeKeyword("{")
+        << incrIndent << nl;
+    os.writeKeyword("type")
+        << type() << token::END_STATEMENT << nl;
    
     for (int i=0; i<dictSize; i++)
     {
-        os.writeKeyword(keys[i]) << constDict_[keys[i]][0] 
-                                 << token::END_STATEMENT  << endl;
+        os.writeKeyword(keys[i])
+            << constDict_[keys[i]][0] << token::END_STATEMENT << nl;
     }
    
-    os << decrIndent;
-    os.writeKeyword("}") << endl;
+    os  << decrIndent;
+    os.writeKeyword("}")
+        << nl;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace Foam

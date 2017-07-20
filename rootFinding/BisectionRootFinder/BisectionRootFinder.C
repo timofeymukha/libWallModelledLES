@@ -15,14 +15,6 @@ License
     You should have received a copy of the GNU General Public License
     along with libWallModelledLES. 
     If not, see <http://www.gnu.org/licenses/>.
-Class
-    BisectionRoot
-
-Description
-    Bisection root finder.
-
-Author
-    Timofey Mukha, Saleh Rezaeiravesh
 
 \*---------------------------------------------------------------------------*/
 
@@ -144,15 +136,17 @@ Foam::scalar Foam::BisectionRootFinder::root
         }
     }
 
-    WarningIn
-    (
-        "Foam::scalar Foam::BisectionRoot<Func>::root\n"
-        "(\n"
-        "    const scalar x0,\n"
-        "    const scalar x1\n"
-        ") const"
-    )   << "Maximum number of iterations exceeded";
-
+    if (debug)
+    {
+        WarningIn
+        (
+            "Foam::scalar Foam::BisectionRoot<Func>::root\n"
+            "(\n"
+            "    const scalar x0,\n"
+            "    const scalar x1\n"
+            ") const"
+        )   << "Maximum number of iterations exceeded";
+    }
     return rtb;
 }
 

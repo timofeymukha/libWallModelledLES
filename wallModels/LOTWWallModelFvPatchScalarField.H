@@ -17,10 +17,10 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-LOTWWallModel
+    Foam::LOTWWallModelFvPatchScalarField
 
 Description
-    Class for the wall models based on a Law of The Wall.
+    Class for the wall models based on a law of the wall.
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh
@@ -140,13 +140,10 @@ public:
             );
         }
 
-
     // Member functions
 
-        // I-O
-
-            //- Write
-            virtual void write(Ostream& os) const;
+        //- Write to stream
+        virtual void write(Ostream& os) const;
 };
 
 

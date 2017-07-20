@@ -16,19 +16,9 @@ License
     along with libWallModelledLES. 
     If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    NewtonRoot
-
-Description
-    Newton root finder.
-
-Author
-    Timofey Mukha, Saleh Rezaeiravesh
-
 \*---------------------------------------------------------------------------*/
 
 #include "NewtonRootFinder.H"
-#include "RootFinder.H"
 #include "word.H"
 #include "error.H"
 #include "typeInfo.H"
@@ -62,26 +52,26 @@ Foam::scalar Foam::NewtonRootFinder::root(scalar guess) const
         (
             "Foam::scalar Foam::NewtonRoot::root\n"
             "(\n"
-            "    scalar x0,\n"
+            "    scalar guess,\n"
             ") const"
-        )   << "Jacobian equal to zero.  f'(xN) = " << d_(guess)
-            << abort(FatalError); }
+        )   << "Derivative equal to zero.  f' = " << d_(guess)
+            << abort(Foam::FatalError); }
 
     for (label nIter = 0; nIter < maxIter_; ++nIter)
     {
         scalar f = f_(guess);
         scalar d = d_(guess);
 
-        scalar xNew = guess - f/d;
+        scalar newGuess = guess - f/d;
         
-        error = mag(xNew - guess)/mag(guess);
+        error = mag(newGuess - guess)/mag(guess);
     
         if (error <= eps_)
         {
-            return xNew;
+            return newGuess;
         }
         
-        guess = xNew;
+        guess = newGuess;
     }
     
     if (debug)

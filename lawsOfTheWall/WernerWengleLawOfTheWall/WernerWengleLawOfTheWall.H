@@ -17,10 +17,19 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    WernerWengleLawOfTheWall
+    Foam::WernerWengleLawOfTheWall
 
 Description
     The law of the wall proposed by Werner and Wengle.
+
+    Reference:
+    \verbatim
+        Werner, H., & Wengle, H. (1993).
+        Large-eddy simulation of turbulent flow over and around a cube in a
+        plate channel.
+        In Turbulent Shear Flows 8 (pp. 155-168).
+        Springer, Berlin, Heidelberg.
+    \endverbatim
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh
@@ -63,33 +72,31 @@ public:
     TypeName("WernerWengle");
 
     // Constructors
-        //- Construct with default values
-    //    WernerWengleLawOfTheWall();
-    
-        //- Construct provided kappa, B and viscosity
-      //  WernerWengleLawOfTheWall(scalar A, scalar B);
-        
+
         //- Construct provided dictionary
         WernerWengleLawOfTheWall(const dictionary &);
         
-        WernerWengleLawOfTheWall(const word &, const dictionary &);
+        //- Construct provided TypeName and dictionary
+        WernerWengleLawOfTheWall(const word & lawname, const dictionary &);
 
     // Destructor
         virtual ~WernerWengleLawOfTheWall() {};
 
     // Member Functions
         
+        //- Return the A constant
         scalar A() const
         {
             return A_;
         }
         
+        //- Return the B constant
         scalar B() const
         {
             return B_;
         }
         
-        //- Print info
+        //- Print info to terminal
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law

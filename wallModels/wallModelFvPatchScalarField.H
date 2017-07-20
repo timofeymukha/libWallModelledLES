@@ -17,10 +17,21 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-wallModel
+    Foam::wallModelFvPatchScalarField
 
 Description
-    Base abstract class for LES wall models.
+    Base abstract class for LES wall models. Handles creating and storing fields
+    used by the wall models as well as figuring what cells are used for sampling
+    data. The following fields are created and stored in the registry.
+    - h, the patch fields of which hold the distance to the cells used for
+    sampling. This field is read and must be present for the simulation to run.
+    - samplingCells, which marks the cells used for sampling with a value
+    corresponding to the index of the patch that uses them.
+    - uTau, the patch fields of which hold the value of uTau as predicted by the
+    wall model.
+    - magGradU, the patch fields of which store the magnitude of the velocity
+    gradient.
+
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh
@@ -41,7 +52,7 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-             Class wallModelFvPatchScalarField Declaration
+                Class wallModelFvPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
 class wallModelFvPatchScalarField
@@ -63,7 +74,7 @@ protected:
 
     // Protected Member Functions
 
-        //- Check the type of the patch
+        //- Check that the patch is a wall
         virtual void checkType();
 
         //- Calculate the turbulence viscosity
@@ -80,7 +91,6 @@ public:
 
     //- Runtime type information
     TypeName("wallModel");
-
 
     // Constructors
 
@@ -141,16 +151,12 @@ public:
             return h_;
         }
         
-        // Evaluation functions
-
-            //- Update the boundary values
-            virtual void updateCoeffs();
+        //- Update the boundary values
+        virtual void updateCoeffs();
 
 
-        // I-O
-
-            //- Write
-            virtual void write(Ostream&) const;
+        //- Write to stream
+        virtual void write(Ostream&) const;
 };
 
 

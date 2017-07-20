@@ -83,10 +83,10 @@ public:
         //- Construct provided dictionary
         SpaldingLawOfTheWall(const dictionary &);
         
-        //- Construct provided name and dictionary
+        //- Construct provided TypeName and dictionary
         SpaldingLawOfTheWall(const word & lawname, const dictionary &);
 
-    // Destructor
+    //- Destructor
         virtual ~SpaldingLawOfTheWall() {};
 
     // Member Functions
@@ -101,7 +101,7 @@ public:
             return B_;
         }
         
-        //- Print the model coefficients
+        //- Print the model coefficients to terminal
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law

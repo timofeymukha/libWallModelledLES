@@ -16,18 +16,6 @@ License
     along with libWallModelledLES. 
     If not, see <http://www.gnu.org/licenses/>.
 
-Class
-wallModel
-
-Description
-    Base abstract class for LES wall models.
-
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
-
-SourceFiles
-    wallModel.C
-
 \*---------------------------------------------------------------------------*/
 
 #include "wallModelFvPatchScalarField.H"
@@ -44,15 +32,12 @@ SourceFiles
 
 namespace Foam
 {
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-defineTypeNameAndDebug(wallModelFvPatchScalarField, 0);
-
+    defineTypeNameAndDebug(wallModelFvPatchScalarField, 0);
+}
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
-void wallModelFvPatchScalarField::checkType()
+void Foam::wallModelFvPatchScalarField::checkType()
 {
     if (!isA<wallFvPatch>(patch()))
     {
@@ -60,17 +45,17 @@ void wallModelFvPatchScalarField::checkType()
             << "Invalid wall model specification" << nl
             << "    Patch type for patch " << patch().name()
             << " must be wall" << nl
-            << "    Current patch type is " << patch().type() << nl << endl
+            << "    Current patch type is " << patch().type() << nl << nl
             << abort(FatalError);
     }
 }
 
 
-void wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
+void Foam::wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
 }
 
-void wallModelFvPatchScalarField::createFields() const
+void Foam::wallModelFvPatchScalarField::createFields() const
 {
    
     // Create and register h field, if not there already
@@ -94,8 +79,6 @@ void wallModelFvPatchScalarField::createFields() const
     }
     
     const volScalarField & h = db().lookupObject<volScalarField>("h");
-    
-
     
     // Create and register uTau field, if not there already.
     // This holds uTau as computed by the wall model.
@@ -188,7 +171,7 @@ void wallModelFvPatchScalarField::createFields() const
     
 }
 
-tmp<scalarField> wallModelFvPatchScalarField::calcUTauBench
+Foam::tmp<Foam::scalarField> Foam::wallModelFvPatchScalarField::calcUTauBench
 (
     const scalarField& magGradU
 ) const
@@ -257,17 +240,20 @@ tmp<scalarField> wallModelFvPatchScalarField::calcUTauBench
     
     if (db().found("uTauBench"))
     {
-    volScalarField & uTauField = const_cast<volScalarField &>(
-                                    db().lookupObject<volScalarField>("uTauBench"));
+        volScalarField & uTauField =
+            const_cast<volScalarField &>
+            (
+                db().lookupObject<volScalarField>("uTauBench")
+            );
      
-    uTauField.boundaryField()[patch().index()] == uTau;
+        uTauField.boundaryField()[patch().index()] == uTau;
     }
     return tuTau;
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-wallModelFvPatchScalarField::wallModelFvPatchScalarField
+Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
@@ -290,7 +276,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 }
 
 
-wallModelFvPatchScalarField::wallModelFvPatchScalarField
+Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
     const wallModelFvPatchScalarField& ptf,
     const fvPatch& p,
@@ -310,12 +296,11 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
     }
 
     checkType();
-    //createCellIndexList();
-    
+    //createCellIndexList();   
 }
 
 
-wallModelFvPatchScalarField::wallModelFvPatchScalarField
+Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
@@ -324,7 +309,6 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF, dict),
     cellIndexList_(patch().size()),
-    //h_(patch().size(), dict.lookupOrDefault<scalar>("h", 0))
     h_(patch().size(), 0)    
 {
     if (debug)
@@ -340,7 +324,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 }
 
 
-wallModelFvPatchScalarField::wallModelFvPatchScalarField
+Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
     const wallModelFvPatchScalarField& wmpsf
 )
@@ -360,7 +344,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 }
 
 
-wallModelFvPatchScalarField::wallModelFvPatchScalarField
+Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
     const wallModelFvPatchScalarField& wmpsf,
     const DimensionedField<scalar, volMesh>& iF
@@ -383,7 +367,7 @@ wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void wallModelFvPatchScalarField::createCellIndexList()
+void Foam::wallModelFvPatchScalarField::createCellIndexList()
 {
     if (debug)
     {
@@ -391,7 +375,6 @@ void wallModelFvPatchScalarField::createCellIndexList()
             << nl;   
     }
     
-    //const label size = patch().size();
     const label patchIndex = patch().index();
     
     // Grab h for the current patch
@@ -399,9 +382,6 @@ void wallModelFvPatchScalarField::createCellIndexList()
         const_cast<volScalarField &>(db().lookupObject<volScalarField> ("h"));
     
     h_ = h.boundaryField()[patchIndex];
-
-    
-    //labelList testCellIndexList(size);
 
     // Grab the mesh
     const fvMesh & mesh = patch().boundaryMesh().mesh();
@@ -434,10 +414,7 @@ void wallModelFvPatchScalarField::createCellIndexList()
             }
             
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
-            cellIndexList_[i] = faceCells[i];
-                    //ms.findNearestCell(cellCentres[i], -1, true);
-            //testCellIndexList[i] = ms.findNearestCell(cellCentres[i], -1, true);
-            
+            cellIndexList_[i] = faceCells[i];          
         }
         else
         {
@@ -459,20 +436,7 @@ void wallModelFvPatchScalarField::createCellIndexList()
 
             // Find the cell where the point is located
             cellIndexList_[i] = ms.findNearestCell(point, -1, true);
-            
-            /*testCellIndexList[i] = ms.findNearestCell(cellCentres[i], -1, true);
-
-            if (cellIndexList_[i] == -1)
-            {
-                FatalErrorIn
-                (
-                "void Foam::wallModelFvPatchScalarField::createCellIndexList()\n"
-                )   << "Failed to find sampling cell for face " << i << "on patch "
-                    << patch().name() << ", with face centre " << faceCentres[i]
-                    << abort(FatalError);     
-
-            }*/
-            
+                        
             // Set h to the distance between face centre and located cell's
             // center
             h_[i] = mag(mesh.C()[cellIndexList_[i]] - faceCentres[i]);
@@ -484,7 +448,10 @@ void wallModelFvPatchScalarField::createCellIndexList()
     
     // Grab samplingCells field
     volScalarField & samplingCells = 
-        const_cast<volScalarField &>(db().lookupObject<volScalarField> ("samplingCells"));
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField> ("samplingCells")
+        );
     
     forAll(cellIndexList_, i)
     {
@@ -492,7 +459,7 @@ void wallModelFvPatchScalarField::createCellIndexList()
     }
 }
 
-void wallModelFvPatchScalarField::updateCoeffs()
+void Foam::wallModelFvPatchScalarField::updateCoeffs()
 {
     if (updated())
     {
@@ -506,7 +473,7 @@ void wallModelFvPatchScalarField::updateCoeffs()
 }
 
 
-void wallModelFvPatchScalarField::write(Ostream& os) const
+void Foam::wallModelFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
     writeLocalEntries(os);
@@ -515,5 +482,3 @@ void wallModelFvPatchScalarField::write(Ostream& os) const
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace Foam

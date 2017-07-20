@@ -16,19 +16,11 @@ License
     along with libWallModelledLES. 
     If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    RootFinder
-
-Description
-    Base class for finding roots of non-linear algebraic equations.
-Author
-    Timofey Mukha, Saleh Rezaeiravesh
-
-
 \*---------------------------------------------------------------------------*/
 
 
 #include "scalar.H"
+#include "Ostream.H"
 #include "word.H"
 #include "dictionary.H"
 #include "typeInfo.H"
@@ -45,16 +37,17 @@ namespace Foam
     defineRunTimeSelectionTable(RootFinder, Word);
     defineRunTimeSelectionTable(RootFinder, Dictionary);
     defineRunTimeSelectionTable(RootFinder, DictionaryOnly);
+}
 
 // Dummy function to initialize the root finders
-scalar rootFinderDummy(scalar)
+Foam::scalar rootFinderDummy(Foam::scalar)
 {
     return 0;
 }   
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
 
-autoPtr<RootFinder> RootFinder::New 
+Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New 
 (
     const word & rootFinderName,
     std::function<scalar(scalar)> f,
@@ -73,21 +66,21 @@ autoPtr<RootFinder> RootFinder::New
             "RootFinder::New(const word&, std::function<scalar(scalar)> f,"
                 "std::function<scalar(scalar)> d, const scalar eps,"
                 "const label maxIter)"
-        ) << "Unknown RootFinder type "
-        << rootFinderName << nl << nl
-        << "Valid RootFinder types are :" << endl
-        << WordConstructorTablePtr_->sortedToc()
-        << exit(FatalError);
+        )   << "Unknown RootFinder type "
+            << rootFinderName << nl << nl
+            << "Valid RootFinder types are :" << nl
+            << WordConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
     }
 
     return cstrIter()(rootFinderName, f, d, eps, maxIter);
 }  
 
-autoPtr<RootFinder> RootFinder::New 
+Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New 
 (
     std::function<scalar(scalar)> f,
     std::function<scalar(scalar)> d,
-    const dictionary & dict
+    const Foam::dictionary & dict
 )
 {
     word rootFinderName = dict.lookup("type");
@@ -101,22 +94,22 @@ autoPtr<RootFinder> RootFinder::New
         (
             "RootFinder::New(std::function<scalar(scalar)> f,"
                 "std::function<scalar(scalar)> d, const dictionary & dict)"
-        ) << "Unknown RootFinder type "
-        << rootFinderName << nl << nl
-        << "Valid RootFinder types are :" << endl
-        << DictionaryConstructorTablePtr_->sortedToc()
-        << exit(FatalError);
+        )   << "Unknown RootFinder type "
+            << rootFinderName << nl << nl
+            << "Valid RootFinder types are :" << nl
+            << DictionaryConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
     }
 
     return cstrIter()(f, d, dict);
 }
 
-autoPtr<RootFinder> RootFinder::New 
+Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New 
 (
-    const dictionary & dict
+    const Foam::dictionary & dict
 )
 {
-    word rootFinderName = dict.lookup("type");
+    Foam::word rootFinderName = dict.lookup("type");
 
     DictionaryOnlyConstructorTable::iterator cstrIter =
     DictionaryOnlyConstructorTablePtr_->find(rootFinderName);
@@ -126,11 +119,11 @@ autoPtr<RootFinder> RootFinder::New
         FatalErrorIn
         (
             "RootFinder::New(const dictionary & dict)"
-        ) << "Unknown RootFinder type "
-        << rootFinderName << nl << nl
-        << "Valid RootFinder types are :" << endl
-        << DictionaryConstructorTablePtr_->sortedToc()
-        << exit(FatalError);
+        )   << "Unknown RootFinder type "
+            << rootFinderName << nl << nl
+            << "Valid RootFinder types are :" << nl
+            << DictionaryConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
     }
 
     return cstrIter()(dict);
@@ -138,16 +131,17 @@ autoPtr<RootFinder> RootFinder::New
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void RootFinder::write(Ostream & os) const
+void Foam::RootFinder::write(Foam::Ostream & os) const
 {
-    os.writeKeyword("RootFinder") << endl;
-    os.writeKeyword("{") << incrIndent << endl;
-    os.writeKeyword("type") << type() << token::END_STATEMENT << endl;
-    os.writeKeyword("eps") << eps_ << token::END_STATEMENT << endl;
-    os.writeKeyword("maxIter") << maxIter_ << token::END_STATEMENT << endl;
-    
+    os.writeKeyword("RootFinder") << nl;
+    os.writeKeyword("{")
+        << incrIndent << nl;
+    os.writeKeyword("type")
+        << type() << token::END_STATEMENT << nl;
+    os.writeKeyword("eps")
+        << eps_ << token::END_STATEMENT << nl;
+    os.writeKeyword("maxIter")
+        << maxIter_ << token::END_STATEMENT << nl; 
 }
     
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace Foam

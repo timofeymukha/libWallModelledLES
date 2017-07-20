@@ -17,11 +17,12 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    NewtonRootFinder
+    Foam::NewtonRootFinder
 
 Description
     Root finder based on Newton's method.
-Author
+
+Authors
     Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
@@ -56,7 +57,8 @@ public:
     
     // Constructors
 
-        //- Construct given name, function, its derivative, tolerance and max number of iterations
+        //- Construct given name, function, its derivative, tolerance and 
+        //  maximum number of iterations
         NewtonRootFinder
         (
             const word & rootFinderName,
@@ -91,13 +93,13 @@ public:
         {}         
        
         
-    // Destructor - default
+    //- Destructor
         virtual ~NewtonRootFinder(){};
 
     // Member Functions
 
-        //- Return root
-        scalar root(scalar x0) const;
+        //- Compute and return root
+        scalar root(scalar guess) const;
         
         //- Write
         virtual void write(Ostream& os) const

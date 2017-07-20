@@ -20,8 +20,9 @@ Class
     RootFinder
 
 Description
-    Base class for finding roots of non-linear algebraic equations.
-Author
+    Base abstract class for finding roots of non-linear algebraic equations.
+ 
+Authors
     Timofey Mukha, Saleh Rezaeiravesh
 
 
@@ -48,19 +49,18 @@ scalar rootFinderDummy(scalar);
 
 
 /*---------------------------------------------------------------------------*\
-                      Class RootFinder Declaration
+                          Class RootFinder Declaration
 \*---------------------------------------------------------------------------*/
-
-    
+   
 class RootFinder
 {
 
 protected:     
 
-    //- Pointer to the function
+    //- Function defining the equation to be solved 
     std::function<scalar(scalar)> f_;
     
-    //- Pointer to the derivative
+    //- Function defining the derivative of the equation to be solved
     std::function<scalar(scalar)> d_;
     
      //- Target relative error
@@ -117,8 +117,73 @@ public:
         {};
 
 
-    // Destructor
+    //- Destructor
         virtual ~RootFinder() {};
+    
+    // Selectors
+        static autoPtr<RootFinder> New 
+        (
+            const word& rootFinderName,
+            std::function<scalar(scalar)> f,
+            std::function<scalar(scalar)> d,
+            const scalar eps,
+            const label maxIter
+        );
+
+        static autoPtr<RootFinder> New 
+        (
+            std::function<scalar(scalar)> f,
+            std::function<scalar(scalar)> d,
+            const dictionary & dict
+        );
+
+        static autoPtr<RootFinder> New 
+        (
+            const dictionary & dict
+        );
+   
+    // Member Functions
+
+        //- Return root
+        virtual scalar root(scalar) const = 0;
+        
+        //- Set the implicit function defining the equation
+        void setFunction(std::function<scalar(scalar)> f)
+        {
+            f_ = f;
+        }
+        
+        //- Set the implicit function defining the derivative
+        virtual void setDerivative(std::function<scalar(scalar)> d)
+        {
+            d_ = d;
+        }
+        
+        //- Return eps_
+        scalar eps() const
+        {
+            return eps_;
+        }
+                
+        //- Return maxIter_
+        label maxIter() const
+        {
+            return maxIter_;
+        }
+        
+        //- Return the function f_
+        std::function<scalar(scalar)> f() const
+        {
+            return f_;
+        }
+        
+        //- Return the function d_
+        std::function<scalar(scalar)> d() const
+        {
+            return d_;
+        }
+        
+        virtual void write(Foam::Ostream& os) const;
 
     // RTS tables 
         
@@ -163,74 +228,6 @@ public:
             ),
             (dict)
         )
-    
-      
-    // Selectors
-        static autoPtr<RootFinder> New 
-        (
-            const word& rootFinderName,
-            std::function<scalar(scalar)> f,
-            std::function<scalar(scalar)> d,
-            const scalar eps,
-            const label maxIter
-        );
-
-        static autoPtr<RootFinder> New 
-        (
-            std::function<scalar(scalar)> f,
-            std::function<scalar(scalar)> d,
-            const dictionary & dict
-        );
-
-        static autoPtr<RootFinder> New 
-        (
-            const dictionary & dict
-        );
-   
-    // Member Functions
-
-        //- Return root
-        virtual scalar root(scalar) const = 0;
-        
-        //- Set the implicit function defining the equation
-        void setFunction(std::function<scalar(scalar)> f)
-        {
-            f_ = f;
-        }
-        
-        //- Set the implicit function defining the derivative
-        virtual void setDerivative(std::function<scalar(scalar)> d)
-        {
-            d_ = d;
-        }
-        
-        //- Get eps_
-        scalar eps() const
-        {
-            return eps_;
-        }
-                
-        //- Get maxIter_
-        label maxIter() const
-        {
-            return maxIter_;
-        }
-        
-        //- Get f_
-        std::function<scalar(scalar)> f() const
-        {
-            return f_;
-        }
-        
-        //- Get d_
-        std::function<scalar(scalar)> d() const
-        {
-            return d_;
-        }
-        
-        virtual void write(Ostream& os) const;
-
-
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

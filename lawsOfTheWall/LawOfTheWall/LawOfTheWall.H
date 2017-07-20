@@ -20,7 +20,10 @@ Class
     Foam::LawOfTheWall
 
 Description
-    Base class for laws of the wall.
+    Base abstract class for laws of the wall. The law of the wall is meant to
+    provide an implicit function \f$F(u, y, u_\tau, \nu)\f$ and its derivative,
+    which can be used to iteratively solve for \f$u_\tau\f$.
+    
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh.
@@ -62,20 +65,57 @@ public:
     
     // Constructors
     
+        //- Construct from dictionary
         LawOfTheWall(const dictionary & dict)
         :
         constDict_(dict)
         {}
         
+        //- Construct from TypeName and dictionary
         LawOfTheWall(const word& lawName, const dictionary & dict)
         :
         constDict_(dict)
         {}
 
-    // Destructor
+    //- Destructor
         virtual ~LawOfTheWall() {}
 
+    // Selectors
+        static autoPtr<LawOfTheWall> New 
+        (
+            const dictionary & dict
+        );
+
+        static autoPtr<LawOfTheWall> New 
+        (
+            const word & lawName,
+            const dictionary & dict
+        );
+        
+    // Member Functions
     
+        //- Print info to terminal
+        virtual void printCoeffs() const = 0; 
+
+        //- Return the value of the implicit function defining the law
+        virtual scalar
+        value(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
+
+        //- Return the value of the  derivative of the implicit function
+        //  defining the law. Should throw an error if derivative does not 
+        //  exist.
+        virtual scalar 
+        derivative(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
+        
+        //- Write information about the law to stream
+        virtual void write(Ostream & os) const; 
+        
+        //- Return the dictionary with the constants
+        dictionary constDict() const
+        {
+            return constDict_;
+        }
+        
     // RTS tables
         // RTS table "Dictionary"    
         declareRunTimeSelectionTable
@@ -101,42 +141,6 @@ public:
             ),
             (lawName, dict)
         )  
-    
-    // Selectors
-        static autoPtr<LawOfTheWall> New 
-        (
-            const dictionary & dict
-        );
-
-        static autoPtr<LawOfTheWall> New 
-        (
-            const word & lawName,
-            const dictionary & dict
-        );
-        
-    // Member Functions
-    
-        //- Print info
-        virtual void printCoeffs() const = 0; 
-
-        //- Return the value of the implicit function defining the law
-        virtual scalar
-        value(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
-
-        //- Return the value of the  derivative of the implicit function
-        //  defining the law
-        virtual scalar 
-        derivative(scalar u, scalar y, scalar uTau, scalar nu) const = 0;
-        
-        //- Write information about the law to stream
-        virtual void write(Ostream & os) const; 
-        
-        //- Get the dictionary with the constants
-        dictionary constDict() const
-        {
-            return constDict_;
-        }
-
 };
 
 

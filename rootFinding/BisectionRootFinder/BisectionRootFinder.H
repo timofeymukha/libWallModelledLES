@@ -17,11 +17,12 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    BisectionRootFinder
+    Foam::BisectionRootFinder
 
 Description
     Root finder based on the bisection method.
-Author
+
+Authors
     Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
@@ -71,7 +72,7 @@ public:
             const label maxIter
         );
 
-        //- Construct given a function, its derivative and dict
+        //- Construct given a function, its derivative and dictionary
         BisectionRootFinder
         (
             std::function<scalar(scalar)>,
@@ -79,7 +80,7 @@ public:
             const dictionary & dict
         );
         
-        //- Construct given dicttionary
+        //- Construct given dictionary
         BisectionRootFinder
         (
             const dictionary & dict
@@ -99,16 +100,16 @@ public:
         //- Return root
         scalar root(scalar x0) const;
         
-        
+        //- Write parameters to stream
         virtual void write(Ostream& os) const
         {
             RootFinder::write(os);
-            os.writeKeyword("bracket") << bracket_ << token::END_STATEMENT
-                                       << endl;
-            os << decrIndent;
-            os.writeKeyword("}") << endl;
-        }
-        
+            os.writeKeyword("bracket") 
+                << bracket_ << token::END_STATEMENT << nl;   
+            os  << decrIndent;
+            os.writeKeyword("}")
+                << endl;
+        }       
 };
 
 
