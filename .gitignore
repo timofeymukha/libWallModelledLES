@@ -40,7 +40,8 @@ lnInclude/
 
 **/Make/*
 /docs/html
-/Make/linux*
+
+Make/linux64GccDPInt32Opt
 !**/Make/files
 !**/Make/options
 /tests/testCases/channel_flow/processor*/
