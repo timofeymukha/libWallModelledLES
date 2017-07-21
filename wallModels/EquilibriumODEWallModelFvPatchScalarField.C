@@ -20,10 +20,7 @@ License
 
 #include "EquilibriumODEWallModelFvPatchScalarField.H"
 #include "turbulenceModel.H"
-#include "fvPatchFieldMapper.H"
-#include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
-#include "dictionary.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

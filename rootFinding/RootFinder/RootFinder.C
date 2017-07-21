@@ -18,16 +18,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#include "scalar.H"
-#include "Ostream.H"
-#include "word.H"
-#include "dictionary.H"
-#include "typeInfo.H"
-#include "runTimeSelectionTables.H"
-#include "addToRunTimeSelectionTable.H"
 #include "RootFinder.H"
-#include <functional>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -76,6 +67,7 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
     return cstrIter()(rootFinderName, f, d, eps, maxIter);
 }  
 
+
 Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New 
 (
     std::function<scalar(scalar)> f,
@@ -103,6 +95,7 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
 
     return cstrIter()(f, d, dict);
 }
+
 
 Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New 
 (

@@ -19,13 +19,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "NewtonRootFinder.H"
-#include "word.H"
-#include "error.H"
-#include "typeInfo.H"
-#include "dictionary.H"
-#include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
-#include <functional>
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

@@ -19,12 +19,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BisectionRootFinder.H"
-#include "word.H"
-#include "error.H"
-#include "typeInfo.H"
-#include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
-#include <functional>
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

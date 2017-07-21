@@ -58,9 +58,6 @@ SourceFiles
 #ifndef WernerWengleLawOfTheWall_H
 #define WernerWengleLawOfTheWall_H
 
-#include "scalar.H"
-#include "typeInfo.H"
-#include "dictionary.H"
 #include "LawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

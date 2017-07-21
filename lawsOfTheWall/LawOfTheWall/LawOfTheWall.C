@@ -19,10 +19,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "LawOfTheWall.H"
-#include "dictionary.H"
-#include "error.H"
-#include "runTimeSelectionTables.H"
-#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

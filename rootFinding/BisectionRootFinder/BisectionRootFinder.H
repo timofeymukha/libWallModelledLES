@@ -55,10 +55,6 @@ SourceFiles
 #define BisectionRootFinder_H
 
 #include "RootFinder.H"
-#include "scalar.H"
-#include "word.H"
-#include "typeInfo.H"
-#include <functional>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
