@@ -47,35 +47,16 @@ runTimeModifiable true;
 
 functions
 {
-
 }
-
-// to debug
-/*
-InfoSwitches
-{
-    writePrecision  6;
-    writeJobInfo    1;
-    writeDictionaries 1;
-    writeOptionalEntries 1;
-
-    // Allow case-supplied C++ code (#codeStream, codedFixedValue)
-    allowSystemOperations   1;
-}
-*/
-
-// look at DebugSwitches @ $WM_PROJECT_DIR/etc/controlDict
 
 DebugSwitches
 {
-//   wallModel           1;
+//   wallModel        1;
 //   LOTWWallModel    1;
 //   LawOfTheWall     2;
 //    Spalding   2;
-
 //   ODEWallModel  2;
 //   EquilibriumODEWallModel  2;
-
 //   JohnsonKing 1;
 }
 
