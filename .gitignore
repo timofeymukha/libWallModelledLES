@@ -39,9 +39,8 @@ lnInclude/
 **.dep
 
 **/Make/*
+**/processor*
 /docs/html
-/docst/DTAGS
-Make/linux64GccDPInt32Opt
+/docs/DTAGS
 !**/Make/files
 !**/Make/options
-/tests/testCases/channel_flow/processor*/

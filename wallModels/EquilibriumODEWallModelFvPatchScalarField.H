@@ -1,34 +1,50 @@
 /*---------------------------------------------------------------------------* \
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           |
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is part of libWallModelledLES.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
+    libWallModelledLES is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    libWallModelledLES is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    along with libWallModelledLES. 
+    If not, see <http://www.gnu.org/licenses/>.
 
 Class
-EquilibriumODEWallModel
+    Foam::EquilibriumODEWallModelFvPatchScalarField
 
 Description
-    ODE wall model with a zero source term.
+    ODE model with a zero source-term.
+  
+    Physically, this means that the total
+    shear stress is assumed to be constant from 0 to h.
+
+    Usage
+    \verbatim
+    patchName
+    {
+        type                EquilibriumODEWallModel;
+        value               uniform 0;
+        maxIter             value; (default 10)
+        eps                 value; (default 1e-3)
+        nMeshY              value; (default 10)
+
+        EddyViscosity 
+        {
+            type            EddyViscosityType;
+            otherParams     value;
+        }
+    }
+    \endverbatim
 
 Authors
-    Timofey Mukha.  All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
     EquilibriumODEWallModelFvPatchScalarField.C
@@ -56,9 +72,10 @@ class EquilibriumODEWallModelFvPatchScalarField
 protected:
         
     // Protected Member Functions
-        //- Write root finder and EquilibriumODE properties to stream
+        //- Write model properties to stream
         virtual void writeLocalEntries(Ostream &) const;
         
+        //- The source term, which is zero
         virtual void source(const int, const vector , vector &) const
         {};
         
@@ -132,15 +149,10 @@ public:
 
 
     // Member functions
-
-        // I-O
-
-            //- Write
-            virtual void write(Ostream& os) const;
+        
+        //- Write
+        virtual void write(Ostream& os) const;
             
-        
-        
-
 };
 
 

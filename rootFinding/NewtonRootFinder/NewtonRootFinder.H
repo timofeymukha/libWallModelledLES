@@ -22,6 +22,19 @@ Class
 Description
     Root finder based on Newton's method.
 
+    Controlled by two parameters: the max number of iterations and the relative
+    error tolerance.
+
+    Usage
+    \verbatim
+    RootFinder
+    {
+        type       Newton;
+        maxIter    value; (default 10)
+        eps        value; (default 0.01)
+    }
+    \endverbatim
+
 Authors
     Timofey Mukha, Saleh Rezaeiravesh
 

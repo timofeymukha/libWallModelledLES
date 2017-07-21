@@ -296,7 +296,6 @@ void Foam::LOTWWallModelFvPatchScalarField::write(Ostream& os) const
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
@@ -306,8 +305,5 @@ namespace Foam
         LOTWWallModelFvPatchScalarField
     );
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-//} // End namespace Foam
-
-// ************************************************************************* //

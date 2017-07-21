@@ -1,36 +1,65 @@
 /*---------------------------------------------------------------------------* \
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           |
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is part of libWallModelledLES.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
+    libWallModelledLES is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    libWallModelledLES is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    along with libWallModelledLES. 
+    If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    JohnsonKingEddyViscosity
+    Foam::JohnsonKingEddyViscosity
+
 Description
-    The eddy viscosity model proposed by Johnson and King.
+    Eddy viscosity model based on the work of Johnson and King.
+ 
+    Corresponds to the formulation used by Cabot in [Cabot].
+
+    \f[
+        \nu_t = \kappa u_\tau y (1 - \exp(- y^+/A))
+    \f]
+
+    Usage:
+    \verbatim
+    EddyViscosity
+    {
+        type      JohnsonKing;
+        APlus     value; (default 19)
+        kappa     value; (default 0.4)
+    }
+    \endverbatim
+
+    References:
+    \verbatim
+        [JK]
+        Johnson, D. A., & King, L. S. (1985).
+        A mathematically simple turbulence closure model for attached and
+        separated turbulent boundary layers.
+        AIAA journal,
+        23(11), 1684-1692.
+
+        [Cabot]
+        Cabot, W. (1995).
+        Large-eddy simulations with wall models.
+        Center for turbulence research,
+        Annual Research Briefs, 1995
+    \endverbatim
 
 Authors
-    Timofey Mukha.  All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh.
 
 SourceFiles
     JohnsonKingEddyViscosity.C
+
 \*---------------------------------------------------------------------------*/
 
 #ifndef JohnsonKingEddyViscosity_H

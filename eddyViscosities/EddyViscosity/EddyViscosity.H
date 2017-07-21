@@ -1,37 +1,35 @@
 /*---------------------------------------------------------------------------* \
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           |
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is part of libWallModelledLES.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
+    libWallModelledLES is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    libWallModelledLES is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    along with libWallModelledLES. 
+    If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    EddyViscosity
+    Foam::EddyViscosity
 
 Description
-    Base class for 1d "mixing length"-type turbulence models.
+    Base abstract class for 1D turbulence models based on eddy viscosity.
+
+    Meant to be used with ODE based wall models that need the distribution
+    of eddy viscosity on a wall-normal 1D mesh associated with each face.
 
 Authors
-    Timofey Mukha.  All rights reserved.
+    Timofey Mukha, Saleh Rezaeiravesh.
 
 SourceFiles
-    EddyViscosity.C
+    LawOfTheWall.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -81,7 +79,37 @@ public:
         virtual ~EddyViscosity() {}
 
     
-    // RTS tables
+    // Selectors
+        static autoPtr<EddyViscosity> New 
+        (
+            const dictionary & dict
+        );
+
+        static autoPtr<EddyViscosity> New 
+        (
+            const word & modelName,
+            const dictionary & dict
+        );
+        
+    // Member Functions
+    
+        //- Print info
+        virtual void printCoeffs() const = 0; 
+
+        //- Return the value of nut
+        virtual scalarList
+        value(const scalarList & y, scalar uTau, scalar nu) const = 0;
+        
+        //- Write information about the law to stream
+        virtual void write(Ostream & os) const; 
+        
+        //- Get the dictionary with the constants
+        dictionary constDict() const
+        {
+            return constDict_;
+        }
+        
+     // RTS tables
         // RTS table "Dictionary"    
         declareRunTimeSelectionTable
         (
@@ -106,37 +134,6 @@ public:
             ),
             (modelName, dict)
         )  
-    
-    // Selectors
-        static autoPtr<EddyViscosity> New 
-        (
-            const dictionary & dict
-        );
-
-        static autoPtr<EddyViscosity> New 
-        (
-//            const word & lawName,
-            const word & modelName,
-            const dictionary & dict
-        );
-        
-    // Member Functions
-    
-        //- Print info
-        virtual void printCoeffs() const = 0; 
-
-        //- Return the value of nut
-        virtual scalarList
-        value(const scalarList & y, scalar uTau, scalar nu) const = 0;
-        
-        //- Write information about the law to stream
-        virtual void write(Ostream & os) const; 
-        
-        //- Get the dictionary with the constants
-        dictionary constDict() const
-        {
-            return constDict_;
-        }
 
 };
 
