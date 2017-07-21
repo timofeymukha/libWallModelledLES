@@ -28,12 +28,14 @@ int main(int argc, char *argv[])
     std::function<scalar(scalar)> deriv = std::bind(&Foo::deriv, &foo, _1);
 
     // Construct normally
-    NewtonRootFinder rootFinder = NewtonRootFinder("Newton", value, deriv, 1e-10, maxIter);
+    NewtonRootFinder rootFinder = 
+        NewtonRootFinder("Newton", value, deriv, 1e-10, maxIter);
 
     Info<< rootFinder.root(2.) << endl;;
 
     // Now through the RTS
-    Foam::autoPtr<RootFinder>  rootFinder2 = RootFinder::New("Newton", value, deriv, 1e-10, maxIter);
+    Foam::autoPtr<RootFinder> rootFinder2 =
+        RootFinder::New("Newton", value, deriv, 1e-10, maxIter);
 
     Info<< rootFinder2->root(2.);
 

@@ -1,4 +1,4 @@
-testNewtonSecantRoot.C
+testNewtonRoot.C
 
-EXE=./testNewtonSecantRoot
+EXE=./testNewtonRoot
 
