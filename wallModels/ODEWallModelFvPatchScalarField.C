@@ -146,67 +146,49 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
 
 Foam::tmp<Foam::scalarField>
 Foam::ODEWallModelFvPatchScalarField::calcUTau() const
-{
-
+{   
     const label patchi = patch().index();
-
-    const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
-    (
-        IOobject::groupName
-        (
-            turbulenceModel::propertiesName,
-            dimensionedInternalField().group()
-        )
-    );
+    const label patchSize = patch().size();
     
-    // Velocity in internal field
-    const vectorField & U = turbModel.U().internalField();
-
-    // Velocity on boundary
-    const fvPatchVectorField & Uw = turbModel.U().boundaryField()[patchi];
+    const volVectorField & UField = db().lookupObject<volVectorField>("U");
+    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
+    
+    // Velocity and viscosity on boundary
+    const fvPatchVectorField & Uw = UField.boundaryField()[patchi];
+    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
     
     // Magnitude of wall-normal gradient
     const scalarField magGradU(mag(Uw.snGrad()));
 
+    volScalarField & gradUField = 
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("magGradU")
+        );
+    
+    gradUField.boundaryField()[patchi] == magGradU;
+    
+
+    // temporary vector for computing the source term
+    vector sourceFVec(0, 0, 0);
+    
     // Face normals
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField faceNormals = tfaceNormals();
     
-   
-    // Velocity relative to boundary and its magnitude
-    vectorField Up(patch().size());
-    scalarField magUp(patch().size());
+    scalarField magU(patchSize);
  
-    // Normal and parallel components
-    vectorField Unormal(patch().size());
-    vectorField Upar(patch().size());
-    scalarField magUpar(patch().size());
-
-    // temporary vectors for computing the source term
-    vector sourceFVec(0, 0, 0);
-            
-    forAll(magUp, i)
+    forAll(magU, i)
     {   
-        Up[i] = U[cellIndexList_[i]] - Uw[i];
-        magUp[i] = mag(Up[i]);
-        
-        // Normal component as dot product with (inwards) face normal
-        Unormal[i] = -faceNormals[i]*(Up[i] & -faceNormals[i]);
-        
-        // Subtract normal component to get the parallel one
-        Upar[i] = Up[i] - Unormal[i];
-        magUpar[i] = mag(Upar[i]);
+        magU[i] = mag(U_[i]);
     }
-
-    // Viscosity
-    const tmp<scalarField> tnuw = turbModel.nu(patchi);
-    const scalarField & nuw = tnuw();
-
+    
     // Turbulent viscosity
     const scalarField & nutw = *this;
 
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
+    
     scalarField & uTau = tuTau();            
     
     // Compute uTau for each face
@@ -243,8 +225,8 @@ Foam::ODEWallModelFvPatchScalarField::calcUTau() const
                 source(faceI, faceNormals[faceI], sourceFVec);
                 
                 scalar newTau = 
-                        sqr(magUpar[faceI]) + sqr(mag(sourceFVec)*integral2) -
-                        2*(Upar[faceI] & sourceFVec)*integral2;
+                        sqr(magU[faceI]) + sqr(mag(sourceFVec)*integral2) -
+                        2*(U_[faceI] & sourceFVec)*integral2;
                 
                 newTau  = sqrt(newTau)/integral;
                 
