@@ -104,31 +104,27 @@ Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
 {
 
     const label patchi = patch().index();
-
-    const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
-    (
-        IOobject::groupName
-        (
-            turbulenceModel::propertiesName,
-            dimensionedInternalField().group()
-        )
-    );
-
+    const label patchSize = patch().size();
+    
+    const volVectorField & UField = db().lookupObject<volVectorField>("U");
+    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
+    
     // Velocity in internal field
-    const vectorField & U = turbModel.U().internalField();
+    const vectorField & U = UField.internalField();
 
     // Velocity on boundary
-    const fvPatchVectorField & Uw = turbModel.U().boundaryField()[patchi];
+    const fvPatchVectorField & Uw = UField.boundaryField()[patchi];
     
     // Magnitude of wall-normal gradient
     const scalarField magGradU(mag(Uw.snGrad()));
+    
     volScalarField & gradUField = 
         const_cast<volScalarField &>
         (
             db().lookupObject<volScalarField>("magGradU")
         );
     
-    gradUField.boundaryField()[patch().index()] == magGradU;
+    gradUField.boundaryField()[patchi] == magGradU;
    
     // Face normals
     const tmp<vectorField> tfaceNormals = patch().nf();
@@ -136,13 +132,13 @@ Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
     
    
     // Velocity relative to boundary and its magnitude
-    vectorField Up(patch().size());
-    scalarField magUp(patch().size());
+    vectorField Up(patchSize);
+    scalarField magUp(patchSize);
  
     // Normal and parallel components
-    vectorField Unormal(patch().size());
-    vectorField Upar(patch().size());
-    scalarField magUpar(patch().size());
+    vectorField Unormal(patchSize);
+    vectorField Upar(patchSize);
+    scalarField magUpar(patchSize);
             
     forAll(magUp, i)
     {   
@@ -158,14 +154,14 @@ Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
     }
 
     // Viscosity
-    const tmp<scalarField> tnuw = turbModel.nu(patchi);
+    const tmp<scalarField> tnuw = nuField.boundaryField()[patchi];
     const scalarField & nuw = tnuw();
 
     // Turbulent viscosity
     const scalarField & nutw = *this;
 
     // Computed uTau
-    tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
+    tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     scalarField& uTau = tuTau();
     
     // Function to give to the root finder
@@ -179,7 +175,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
             db().lookupObject<volScalarField>("uTau")
         );
 
-    scalarField uTauOld = uTauField.boundaryField()[patch().index()];
+    scalarField uTauOld = uTauField.boundaryField()[patchi];
 
     // Compute uTau for each face
     forAll(uTau, faceI)
@@ -209,7 +205,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
 
      
     // Assign computed uTau to the boundary field of the global field
-    uTauField.boundaryField()[patch().index()] == uTau;
+    uTauField.boundaryField()[patchi] == uTau;
     
     return tuTau;
 }
