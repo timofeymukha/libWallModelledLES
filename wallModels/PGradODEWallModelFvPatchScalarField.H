@@ -71,8 +71,8 @@ protected:
 
     // Protected Data
 
-        // Pressure Gradient at the cell centers of the whole domain
-        vectorField pressGrad_;
+        // Pressure gradient at the cell centers of the whole domain
+        vectorField pressureGrad_;
         
     // Protected Member Functions
         
@@ -80,7 +80,7 @@ protected:
         virtual void writeLocalEntries(Ostream &) const;
               
         //- Compute the source term based on the pressure gradient
-        virtual void source(const int , const vector, vector &) const;
+        virtual void source(const int , vector &) const;
         
 public:
 
@@ -150,6 +150,12 @@ public:
             );
         }
 
+        vectorField pressureGrad() const
+        {
+            return pressureGrad_;
+        }
+        
+        virtual void sample();
 
     // Member functions
 

@@ -76,7 +76,7 @@ protected:
         virtual void writeLocalEntries(Ostream &) const;
         
         //- The source term, which is zero
-        virtual void source(const int, const vector , vector &) const
+        virtual void source(const int, vector &) const
         {};
         
 public:

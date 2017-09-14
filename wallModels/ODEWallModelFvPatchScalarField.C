@@ -222,7 +222,7 @@ Foam::ODEWallModelFvPatchScalarField::calcUTau() const
                 
                 
                 // Compute the source term
-                source(faceI, faceNormals[faceI], sourceFVec);
+                source(faceI, sourceFVec);
                 
                 scalar newTau = 
                         sqr(magU[faceI]) + sqr(mag(sourceFVec)*integral2) -

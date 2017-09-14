@@ -145,7 +145,7 @@ public:
         void createCellIndexList();
         
         //- Sample velocity values from the LES
-        void sample();
+        virtual void sample();
         
         //- Return the list of cell-indices that are used to sample data
         labelList cellIndexList() const

@@ -111,7 +111,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
     
     // Velocity and viscosity on boundary
     const fvPatchVectorField & Uw = UField.boundaryField()[patchi];
-    const scalarField & nuw = nuField.boundaryField()[patchi];
+    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
 
     
     // Magnitude of wall-normal gradient

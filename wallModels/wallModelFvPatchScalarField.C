@@ -471,7 +471,7 @@ void Foam::wallModelFvPatchScalarField::sample()
     const vectorField & U = UField.internalField();
     const fvPatchVectorField & UWall = UField.boundaryField()[patch().index()];
     
-       // Face normals
+    // Face normals
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField faceNormals = tfaceNormals();
                     

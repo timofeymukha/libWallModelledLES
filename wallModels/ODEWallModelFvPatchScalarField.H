@@ -116,7 +116,7 @@ protected:
         scalar integrate(const scalarList & y, const scalarList & v) const;
         
         //- Source term defining the type of ODE model
-        virtual void source(const int, const vector, vector &) const = 0;
+        virtual void source(const int, vector &) const = 0;
         
 public:
 
