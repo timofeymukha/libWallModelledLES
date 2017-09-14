@@ -109,11 +109,10 @@ Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
     const volVectorField & UField = db().lookupObject<volVectorField>("U");
     const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
     
-    // Velocity in internal field
-    const vectorField & U = UField.internalField();
-
-    // Velocity on boundary
+    // Velocity and viscosity on boundary
     const fvPatchVectorField & Uw = UField.boundaryField()[patchi];
+    const scalarField & nuw = nuField.boundaryField()[patchi];
+
     
     // Magnitude of wall-normal gradient
     const scalarField magGradU(mag(Uw.snGrad()));
@@ -132,30 +131,12 @@ Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
     
    
     // Velocity relative to boundary and its magnitude
-    vectorField Up(patchSize);
-    scalarField magUp(patchSize);
+    scalarField magU(patchSize);
  
-    // Normal and parallel components
-    vectorField Unormal(patchSize);
-    vectorField Upar(patchSize);
-    scalarField magUpar(patchSize);
-            
-    forAll(magUp, i)
+    forAll(magU, i)
     {   
-        Up[i] = U[cellIndexList_[i]] - Uw[i];
-        magUp[i] = mag(Up[i]);
-        
-        // Normal component as dot product with (inwards) face normal
-        Unormal[i] = -faceNormals[i]*(Up[i] & -faceNormals[i]);
-        
-        // Subtract normal component to get the parallel one
-        Upar[i] = Up[i] - Unormal[i];
-        magUpar[i] = mag(Upar[i]);
+        magU[i] = mag(U_[i]);
     }
-
-    // Viscosity
-    const tmp<scalarField> tnuw = nuField.boundaryField()[patchi];
-    const scalarField & nuw = tnuw();
 
     // Turbulent viscosity
     const scalarField & nutw = *this;
@@ -188,11 +169,11 @@ Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
             // NOTE we currently still use magUp, not magUpar
-            value = std::bind(&LawOfTheWall::value, &law_(), magUp[faceI], 
+            value = std::bind(&LawOfTheWall::value, &law_(), magU[faceI], 
                               h_[faceI], _1, nuw[faceI]);
             
             derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
-                                   magUp[faceI], h_[faceI], _1, nuw[faceI]);
+                                   magU[faceI], h_[faceI], _1, nuw[faceI]);
 
             // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
