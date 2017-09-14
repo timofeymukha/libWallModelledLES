@@ -261,7 +261,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF),
     cellIndexList_(patch().size()),
-    h_(patch().size(), 0)
+    h_(patch().size(), 0),
+    U_(patch().size(), vector(0, 0, 0))
 {
     if (debug)
     {
@@ -286,7 +287,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
     cellIndexList_(ptf.cellIndexList_),
-    h_(ptf.h_)
+    h_(ptf.h_),
+    U_(ptf.U_)    
 {
     if (debug)
     {
@@ -309,7 +311,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF, dict),
     cellIndexList_(patch().size()),
-    h_(patch().size(), 0)    
+    h_(patch().size(), 0),
+    U_(patch().size(), vector(0, 0, 0))
 {
     if (debug)
     {
@@ -331,7 +334,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(wmpsf),
     cellIndexList_(wmpsf.cellIndexList_),
-    h_(wmpsf.h_)
+    h_(wmpsf.h_),
+    U_(wmpsf.U_)
 {
     if (debug)
     {
@@ -352,7 +356,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(wmpsf, iF),
     cellIndexList_(wmpsf.cellIndexList_),
-    h_(wmpsf.h_)
+    h_(wmpsf.h_),
+    U_(wmpsf.U_)
 {
     if (debug)
     {
@@ -459,6 +464,30 @@ void Foam::wallModelFvPatchScalarField::createCellIndexList()
     }
 }
 
+
+void Foam::wallModelFvPatchScalarField::sample()
+{
+    const volVectorField & UField = db().lookupObject<volVectorField>("U");
+    const vectorField & U = UField.internalField();
+    const fvPatchVectorField & UWall = UField.boundaryField()[patch().index()];
+    
+       // Face normals
+    const tmp<vectorField> tfaceNormals = patch().nf();
+    const vectorField faceNormals = tfaceNormals();
+                    
+    forAll(U_, i)
+    {   
+        vector Up = U[cellIndexList_[i]] - UWall[i];
+        
+        // Normal component as dot product with (inwards) face normal
+        vector Unormal = -faceNormals[i]*(Up & -faceNormals[i]);
+        
+        // Subtract normal component to get the parallel one
+        U_[i] = Up - Unormal;
+    }
+}
+
+
 void Foam::wallModelFvPatchScalarField::updateCoeffs()
 {
     if (updated())
@@ -466,6 +495,8 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
         return;
     }
 
+    sample();
+    
     // Compute nut and assign
     operator==(calcNut());
 

@@ -70,6 +70,9 @@ protected:
         
         //- The distance from the wall that data is sampled from
         scalarField h_;
+        
+        //- The velocity values the wall model uses
+        vectorField U_;
           
         //- Create fields and add to registry
         void createFields() const;
@@ -141,6 +144,9 @@ public:
         //- Create list of cell-indices from where data is sampled
         void createCellIndexList();
         
+        //- Sample velocity values from the LES
+        void sample();
+        
         //- Return the list of cell-indices that are used to sample data
         labelList cellIndexList() const
         {
@@ -151,6 +157,12 @@ public:
         scalarField h() const
         {
             return h_;
+        }
+        
+        //- return U_
+        vectorField U() const
+        {
+            return U_;
         }
         
         //- Update the boundary values
