@@ -1,6 +1,6 @@
 # README #
 
-libWallModelledLES is a library based on OpenFOAM® technology, extending the
+libWallModelledLES is a library based on OpenFOAMÂ® technology, extending the
 capabilties of OpenFOAM in the area of wall-modelled LES (WMLES). In
 particular, so called wall-stress models are considered. These aim at
 correctly predicting the wall shear stress at the wall without the need
@@ -36,7 +36,7 @@ This should be it!
 
 If you want to build the source code documentation with doxygen, got into the
 docs folder and run "doxygen config". This will create an html folder that
-can be reat using a browser.
+can be read using a browser.
 
 ## Documentation ##
 
@@ -51,4 +51,4 @@ conditions.
 
 This offering is not approved or endorsed by OpenCFD Limited, producer and
 distributor of the OpenFOAM software via www.openfoam.com, and owner of the
-OPENFOAM®  and OpenCFD®  trade marks.
+OPENFOAMÂ®  and OpenCFDÂ® trade marks.
