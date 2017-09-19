@@ -66,9 +66,13 @@ void Foam::PGradODEWallModelFvPatchScalarField::sample()
     // pressure gradient vector at cell center associated to h_
     forAll (pressureGrad_, i)
     {
-        pressureGrad_[i] = gradP[cellIndexList_[i]];
-        vector pGradNormal = -faceNormals[i]*(pressureGrad_[i] & -faceNormals[i]);
-        pressureGrad_[i] -= pGradNormal;
+        vector pGrad = gradP[cellIndexList_[i]];
+        vector pGradNormal = -faceNormals[i]*(pGrad & -faceNormals[i]);
+        pGrad -= pGradNormal;
+        
+        // Apply averaging;
+        scalar eps = db().time().deltaTValue()/averagingTime_;
+        pressureGrad_[i] -= eps*pGrad + (1 - eps)*pressureGrad_[i];
     }
 
     wallModelFvPatchScalarField::sample();

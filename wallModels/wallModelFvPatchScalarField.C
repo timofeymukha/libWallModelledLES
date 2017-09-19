@@ -262,7 +262,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(p, iF),
     cellIndexList_(patch().size()),
     h_(patch().size(), 0),
-    U_(patch().size(), vector(0, 0, 0))
+    U_(patch().size(), vector(0, 0, 0)),
+    averagingTime_(db().time().deltaTValue()) 
 {
     if (debug)
     {
@@ -288,7 +289,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
     cellIndexList_(ptf.cellIndexList_),
     h_(ptf.h_),
-    U_(ptf.U_)    
+    U_(ptf.U_),
+    averagingTime_(ptf.averagingTime_) 
 {
     if (debug)
     {
@@ -312,7 +314,9 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(p, iF, dict),
     cellIndexList_(patch().size()),
     h_(patch().size(), 0),
-    U_(patch().size(), vector(0, 0, 0))
+    U_(patch().size(), vector(0, 0, 0)),
+    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 
+                                           db().time().deltaTValue()))    
 {
     if (debug)
     {
@@ -335,7 +339,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(wmpsf),
     cellIndexList_(wmpsf.cellIndexList_),
     h_(wmpsf.h_),
-    U_(wmpsf.U_)
+    U_(wmpsf.U_),
+    averagingTime_(wmpsf.averagingTime_) 
 {
     if (debug)
     {
@@ -357,7 +362,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(wmpsf, iF),
     cellIndexList_(wmpsf.cellIndexList_),
     h_(wmpsf.h_),
-    U_(wmpsf.U_)
+    U_(wmpsf.U_),
+    averagingTime_(wmpsf.averagingTime_)     
 {
     if (debug)
     {
@@ -483,7 +489,11 @@ void Foam::wallModelFvPatchScalarField::sample()
         vector Unormal = -faceNormals[i]*(Up & -faceNormals[i]);
         
         // Subtract normal component to get the parallel one
-        U_[i] = Up - Unormal;
+        Up -= Unormal;
+        
+        // Apply averaging;
+        scalar eps = db().time().deltaTValue()/averagingTime_;
+        U_[i] = eps*Up + (1 - eps)*U_[i];
     }
 }
 

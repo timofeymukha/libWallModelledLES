@@ -73,6 +73,9 @@ protected:
         
         //- The velocity values the wall model uses
         vectorField U_;
+        
+        //- Timescale of the averaging
+        scalar averagingTime_;
           
         //- Create fields and add to registry
         void createFields() const;
@@ -163,6 +166,11 @@ public:
         vectorField U() const
         {
             return U_;
+        }
+        
+        scalar averagingTime() const
+        {
+            return averagingTime_;
         }
         
         //- Update the boundary values
