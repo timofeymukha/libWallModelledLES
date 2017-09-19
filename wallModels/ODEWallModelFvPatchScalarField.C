@@ -39,6 +39,7 @@ namespace Foam
 
 void Foam::ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
+    wallModelFvPatchScalarField::writeLocalEntries(os);
     eddyViscosity_->write(os);
     os.writeKeyword("eps") << eps_ << token::END_STATEMENT << endl;
     os.writeKeyword("maxIter") << maxIter_ << token::END_STATEMENT << endl;

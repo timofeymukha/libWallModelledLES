@@ -53,6 +53,8 @@ void Foam::wallModelFvPatchScalarField::checkType()
 
 void Foam::wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
+    os.writeKeyword("averagingTime")
+        << averagingTime_ << token::END_STATEMENT << nl;
 }
 
 void Foam::wallModelFvPatchScalarField::createFields() const
