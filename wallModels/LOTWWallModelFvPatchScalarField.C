@@ -35,6 +35,7 @@ using namespace std::placeholders;
 
 void Foam::LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
+    wallModelFvPatchScalarField::writeLocalEntries(os);
     rootFinder_->write(os);
     law_->write(os);
 }    
