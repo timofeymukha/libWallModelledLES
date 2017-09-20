@@ -4,6 +4,8 @@ EXE_INC = -std=c++0x \
 -I$(LIB_SRC)/meshTools/lnInclude \
 -I$(LIB_SRC)/sampling/lnInclude \
 -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
+-I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
+-I$(LIB_SRC)/transportModels/incompressible/lnInclude \
 -IrootFinding/RootFinder \
 -IlawsOfTheWall/LawOfTheWall \
 -IlawsOfTheWall/SpaldingLawOfTheWall
@@ -13,6 +15,8 @@ LIB_LIBS = \
 -lOpenFOAM \
 -lmeshTools \
 -lsampling \
--lturbulenceModels
+-lturbulenceModels \
+-lincompressibleTurbulenceModels \
+-lincompressibleTransportModels
 
 

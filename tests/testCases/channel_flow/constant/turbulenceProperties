@@ -20,7 +20,7 @@ simulationType LES;
 LES
 {
     //LESModel        Smagorinsky;
-    LESModel        WALE;
+    LESModel        NoModel;
 
     turbulence      on;
 
