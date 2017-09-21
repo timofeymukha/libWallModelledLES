@@ -118,7 +118,6 @@ bool NoModel<BasicTurbulenceModel>::read()
 template<class BasicTurbulenceModel>
 tmp<volScalarField> NoModel<BasicTurbulenceModel>::epsilon() const
 {
-    volScalarField k(this->k(fvc::grad(this->U_)));
     return tmp<volScalarField>
     (
         new volScalarField
@@ -138,7 +137,7 @@ tmp<volScalarField> NoModel<BasicTurbulenceModel>::epsilon() const
                 dimensionSet(0, 2, -3, 0, 0, 0 ,0),
                 0.0
             ),
-            k.boundaryField().types()
+            this->nut_.boundaryField().types()
         )
     );
 }

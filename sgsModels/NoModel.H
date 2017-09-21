@@ -24,7 +24,7 @@ Group
 
 Description
     An SGS model that has the subgrid viscosity zero everywhere.
-    The nut field is present however, so wall models can be used.
+    The nut field is present, however, so wall models can be used.
  
 Authors
     Timofey Mukha, Saleh Rezaeiravesh.
@@ -65,10 +65,6 @@ class NoModel
 protected:
 
     // Protected Member Functions
-
-        //- Return the deviatoric symmetric part of the square of the given
-        //  velocity gradient field
-        tmp<volSymmTensorField> Sd(const volTensorField& gradU) const;
 
         //- Return SGS kinetic energy
         //  calculated from the given velocity gradient
