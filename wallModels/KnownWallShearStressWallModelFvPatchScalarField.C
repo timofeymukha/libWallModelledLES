@@ -112,6 +112,18 @@ KnownWallShearStressWallModelFvPatchScalarField
             )
         );
     }
+    
+    label patchi = patch().index();
+    
+    const volScalarField& tauWall = db().lookupObject<volScalarField>("tauWall");
+    
+    volScalarField & uTauField = 
+    const_cast<volScalarField &>
+    (
+        db().lookupObject<volScalarField>("uTau")
+    );
+   
+    uTauField.boundaryField()[patchi] == sqrt(tauWall.boundaryField()[patchi]);
 }
 
 //constructor when running deomposePar/reconstructPar
@@ -172,6 +184,19 @@ KnownWallShearStressWallModelFvPatchScalarField
             )
         );
     }
+    
+    
+    label patchi = patch().index();
+    
+    const volScalarField& tauWall = db().lookupObject<volScalarField>("tauWall");
+    
+    volScalarField & uTauField = 
+    const_cast<volScalarField &>
+    (
+        db().lookupObject<volScalarField>("uTau")
+    );
+   
+    uTauField.boundaryField()[patchi] == sqrt(tauWall.boundaryField()[patchi]);    
 }
 
 
