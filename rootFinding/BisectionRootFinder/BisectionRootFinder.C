@@ -85,6 +85,12 @@ Foam::scalar Foam::BisectionRootFinder::root
     scalar a = 1/bracket_*guess;
     scalar b  = bracket_*guess;
     scalar c, fC;
+    
+    if (f_(a)*f_(b) >= 0)
+    {
+        // Increase interval range towards the wall
+        a = SMALL;
+    }
 
     if (f_(a)*f_(b) >= 0)
     {
