@@ -107,7 +107,7 @@ protected:
         virtual tmp<scalarField> calcNut() const;
 
         //- Calculate the friction velocity
-        virtual tmp<scalarField> calcUTau() const;
+        virtual tmp<scalarField> calcUTau(const scalarField & magGradU) const;
         
         //- Create a 1d mesh for each face
         void createMeshes();

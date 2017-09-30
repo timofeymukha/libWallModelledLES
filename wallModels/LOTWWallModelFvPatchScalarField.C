@@ -62,83 +62,47 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     
     // Velocity at the boundary (in case of moving boundary)
     const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
+    vectorField Udiff = Uw - Uw.patchInternalField();
+    
+    project(Udiff);
     
     // Magnitude of wall-normal velocity gradient
-    const scalarField magGradU(mag(Uw.snGrad()));
+    const scalarField magGradU(mag(patch().deltaCoeffs()*Udiff));
     
-    // Viscosity
-    const tmp<scalarField> tnuw = turbModel.nu(patchi);
-    const scalarField& nuw = tnuw();
-    
-    // Debug output
-    /*
-    if ((patch().size() > 0) && (debug))
-    {
-        // Compute uTau using current model and the default Spalding model
-        scalarField uTauNew = calcUTau();
-        scalarField uTauBench = calcUTauBench(magGradU);
-               
-        // Average (not-weighted). As usual, value is local to processor
-        scalar avrgNew = sum(uTauNew)/patch().size();
-        scalar avrgBench = sum(uTauBench)/patch().size();
-        
-        // Compute relative error
-        scalar diff = mag(avrgNew - avrgBench)/avrgBench*100;
-        
-        // If error > 1 percent, report
-        if (diff > 1)
-        {
-            Pout<< "Average uTau/uTauBench/diff " << sum(uTauNew)/patch().size() 
-                << " " << sum(uTauBench)/patch().size() << " " << diff
-                << ", patch " << patch().name() << nl;
-        }
-    }*/
-    
-    return max
-    (
-        scalar(0),
-        sqr(calcUTau())/(magGradU + ROOTVSMALL) - nuw
-    );
-}
-
-Foam::tmp<Foam::scalarField> 
-Foam::LOTWWallModelFvPatchScalarField::calcUTau() const
-{
-
-    const label patchi = patch().index();
-    const label patchSize = patch().size();
-    
-    const volVectorField & UField = db().lookupObject<volVectorField>("U");
-    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
-    
-    // Velocity and viscosity on boundary
-    const fvPatchVectorField & Uw = UField.boundaryField()[patchi];
-    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
-
-    
-    // Magnitude of wall-normal gradient
-    const scalarField magGradU(mag(Uw.snGrad()));
-    
-    volScalarField & gradUField = 
+    volScalarField & magGradUField = 
         const_cast<volScalarField &>
         (
             db().lookupObject<volScalarField>("magGradU")
         );
     
-    gradUField.boundaryField()[patchi] == magGradU;
-   
-    // Face normals
-    const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField faceNormals = tfaceNormals();
+    magGradUField.boundaryField()[patchi] == magGradU;
     
-   
+    // Viscosity
+    const tmp<scalarField> tnuw = turbModel.nu(patchi);
+    const scalarField& nuw = tnuw();
+        
+    return max
+    (
+        scalar(0),
+        sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw
+    );
+}
+
+Foam::tmp<Foam::scalarField> 
+Foam::LOTWWallModelFvPatchScalarField::
+calcUTau(const scalarField & magGradU) const
+{
+
+    const label patchi = patch().index();
+    const label patchSize = patch().size();
+    
+    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
+    
+    // Velocity and viscosity on boundary
+    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
+       
     // Velocity relative to boundary and its magnitude
-    scalarField magU(patchSize);
- 
-    forAll(magU, i)
-    {   
-        magU[i] = mag(U_[i]);
-    }
+    scalarField magU = mag(U_);
 
     // Turbulent viscosity
     const scalarField & nutw = *this;

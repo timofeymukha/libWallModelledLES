@@ -91,10 +91,6 @@ protected:
         //- Write local wall function variables
         virtual void writeLocalEntries(Ostream&) const;
 
-        //- Benchmark for calculating the friction velocity
-        //  using the default Spalding wall model
-        //tmp<scalarField> calcUTauBench(const scalarField& magGradU) const;
-
 public:
 
     //- Runtime type information
@@ -147,6 +143,7 @@ public:
         //- Create list of cell-indices from where data is sampled
         void createCellIndexList();
         
+        //- Project vectorField onto the wall-parallel direction
         void project(vectorField & field) const;
         
         //- Sample velocity values from the LES

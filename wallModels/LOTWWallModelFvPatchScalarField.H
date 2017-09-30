@@ -90,7 +90,7 @@ protected:
         virtual tmp<scalarField> calcNut() const;
 
         //- Calculate the friction velocity
-        virtual tmp<scalarField> calcUTau() const;
+        virtual tmp<scalarField> calcUTau(const scalarField & magGradU) const;
         
 
         
