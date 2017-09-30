@@ -126,7 +126,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         );
     }
     
-    if ((!db().found("uTauPredicted")) && (debug > 1))
+    if ((!db().found("uTauPredicted")))
     {
         db().store
         (
