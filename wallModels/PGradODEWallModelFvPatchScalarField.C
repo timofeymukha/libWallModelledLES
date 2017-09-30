@@ -52,27 +52,26 @@ source
 
 void Foam::PGradODEWallModelFvPatchScalarField::sample()
 {
-    //calculate & update pressureGrad_ 
-    //look up pressure values for the whole subdomain the patch() belongs to
+
+    
     const volScalarField & p = db().lookupObject<volScalarField>("p");
 
     //calculate pressure Gradient
-    vectorField gradP = fvc::grad(p);
+    vectorField gradPField = fvc::grad(p);
+    vectorField gradP(patch().size());
     
-    // Face normals
-    const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField faceNormals = tfaceNormals();
+    forAll (gradP, i)
+    {
+        gradP[i] = gradPField[cellIndexList_[i]];
+    }
     
-    // pressure gradient vector at cell center associated to h_
+    project(gradP);
+    
+    scalar eps = db().time().deltaTValue()/averagingTime_;
+    
     forAll (pressureGrad_, i)
     {
-        vector pGrad = gradP[cellIndexList_[i]];
-        vector pGradNormal = -faceNormals[i]*(pGrad & -faceNormals[i]);
-        pGrad -= pGradNormal;
-        
-        // Apply averaging;
-        scalar eps = db().time().deltaTValue()/averagingTime_;
-        pressureGrad_[i] -= eps*pGrad + (1 - eps)*pressureGrad_[i];
+        pressureGrad_[i] -= eps*gradP[i] + (1 - eps)*pressureGrad_[i];
     }
 
     wallModelFvPatchScalarField::sample();
@@ -186,8 +185,6 @@ void Foam::PGradODEWallModelFvPatchScalarField::write(Ostream& os) const
 //saleh    wallModelFvPatchScalarField::write(os);
     ODEWallModelFvPatchScalarField::write(os);
 }
-
-
 
 void Foam::PGradODEWallModelFvPatchScalarField::updateCoeffs()
 {

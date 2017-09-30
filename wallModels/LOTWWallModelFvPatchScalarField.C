@@ -71,6 +71,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     const scalarField& nuw = tnuw();
     
     // Debug output
+    /*
     if ((patch().size() > 0) && (debug))
     {
         // Compute uTau using current model and the default Spalding model
@@ -91,7 +92,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
                 << " " << sum(uTauBench)/patch().size() << " " << diff
                 << ", patch " << patch().name() << nl;
         }
-    }
+    }*/
     
     return max
     (

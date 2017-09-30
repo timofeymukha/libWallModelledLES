@@ -129,7 +129,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
 
     // For debugging, create a field that stores uTau as computed by
     // The built-in Spalding law wall model.
-    if ((!db().found("uTauBench")) && (debug > 1))
+    /*  if ((!db().found("uTauBench")) && (debug > 1))
     {
         db().store
         (
@@ -149,7 +149,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             )
         );
     }
-
+    */
     if (!db().found("magGradU"))
     {
         db().store
@@ -173,6 +173,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
     
 }
 
+/*
 Foam::tmp<Foam::scalarField> Foam::wallModelFvPatchScalarField::calcUTauBench
 (
     const scalarField& magGradU
@@ -251,7 +252,7 @@ Foam::tmp<Foam::scalarField> Foam::wallModelFvPatchScalarField::calcUTauBench
         uTauField.boundaryField()[patch().index()] == uTau;
     }
     return tuTau;
-}
+}*/
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -477,28 +478,47 @@ void Foam::wallModelFvPatchScalarField::sample()
 {
     const volVectorField & UField = db().lookupObject<volVectorField>("U");
     const vectorField & U = UField.internalField();
-    const fvPatchVectorField & UWall = UField.boundaryField()[patch().index()];
+    const vectorField & UWall = UField.boundaryField()[patch().index()];
     
     // Face normals
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField faceNormals = tfaceNormals();
-                    
-    forAll(U_, i)
+    
+    vectorField Up(patch().size());
+    
+    
+    forAll(Up, i)
     {   
-        vector Up = U[cellIndexList_[i]] - UWall[i];
-        
-        // Normal component as dot product with (inwards) face normal
-        vector Unormal = -faceNormals[i]*(Up & -faceNormals[i]);
-        
-        // Subtract normal component to get the parallel one
-        Up -= Unormal;
-        
-        // Apply averaging;
-        scalar eps = db().time().deltaTValue()/averagingTime_;
-        U_[i] = eps*Up + (1 - eps)*U_[i];
+        Up[i] = U[cellIndexList_[i]] - UWall[i];
+    }
+    
+    
+    scalar eps = db().time().deltaTValue()/averagingTime_;
+    
+    project(Up);
+    
+    forAll(U_, i)  
+    {    
+        U_[i] = eps*Up[i] + (1 - eps)*U_[i];
     }
 }
 
+void
+Foam::wallModelFvPatchScalarField::project(vectorField & field) const
+{
+    const tmp<vectorField> tfaceNormals = patch().nf();
+    const vectorField faceNormals = tfaceNormals();
+
+    
+    forAll(field, i)
+    {    
+        // Normal component as dot product with (inwards) face normal
+        vector normal = -faceNormals[i]*(field[i] & -faceNormals[i]);
+        
+        // Subtract normal component to get the parallel one
+        field[i] -= normal;        
+    }
+}
 
 void Foam::wallModelFvPatchScalarField::updateCoeffs()
 {

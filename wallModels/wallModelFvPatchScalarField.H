@@ -93,7 +93,7 @@ protected:
 
         //- Benchmark for calculating the friction velocity
         //  using the default Spalding wall model
-        tmp<scalarField> calcUTauBench(const scalarField& magGradU) const;
+        //tmp<scalarField> calcUTauBench(const scalarField& magGradU) const;
 
 public:
 
@@ -146,6 +146,8 @@ public:
 
         //- Create list of cell-indices from where data is sampled
         void createCellIndexList();
+        
+        void project(vectorField & field) const;
         
         //- Sample velocity values from the LES
         virtual void sample();
