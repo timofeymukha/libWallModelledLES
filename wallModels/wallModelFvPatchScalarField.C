@@ -126,10 +126,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         );
     }
     
-
-    // For debugging, create a field that stores uTau as computed by
-    // The built-in Spalding law wall model.
-    /*  if ((!db().found("uTauBench")) && (debug > 1))
+    if ((!db().found("uTauPredicted")) && (debug > 1))
     {
         db().store
         (
@@ -137,19 +134,19 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             (
                 IOobject
                 (
-                    "uTauBench",
+                    "uTauPredicted",
                     db().time().timeName(),
                     db(),
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
                 ),
                 patch().boundaryMesh().mesh(),
-                dimensionedScalar("uTauBench", dimVelocity, 0.0),
+                dimensionedScalar("uTauPredicted", dimVelocity, 0.0),
                 h.boundaryField().types()
             )
         );
     }
-    */
+
     if (!db().found("magGradU"))
     {
         db().store
@@ -446,11 +443,27 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
         return;
     }
 
+    // sample velocity values
     sample();
     
     // Compute nut and assign
     operator==(calcNut());
-
+    
+    // Compute uTau
+    volScalarField & uTau = 
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("uTau")
+        );
+    
+    const volScalarField & magGradU = 
+        db().lookupObject<volScalarField>("magGradU");
+    
+    const scalarField & nut = *this;
+    
+    uTau.boundaryField()[patch().index()] == 
+        sqrt(nut*magGradU.boundaryField()[patch().index()]);
+    
     fixedValueFvPatchScalarField::updateCoeffs();
 }
 

@@ -229,7 +229,7 @@ calcUTau(const scalarField & magGradU) const
     volScalarField & uTauField = 
         const_cast<volScalarField &>
         (
-            db().lookupObject<volScalarField>("uTau")
+            db().lookupObject<volScalarField>("uTauPredicted")
         );
      
     // Assign computed uTau to the boundary field of the global field

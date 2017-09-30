@@ -119,10 +119,8 @@ calcUTau(const scalarField & magGradU) const
     volScalarField & uTauField = 
         const_cast<volScalarField &>
         (
-            db().lookupObject<volScalarField>("uTau")
+            db().lookupObject<volScalarField>("uTauPredicted")
         );
-
-    scalarField uTauOld = uTauField.boundaryField()[patchi];
 
     // Compute uTau for each face
     forAll(uTau, faceI)
@@ -134,7 +132,6 @@ calcUTau(const scalarField & magGradU) const
         {
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
-            // NOTE we currently still use magUp, not magUpar
             value = std::bind(&LawOfTheWall::value, &law_(), magU[faceI], 
                               h_[faceI], _1, nuw[faceI]);
             
