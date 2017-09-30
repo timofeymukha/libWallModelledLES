@@ -84,7 +84,8 @@ Foam::scalar Foam::BisectionRootFinder::root
    
     scalar a = 1/bracket_*guess;
     scalar b  = bracket_*guess;
-    scalar c, fC;
+    scalar c = 0;
+    scalar fC = 0;
     
     if (f_(a)*f_(b) >= 0)
     {
