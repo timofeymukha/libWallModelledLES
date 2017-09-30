@@ -150,7 +150,6 @@ calcUTau(const scalarField & magGradU) const
         }
     }
 
-     
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryField()[patchi] == uTau;
     
