@@ -459,10 +459,16 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     const volScalarField & magGradU = 
         db().lookupObject<volScalarField>("magGradU");
     
+    const volScalarField & nu = db().lookupObject<volScalarField>("nu");
+    
     const scalarField & nut = *this;
     
+    label pI = patch().index();
     uTau.boundaryField()[patch().index()] == 
-        sqrt(nut*magGradU.boundaryField()[patch().index()]);
+        sqrt
+        (
+            (nut + nu.boundaryField()[pI])*magGradU.boundaryField()[pI]
+        );
     
     fixedValueFvPatchScalarField::updateCoeffs();
 }
