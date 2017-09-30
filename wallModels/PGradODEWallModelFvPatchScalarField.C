@@ -182,20 +182,8 @@ PGradODEWallModelFvPatchScalarField
 
 void Foam::PGradODEWallModelFvPatchScalarField::write(Ostream& os) const
 {
-//saleh    wallModelFvPatchScalarField::write(os);
     ODEWallModelFvPatchScalarField::write(os);
 }
-
-void Foam::PGradODEWallModelFvPatchScalarField::updateCoeffs()
-{
-    if (updated())
-    {
-        return;
-    }
-
-    wallModelFvPatchScalarField::updateCoeffs();
-}
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 namespace Foam

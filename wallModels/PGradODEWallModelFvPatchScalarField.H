@@ -159,10 +159,6 @@ public:
 
     // Member functions
 
-    //- Update the boundary values
-    virtual void updateCoeffs();
-
-
     virtual void write(Ostream& os) const;   
 };
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
