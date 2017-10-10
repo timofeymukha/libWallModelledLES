@@ -84,22 +84,27 @@ void Foam::wallModelFvPatchScalarField::createFields() const
     
     // Create and register uTau field, if not there already.
     // This holds uTau as computed by the wall model.
-    if (!db().found("uTau"))
+    if (!db().found("wallShearStress"))
     {
         db().store
         (
-            new volScalarField
+            new volVectorField
             (
                 IOobject
                 (
-                    "uTau",
+                    "wallShearStress",
                     db().time().timeName(),
                     db(),
                     IOobject::READ_IF_PRESENT,
                     IOobject::AUTO_WRITE
                 ),
                 patch().boundaryMesh().mesh(),
-                dimensionedScalar("uTau", dimVelocity, 0.0),
+                dimensionedVector
+                (
+                    "wallShearStress",
+                    sqr(dimVelocity),
+                    vector(0, 0, 0)
+                ),
                 h.boundaryField().types()
             )
         );
@@ -147,22 +152,27 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         );
     }
 
-    if (!db().found("magGradU"))
+    if (!db().found("wallGradU"))
     {
         db().store
         (
-            new volScalarField
+            new volVectorField
             (
                 IOobject
                 (
-                    "magGradU",
+                    "wallGradU",
                     db().time().timeName(),
                     db(),
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
                 ),
                 patch().boundaryMesh().mesh(),
-                dimensionedScalar("magGradU", dimVelocity/dimTime, 0.0),
+                dimensionedVector
+                (
+                    "wallGradU",
+                    dimVelocity/dimLength,
+                    vector(0, 0, 0)
+                ),
                 h.boundaryField().types()
             )
         );
@@ -450,25 +460,22 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     operator==(calcNut());
     
     // Compute uTau
-    volScalarField & uTau = 
-        const_cast<volScalarField &>
+    volVectorField & wss = 
+        const_cast<volVectorField &>
         (
-            db().lookupObject<volScalarField>("uTau")
+            db().lookupObject<volVectorField>("wallShearStress")
         );
     
-    const volScalarField & magGradU = 
-        db().lookupObject<volScalarField>("magGradU");
+    const volVectorField & wallGradU = 
+        db().lookupObject<volVectorField>("wallGradU");
     
     const volScalarField & nu = db().lookupObject<volScalarField>("nu");
     
     const scalarField & nut = *this;
     
     label pI = patch().index();
-    uTau.boundaryField()[patch().index()] == 
-        sqrt
-        (
-            (nut + nu.boundaryField()[pI])*magGradU.boundaryField()[pI]
-        );
+    wss.boundaryField()[pI] == 
+        (nut + nu.boundaryField()[pI])*wallGradU.boundaryField()[pI];
     
     fixedValueFvPatchScalarField::updateCoeffs();
 }

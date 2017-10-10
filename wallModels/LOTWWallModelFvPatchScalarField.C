@@ -67,20 +67,21 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     project(Udiff);
     
     // Magnitude of wall-normal velocity gradient
-    const scalarField magGradU(mag(patch().deltaCoeffs()*Udiff));
+    const vectorField wallGradU(patch().deltaCoeffs()*Udiff);
     
-    volScalarField & magGradUField = 
-        const_cast<volScalarField &>
+    volVectorField & wallGradUField = 
+        const_cast<volVectorField &>
         (
-            db().lookupObject<volScalarField>("magGradU")
+            db().lookupObject<volVectorField>("wallGradU")
         );
     
-    magGradUField.boundaryField()[patchi] == magGradU;
+    wallGradUField.boundaryField()[patchi] == wallGradU;
     
     // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
         
+    scalarField magGradU = mag(wallGradU);
     return max
     (
         scalar(0),

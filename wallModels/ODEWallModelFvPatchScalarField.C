@@ -111,21 +111,21 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
     project(Udiff);
     
     // Magnitude of wall-normal velocity gradient
-    const scalarField magGradU(mag(patch().deltaCoeffs()*Udiff));
+    const vectorField wallGradU(patch().deltaCoeffs()*Udiff);
     
+    volVectorField & wallGradUField = 
+        const_cast<volVectorField &>
+        (
+            db().lookupObject<volVectorField>("wallGradU")
+        );
     
-    volScalarField & magGradUField = 
-    const_cast<volScalarField &>
-    (
-        db().lookupObject<volScalarField>("magGradU")
-     );
-    
-    magGradUField.boundaryField()[patchi] == magGradU;
+    wallGradUField.boundaryField()[patchi] == wallGradU;
     
     // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();    
     
+    scalarField magGradU = mag(wallGradU);
     return max
     (
         scalar(0),
@@ -178,7 +178,7 @@ calcUTau(const scalarField & magGradU) const
                 scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
                 scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));
                 
-                if (integral == 0 )
+                if (mag(integral) < VSMALL )
                 {
                     WarningIn
                     (
