@@ -62,7 +62,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     
     // Velocity at the boundary (in case of moving boundary)
     const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
-    vectorField Udiff = Uw - Uw.patchInternalField();
+    vectorField Udiff = Uw.patchInternalField() - Uw;
     
     project(Udiff);
     
