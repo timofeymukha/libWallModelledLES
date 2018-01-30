@@ -355,7 +355,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     createFields();
     createCellIndexList();
     
-    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
+/*    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
     const vectorField & U = Ufield.internalField();
     const fvPatchVectorField & Uwall = Ufield.boundaryField()[patch().index()];
       
@@ -369,6 +369,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     {   
         U_[i] = U[cellIndexList_[i]] - Uwall[i];
     }
+*/
 }
 
 
@@ -410,8 +411,13 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     h_(patch().size(), 0),
     U_(patch().size(), vector(0, 0, 0)),
     wallGradU_(patch().size(), vector(0, 0, 0)),
-    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 
-                                           db().time().deltaTValue()))    
+    averagingTime_
+    (
+        dict.lookupOrDefault<scalar>
+        (
+            "averagingTime", db().time().deltaTValue()
+        )
+    ) 
 {
     if (debug)
     {
@@ -424,7 +430,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     createFields();
     createCellIndexList();
     
-    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
+/*    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
     const vectorField & U = Ufield.internalField();
     const fvPatchVectorField & Uwall = Ufield.boundaryField()[patch().index()];
       
@@ -438,6 +444,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     {   
         U_[i] = U[cellIndexList_[i]] - Uwall[i];
     }
+*/
 }
 
 

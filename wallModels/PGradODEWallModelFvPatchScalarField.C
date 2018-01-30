@@ -96,7 +96,8 @@ PGradODEWallModelFvPatchScalarField
             << "from fvPatch and DimensionedField for patch " << patch().name()
             <<  nl;
     }
-    
+
+/*    
     const volScalarField & pressure = db().lookupObject<volScalarField>("p");
     vectorField gradP = fvc::grad(pressure);
     
@@ -104,6 +105,7 @@ PGradODEWallModelFvPatchScalarField
     {
         pressureGrad_[i] = gradP[cellIndexList_[i]];
     }
+*/
 }
 
 
@@ -146,13 +148,14 @@ PGradODEWallModelFvPatchScalarField
             <<  nl;
     }
     
-    const volScalarField & pressure = db().lookupObject<volScalarField>("p");
+/*    const volScalarField & pressure = db().lookupObject<volScalarField>("p");
     vectorField gradP = fvc::grad(pressure);
     
     forAll (pressureGrad_, i)
     {
         pressureGrad_[i] = gradP[cellIndexList_[i]];
     }
+*/
 }
 
 
