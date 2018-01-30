@@ -71,7 +71,7 @@ void Foam::PGradODEWallModelFvPatchScalarField::sample()
     
     forAll (pressureGrad_, i)
     {
-        pressureGrad_[i] -= eps*gradP[i] + (1 - eps)*pressureGrad_[i];
+        pressureGrad_[i] = eps*gradP[i] + (1 - eps)*pressureGrad_[i];
     }
 
     wallModelFvPatchScalarField::sample();
