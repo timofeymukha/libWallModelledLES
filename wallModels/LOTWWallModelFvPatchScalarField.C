@@ -61,7 +61,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     );
     
     // Velocity at the boundary (in case of moving boundary)
-    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
+/*    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
     vectorField Udiff = Uw.patchInternalField() - Uw;
     
     project(Udiff);
@@ -76,12 +76,14 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
         );
     
     wallGradUField.boundaryField()[patchi] == wallGradU;
-    
+*/
+
+
     // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
         
-    scalarField magGradU = mag(wallGradU);
+    scalarField magGradU = mag(wallGradU_);
     return max
     (
         scalar(0),

@@ -74,6 +74,9 @@ protected:
         //- The velocity values the wall model uses
         vectorField U_;
         
+        //- The wall-normal velocity gradient
+        vectorField wallGradU_;
+        
         //- Timescale of the averaging
         scalar averagingTime_;
           
@@ -90,6 +93,15 @@ protected:
 
         //- Write local wall function variables
         virtual void writeLocalEntries(Ostream&) const;
+                
+        //- Create list of cell-indices from where data is sampled
+        void createCellIndexList();
+        
+        //- Project vectorField onto the wall-parallel direction
+        void project(vectorField & field) const;
+        
+        //- Sample velocity values from the LES
+        virtual void sample();
 
 public:
 
@@ -139,16 +151,7 @@ public:
 
 
     // Member functions
-
-        //- Create list of cell-indices from where data is sampled
-        void createCellIndexList();
-        
-        //- Project vectorField onto the wall-parallel direction
-        void project(vectorField & field) const;
-        
-        //- Sample velocity values from the LES
-        virtual void sample();
-        
+      
         //- Return the list of cell-indices that are used to sample data
         labelList cellIndexList() const
         {

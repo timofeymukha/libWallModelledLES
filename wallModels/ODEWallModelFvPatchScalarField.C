@@ -102,30 +102,12 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
             dimensionedInternalField().group()
         )
     );
-    
-    // Velocity at the boundary
-    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
-    
-    vectorField Udiff = Uw.patchInternalField() - Uw;
-    
-    project(Udiff);
-    
-    // Magnitude of wall-normal velocity gradient
-    const vectorField wallGradU(patch().deltaCoeffs()*Udiff);
-    
-    volVectorField & wallGradUField = 
-        const_cast<volVectorField &>
-        (
-            db().lookupObject<volVectorField>("wallGradU")
-        );
-    
-    wallGradUField.boundaryField()[patchi] == wallGradU;
-    
+      
     // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();    
     
-    scalarField magGradU = mag(wallGradU);
+    scalarField magGradU = mag(wallGradU_);
     return max
     (
         scalar(0),

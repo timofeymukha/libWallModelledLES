@@ -82,8 +82,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
     
     const volScalarField & h = db().lookupObject<volScalarField>("h");
     
-    // Create and register uTau field, if not there already.
-    // This holds uTau as computed by the wall model.
+    // Create and register wallShearStress field, if not there already.
     if (!db().found("wallShearStress"))
     {
         db().store
@@ -110,6 +109,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         );
     }
 
+    // Field that marks cells that are used for sampling
     if (!db().found("samplingCells"))
     {
         db().store
@@ -131,6 +131,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         );
     }
     
+    // Field with uTau as predicted by the wall model.
     if ((!db().found("uTauPredicted")))
     {
         db().store
@@ -152,6 +153,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         );
     }
 
+    // Wall-normal velocity gradient
     if (!db().found("wallGradU"))
     {
         db().store
@@ -179,133 +181,6 @@ void Foam::wallModelFvPatchScalarField::createFields() const
     }
     
 }
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
-(
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF
-)
-:
-    fixedValueFvPatchScalarField(p, iF),
-    cellIndexList_(patch().size()),
-    h_(patch().size(), 0),
-    U_(patch().size(), vector(0, 0, 0)),
-    averagingTime_(db().time().deltaTValue()) 
-{
-    if (debug)
-    {
-        Info<< "Constructing wallModelFvPatchScalarField (w1) "
-            << "from fvPatch and DimensionedField for patch " << patch().name()
-            <<  nl;
-    }
-    
-    checkType();
-    createFields();
-    createCellIndexList();
-}
-
-
-Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
-(
-    const wallModelFvPatchScalarField& ptf,
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
-    const fvPatchFieldMapper& mapper
-)
-:
-    fixedValueFvPatchScalarField(ptf, p, iF, mapper),
-    cellIndexList_(ptf.cellIndexList_),
-    h_(ptf.h_),
-    U_(ptf.U_),
-    averagingTime_(ptf.averagingTime_) 
-{
-    if (debug)
-    {
-        Info<< "Constructing wallModelFvPatchScalarField (w2) "
-            << "from copy, fvPatch, DimensionedField, and fvPatchFieldMapper"
-            << " for patch " << patch().name() << nl;
-    }
-
-    checkType();
-    //createCellIndexList();   
-}
-
-
-Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
-(
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
-    const dictionary& dict
-)
-:
-    fixedValueFvPatchScalarField(p, iF, dict),
-    cellIndexList_(patch().size()),
-    h_(patch().size(), 0),
-    U_(patch().size(), vector(0, 0, 0)),
-    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 
-                                           db().time().deltaTValue()))    
-{
-    if (debug)
-    {
-        Info<< "Constructing wallModelFvPatchScalarField (w3) "
-            << "from fvPatch, DimensionedField, and dictionary for patch "
-            << patch().name() << nl;
-    }
-    
-    checkType();
-    createFields();
-    createCellIndexList();  
-}
-
-
-Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
-(
-    const wallModelFvPatchScalarField& wmpsf
-)
-:
-    fixedValueFvPatchScalarField(wmpsf),
-    cellIndexList_(wmpsf.cellIndexList_),
-    h_(wmpsf.h_),
-    U_(wmpsf.U_),
-    averagingTime_(wmpsf.averagingTime_) 
-{
-    if (debug)
-    {
-        Info<< "Constructing wallModelFvPatchScalarField (w4)"
-            << "from copy for patch " << patch().name() << nl;           
-    }
-
-    checkType();
-    //createCellIndexList();
-}
-
-
-Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
-(
-    const wallModelFvPatchScalarField& wmpsf,
-    const DimensionedField<scalar, volMesh>& iF
-)
-:
-    fixedValueFvPatchScalarField(wmpsf, iF),
-    cellIndexList_(wmpsf.cellIndexList_),
-    h_(wmpsf.h_),
-    U_(wmpsf.U_),
-    averagingTime_(wmpsf.averagingTime_)     
-{
-    if (debug)
-    {
-        Info<< "Constructing wallModelFvPatchScalarField (w5) "
-            << "from copy and DimensionedField for patch " << patch().name()
-            << nl;
-    }
-    
-    checkType();
-    //createCellIndexList();
-}
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::wallModelFvPatchScalarField::createCellIndexList()
 {
@@ -402,30 +277,38 @@ void Foam::wallModelFvPatchScalarField::createCellIndexList()
 
 void Foam::wallModelFvPatchScalarField::sample()
 {
-    const volVectorField & UField = db().lookupObject<volVectorField>("U");
-    const vectorField & U = UField.internalField();
-    const vectorField & UWall = UField.boundaryField()[patch().index()];
+    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
+    const vectorField & U = Ufield.internalField();
+    const fvPatchVectorField & Uwall = Ufield.boundaryField()[patch().index()];
+      
+    // Wall-normal velocity gradient
+    vectorField Udiff = Uwall.patchInternalField() - Uwall;
+    project(Udiff);
+    const vectorField wallGradU(patch().deltaCoeffs()*Udiff);
     
-    // Face normals
-    const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField faceNormals = tfaceNormals();
+    volVectorField & wallGradUField = 
+        const_cast<volVectorField &>
+        (
+            db().lookupObject<volVectorField>("wallGradU")
+        );
+    wallGradUField.boundaryField()[patch().index()] = wallGradU;
     
-    vectorField Up(patch().size());
-    
+    // Sampled velocity
+    vectorField Up(patch().size()); 
     
     forAll(Up, i)
     {   
-        Up[i] = U[cellIndexList_[i]] - UWall[i];
+        Up[i] = U[cellIndexList_[i]] - Uwall[i];
     }
     
-    
-    scalar eps = db().time().deltaTValue()/averagingTime_;
-    
     project(Up);
+        
+    scalar eps = db().time().deltaTValue()/averagingTime_;
     
     forAll(U_, i)  
     {    
         U_[i] = eps*Up[i] + (1 - eps)*U_[i];
+        wallGradU_[i] = eps*wallGradU[i] + (1 - eps)*wallGradU_[i];
     }
 }
 
@@ -445,6 +328,140 @@ Foam::wallModelFvPatchScalarField::project(vectorField & field) const
         field[i] -= normal;        
     }
 }
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
+(
+    const fvPatch& p,
+    const DimensionedField<scalar, volMesh>& iF
+)
+:
+    fixedValueFvPatchScalarField(p, iF),
+    cellIndexList_(patch().size()),
+    h_(patch().size(), 0),
+    U_(patch().size(), vector(0, 0, 0)),
+    wallGradU_(patch().size(), vector(0, 0, 0)),
+    averagingTime_(db().time().deltaTValue()) 
+{
+    if (debug)
+    {
+        Info<< "Constructing wallModelFvPatchScalarField (w1) "
+            << "from fvPatch and DimensionedField for patch " << patch().name()
+            <<  nl;
+    }
+    
+    checkType();
+    createFields();
+    createCellIndexList();
+}
+
+
+Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
+(
+    const wallModelFvPatchScalarField& ptf,
+    const fvPatch& p,
+    const DimensionedField<scalar, volMesh>& iF,
+    const fvPatchFieldMapper& mapper
+)
+:
+    fixedValueFvPatchScalarField(ptf, p, iF, mapper),
+    cellIndexList_(ptf.cellIndexList_),
+    h_(ptf.h_),
+    U_(ptf.U_),
+    wallGradU_(ptf.wallGradU_),
+    averagingTime_(ptf.averagingTime_) 
+{
+    if (debug)
+    {
+        Info<< "Constructing wallModelFvPatchScalarField (w2) "
+            << "from copy, fvPatch, DimensionedField, and fvPatchFieldMapper"
+            << " for patch " << patch().name() << nl;
+    }
+
+    checkType();
+    //createCellIndexList();   
+}
+
+
+Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
+(
+    const fvPatch& p,
+    const DimensionedField<scalar, volMesh>& iF,
+    const dictionary& dict
+)
+:
+    fixedValueFvPatchScalarField(p, iF, dict),
+    cellIndexList_(patch().size()),
+    h_(patch().size(), 0),
+    U_(patch().size(), vector(0, 0, 0)),
+    wallGradU_(patch().size(), vector(0, 0, 0)),
+    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 
+                                           db().time().deltaTValue()))    
+{
+    if (debug)
+    {
+        Info<< "Constructing wallModelFvPatchScalarField (w3) "
+            << "from fvPatch, DimensionedField, and dictionary for patch "
+            << patch().name() << nl;
+    }
+    
+    checkType();
+    createFields();
+    createCellIndexList();  
+}
+
+
+Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
+(
+    const wallModelFvPatchScalarField& wmpsf
+)
+:
+    fixedValueFvPatchScalarField(wmpsf),
+    cellIndexList_(wmpsf.cellIndexList_),
+    h_(wmpsf.h_),
+    U_(wmpsf.U_),
+    wallGradU_(wmpsf.wallGradU_),        
+    averagingTime_(wmpsf.averagingTime_) 
+{
+    if (debug)
+    {
+        Info<< "Constructing wallModelFvPatchScalarField (w4)"
+            << "from copy for patch " << patch().name() << nl;           
+    }
+
+    checkType();
+    //createCellIndexList();
+}
+
+
+Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
+(
+    const wallModelFvPatchScalarField& wmpsf,
+    const DimensionedField<scalar, volMesh>& iF
+)
+:
+    fixedValueFvPatchScalarField(wmpsf, iF),
+    cellIndexList_(wmpsf.cellIndexList_),
+    h_(wmpsf.h_),
+    U_(wmpsf.U_),
+    wallGradU_(wmpsf.wallGradU_),        
+    averagingTime_(wmpsf.averagingTime_)     
+{
+    if (debug)
+    {
+        Info<< "Constructing wallModelFvPatchScalarField (w5) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+    
+    checkType();
+    //createCellIndexList();
+}
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+
 
 void Foam::wallModelFvPatchScalarField::updateCoeffs()
 {
