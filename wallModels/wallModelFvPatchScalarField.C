@@ -354,6 +354,21 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     checkType();
     createFields();
     createCellIndexList();
+    
+    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
+    const vectorField & U = Ufield.internalField();
+    const fvPatchVectorField & Uwall = Ufield.boundaryField()[patch().index()];
+      
+    // Initialize sampled wall-normal velocity gradient
+    vectorField Udiff = Uwall.patchInternalField() - Uwall;
+    project(Udiff);
+    wallGradU_ = patch().deltaCoeffs()*Udiff;
+    
+    // Initialize sampled velocity velocity gradient
+    forAll(U_, i)
+    {   
+        U_[i] = U[cellIndexList_[i]] - Uwall[i];
+    }
 }
 
 
@@ -379,8 +394,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
             << " for patch " << patch().name() << nl;
     }
 
-    checkType();
-    //createCellIndexList();   
+    checkType();   
 }
 
 
@@ -408,7 +422,22 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     
     checkType();
     createFields();
-    createCellIndexList();  
+    createCellIndexList();
+    
+    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
+    const vectorField & U = Ufield.internalField();
+    const fvPatchVectorField & Uwall = Ufield.boundaryField()[patch().index()];
+      
+    // Initialize sampled wall-normal velocity gradient
+    vectorField Udiff = Uwall.patchInternalField() - Uwall;
+    project(Udiff);
+    wallGradU_ = patch().deltaCoeffs()*Udiff;
+    
+    // Initialize sampled velocity velocity gradient
+    forAll(U_, i)
+    {   
+        U_[i] = U[cellIndexList_[i]] - Uwall[i];
+    }
 }
 
 
