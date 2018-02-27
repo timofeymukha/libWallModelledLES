@@ -4,6 +4,7 @@ rootFinding/BisectionRootFinder/BisectionRootFinder.C
 lawsOfTheWall/LawOfTheWall/LawOfTheWall.C
 lawsOfTheWall/SpaldingLawOfTheWall/SpaldingLawOfTheWall.C
 lawsOfTheWall/WernerWengleLawOfTheWall/WernerWengleLawOfTheWall.C
+lawsOfTheWall/ReichardtLawOfTheWall/ReichardtLawOfTheWall.C
 eddyViscosities/EddyViscosity/EddyViscosity.C
 eddyViscosities/JohnsonKing/JohnsonKingEddyViscosity.C
 wallModels/wallModelFvPatchScalarField.C
