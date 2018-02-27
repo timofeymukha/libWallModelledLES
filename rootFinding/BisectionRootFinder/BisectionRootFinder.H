@@ -115,7 +115,7 @@ public:
         }
         
         //- Return root
-        scalar root(scalar x0) const;
+        scalar root(scalar guess) const;
         
         //- Write parameters to stream
         virtual void write(Ostream& os) const

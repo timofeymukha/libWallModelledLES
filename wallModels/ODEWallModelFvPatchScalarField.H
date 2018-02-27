@@ -107,7 +107,7 @@ protected:
         virtual tmp<scalarField> calcNut() const;
 
         //- Calculate the friction velocity
-        virtual tmp<scalarField> calcUTau() const;
+        virtual tmp<scalarField> calcUTau(const scalarField & magGradU) const;
         
         //- Create a 1d mesh for each face
         void createMeshes();
@@ -116,7 +116,7 @@ protected:
         scalar integrate(const scalarList & y, const scalarList & v) const;
         
         //- Source term defining the type of ODE model
-        virtual void source(const int, const vector, vector &) const = 0;
+        virtual void source(const int, vector &) const = 0;
         
 public:
 

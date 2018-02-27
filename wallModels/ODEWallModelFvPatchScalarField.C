@@ -35,6 +35,7 @@ namespace Foam
 
 void Foam::ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
+    wallModelFvPatchScalarField::writeLocalEntries(os);
     eddyViscosity_->write(os);
     os.writeKeyword("eps") << eps_ << token::END_STATEMENT << endl;
     os.writeKeyword("maxIter") << maxIter_ << token::END_STATEMENT << endl;
@@ -100,112 +101,43 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
             dimensionedInternalField().group()
         )
     );
-    
-    // Velocity at the boundary
-    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
-    
-    // Magnitude of wall-normal velocity gradient
-    const scalarField magGradU(mag(Uw.snGrad()));
-    
+      
     // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
-    const scalarField& nuw = tnuw();
-       
-        // Debug output
-    if ((patch().size() > 0) && (debug))
-    {
-        // Compute uTau using current model and the default Spalding model
-        scalarField uTauNew = calcUTau();
-        scalarField uTauBench = calcUTauBench(magGradU);
-               
-        // Average (not-weighted). As usual, value is local to processor
-        scalar avrgNew = sum(uTauNew)/patch().size();
-        scalar avrgBench = sum(uTauBench)/patch().size();
-        
-        // Compute relative error
-        scalar diff = mag(avrgNew - avrgBench)/avrgBench*100;
-        
-        // If error > 1 percent, report
-        if (diff > 1)
-        {
-            Pout<< "Average uTau/uTauBench/diff " << sum(uTauNew)/patch().size() 
-                << " " << sum(uTauBench)/patch().size() << " " << diff
-                << ", patch " << patch().name() << nl;
-        }
-    }
+    const scalarField& nuw = tnuw();    
     
-    
+    scalarField magGradU = mag(wallGradU_);
     return max
     (
         scalar(0),
-        sqr(calcUTau())/(magGradU + ROOTVSMALL) - nuw
+        sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw
     );
 }
 
 
 Foam::tmp<Foam::scalarField>
-Foam::ODEWallModelFvPatchScalarField::calcUTau() const
-{
-
+Foam::ODEWallModelFvPatchScalarField::
+calcUTau(const scalarField & magGradU) const
+{   
     const label patchi = patch().index();
-
-    const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
-    (
-        IOobject::groupName
-        (
-            turbulenceModel::propertiesName,
-            dimensionedInternalField().group()
-        )
-    );
+    const label patchSize = patch().size();
     
-    // Velocity in internal field
-    const vectorField & U = turbModel.U().internalField();
-
-    // Velocity on boundary
-    const fvPatchVectorField & Uw = turbModel.U().boundaryField()[patchi];
+    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
     
-    // Magnitude of wall-normal gradient
-    const scalarField magGradU(mag(Uw.snGrad()));
-
-    // Face normals
-    const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField faceNormals = tfaceNormals();
+    // Velocity and viscosity on boundary
+    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
     
-   
-    // Velocity relative to boundary and its magnitude
-    vectorField Up(patch().size());
-    scalarField magUp(patch().size());
- 
-    // Normal and parallel components
-    vectorField Unormal(patch().size());
-    vectorField Upar(patch().size());
-    scalarField magUpar(patch().size());
-
-    // temporary vectors for computing the source term
+    // temporary vector for computing the source term
     vector sourceFVec(0, 0, 0);
-            
-    forAll(magUp, i)
-    {   
-        Up[i] = U[cellIndexList_[i]] - Uw[i];
-        magUp[i] = mag(Up[i]);
         
-        // Normal component as dot product with (inwards) face normal
-        Unormal[i] = -faceNormals[i]*(Up[i] & -faceNormals[i]);
-        
-        // Subtract normal component to get the parallel one
-        Upar[i] = Up[i] - Unormal[i];
-        magUpar[i] = mag(Upar[i]);
-    }
-
-    // Viscosity
-    const tmp<scalarField> tnuw = turbModel.nu(patchi);
-    const scalarField & nuw = tnuw();
-
+    scalarField magU = mag(U_);
+ 
     // Turbulent viscosity
     const scalarField & nutw = *this;
 
     // Computed uTau
-    tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
+    tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
+    
     scalarField & uTau = tuTau();            
     
     // Compute uTau for each face
@@ -227,7 +159,7 @@ Foam::ODEWallModelFvPatchScalarField::calcUTau() const
                 scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
                 scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));
                 
-                if (integral == 0 )
+                if (mag(integral) < VSMALL )
                 {
                     WarningIn
                     (
@@ -239,11 +171,11 @@ Foam::ODEWallModelFvPatchScalarField::calcUTau() const
                 
                 
                 // Compute the source term
-                source(faceI, faceNormals[faceI], sourceFVec);
+                source(faceI, sourceFVec);
                 
                 scalar newTau = 
-                        sqr(magUpar[faceI]) + sqr(mag(sourceFVec)*integral2) -
-                        2*(Upar[faceI] & sourceFVec)*integral2;
+                        sqr(magU[faceI]) + sqr(mag(sourceFVec)*integral2) -
+                        2*(U_[faceI] & sourceFVec)*integral2;
                 
                 newTau  = sqrt(newTau)/integral;
                 
@@ -278,7 +210,7 @@ Foam::ODEWallModelFvPatchScalarField::calcUTau() const
     volScalarField & uTauField = 
         const_cast<volScalarField &>
         (
-            db().lookupObject<volScalarField>("uTau")
+            db().lookupObject<volScalarField>("uTauPredicted")
         );
      
     // Assign computed uTau to the boundary field of the global field

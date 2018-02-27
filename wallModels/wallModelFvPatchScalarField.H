@@ -70,6 +70,15 @@ protected:
         
         //- The distance from the wall that data is sampled from
         scalarField h_;
+        
+        //- The velocity values the wall model uses
+        vectorField U_;
+        
+        //- The wall-normal velocity gradient
+        vectorField wallGradU_;
+        
+        //- Timescale of the averaging
+        scalar averagingTime_;
           
         //- Create fields and add to registry
         void createFields() const;
@@ -84,10 +93,15 @@ protected:
 
         //- Write local wall function variables
         virtual void writeLocalEntries(Ostream&) const;
-
-        //- Benchmark for calculating the friction velocity
-        //  using the default Spalding wall model
-        tmp<scalarField> calcUTauBench(const scalarField& magGradU) const;
+                
+        //- Create list of cell-indices from where data is sampled
+        void createCellIndexList();
+        
+        //- Project vectorField onto the wall-parallel direction
+        void project(vectorField & field) const;
+        
+        //- Sample velocity values from the LES
+        virtual void sample();
 
 public:
 
@@ -137,10 +151,7 @@ public:
 
 
     // Member functions
-
-        //- Create list of cell-indices from where data is sampled
-        void createCellIndexList();
-        
+      
         //- Return the list of cell-indices that are used to sample data
         labelList cellIndexList() const
         {
@@ -151,6 +162,17 @@ public:
         scalarField h() const
         {
             return h_;
+        }
+        
+        //- return U_
+        vectorField U() const
+        {
+            return U_;
+        }
+        
+        scalar averagingTime() const
+        {
+            return averagingTime_;
         }
         
         //- Update the boundary values

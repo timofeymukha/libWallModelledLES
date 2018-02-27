@@ -25,13 +25,12 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-namespace Foam
-{
+
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
 void 
-EquilibriumODEWallModelFvPatchScalarField::
+Foam::EquilibriumODEWallModelFvPatchScalarField::
 writeLocalEntries(Ostream& os) const
 {
     // This is necessary to write entries when decomposing
@@ -40,7 +39,7 @@ writeLocalEntries(Ostream& os) const
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-EquilibriumODEWallModelFvPatchScalarField::
+Foam::EquilibriumODEWallModelFvPatchScalarField::
 EquilibriumODEWallModelFvPatchScalarField
 (
     const fvPatch& p,
@@ -51,7 +50,7 @@ EquilibriumODEWallModelFvPatchScalarField
 {}
 
 
-EquilibriumODEWallModelFvPatchScalarField::
+Foam::EquilibriumODEWallModelFvPatchScalarField::
 EquilibriumODEWallModelFvPatchScalarField
 (
     const EquilibriumODEWallModelFvPatchScalarField& ptf,
@@ -64,7 +63,7 @@ EquilibriumODEWallModelFvPatchScalarField
 {}
 
 
-EquilibriumODEWallModelFvPatchScalarField::
+Foam::EquilibriumODEWallModelFvPatchScalarField::
 EquilibriumODEWallModelFvPatchScalarField
 (
     const fvPatch& p,
@@ -76,7 +75,7 @@ EquilibriumODEWallModelFvPatchScalarField
 {}
 
 
-EquilibriumODEWallModelFvPatchScalarField::
+Foam::EquilibriumODEWallModelFvPatchScalarField::
 EquilibriumODEWallModelFvPatchScalarField
 (
     const EquilibriumODEWallModelFvPatchScalarField & wfpsf
@@ -86,7 +85,7 @@ EquilibriumODEWallModelFvPatchScalarField
 {}
 
 
-EquilibriumODEWallModelFvPatchScalarField::
+Foam::EquilibriumODEWallModelFvPatchScalarField::
 EquilibriumODEWallModelFvPatchScalarField
 (
     const EquilibriumODEWallModelFvPatchScalarField & wfpsf,
@@ -99,14 +98,15 @@ EquilibriumODEWallModelFvPatchScalarField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void EquilibriumODEWallModelFvPatchScalarField::write(Ostream& os) const
+void Foam::EquilibriumODEWallModelFvPatchScalarField::write(Ostream& os) const
 {
     ODEWallModelFvPatchScalarField::write(os);
 }
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
+namespace Foam
+{
     makePatchTypeField
     (
         fvPatchScalarField,

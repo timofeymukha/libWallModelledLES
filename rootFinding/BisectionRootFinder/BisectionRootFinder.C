@@ -72,77 +72,67 @@ Foam::BisectionRootFinder::BisectionRootFinder
 // This one probably needs some work
 Foam::scalar Foam::BisectionRootFinder::root
 (
-    scalar x1
+    scalar guess
 ) const
 {
-    scalar f, fMid, dx, rtb, xMid;
+    label i = 1;
+   
+    scalar a = 1/bracket_*guess;
+    scalar b  = bracket_*guess;
+    scalar c = 0;
+    scalar fC = 0;
+    
+    if (f_(a)*f_(b) >= 0)
+    {
+        // Increase interval range towards the wall
+        a = SMALL;
+    }
 
-    // Create interval based on bracket and initial guess
-    scalar x0 = 1/bracket_*x1;
-    x1 = bracket_*x1;
-    
-    fMid = f_(x1);  
-    f = f_(x0);
-    
-  
-    // Crash if root is not bracketed. We might want to fall back to
-    // [0, bracket*x1] first, since uTau > 0. This may be needed in the first
-    // iterations of the solver
-    if (f*fMid >= 0)
+    if (f_(a)*f_(b) >= 0)
     {
         FatalErrorIn
         (
             "Foam::scalar Foam::BisectionRootFinder::root\n"
             "(\n"
-            "  scalar x1\n"
+            "  scalar guess\n"
             ") const"
-        )   << "Root is not bracketed.  f(x0) = " << f << " f(x1) = " << fMid
+        )   << "Root is not bracketed.  f(a) = " << f_(a) << " f(b) = " << f_(b)
             << abort(FatalError);
     }
-
-    // Orient the search such that f > 0 lies at x + dx
-    if (f < 0)
+    
+    while (i <= maxIter_)
     {
-        dx = x1 - x0;
-        rtb = x0;
+       c = 0.5*(a + b);
+       fC = f_(c);
+       
+       if ( (fC < SMALL) && (0.5*(b - a) < eps_) )
+       {
+           return c;
+       }
+       i++;
+       
+       if (sign(fC) == sign(f_(a)) )
+       {
+           a = c;          
+       }
+       else
+       {
+           b = c;     
+       }
     }
-    else
-    {
-        dx = x0 - x1;
-        rtb = x1;
-    }
-
-    for (label nIter = 0; nIter < maxIter_; nIter++)
-    {
-        dx *= 0.5;
-        xMid = rtb + dx;
-
-        fMid = f_(xMid);
-
-        if (fMid <= 0)
-        {
-            rtb = xMid;
-        }
-
-        // Note that this is the absolute error, and we use relative in Newton..
-        if (mag(dx)/rtb < eps_ || mag(fMid) < SMALL)
-        {
-            return rtb;
-        }
-    }
-
+   
     if (debug)
     {
         WarningIn
         (
-            "Foam::scalar Foam::BisectionRoot<Func>::root\n"
+            "Foam::scalar Foam::BisectionRootFinder::root\n"
             "(\n"
-            "    const scalar x0,\n"
-            "    const scalar x1\n"
+            "    scalar guess,\n"
             ") const"
         )   << "Maximum number of iterations exceeded";
     }
-    return rtb;
+   
+   return c;
 }
 
 

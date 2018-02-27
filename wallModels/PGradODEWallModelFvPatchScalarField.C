@@ -39,20 +39,40 @@ Foam::PGradODEWallModelFvPatchScalarField::
 source
 (
     const int faceI,
-    const vector patchFaceNormal,
     vector & sourceFVec
 ) const
 {
-    // pressure gradient vector at cell center associated to h_
-    vector pGrad = pressGrad_[cellIndexList_[faceI]];
-
-    // Normal component as dot product with (inwards) face normal
-    vector pGradNormal = -patchFaceNormal*(pGrad & - patchFaceNormal);
-
     // source term = pressure gradient vector projected on the patch face
-    sourceFVec = pGrad - pGradNormal;
+    sourceFVec = pressureGrad_[faceI];
 }
 
+
+void Foam::PGradODEWallModelFvPatchScalarField::sample()
+{
+
+    
+    const volScalarField & p = db().lookupObject<volScalarField>("p");
+
+    //calculate pressure Gradient
+    vectorField gradPField = fvc::grad(p);
+    vectorField gradP(patch().size());
+    
+    forAll (gradP, i)
+    {
+        gradP[i] = gradPField[cellIndexList_[i]];
+    }
+    
+    project(gradP);
+    
+    scalar eps = db().time().deltaTValue()/averagingTime_;
+    
+    forAll (pressureGrad_, i)
+    {
+        pressureGrad_[i] = eps*gradP[i] + (1 - eps)*pressureGrad_[i];
+    }
+
+    wallModelFvPatchScalarField::sample();
+}
        
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -64,7 +84,8 @@ PGradODEWallModelFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    ODEWallModelFvPatchScalarField(p, iF)
+    ODEWallModelFvPatchScalarField(p, iF),
+    pressureGrad_(patch().size(), vector(0, 0, 0))
 {
     if (debug)
     {
@@ -72,6 +93,16 @@ PGradODEWallModelFvPatchScalarField
             << "from fvPatch and DimensionedField for patch " << patch().name()
             <<  nl;
     }
+
+/*    
+    const volScalarField & pressure = db().lookupObject<volScalarField>("p");
+    vectorField gradP = fvc::grad(pressure);
+    
+    forAll (pressureGrad_, i)
+    {
+        pressureGrad_[i] = gradP[cellIndexList_[i]];
+    }
+*/
 }
 
 
@@ -84,7 +115,8 @@ PGradODEWallModelFvPatchScalarField
     const fvPatchFieldMapper& mapper
 )
 :
-    ODEWallModelFvPatchScalarField(ptf, p, iF, mapper)
+    ODEWallModelFvPatchScalarField(ptf, p, iF, mapper),
+    pressureGrad_(ptf.pressureGrad_)
 {
     if (debug)
     {
@@ -103,7 +135,8 @@ PGradODEWallModelFvPatchScalarField
     const dictionary& dict
 )
 :
-    ODEWallModelFvPatchScalarField(p, iF, dict)
+    ODEWallModelFvPatchScalarField(p, iF, dict),
+    pressureGrad_(patch().size(), vector(0, 0, 0))
 {
     if (debug)
     {
@@ -111,6 +144,15 @@ PGradODEWallModelFvPatchScalarField
             << "from fvPatch and DimensionedField for patch " << patch().name()
             <<  nl;
     }
+    
+/*    const volScalarField & pressure = db().lookupObject<volScalarField>("p");
+    vectorField gradP = fvc::grad(pressure);
+    
+    forAll (pressureGrad_, i)
+    {
+        pressureGrad_[i] = gradP[cellIndexList_[i]];
+    }
+*/
 }
 
 
@@ -121,7 +163,8 @@ PGradODEWallModelFvPatchScalarField
     const PGradODEWallModelFvPatchScalarField& wfpsf
 )
 :
-    ODEWallModelFvPatchScalarField(wfpsf)
+    ODEWallModelFvPatchScalarField(wfpsf),
+    pressureGrad_(wfpsf.pressureGrad_)
 {
     if (debug)
     {
@@ -139,7 +182,8 @@ PGradODEWallModelFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    ODEWallModelFvPatchScalarField(wfpsf, iF)
+    ODEWallModelFvPatchScalarField(wfpsf, iF),
+    pressureGrad_(wfpsf.pressureGrad_)
 {
     if (debug)
     {
@@ -154,29 +198,8 @@ PGradODEWallModelFvPatchScalarField
 
 void Foam::PGradODEWallModelFvPatchScalarField::write(Ostream& os) const
 {
-//saleh    wallModelFvPatchScalarField::write(os);
     ODEWallModelFvPatchScalarField::write(os);
 }
-
-
-
-void Foam::PGradODEWallModelFvPatchScalarField::updateCoeffs()
-{
-    if (updated())
-    {
-        return;
-    }
-
-    //calculate & update pressGrad_ 
-    //look up pressure values for the whole subdomain the patch() belongs to
-    const volScalarField & P = db().lookupObject<volScalarField>("p");
-
-      //calculate pressure Gradient
-    pressGrad_ = fvc::grad(P);
-
-    wallModelFvPatchScalarField::updateCoeffs();
-}
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 namespace Foam
