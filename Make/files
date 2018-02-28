@@ -1,9 +1,13 @@
+CellIndexList/CellIndexList.C
 rootFinding/RootFinder/RootFinder.C
 rootFinding/NewtonRootFinder/NewtonRootFinder.C
 rootFinding/BisectionRootFinder/BisectionRootFinder.C
 lawsOfTheWall/LawOfTheWall/LawOfTheWall.C
 lawsOfTheWall/SpaldingLawOfTheWall/SpaldingLawOfTheWall.C
 lawsOfTheWall/WernerWengleLawOfTheWall/WernerWengleLawOfTheWall.C
+lawsOfTheWall/IntegratedWernerWengleLawOfTheWall/IntegratedWernerWengleLawOfTheWall.C
+lawsOfTheWall/IntegratedReichardtLawOfTheWall/IntegratedReichardtLawOfTheWall.C
+lawsOfTheWall/ReichardtLawOfTheWall/ReichardtLawOfTheWall.C
 eddyViscosities/EddyViscosity/EddyViscosity.C
 eddyViscosities/JohnsonKing/JohnsonKingEddyViscosity.C
 wallModels/wallModelFvPatchScalarField.C

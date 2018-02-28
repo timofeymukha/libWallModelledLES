@@ -37,7 +37,8 @@ namespace Foam
     
 Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New 
 (
-    const Foam::dictionary & dict
+    const Foam::dictionary & dict,
+    const CellIndexList & list
 )
 {
     Foam::word lawName(dict.lookup("type"));
@@ -60,17 +61,15 @@ Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New
     Foam::dictionary temp(dict);
     temp.remove("type");
 
-    //Info << "Constructing LawofTheWall L1" <<nl;
-
-
-    return cstrIter()(temp);  
+    return cstrIter()(temp, list);  
 }
  
 
 Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New 
 (
     const Foam::word & lawName,
-    const Foam::dictionary & dict
+    const Foam::dictionary & dict,
+    const CellIndexList & list
 )
 {
     
@@ -89,7 +88,7 @@ Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New
             << exit(Foam::FatalError);
     }
 
-    return cstrIter()(lawName, dict);  
+    return cstrIter()(lawName, dict, list);  
 }
 
 

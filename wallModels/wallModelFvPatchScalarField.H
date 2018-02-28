@@ -47,6 +47,7 @@ SourceFiles
 #define wallModelFvPatchScalarField_H
 
 #include "fixedValueFvPatchFields.H"
+#include "CellIndexList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -65,8 +66,11 @@ protected:
     
     // Protected data
     
+        //- The cellIndexList
+        const CellIndexList cellIndexList_;
+    
         //- The indices of the cells that data is sampled from
-        labelList cellIndexList_;
+        //labelList cellIndexList_;
         
         //- The distance from the wall that data is sampled from
         scalarField h_;
@@ -93,9 +97,6 @@ protected:
 
         //- Write local wall function variables
         virtual void writeLocalEntries(Ostream&) const;
-                
-        //- Create list of cell-indices from where data is sampled
-        void createCellIndexList();
         
         //- Project vectorField onto the wall-parallel direction
         void project(vectorField & field) const;
@@ -155,13 +156,13 @@ public:
         //- Return the list of cell-indices that are used to sample data
         labelList cellIndexList() const
         {
-            return cellIndexList_;
+            return cellIndexList_.indexList();
         }
         
         //- Return h
         scalarField h() const
         {
-            return h_;
+            return cellIndexList_.h();
         }
         
         //- return U_

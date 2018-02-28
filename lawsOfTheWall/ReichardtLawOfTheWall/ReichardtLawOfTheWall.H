@@ -17,46 +17,46 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::WernerWengleLawOfTheWall
+    Foam::ReichardtLawOfTheWall
 
 Description
-    The law of the wall proposed by Werner and Wengle.
+    The law of the wall proposed by Reichardt.
 
-    \f{eqnarray*}{
-        u^+ &=& y^+ \quad y+ \leq 11.81\\
-        u^+ &=& A(y^+)^B \quad y+ > 11.81
-
-    \f}    
+    \f[
+    u^+ = \frac{1}{\kappa } \ln (1 + \kappa y^+) + C \left( 1 - \exp (-y^+/B_1)-
+          \frac{y^+}{B_1} \exp(-y^+/B_2) \right)
+    \f]   
 
     Usage:
     \verbatim
     Law
     {
-        type      WernerWengle;
-        A         value; (default 8.3)
-        B         value; (default 1/7)
+        type      Reichardt;
+        kappa     value; (default 0.4)
+        B1        value; (default 11)
+        B2        value; (default 3)
+        C         value; (default 7.8)
     }
     \endverbatim
 
     Reference:
     \verbatim
-        Werner, H., & Wengle, H. (1993).
-        Large-eddy simulation of turbulent flow over and around a cube in a
-        plate channel.
-        In Turbulent Shear Flows 8 (pp. 155-168).
-        Springer, Berlin, Heidelberg.
+        Reichardt, H. (1951).
+        Vollstandige Darstellung der turbulenten Geschwindigkeitsverteilung in
+        glatten Leitungen.
+        Zeitschrift fur Angewandte Mathematik und Mechanik 31(7) (pp. 208-219).
     \endverbatim
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
-    WernerWengleLawOfTheWall.C
+    ReichardtLawOfTheWall.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef WernerWengleLawOfTheWall_H
-#define WernerWengleLawOfTheWall_H
+#ifndef ReichardtLawOfTheWall_H
+#define ReichardtLawOfTheWall_H
 
 #include "scalar.H"
 #include "typeInfo.H"
@@ -72,49 +72,67 @@ namespace Foam
                     Class WernerWengleLawOfTheWall Declaration
 \*---------------------------------------------------------------------------*/
 
-class WernerWengleLawOfTheWall: public LawOfTheWall
+class ReichardtLawOfTheWall: public LawOfTheWall
 {
     
     // Private data
         
         //- The kappa model constant
-        scalar A_;
+        scalar kappa_;
         
-        //- The B model constant
-        scalar B_;
+        //- The B1 model constant
+        scalar B1_;
+        
+        //- The B1 model constant
+        scalar B2_;
+        
+        //- The C model constant
+        scalar C_;
         
 public:
     
-    TypeName("WernerWengle");
+    TypeName("Reichardt");
 
     // Constructors
 
         //- Construct provided dictionary and cell index list
-        WernerWengleLawOfTheWall(const dictionary &, const Foam::CellIndexList &);
+        ReichardtLawOfTheWall(const dictionary &, const CellIndexList &);
         
         //- Construct provided TypeName and dictionary and cell index list
-        WernerWengleLawOfTheWall
-        ( 
+        ReichardtLawOfTheWall
+        (
             const word & lawname,
             const dictionary &,
-            const Foam::CellIndexList &
+            const CellIndexList &    
         );
 
     // Destructor
-        virtual ~WernerWengleLawOfTheWall() {};
+        virtual ~ReichardtLawOfTheWall() {};
 
     // Member Functions
         
-        //- Return the A constant
-        scalar A() const
+        //- Return the kappa constant
+        scalar kappa() const
         {
-            return A_;
+            return kappa_;
         }
         
-        //- Return the B constant
-        scalar B() const
+        //- Return the B1 constant
+        scalar B1() const
         {
-            return B_;
+            return B1_;
+        }
+        
+        //- Return the B2 constant
+        scalar B2() const
+        {
+            return B2_;
+        }
+        
+        //- Return the C constant
+        scalar C() const
+        {
+            return C_;
         }
         
         //- Print info to terminal
