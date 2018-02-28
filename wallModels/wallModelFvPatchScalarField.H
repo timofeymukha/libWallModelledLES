@@ -67,7 +67,7 @@ protected:
     // Protected data
     
         //- The cellIndexList
-        CellIndexList cellIndexList_;
+        const CellIndexList cellIndexList_;
     
         //- The indices of the cells that data is sampled from
         //labelList cellIndexList_;

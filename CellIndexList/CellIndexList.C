@@ -80,7 +80,7 @@ void Foam::CellIndexList::createFields() const
 }
 
 
-void Foam::CellIndexList::createCellIndexList()
+void Foam::CellIndexList::createIndexList()
 {
    
     const label patchIndex = patch().index();
@@ -156,6 +156,22 @@ void Foam::CellIndexList::createCellIndexList()
     }
 }
 
+
+void Foam::CellIndexList::createLengthList()
+{
+    // Grab the mesh
+    const fvMesh & mesh = patch().boundaryMesh().mesh(); 
+    
+    // Cell volumes
+    const scalarField & V = mesh.V();
+    
+    forAll(lengthList_, i)
+    {
+        lengthList_[i] = pow(V[indexList_[i]], 1.0/3.0);
+    }
+    
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::CellIndexList::CellIndexList
@@ -165,12 +181,12 @@ Foam::CellIndexList::CellIndexList
 :
     patch_(p),
     indexList_(p.size()),
+    lengthList_(p.size()),
     h_(p.size(), 0)
 {
-
     createFields();
-    createCellIndexList();
-
+    createIndexList();
+    createLengthList();
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //

@@ -56,18 +56,23 @@ protected:
         //- The indices of the cells that data is sampled from
         labelList indexList_;
         
+        //- A list of wall-normal length-scales associated with the cells
+        scalarField lengthList_;
+        
         //- The distance from the wall that data is sampled from
         scalarField h_;
+                
         
-
-
     // Protected Member Functions
         
         //- Create h field and add to registry
         void createFields() const;
              
         //- Create list of cell-indices from where data is sampled
-        void createCellIndexList();
+        void createIndexList();
+        
+        //- Compute the length-scales
+        void createLengthList();
 
 public:
 
@@ -92,6 +97,12 @@ public:
         scalarField h() const
         {
             return h_;
+        }
+        
+        //- Return the length-list
+        scalarField lengthList() const
+        {
+            return lengthList_;
         }
         
         //- Return the patch
