@@ -59,27 +59,7 @@ void Foam::wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 
 void Foam::wallModelFvPatchScalarField::createFields() const
 {
-   
-    // Create and register h field, if not there already
-    if (!db().found("h"))
-    {
-        db().store
-        (
-            new volScalarField
-            (
-                IOobject
-                (
-                    "h",
-                    db().time().timeName(),
-                    db(),
-                    IOobject::MUST_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                patch().boundaryMesh().mesh()
-            )
-        );
-    }
-    
+      
     const volScalarField & h = db().lookupObject<volScalarField>("h");
     
     // Create and register wallShearStress field, if not there already.
@@ -104,28 +84,6 @@ void Foam::wallModelFvPatchScalarField::createFields() const
                     sqr(dimVelocity),
                     vector(0, 0, 0)
                 ),
-                h.boundaryField().types()
-            )
-        );
-    }
-
-    // Field that marks cells that are used for sampling
-    if (!db().found("samplingCells"))
-    {
-        db().store
-        (
-            new volScalarField
-            (
-                IOobject
-                (
-                    "samplingCells",
-                    db().time().timeName(),
-                    db(),
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                patch().boundaryMesh().mesh(),
-                dimensionedScalar("samplingCells", dimless,0),
                 h.boundaryField().types()
             )
         );
@@ -180,98 +138,6 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         );
     }
     
-}
-
-void Foam::wallModelFvPatchScalarField::createCellIndexList()
-{
-    if (debug)
-    {
-        Info<<"Building sample cell index list for patch " << patch().name()
-            << nl;   
-    }
-    
-    const label patchIndex = patch().index();
-    
-    // Grab h for the current patch
-    volScalarField & h = 
-        const_cast<volScalarField &>(db().lookupObject<volScalarField> ("h"));
-    
-    h_ = h.boundaryField()[patchIndex];
-
-    // Grab the mesh
-    const fvMesh & mesh = patch().boundaryMesh().mesh();
-
-    // Create a searcher for the mesh
-    meshSearch ms(mesh);
-    
-    // Grab face centres, normal and adjacent cells' centres to each patch face
-    const vectorField & faceCentres = patch().Cf();
-    const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField faceNormals = tfaceNormals();
-    const tmp<vectorField> tcellCentres = patch().Cn();
-    const vectorField cellCentres = tcellCentres();
-    
-    // Grab the global indices of adjacent cells 
-    const labelUList & faceCells = patch().faceCells();
-
-    vector point;
-    forAll(faceCentres, i)
-    {
-        // If h is zero, set it to distance to adjacent cell's centre
-        // Set the cellIndexList component accordingly.
-        if (h_[i] == 0)
-        {
-            if (debug > 1)
-            {
-                Pout<< "h is 0, for face " << i << " on patch " 
-                    << patch().name() << ", using distance to Cn." << nl;   
-                
-            }
-            
-            h_[i] = mag(cellCentres[i] - faceCentres[i]);
-            cellIndexList_[i] = faceCells[i];          
-        }
-        else
-        {
-            // Grab the point h away along the face normal
-            point = faceCentres[i] - faceNormals[i]*h_[i];
-
-            // Check that point is inside the (processor) domain
-            // Otherwise fall back to adjacent cell's centre.
-            if (!ms.isInside(point))
-            {
-                if (debug)
-                {
-                    Pout<< "Point " << point << "is outside the domain. "
-                        << "Using Cn." << nl;    
-                }
-
-                point = cellCentres[i];
-            }
-
-            // Find the cell where the point is located
-            cellIndexList_[i] = ms.findNearestCell(point, -1, true);
-                        
-            // Set h to the distance between face centre and located cell's
-            // center
-            h_[i] = mag(mesh.C()[cellIndexList_[i]] - faceCentres[i]);
-        }
-    }
-    
-    // Assign computed h_ to the global h field
-    h.boundaryField()[patch().index()] == h_;
-    
-    // Grab samplingCells field
-    volScalarField & samplingCells = 
-        const_cast<volScalarField &>
-        (
-            db().lookupObject<volScalarField> ("samplingCells")
-        );
-    
-    forAll(cellIndexList_, i)
-    {
-        samplingCells[cellIndexList_[i]] = patchIndex; 
-    }
 }
 
 
@@ -338,8 +204,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    cellIndexList_(patch().size()),
-    h_(patch().size(), 0),
+    cellIndexList_(patch()),
+    h_(cellIndexList_.h()),
     U_(patch().size(), vector(0, 0, 0)),
     wallGradU_(patch().size(), vector(0, 0, 0)),
     averagingTime_(db().time().deltaTValue()) 
@@ -353,7 +219,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     
     checkType();
     createFields();
-    createCellIndexList();
     
 /*    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
     const vectorField & U = Ufield.internalField();
@@ -383,7 +248,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
     cellIndexList_(ptf.cellIndexList_),
-    h_(ptf.h_),
+    h_(cellIndexList_.h()),
     U_(ptf.U_),
     wallGradU_(ptf.wallGradU_),
     averagingTime_(ptf.averagingTime_) 
@@ -407,8 +272,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF, dict),
-    cellIndexList_(patch().size()),
-    h_(patch().size(), 0),
+    cellIndexList_(patch()),
+    h_(cellIndexList_.h()),
     U_(patch().size(), vector(0, 0, 0)),
     wallGradU_(patch().size(), vector(0, 0, 0)),
     averagingTime_
@@ -428,7 +293,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     
     checkType();
     createFields();
-    createCellIndexList();
     
 /*    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
     const vectorField & U = Ufield.internalField();
@@ -455,7 +319,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(wmpsf),
     cellIndexList_(wmpsf.cellIndexList_),
-    h_(wmpsf.h_),
+    h_(cellIndexList_.h()),
     U_(wmpsf.U_),
     wallGradU_(wmpsf.wallGradU_),        
     averagingTime_(wmpsf.averagingTime_) 
@@ -467,7 +331,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     }
 
     checkType();
-    //createCellIndexList();
 }
 
 
@@ -479,7 +342,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(wmpsf, iF),
     cellIndexList_(wmpsf.cellIndexList_),
-    h_(wmpsf.h_),
+    h_(cellIndexList_.h()),
     U_(wmpsf.U_),
     wallGradU_(wmpsf.wallGradU_),        
     averagingTime_(wmpsf.averagingTime_)     
@@ -492,7 +355,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     }
     
     checkType();
-    //createCellIndexList();
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //

@@ -1,3 +1,4 @@
+CellIndexList/CellIndexList.C
 rootFinding/RootFinder/RootFinder.C
 rootFinding/NewtonRootFinder/NewtonRootFinder.C
 rootFinding/BisectionRootFinder/BisectionRootFinder.C
