@@ -17,10 +17,14 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::WernerWengleLawOfTheWall
+    Foam::IntegratedWernerWengleLawOfTheWall
 
 Description
-    The law of the wall proposed by Werner and Wengle.
+    The integrated version of the wall proposed by Werner and Wengle.
+    Explicitely couples shear stress with the wall-normal-averaged velocity.
+    Derived assuming that the sampling is from the wall-adjacent cell.
+
+    Based on the following law of the wall.
 
     \f{eqnarray*}{
         u^+ &=& y^+ \quad y+ \leq 11.81\\
@@ -32,7 +36,7 @@ Description
     \verbatim
     Law
     {
-        type      WernerWengle;
+        type      IntegratedIntegratedWernerWengle;
         A         value; (default 8.3)
         B         value; (default 1/7)
     }
@@ -51,12 +55,12 @@ Authors
     Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
-    WernerWengleLawOfTheWall.C
+    IntegratedWernerWengleLawOfTheWall.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef WernerWengleLawOfTheWall_H
-#define WernerWengleLawOfTheWall_H
+#ifndef IntegratedWernerWengleLawOfTheWall_H
+#define IntegratedWernerWengleLawOfTheWall_H
 
 #include "scalar.H"
 #include "typeInfo.H"
@@ -69,10 +73,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class WernerWengleLawOfTheWall Declaration
+                    Class IntegratedWernerWengleLawOfTheWall Declaration
 \*---------------------------------------------------------------------------*/
 
-class WernerWengleLawOfTheWall: public LawOfTheWall
+class IntegratedWernerWengleLawOfTheWall: public LawOfTheWall
 {
     
     // Private data
@@ -85,18 +89,27 @@ class WernerWengleLawOfTheWall: public LawOfTheWall
         
 public:
     
-    TypeName("WernerWengle");
+    TypeName("IntegratedWernerWengle");
 
     // Constructors
 
-        //- Construct provided dictionary
-        WernerWengleLawOfTheWall(const dictionary &);
+        //- Construct provided dictionary and cell index list
+        IntegratedWernerWengleLawOfTheWall
+        (
+            const dictionary &,
+            const Foam::CellIndexList &
+        );
         
-        //- Construct provided TypeName and dictionary
-        WernerWengleLawOfTheWall(const word & lawname, const dictionary &);
+        //- Construct provided TypeName and dictionary and cell index list
+        IntegratedWernerWengleLawOfTheWall
+        ( 
+            const word & lawname,
+            const dictionary &,
+            const Foam::CellIndexList &
+        );
 
     // Destructor
-        virtual ~WernerWengleLawOfTheWall() {};
+        virtual ~IntegratedWernerWengleLawOfTheWall() {};
 
     // Member Functions
         
@@ -116,12 +129,13 @@ public:
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(scalar u, scalar y, scalar uTau, scalar nu) const;
+        virtual scalar 
+        value(scalar u, scalar index, scalar uTau, scalar nu) const;
         
         //- Return the value of the derivative of the implicit function
         //  defining the law
         virtual scalar
-        derivative(scalar u, scalar y, scalar uTau, scalar nu) const;
+        derivative(scalar u, scalar index, scalar uTau, scalar nu) const;
 };
 
 

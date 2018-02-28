@@ -34,10 +34,11 @@ namespace Foam
 
 Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
-    const dictionary & dict
+    const dictionary & dict,
+    const CellIndexList & list
 )
 :
-    LawOfTheWall(dict),
+    LawOfTheWall(dict, list),
     A_(dict.lookupOrDefault<scalar>("A", 8.3)),
     B_(dict.lookupOrDefault<scalar>("B", 1./7))
 {
@@ -51,10 +52,11 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
     const word & lawName,
-    const dictionary & dict
+    const dictionary & dict,
+    const CellIndexList & list
 )
 :
-    LawOfTheWall(dict),
+    LawOfTheWall(lawName, dict, list),
     A_(dict.lookupOrDefault<scalar>("A", 8.3)),
     B_(dict.lookupOrDefault<scalar>("B", 1./7))
 {
@@ -80,11 +82,12 @@ void Foam::WernerWengleLawOfTheWall::printCoeffs() const
 Foam::scalar Foam::WernerWengleLawOfTheWall::value
 (
     scalar u,
-    scalar y,
+    scalar index,
     scalar uTau,
     scalar nu
 ) const
 {  
+    scalar y = cellIndexList_.h()[index];
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
     scalar yPlusM = pow(A_, 1/(1-B_));
@@ -103,11 +106,12 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::value
 Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
 (
     scalar u,
-    scalar y,
+    scalar index,
     scalar uTau,
     scalar nu        
 ) const
 {
+    scalar y = cellIndexList_.h()[index];
     scalar yPlus = y*uTau/nu;
     scalar yPlusM = pow(A_, 1/(1-B_));
 

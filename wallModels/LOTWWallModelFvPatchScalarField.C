@@ -60,25 +60,6 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
         )
     );
     
-    // Velocity at the boundary (in case of moving boundary)
-/*    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
-    vectorField Udiff = Uw.patchInternalField() - Uw;
-    
-    project(Udiff);
-    
-    // Magnitude of wall-normal velocity gradient
-    const vectorField wallGradU(patch().deltaCoeffs()*Udiff);
-    
-    volVectorField & wallGradUField = 
-        const_cast<volVectorField &>
-        (
-            db().lookupObject<volVectorField>("wallGradU")
-        );
-    
-    wallGradUField.boundaryField()[patchi] == wallGradU;
-*/
-
-
     // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
@@ -136,10 +117,10 @@ calcUTau(const scalarField & magGradU) const
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
             value = std::bind(&LawOfTheWall::value, &law_(), magU[faceI], 
-                              h_[faceI], _1, nuw[faceI]);
+                              faceI, _1, nuw[faceI]);
             
             derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
-                                   magU[faceI], h_[faceI], _1, nuw[faceI]);
+                                   magU[faceI], faceI, _1, nuw[faceI]);
 
             // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
@@ -186,7 +167,8 @@ LOTWWallModelFvPatchScalarField
                                 ptf.rootFinder_->eps(),
                                 ptf.rootFinder_->maxIter())),
     law_(LawOfTheWall::New(ptf.law_->type(),
-                           ptf.law_->constDict()))
+                           ptf.law_->constDict(),
+                           ptf.law_->cellIndexList()))
 {
 }
 
@@ -200,7 +182,7 @@ LOTWWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(p, iF, dict),
     rootFinder_(RootFinder::New(dict.subDict("RootFinder"))),
-    law_(LawOfTheWall::New(dict.subDict("Law")))
+    law_(LawOfTheWall::New(dict.subDict("Law"), cellIndexList_))
 {}
 
 

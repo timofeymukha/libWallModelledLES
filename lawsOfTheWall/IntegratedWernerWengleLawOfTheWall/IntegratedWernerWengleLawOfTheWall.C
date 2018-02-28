@@ -18,26 +18,36 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "WernerWengleLawOfTheWall.H"
+#include "IntegratedWernerWengleLawOfTheWall.H"
 #include "dictionary.H"
 #include "error.H"
 #include "addToRunTimeSelectionTable.H"
 
 namespace Foam
 {
-    defineTypeNameAndDebug(WernerWengleLawOfTheWall, 0);
-    addToRunTimeSelectionTable(LawOfTheWall, WernerWengleLawOfTheWall, Dictionary);
-    addToRunTimeSelectionTable(LawOfTheWall, WernerWengleLawOfTheWall, TypeAndDictionary);
+    defineTypeNameAndDebug(IntegratedWernerWengleLawOfTheWall, 0);
+    addToRunTimeSelectionTable
+    (
+            LawOfTheWall,
+            IntegratedWernerWengleLawOfTheWall,
+            Dictionary);
+    addToRunTimeSelectionTable
+    (
+            LawOfTheWall,
+            IntegratedWernerWengleLawOfTheWall,
+            TypeAndDictionary
+    );
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
+Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
 (
-    const dictionary & dict
+    const dictionary & dict,
+    const CellIndexList & list
 )
 :
-    LawOfTheWall(dict),
+    LawOfTheWall(dict, list),
     A_(dict.lookupOrDefault<scalar>("A", 8.3)),
     B_(dict.lookupOrDefault<scalar>("B", 1./7))
 {
@@ -48,13 +58,14 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
     
 }
 
-Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
+Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
 (
     const word & lawName,
-    const dictionary & dict
+    const dictionary & dict,
+    const CellIndexList & list
 )
 :
-    LawOfTheWall(dict),
+    LawOfTheWall(lawName, dict, list),
     A_(dict.lookupOrDefault<scalar>("A", 8.3)),
     B_(dict.lookupOrDefault<scalar>("B", 1./7))
 {
@@ -67,9 +78,9 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::WernerWengleLawOfTheWall::printCoeffs() const
+void Foam::IntegratedWernerWengleLawOfTheWall::printCoeffs() const
 {
-    Info<< nl << "WernerWengle law of the wall" << nl;
+    Info<< nl << "IntegratedWernerWengle law of the wall" << nl;
     Info<< token::BEGIN_BLOCK << incrIndent << nl;
     Info<< indent << "A" << indent << A_ << nl;
     Info<< indent << "B" << indent <<  B_ << nl;
@@ -77,30 +88,29 @@ void Foam::WernerWengleLawOfTheWall::printCoeffs() const
 }
 
 
-Foam::scalar Foam::WernerWengleLawOfTheWall::value
+Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::value
 (
     scalar u,
-    scalar y,
+    scalar index,
     scalar uTau,
     scalar nu
 ) const
-{  
-    scalar uPlus = u/uTau;
-    scalar yPlus = y*uTau/nu;
-    scalar yPlusM = pow(A_, 1/(1-B_));
+{      
     
-    if (yPlus <= yPlusM)
-    {
-        return uPlus - yPlus;
-    }
-    else
-    {
-        return uPlus - A_*pow(yPlus, B_);
-    }
+    scalar h = cellIndexList_.h()[index]; 
+    //scalar h1 = h - cellIndexList_.lengthList()[index]/2;
+    scalar h2 = h + cellIndexList_.lengthList()[index]/2;
+
+    //scalar yPlusM = pow(A_, 1/(1-B_));            
+    
+
+    return uTau - pow((1+B_)/A_*pow(nu/h2, B_)*u + 
+                      (1-B_)/2*pow(A_, (1+B_)/(1-B_))*pow(nu/h2, B_+1),
+                      1.0/(1+B_));
 }
 
 
-Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
+Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::derivative
 (
     scalar u,
     scalar y,
@@ -108,17 +118,7 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
     scalar nu        
 ) const
 {
-    scalar yPlus = y*uTau/nu;
-    scalar yPlusM = pow(A_, 1/(1-B_));
-
-    if (yPlus <= yPlusM)
-    {
-        return -u/sqr(uTau) - y/nu;
-    }
-    else
-    {
-        return -u/sqr(uTau) - A_*B_*pow(y/nu, B_)*pow(uTau, B_-1);
-    }
+    return 1;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -62,7 +62,6 @@ protected:
         //- The distance from the wall that data is sampled from
         scalarField h_;
                 
-        
     // Protected Member Functions
         
         //- Create h field and add to registry
@@ -73,6 +72,9 @@ protected:
         
         //- Compute the length-scales
         void createLengthList();
+        
+        //- Compute h1 and h2
+        void createh1h2(){}
 
 public:
 
@@ -98,7 +100,7 @@ public:
         {
             return h_;
         }
-        
+                
         //- Return the length-list
         scalarField lengthList() const
         {

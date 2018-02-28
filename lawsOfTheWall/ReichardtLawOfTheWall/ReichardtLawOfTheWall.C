@@ -34,10 +34,11 @@ namespace Foam
 
 Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
 (
-    const dictionary & dict
+    const dictionary & dict,
+    const CellIndexList & list
 )
 :
-    LawOfTheWall(dict),
+    LawOfTheWall(dict, list),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
     B1_(dict.lookupOrDefault<scalar>("B1", 11)),
     B2_(dict.lookupOrDefault<scalar>("B2", 3)),
@@ -53,10 +54,11 @@ Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
 Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
 (
     const word & lawName,
-    const dictionary & dict
+    const dictionary & dict,
+    const CellIndexList & list
 )
 :
-    LawOfTheWall(dict),
+    LawOfTheWall(lawName, dict, list),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
     B1_(dict.lookupOrDefault<scalar>("B1", 11)),
     B2_(dict.lookupOrDefault<scalar>("B2", 3)),
@@ -86,11 +88,12 @@ void Foam::ReichardtLawOfTheWall::printCoeffs() const
 Foam::scalar Foam::ReichardtLawOfTheWall::value
 (
     scalar u,
-    scalar y,
+    scalar index,
     scalar uTau,
     scalar nu
 ) const
 {  
+    scalar y = cellIndexList_.h()[index];
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
 
@@ -103,11 +106,12 @@ Foam::scalar Foam::ReichardtLawOfTheWall::value
 Foam::scalar Foam::ReichardtLawOfTheWall::derivative
 (
     scalar u,
-    scalar y,
+    scalar index,
     scalar uTau,
     scalar nu        
 ) const
 {
+    scalar y = cellIndexList_.h()[index];
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
     
