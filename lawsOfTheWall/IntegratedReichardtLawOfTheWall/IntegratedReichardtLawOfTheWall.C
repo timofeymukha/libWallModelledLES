@@ -139,7 +139,7 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::logTerm
 {
     scalar yPlus = y*uTau/nu;
     
-    return -nu/kappa_*(yPlus + log(1 + kappa_*yPlus)*(yPlus + 1/kappa_));
+    return nu/kappa_*(-yPlus + log(1 + kappa_*yPlus)*(yPlus + 1/kappa_));
     
 }
 
@@ -167,11 +167,11 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::logTermDerivative
 ) const
 {
     scalar yPlus = y*uTau/nu;
-    
-    return sqr(yPlus)/(uTau*(kappa_*yPlus + 1)) -
-           yPlus/(kappa_*uTau) +
-           yPlus/(kappa_*uTau)*log(kappa_*yPlus + 1) +
-           yPlus/(kappa_*uTau*(kappa_*yPlus + 1));    
+            
+    return y*(yPlus/(kappa_*yPlus + 1) -
+           1/kappa_ +
+           1/kappa_*log(kappa_*yPlus + 1) +
+           1/(kappa_*(kappa_*yPlus + 1)));    
 }
 
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::expTermDerivative
