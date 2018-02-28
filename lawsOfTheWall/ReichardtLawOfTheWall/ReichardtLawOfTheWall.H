@@ -51,7 +51,7 @@ Authors
     Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
-    WernerWengleLawOfTheWall.C
+    ReichardtLawOfTheWall.C
 
 \*---------------------------------------------------------------------------*/
 
