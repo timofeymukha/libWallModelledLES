@@ -73,9 +73,6 @@ protected:
         //- Compute the length-scales
         void createLengthList();
         
-        //- Compute h1 and h2
-        void createh1h2(){}
-
 public:
 
 
