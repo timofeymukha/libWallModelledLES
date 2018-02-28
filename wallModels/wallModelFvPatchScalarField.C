@@ -157,7 +157,7 @@ void Foam::wallModelFvPatchScalarField::sample()
         (
             db().lookupObject<volVectorField>("wallGradU")
         );
-    wallGradUField.boundaryField()[patch().index()] = wallGradU;
+    wallGradUField.boundaryField()[patch().index()] == wallGradU;
     
     // Sampled velocity
     vectorField Up(patch().size()); 
