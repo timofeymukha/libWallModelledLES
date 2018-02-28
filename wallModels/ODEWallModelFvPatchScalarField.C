@@ -65,6 +65,11 @@ integrate(const scalarList & y, const scalarList & v) const
 void Foam::ODEWallModelFvPatchScalarField::createMeshes()
 {
 
+    if (debug)
+    {
+        Info<< "Creating 1D meshed for patch " << patch().name();
+    }
+
     // Number of points in the mesh normal to the wall
      label n=nMeshY_;
            
@@ -78,6 +83,11 @@ void Foam::ODEWallModelFvPatchScalarField::createMeshes()
             // uniform distribution
             meshes_[faceI][pointI] = pointI*dx;
         }
+    }
+
+    if (debug)
+    {
+        Info<< " Done" << nl;;
     }
     
 }
