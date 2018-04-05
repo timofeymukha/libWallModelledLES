@@ -48,6 +48,7 @@ SourceFiles
 
 #include "fixedValueFvPatchFields.H"
 #include "CellIndexList.H"
+#include "Sampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -65,16 +66,8 @@ class wallModelFvPatchScalarField
 protected:
     
     // Protected data
-    
-        //- The cellIndexList
-        const CellIndexList cellIndexList_;
-    
-        //- The indices of the cells that data is sampled from
-        //labelList cellIndexList_;
-        
-        //- The distance from the wall that data is sampled from
-        scalarField h_;
-        
+
+       
         //- The velocity values the wall model uses
         vectorField U_;
         
@@ -83,7 +76,10 @@ protected:
         
         //- Timescale of the averaging
         scalar averagingTime_;
-          
+        
+        //- The sampler
+        Sampler sampler_;
+        
         //- Create fields and add to registry
         void createFields() const;
 
@@ -156,13 +152,13 @@ public:
         //- Return the list of cell-indices that are used to sample data
         labelList cellIndexList() const
         {
-            return cellIndexList_.indexList();
+            return sampler_.indexList();
         }
         
         //- Return h
         scalarField h() const
         {
-            return cellIndexList_.h();
+            return sampler_.h();
         }
         
         //- return U_

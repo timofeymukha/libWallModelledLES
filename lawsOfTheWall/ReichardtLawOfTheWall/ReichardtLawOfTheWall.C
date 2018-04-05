@@ -35,7 +35,7 @@ namespace Foam
 Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
 (
     const dictionary & dict,
-    const CellIndexList & list
+    const Sampler & list
 )
 :
     LawOfTheWall(dict, list),
@@ -55,7 +55,7 @@ Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict,
-    const CellIndexList & list
+    const Sampler & list
 )
 :
     LawOfTheWall(lawName, dict, list),
@@ -87,13 +87,15 @@ void Foam::ReichardtLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::ReichardtLawOfTheWall::value
 (
-    scalar u,
     scalar index,
     scalar uTau,
     scalar nu
 ) const
-{  
-    scalar y = cellIndexList_.h()[index];
+{
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalar u = mag(U[index]);
+    
+    scalar y = sampler_.h()[index];
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
 
@@ -105,13 +107,15 @@ Foam::scalar Foam::ReichardtLawOfTheWall::value
 
 Foam::scalar Foam::ReichardtLawOfTheWall::derivative
 (
-    scalar u,
     scalar index,
     scalar uTau,
     scalar nu        
 ) const
 {
-    scalar y = cellIndexList_.h()[index];
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalar u = mag(U[index]);
+    
+    scalar y = sampler_.h()[index];
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
     

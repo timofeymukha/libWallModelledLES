@@ -44,7 +44,7 @@ SourceFiles
 #include "typeInfo.H"
 #include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
-#include "CellIndexList.H"
+#include "Sampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -62,7 +62,7 @@ protected:
     //- Dictionary holding the model constants that the law uses
     dictionary constDict_;
     
-    const CellIndexList & cellIndexList_;    
+    const Sampler & sampler_;
 
 public:
 
@@ -71,10 +71,10 @@ public:
     // Constructors
     
         //- Construct from dictionary and cell index list
-        LawOfTheWall(const dictionary & dict, const CellIndexList & list)
+        LawOfTheWall(const dictionary & dict, const Sampler & list)
         :
         constDict_(dict),
-        cellIndexList_(list)
+        sampler_(list)
         {}
         
         //- Construct from TypeName, dictionary and cell index list
@@ -82,11 +82,11 @@ public:
         (
             const word& lawName,
             const dictionary & dict,
-            const CellIndexList & list
+            const Sampler & list
         )
         :
         constDict_(dict),
-        cellIndexList_(list)
+        sampler_(list)
         {}
 
     //- Destructor
@@ -96,14 +96,14 @@ public:
         static autoPtr<LawOfTheWall> New 
         (
             const dictionary & dict,
-            const CellIndexList & list
+            const Sampler & list
         );
 
         static autoPtr<LawOfTheWall> New 
         (
             const word & lawName,
             const dictionary & dict,
-            const CellIndexList & list
+            const Sampler & list
         );
         
     // Member Functions
@@ -112,14 +112,13 @@ public:
         virtual void printCoeffs() const = 0; 
 
         //- Return the value of the implicit function defining the law
-        virtual scalar
-        value(scalar u, scalar index, scalar uTau, scalar nu) const = 0;
+        virtual scalar value(scalar index, scalar uTau, scalar nu) const = 0;
 
         //- Return the value of the  derivative of the implicit function
         //  defining the law. Should throw an error if derivative does not 
         //  exist.
         virtual scalar 
-        derivative(scalar u, scalar index, scalar uTau, scalar nu) const = 0;
+        derivative(scalar index, scalar uTau, scalar nu) const = 0;
         
         //- Write information about the law to stream
         virtual void write(Ostream & os) const; 
@@ -130,10 +129,10 @@ public:
             return constDict_;
         }
         
-        //- Return the CellIndexList object reference
-        const CellIndexList & cellIndexList() const
+        //- Return the Sampler object reference
+        const Sampler & sampler() const
         {
-            return cellIndexList_;
+            return sampler_;
         }
         
     // RTS tables
@@ -145,7 +144,7 @@ public:
             Dictionary,
             (
                 const dictionary & dict,
-                const CellIndexList & list
+                const Sampler & list
             ),
             (dict, list)
         )
@@ -159,7 +158,7 @@ public:
             (
                 const word & lawName,
                 const dictionary & dict,
-                const CellIndexList & list
+                const Sampler & list
             ),
             (lawName, dict, list)
         )  

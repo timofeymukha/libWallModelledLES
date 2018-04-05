@@ -75,7 +75,7 @@ void Foam::ODEWallModelFvPatchScalarField::createMeshes()
            
     forAll(patch(), faceI)
     {
-        scalar dx = h_[faceI]/(n -1);
+        scalar dx = sampler_.h()[faceI]/(n -1);
 
         meshes_[faceI].resize(n, 0.0);
         forAll(meshes_[faceI], pointI)
@@ -244,7 +244,7 @@ ODEWallModelFvPatchScalarField
     meshes_(patch().size()),
     maxIter_(10),
     eps_(1e-3),
-    nMeshY_(5)
+    nMeshY_(30)
 {
 
     if (debug)
@@ -299,7 +299,7 @@ ODEWallModelFvPatchScalarField
     meshes_(patch().size()),
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
     eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
-    nMeshY_(dict.lookupOrDefault<label>("nMeshY", 10))
+    nMeshY_(dict.lookupOrDefault<label>("nMeshY", 30))
 
 {
     if (debug)

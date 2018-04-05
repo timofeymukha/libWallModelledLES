@@ -76,7 +76,6 @@ Foam::tmp<Foam::scalarField>
 Foam::LOTWWallModelFvPatchScalarField::
 calcUTau(const scalarField & magGradU) const
 {
-
     const label patchi = patch().index();
     const label patchSize = patch().size();
     
@@ -85,9 +84,6 @@ calcUTau(const scalarField & magGradU) const
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
        
-    // Velocity relative to boundary and its magnitude
-    scalarField magU = mag(U_);
-
     // Turbulent viscosity
     const scalarField & nutw = *this;
 
@@ -114,13 +110,14 @@ calcUTau(const scalarField & magGradU) const
 
         if (ut > ROOTVSMALL)
         {
+
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
-            value = std::bind(&LawOfTheWall::value, &law_(), magU[faceI], 
-                              faceI, _1, nuw[faceI]);
+            value = std::bind(&LawOfTheWall::value, &law_(), faceI, _1, 
+                              nuw[faceI]);
             
-            derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
-                                   magU[faceI], faceI, _1, nuw[faceI]);
+            derivValue = std::bind(&LawOfTheWall::derivative, &law_(), faceI,
+                                   _1, nuw[faceI]);
 
             // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
@@ -168,7 +165,7 @@ LOTWWallModelFvPatchScalarField
                                 ptf.rootFinder_->maxIter())),
     law_(LawOfTheWall::New(ptf.law_->type(),
                            ptf.law_->constDict(),
-                           ptf.law_->cellIndexList()))
+                           ptf.law_->sampler()))
 {
 }
 
@@ -182,7 +179,7 @@ LOTWWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(p, iF, dict),
     rootFinder_(RootFinder::New(dict.subDict("RootFinder"))),
-    law_(LawOfTheWall::New(dict.subDict("Law"), cellIndexList_))
+    law_(LawOfTheWall::New(dict.subDict("Law"), sampler_))
 {}
 
 

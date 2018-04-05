@@ -44,7 +44,7 @@ namespace Foam
 Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
 (
     const dictionary & dict,
-    const CellIndexList & list
+    const Sampler & list
 )
 :
     LawOfTheWall(dict, list),
@@ -62,7 +62,7 @@ Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict,
-    const CellIndexList & list
+    const Sampler & list
 )
 :
     LawOfTheWall(lawName, dict, list),
@@ -90,16 +90,17 @@ void Foam::IntegratedWernerWengleLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::value
 (
-    scalar u,
     scalar index,
     scalar uTau,
     scalar nu
 ) const
-{      
+{
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalar u = mag(U[index]);
     
-    scalar h = cellIndexList_.h()[index]; 
-    //scalar h1 = h - cellIndexList_.lengthList()[index]/2;
-    scalar h2 = h + cellIndexList_.lengthList()[index]/2;
+    scalar h = sampler_.h()[index]; 
+    //scalar h1 = h - sampler_.lengthList()[index]/2;
+    scalar h2 = h + sampler_.lengthList()[index]/2;
 
     //scalar yPlusM = pow(A_, 1/(1-B_));            
     
@@ -112,7 +113,6 @@ Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::value
 
 Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::derivative
 (
-    scalar u,
     scalar y,
     scalar uTau,
     scalar nu        

@@ -137,43 +137,32 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             )
         );
     }
-    
+       
 }
 
 
 void Foam::wallModelFvPatchScalarField::sample()
 {
     const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
-    const vectorField & U = Ufield.internalField();
     const fvPatchVectorField & Uwall = Ufield.boundaryField()[patch().index()];
       
     // Wall-normal velocity gradient
     vectorField Udiff = Uwall.patchInternalField() - Uwall;
     project(Udiff);
     const vectorField wallGradU(patch().deltaCoeffs()*Udiff);
-    
+
     volVectorField & wallGradUField = 
         const_cast<volVectorField &>
         (
             db().lookupObject<volVectorField>("wallGradU")
         );
     wallGradUField.boundaryField()[patch().index()] == wallGradU;
-    
-    // Sampled velocity
-    vectorField Up(patch().size()); 
-    
-    forAll(Up, i)
-    {   
-        Up[i] = U[cellIndexList_[i]] - Uwall[i];
-    }
-    
-    project(Up);
-        
-    scalar eps = db().time().deltaTValue()/averagingTime_;
+
+   
+    scalar eps = 1; //db().time().deltaTValue()/averagingTime_;
     
     forAll(U_, i)  
     {    
-        U_[i] = eps*Up[i] + (1 - eps)*U_[i];
         wallGradU_[i] = eps*wallGradU[i] + (1 - eps)*wallGradU_[i];
     }
 }
@@ -204,11 +193,10 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    cellIndexList_(patch()),
-    h_(cellIndexList_.h()),
     U_(patch().size(), vector(0, 0, 0)),
     wallGradU_(patch().size(), vector(0, 0, 0)),
-    averagingTime_(db().time().deltaTValue()) 
+    averagingTime_(0), 
+    sampler_(patch(), averagingTime_)
 {
     if (debug)
     {
@@ -219,22 +207,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     
     checkType();
     createFields();
-    
-/*    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
-    const vectorField & U = Ufield.internalField();
-    const fvPatchVectorField & Uwall = Ufield.boundaryField()[patch().index()];
-      
-    // Initialize sampled wall-normal velocity gradient
-    vectorField Udiff = Uwall.patchInternalField() - Uwall;
-    project(Udiff);
-    wallGradU_ = patch().deltaCoeffs()*Udiff;
-    
-    // Initialize sampled velocity velocity gradient
-    forAll(U_, i)
-    {   
-        U_[i] = U[cellIndexList_[i]] - Uwall[i];
-    }
-*/
+   
 }
 
 
@@ -247,11 +220,10 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
-    cellIndexList_(ptf.cellIndexList_),
-    h_(cellIndexList_.h()),
     U_(ptf.U_),
     wallGradU_(ptf.wallGradU_),
-    averagingTime_(ptf.averagingTime_) 
+    averagingTime_(ptf.averagingTime_), 
+    sampler_(ptf.sampler_)        
 {
     if (debug)
     {
@@ -272,17 +244,10 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF, dict),
-    cellIndexList_(patch()),
-    h_(cellIndexList_.h()),
     U_(patch().size(), vector(0, 0, 0)),
     wallGradU_(patch().size(), vector(0, 0, 0)),
-    averagingTime_
-    (
-        dict.lookupOrDefault<scalar>
-        (
-            "averagingTime", db().time().deltaTValue()
-        )
-    ) 
+    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0)),
+    sampler_(patch(), averagingTime_)
 {
     if (debug)
     {
@@ -293,22 +258,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     
     checkType();
     createFields();
-    
-/*    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
-    const vectorField & U = Ufield.internalField();
-    const fvPatchVectorField & Uwall = Ufield.boundaryField()[patch().index()];
-      
-    // Initialize sampled wall-normal velocity gradient
-    vectorField Udiff = Uwall.patchInternalField() - Uwall;
-    project(Udiff);
-    wallGradU_ = patch().deltaCoeffs()*Udiff;
-    
-    // Initialize sampled velocity velocity gradient
-    forAll(U_, i)
-    {   
-        U_[i] = U[cellIndexList_[i]] - Uwall[i];
-    }
-*/
 }
 
 
@@ -318,11 +267,10 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf),
-    cellIndexList_(wmpsf.cellIndexList_),
-    h_(cellIndexList_.h()),
     U_(wmpsf.U_),
     wallGradU_(wmpsf.wallGradU_),        
-    averagingTime_(wmpsf.averagingTime_) 
+    averagingTime_(wmpsf.averagingTime_),
+    sampler_(wmpsf.sampler_)
 {
     if (debug)
     {
@@ -341,11 +289,10 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf, iF),
-    cellIndexList_(wmpsf.cellIndexList_),
-    h_(cellIndexList_.h()),
     U_(wmpsf.U_),
     wallGradU_(wmpsf.wallGradU_),        
-    averagingTime_(wmpsf.averagingTime_)     
+    averagingTime_(wmpsf.averagingTime_),
+    sampler_(wmpsf.sampler_)
 {
     if (debug)
     {
@@ -369,6 +316,7 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     }
 
     // sample velocity values
+    sampler_.sample();
     sample();
     
     // Compute nut and assign
@@ -391,7 +339,7 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     label pI = patch().index();
     wss.boundaryField()[pI] == 
         (nut + nu.boundaryField()[pI])*wallGradU.boundaryField()[pI];
-    
+
     fixedValueFvPatchScalarField::updateCoeffs();
 }
 

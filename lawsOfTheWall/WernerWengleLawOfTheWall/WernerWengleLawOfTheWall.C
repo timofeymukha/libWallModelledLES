@@ -35,7 +35,7 @@ namespace Foam
 Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
     const dictionary & dict,
-    const CellIndexList & list
+    const Sampler & list
 )
 :
     LawOfTheWall(dict, list),
@@ -53,7 +53,7 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict,
-    const CellIndexList & list
+    const Sampler & list
 )
 :
     LawOfTheWall(lawName, dict, list),
@@ -81,13 +81,15 @@ void Foam::WernerWengleLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::WernerWengleLawOfTheWall::value
 (
-    scalar u,
     scalar index,
     scalar uTau,
     scalar nu
 ) const
 {  
-    scalar y = cellIndexList_.h()[index];
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalar u = mag(U[index]);
+    
+    scalar y = sampler_.h()[index];
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
     scalar yPlusM = pow(A_, 1/(1-B_));
@@ -105,13 +107,15 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::value
 
 Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
 (
-    scalar u,
     scalar index,
     scalar uTau,
     scalar nu        
 ) const
 {
-    scalar y = cellIndexList_.h()[index];
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalar u = mag(U[index]);
+    
+    scalar y = sampler_.h()[index];
     scalar yPlus = y*uTau/nu;
     scalar yPlusM = pow(A_, 1/(1-B_));
 

@@ -45,7 +45,7 @@ namespace Foam
 Foam::IntegratedReichardtLawOfTheWall::IntegratedReichardtLawOfTheWall
 (
     const dictionary & dict,
-    const CellIndexList & list
+    const Sampler & list
 )
 :
     LawOfTheWall(dict, list),
@@ -65,7 +65,7 @@ Foam::IntegratedReichardtLawOfTheWall::IntegratedReichardtLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict,
-    const CellIndexList & list
+    const Sampler & list
 )
 :
     LawOfTheWall(lawName, dict, list),
@@ -97,16 +97,18 @@ void Foam::IntegratedReichardtLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
 (
-    scalar u,
     scalar index,
     scalar uTau,
     scalar nu
 ) const
 {  
-    scalar h = cellIndexList_.h()[index];
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalar u = mag(U[index]);
     
-    scalar h1 = mag(h - cellIndexList_.lengthList()[index]/2);
-    scalar h2 = h + cellIndexList_.lengthList()[index]/2;
+    scalar h = sampler_.h()[index];
+    
+    scalar h1 = mag(h - sampler_.lengthList()[index]/2);
+    scalar h2 = h + sampler_.lengthList()[index]/2;
     
     return u*(h2 - h1) - (logTerm(h2, uTau, nu) - logTerm(h1, uTau, nu) +
                           expTerm(h2, uTau, nu) - expTerm(h1, uTau, nu));
@@ -115,16 +117,15 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
 
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::derivative
 (
-    scalar u,
     scalar index,
     scalar uTau,
     scalar nu        
 ) const
-{
-    scalar h = cellIndexList_.h()[index];
+{ 
+    scalar h = sampler_.h()[index];
     
-    scalar h1 = mag(h - cellIndexList_.lengthList()[index]/2);
-    scalar h2 = h + cellIndexList_.lengthList()[index]/2;
+    scalar h1 = mag(h - sampler_.lengthList()[index]/2);
+    scalar h2 = h + sampler_.lengthList()[index]/2;
         
     return -(logTermDerivative(h2, uTau, nu) - logTermDerivative(h1, uTau, nu) +
              expTermDerivative(h2, uTau, nu) - logTermDerivative(h1, uTau, nu));

@@ -62,7 +62,7 @@ void Foam::PGradODEWallModelFvPatchScalarField::sample()
     
     forAll (gradP, i)
     {
-        gradP[i] = gradPField[cellIndexList_[i]];
+        gradP[i] = gradPField[cellIndexList()[i]];
     }
     
     project(gradP);

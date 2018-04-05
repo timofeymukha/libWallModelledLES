@@ -36,7 +36,7 @@ namespace Foam
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
     const Foam::dictionary & dict,
-    const Foam::CellIndexList & list
+    const Foam::Sampler & list
 )
 :
     LawOfTheWall(dict, list),
@@ -54,7 +54,7 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict,
-    const Foam::CellIndexList & list
+    const Foam::Sampler & list
 )
 :
     LawOfTheWall(lawName, dict, list),
@@ -81,13 +81,15 @@ void Foam::SpaldingLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::SpaldingLawOfTheWall::value
 (
-    scalar u,
     scalar index,
     scalar uTau,
     scalar nu
 ) const
 {
-    scalar y = cellIndexList_.h()[index];
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalar u = mag(U[index]);
+
+    scalar y = sampler_.h()[index];
     scalar uPlus = u/uTau;
     return uPlus + exp(-kappa_*B_)*(exp(kappa_*uPlus) - 1 - kappa_*uPlus
          - 0.5*sqr(kappa_*uPlus) - 1./6*kappa_*uPlus*sqr(kappa_*uPlus))
@@ -96,13 +98,15 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
 
 Foam::scalar Foam::SpaldingLawOfTheWall::derivative
 (
-    scalar u,
     scalar index,
     scalar uTau,
     scalar nu        
 ) const
 {
-    scalar y = cellIndexList_.h()[index];
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalar u = mag(U[index]);
+    
+    scalar y = sampler_.h()[index];
     scalar uPlus = u/uTau;
     return -y/nu - u/sqr(uTau) - kappa_*uPlus/uTau*exp(-kappa_*B_)
            *(exp(kappa_*uPlus) - 1 - kappa_*uPlus - 0.5*sqr(kappa_*uPlus));
