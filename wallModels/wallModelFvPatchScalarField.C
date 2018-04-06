@@ -143,28 +143,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
 
 void Foam::wallModelFvPatchScalarField::sample()
 {
-    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
-    const fvPatchVectorField & Uwall = Ufield.boundaryField()[patch().index()];
-      
-    // Wall-normal velocity gradient
-    vectorField Udiff = Uwall.patchInternalField() - Uwall;
-    project(Udiff);
-    const vectorField wallGradU(patch().deltaCoeffs()*Udiff);
 
-    volVectorField & wallGradUField = 
-        const_cast<volVectorField &>
-        (
-            db().lookupObject<volVectorField>("wallGradU")
-        );
-    wallGradUField.boundaryField()[patch().index()] == wallGradU;
-
-   
-    scalar eps = 1; //db().time().deltaTValue()/averagingTime_;
-    
-    forAll(U_, i)  
-    {    
-        wallGradU_[i] = eps*wallGradU[i] + (1 - eps)*wallGradU_[i];
-    }
 }
 
 void
@@ -176,10 +155,7 @@ Foam::wallModelFvPatchScalarField::project(vectorField & field) const
     
     forAll(field, i)
     {    
-        // Normal component as dot product with (inwards) face normal
         vector normal = -faceNormals[i]*(field[i] & -faceNormals[i]);
-        
-        // Subtract normal component to get the parallel one
         field[i] -= normal;        
     }
 }
@@ -193,7 +169,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    U_(patch().size(), vector(0, 0, 0)),
     wallGradU_(patch().size(), vector(0, 0, 0)),
     averagingTime_(0), 
     sampler_(patch(), averagingTime_)
@@ -220,7 +195,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
-    U_(ptf.U_),
     wallGradU_(ptf.wallGradU_),
     averagingTime_(ptf.averagingTime_), 
     sampler_(ptf.sampler_)        
@@ -244,7 +218,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF, dict),
-    U_(patch().size(), vector(0, 0, 0)),
     wallGradU_(patch().size(), vector(0, 0, 0)),
     averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0)),
     sampler_(patch(), averagingTime_)
@@ -267,7 +240,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf),
-    U_(wmpsf.U_),
     wallGradU_(wmpsf.wallGradU_),        
     averagingTime_(wmpsf.averagingTime_),
     sampler_(wmpsf.sampler_)
@@ -289,7 +261,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf, iF),
-    U_(wmpsf.U_),
     wallGradU_(wmpsf.wallGradU_),        
     averagingTime_(wmpsf.averagingTime_),
     sampler_(wmpsf.sampler_)
@@ -315,10 +286,39 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
         return;
     }
 
-    // sample velocity values
+    // Sample fields
+    sampler_.recomputeFields();
     sampler_.sample();
-    sample();
+
+    // Update the velocity gradient
+    label pI = patch().index(); 
+    const volVectorField & Ufield = db().lookupObject<volVectorField>("U");
+    const fvPatchVectorField & Uwall = Ufield.boundaryField()[pI];
+      
+    vectorField Udiff = Uwall.patchInternalField() - Uwall;
+    project(Udiff);
+    const vectorField wallGradU(patch().deltaCoeffs()*Udiff);
+
+    // Assign to the field
+    volVectorField & wallGradUField = 
+        const_cast<volVectorField &>
+        (
+            db().lookupObject<volVectorField>("wallGradU")
+        );
+    wallGradUField.boundaryField()[pI] == wallGradU;
+
+    // Average in time
+    scalar eps = 1;
+    if (averagingTime_ > db().time().deltaTValue())
+    {
+        eps = db().time().deltaTValue()/averagingTime_;
+    }
     
+    forAll(wallGradU_, i)  
+    {    
+        wallGradU_[i] = eps*wallGradU[i] + (1 - eps)*wallGradU_[i];
+    }
+            
     // Compute nut and assign
     operator==(calcNut());
     
@@ -329,16 +329,12 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
             db().lookupObject<volVectorField>("wallShearStress")
         );
     
-    const volVectorField & wallGradU = 
-        db().lookupObject<volVectorField>("wallGradU");
     
     const volScalarField & nu = db().lookupObject<volScalarField>("nu");
     
     const scalarField & nut = *this;
-    
-    label pI = patch().index();
-    wss.boundaryField()[pI] == 
-        (nut + nu.boundaryField()[pI])*wallGradU.boundaryField()[pI];
+
+    wss.boundaryField()[pI] == (nut + nu.boundaryField()[pI])*wallGradU;
 
     fixedValueFvPatchScalarField::updateCoeffs();
 }

@@ -66,11 +66,7 @@ class wallModelFvPatchScalarField
 protected:
     
     // Protected data
-
-       
-        //- The velocity values the wall model uses
-        vectorField U_;
-        
+     
         //- The wall-normal velocity gradient
         vectorField wallGradU_;
         
@@ -81,7 +77,7 @@ protected:
         Sampler sampler_;
         
         //- Create fields and add to registry
-        void createFields() const;
+        virtual void createFields() const;
 
     // Protected Member Functions
 
@@ -160,13 +156,7 @@ public:
         {
             return sampler_.h();
         }
-        
-        //- return U_
-        vectorField U() const
-        {
-            return U_;
-        }
-        
+                
         scalar averagingTime() const
         {
             return averagingTime_;

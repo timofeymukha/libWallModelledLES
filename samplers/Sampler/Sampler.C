@@ -23,21 +23,22 @@ License
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
 #include "wallFvPatch.H"
-#include "addToRunTimeSelectionTable.H"
 #include "objectRegistry.H"
 #include "IOField.H"
+#include "SampledField.H"
+#include "SampledVelocityField.H"
+#include "SampledPGradField.H"
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
-
-void Foam::Sampler::createFields() const
+void Foam::Sampler::createFields()
 {
    
     //const objectRegistry & db = patch_.boundaryMesh().mesh();
     
-    if (!mesh_.found("h"))
+    if (!mesh_.thisDb().found("h"))
     {
-        mesh_.store
+        mesh_.thisDb().store
         (
             new volScalarField
             (
@@ -58,9 +59,9 @@ void Foam::Sampler::createFields() const
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
     
    // Field that marks cells that are used for sampling
-    if (!mesh_.found("samplingCells"))
+    if (!mesh_.thisDb().found("samplingCells"))
     {
-        mesh_.store
+        mesh_.thisDb().store
         (
             new volScalarField
             (
@@ -79,20 +80,24 @@ void Foam::Sampler::createFields() const
         );
     }
     
-    // Field for sampled velocity
-    new IOField<vector>
+    /*
+    autoPtr<SampledField> p = new SampledVelocityField(mesh());
+    addField
     (
-        IOobject
-        (
-            "U",
-            mesh_.time().timeName(),
-            db_,
-            IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
-        ),
-        vectorField(patch_.size(), pTraits<vector>::zero)
+            p
+       
+    );*/
+    
+    //SampledField * p2 = new SampledPGradField(mesh());
+    addField
+    (
+            new SampledPGradField(mesh())     
     );
-
+    
+    addField
+    (
+            new SampledVelocityField(mesh())     
+    );
 }
 
 
@@ -218,7 +223,8 @@ Foam::Sampler::Sampler
     h_(p.size(), 0),
     averagingTime_(averagingTime),
     db_(patch_.boundaryMesh().mesh().subRegistry("wallModelSampling", 1)),
-    mesh_(patch_.boundaryMesh().mesh())
+    mesh_(patch_.boundaryMesh().mesh()),
+    sampledFields_(0)
 {
     createFields();
     createIndexList();
@@ -226,6 +232,15 @@ Foam::Sampler::Sampler
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+Foam::Sampler::~Sampler()
+{
+    forAll(sampledFields_, i)
+    {
+        Info << "Deleting" << nl;
+        delete sampledFields_[i];
+    }
+}
 
 void Foam::Sampler::sample() const
 {
@@ -240,17 +255,17 @@ void Foam::Sampler::sample() const
     
     forAll(db_.names(), fieldNameI)
     {
-        word name = db_.names()[fieldNameI];
+         word name = db_.names()[fieldNameI];
         
         // Sample velocity
         const volVectorField & field = mesh_.lookupObject<volVectorField>(name);
         const vectorField & internal = field.internalField();
-        //const fvPatchVectorField & wall = Ufield.boundaryField()[patch_.index()];
+
 
         vectorField & sampled = 
                 const_cast<vectorField &>(db_.lookupObject<vectorField>(name));
         
-        vectorField Up(patch().size()); 
+       vectorField Up(patch().size()); 
 
         // NO SUPPORT FOR MOVING WALLS FOR NOW
         forAll(Up, i)
@@ -267,75 +282,16 @@ void Foam::Sampler::sample() const
         }
     }
     
-    
-    
-    
-    
-    
-    
-    /*
-     * 
-     * 
-     * 
-     * 
-            // Sample velocity
-        const volVectorField & Ufield = mesh_.lookupObject<volVectorField>("U");
-        const vectorField & Uinternal = Ufield.internalField();
-        const fvPatchVectorField & Uwall = Ufield.boundaryField()[patch_.index()];
+}
 
-        vectorField & Usampled = 
-                const_cast<vectorField &>(db_.lookupObject<vectorField>("U"));
-        vectorField Up(patch().size()); 
+void Foam::Sampler::addField(SampledField * field)
+{
+    sampledFields_.append(field);
+}
 
-        forAll(Up, i)
-        {   
-            Up[i] = Uinternal[indexList_[i]] - Uwall[i];
-        }
 
-        project(Up);
-
-        forAll(Usampled, i)  
-        {    
-            Usampled[i] = eps*Up[i] + (1 - eps)*Usampled[i];
-        }
-    const volScalarField & p = db().lookupObject<volScalarField>("p");
-
-    //calculate pressure Gradient
-    vectorField gradPField = fvc::grad(p);
-    vectorField gradP(patch().size());
-    
-    forAll (gradP, i)
-    {
-        gradP[i] = gradPField[cellIndexList_[i]];
-    }
-    
-    project(gradP);
-    
-    
-    
-    forAll (pressureGrad_, i)
-    {
-        pressureGrad_[i] = eps*gradP[i] + (1 - eps)*pressureGrad_[i];
-    }
-      
-    // Wall-normal velocity gradient
-    vectorField Udiff = Uwall.patchInternalField() - Uwall;
-    project(Udiff);
-    const vectorField wallGradU(patch().deltaCoeffs()*Udiff);
-    
-    volVectorField & wallGradUField = 
-        const_cast<volVectorField &>
-        (
-            db().lookupObject<volVectorField>("wallGradU")
-        );
-    wallGradUField.boundaryField()[patch().index()] == wallGradU;
-
-    forAll(U_, i)  
-    {    
-        wallGradU_[i] = eps*wallGradU[i] + (1 - eps)*wallGradU_[i];
-    }
-    */
-
+void Foam::Sampler::recomputeFields() const
+{
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -8,7 +8,8 @@ EXE_INC = -std=c++0x \
 -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
 -IrootFinding/RootFinder \
 -IlawsOfTheWall/LawOfTheWall \
--IlawsOfTheWall/SpaldingLawOfTheWall
+-IlawsOfTheWall/SpaldingLawOfTheWall \
+-Isamplers/SampledField
 
 LIB_LIBS = \
 -lfiniteVolume \

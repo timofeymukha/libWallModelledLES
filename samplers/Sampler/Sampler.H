@@ -34,12 +34,15 @@ SourceFiles
 #define Sampler_H
 
 #include "fixedValueFvPatchFields.H"
+#include "SampledField.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
+    
 /*---------------------------------------------------------------------------*\
                          Class Sampler Declaration
 \*---------------------------------------------------------------------------*/
@@ -69,12 +72,15 @@ protected:
         const objectRegistry & db_;
         
         //- The global object registry
-        const objectRegistry & mesh_;
-                
+        const fvMesh & mesh_;
+        
+        //- Whether we need to compute the pressure gradient
+        List<SampledField *> sampledFields_;
+                      
     // Protected Member Functions
         
-        //- Create h field and add to registry
-        void createFields() const;
+        //- Create fields
+        void createFields();
              
         //- Create list of cell-indices from where data is sampled
         void createIndexList();
@@ -96,6 +102,8 @@ public:
             const fvPatch&,
             scalar averagingTime
         );
+        
+        ~Sampler();
 
     // Member functions
       
@@ -130,7 +138,7 @@ public:
         }
         
         //- Get the mesh
-        const objectRegistry & mesh() const
+        const fvMesh & mesh() const
         {
             return mesh_;
         }
@@ -141,8 +149,14 @@ public:
             return indexList_[i];
         }
         
+        //- Recompute fields to be sampled
+        void recomputeFields() const;
+        
         //- Sample the fields
-        void sample() const;        
+        void sample() const; 
+        
+        //- Add field for sampling
+        void addField(SampledField *);
 };
 
 

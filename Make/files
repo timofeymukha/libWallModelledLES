@@ -1,3 +1,6 @@
+samplers/SampledField/SampledField.C
+samplers/SampledField/SampledPGradField.C
+samplers/SampledField/SampledVelocityField.C
 samplers/Sampler/Sampler.C
 CellIndexList/CellIndexList.C
 rootFinding/RootFinder/RootFinder.C

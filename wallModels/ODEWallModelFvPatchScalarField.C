@@ -140,8 +140,9 @@ calcUTau(const scalarField & magGradU) const
     
     // temporary vector for computing the source term
     vector sourceFVec(0, 0, 0);
-        
-    scalarField magU = mag(U_);
+    
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalarField magU = mag(U);
  
     // Turbulent viscosity
     const scalarField & nutw = *this;
@@ -186,7 +187,7 @@ calcUTau(const scalarField & magGradU) const
                 
                 scalar newTau = 
                         sqr(magU[faceI]) + sqr(mag(sourceFVec)*integral2) -
-                        2*(U_[faceI] & sourceFVec)*integral2;
+                        2*(U[faceI] & sourceFVec)*integral2;
                 
                 newTau  = sqrt(newTau)/integral;
                 

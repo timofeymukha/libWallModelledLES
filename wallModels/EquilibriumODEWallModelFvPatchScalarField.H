@@ -33,7 +33,7 @@ Description
         value               uniform 0;
         maxIter             value; (default 10)
         eps                 value; (default 1e-3)
-        nMeshY              value; (default 10)
+        nMeshY              value; (default 30)
 
         EddyViscosity 
         {
