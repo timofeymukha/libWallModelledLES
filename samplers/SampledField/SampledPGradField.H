@@ -53,14 +53,14 @@ public:
 
     // Constructors
 
-        //- Construct from patch and averaging time
-        
+        //- Construct from patch and index list
         SampledPGradField
         (
-            const fvMesh & db
+            const fvMesh & db,
+            const labelList & cil
         )
         :
-            SampledField(db)
+            SampledField(db, cil)          
         {
             registerFields();
         }
@@ -68,8 +68,17 @@ public:
         virtual ~SampledPGradField() {};        
             
     // Member functions
-
-        // Register appropriate fields in the object registry
+        
+        //- Number of dimensions of the sampled field
+        virtual label nDims() const
+        {
+            return 3;
+        }
+        
+        //- Sample the pressure gradient values
+        virtual List<List<scalar> > sample() const;
+        
+        //- Register appropriate fields in the object registry
         virtual void registerFields() const;
         
         //- Recompute field

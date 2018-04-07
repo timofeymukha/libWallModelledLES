@@ -157,6 +157,9 @@ public:
         
         //- Add field for sampling
         void addField(SampledField *);
+        
+        template<class Type>
+        tmp<Field<Type> > listListToField(const List<List<scalar> > &) const;
 };
 
 

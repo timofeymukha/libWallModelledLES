@@ -51,6 +51,8 @@ protected:
     // Protected data
         
         const fvMesh & db_;
+        
+        const labelList cellIndexList_;
               
 public:
 
@@ -61,10 +63,12 @@ public:
         
         SampledField
         (
-            const fvMesh & db
+            const fvMesh & db,
+            const labelList &  cil
         )
         :
-            db_(db)
+            db_(db),
+            cellIndexList_(cil)        
         {}
 
         virtual ~SampledField() {};        
@@ -76,7 +80,16 @@ public:
         {
             return db_;
         }
-
+        
+        const labelList & cellIndexList() const
+        {
+            return cellIndexList_;
+        }
+        
+        virtual label nDims() const = 0;
+        
+        virtual List<List<scalar> > sample() const = 0;
+        
         // Register appropriate fields in the object registry
         virtual void registerFields() const {}
         

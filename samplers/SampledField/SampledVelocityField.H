@@ -58,10 +58,11 @@ public:
         
         SampledVelocityField
         (
-            const fvMesh & db
+            const fvMesh & db,
+            const labelList & cil    
         )
         :
-            SampledField(db)
+            SampledField(db, cil)
         {
             registerFields();
         }
@@ -69,7 +70,15 @@ public:
         virtual ~SampledVelocityField() {};        
             
     // Member functions
-
+        
+        //- Sample the velocity values
+        virtual List<List<scalar> > sample() const;
+                
+        //- Number of dimensions of the sampled field
+        virtual label nDims() const
+        {
+            return 3;
+        }
         // Register appropriate fields in the object registry
         virtual void registerFields() const;
         

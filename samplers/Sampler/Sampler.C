@@ -79,25 +79,7 @@ void Foam::Sampler::createFields()
             )
         );
     }
-    
-    /*
-    autoPtr<SampledField> p = new SampledVelocityField(mesh());
-    addField
-    (
-            p
-       
-    );*/
-    
-    //SampledField * p2 = new SampledPGradField(mesh());
-    addField
-    (
-            new SampledPGradField(mesh())     
-    );
-    
-    addField
-    (
-            new SampledVelocityField(mesh())     
-    );
+      
 }
 
 
@@ -229,6 +211,16 @@ Foam::Sampler::Sampler
     createFields();
     createIndexList();
     createLengthList();
+    
+    addField
+    (
+            new SampledPGradField(mesh(), indexList_)     
+    );
+    
+    addField
+    (
+            new SampledVelocityField(mesh(), indexList_)     
+    );
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -237,7 +229,6 @@ Foam::Sampler::~Sampler()
 {
     forAll(sampledFields_, i)
     {
-        Info << "Deleting" << nl;
         delete sampledFields_[i];
     }
 }
@@ -252,11 +243,23 @@ void Foam::Sampler::sample() const
         eps = mesh_.time().deltaTValue()/averagingTime_;
     }
     
+    Info << db_.names() << nl;
     
-    forAll(db_.names(), fieldNameI)
+    forAll(sampledFields_, fieldI)
     {
-         word name = db_.names()[fieldNameI];
+
         
+        List<List<scalar> > sampledList = sampledFields_[fieldI]->sample();
+        
+        Info << sampledList << nl;
+        if (sampledFields_[fieldI]->nDims() == 3)
+        {
+            const vectorField & sampledField = 
+                listListToField<vector>(sampledList);
+        }
+        
+        /*
+                word name = db_.names()[fieldNameI];
         // Sample velocity
         const volVectorField & field = mesh_.lookupObject<volVectorField>(name);
         const vectorField & internal = field.internalField();
@@ -275,14 +278,39 @@ void Foam::Sampler::sample() const
         }
 
         project(Up);
-
+        
+        
         forAll(sampled, i)  
         {    
             sampled[i] = eps*Up[i] + (1 - eps)*sampled[i];
-        }
+        }*/
     }
     
 }
+
+template<class Type>
+Foam::tmp<Foam::Field<Type> >
+Foam::Sampler::listListToField(const List<List<scalar> > & list) const
+{
+    tmp<Field<Type> > tField(new Field<Type>(list.size()));
+    Field<Type> & field = tField();
+    
+    scalar nDims = list[0].size();
+    
+    forAll(list, i)
+    {
+        Type element;
+        for (int j=0; j<nDims; j++)
+        {
+            element[j] = list[i][j];
+        }
+        field[i] = element;
+    }
+    
+    return tField;
+}
+
+
 
 void Foam::Sampler::addField(SampledField * field)
 {
@@ -292,6 +320,10 @@ void Foam::Sampler::addField(SampledField * field)
 
 void Foam::Sampler::recomputeFields() const
 {
+    forAll(sampledFields_, i)
+    {
+        sampledFields_[i]->recompute();
+    } 
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -27,9 +27,33 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+Foam::List<Foam::List<Foam::scalar> > Foam::SampledVelocityField::sample() const
+{
+    
+    Info << "Sampling velocity" << nl;
+    List<List<scalar> > sampledValues(cellIndexList_.size());
+    
+    const volVectorField & UField = db().lookupObject<volVectorField>("U");
+    vectorField sampledU(cellIndexList_.size());
+    
+    for(int i=0; i<cellIndexList_.size(); i++)
+    {
+        sampledU[i] = UField[cellIndexList_[i]]; 
+        sampledValues[i] = List<scalar>(3);
+        
+        for(int j=0; j<3; j++)
+        {
+            sampledValues[i][j] = sampledU[i][j]; 
+        }
+    }   
+    return sampledValues;
+}
+
 void Foam::SampledVelocityField::registerFields() const
 {
-        IOField<vector>
+    db().thisDb().store
+    (        
+        new IOField<vector>
         (
             IOobject
             (
@@ -39,8 +63,9 @@ void Foam::SampledVelocityField::registerFields() const
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),
-            vectorField(9, pTraits<vector>::zero)
-        );
+            vectorField(cellIndexList_.size(), pTraits<vector>::zero)
+        )
+    );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

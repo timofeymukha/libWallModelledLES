@@ -21,12 +21,40 @@ License
 #include "SampledPGradField.H"
 #include "volFields.H"
 #include "fvcGrad.H"
+#include "List.H"
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+
+Foam::List<Foam::List<Foam::scalar> > Foam::SampledPGradField::sample() const
+{
+    Info << "Sampling pressure gradient" << nl;
+    
+    List<List<scalar> > sampledValues(cellIndexList_.size());
+    
+    const volVectorField & pGradField = db().lookupObject<volVectorField>("pGrad");
+    vectorField sampledPGrad(cellIndexList_.size());
+    
+    Info << "Entring loop" << nl;
+    for(int i=0; i<cellIndexList_.size(); i++)
+    {
+        sampledPGrad[i] = pGradField[cellIndexList_[i]];
+        Info << cellIndexList_ << nl;
+        Info << sampledPGrad[i] << nl;
+        sampledValues[i] = List<scalar>(3);
+        
+        for(int j=0; j<3; j++)
+        {
+            sampledValues[i][j] = sampledPGrad[i][j]; 
+        }
+    }   
+    return sampledValues;
+}
+
 
 // Register appropriate fields in the object registry
 void Foam::SampledPGradField::registerFields() const
@@ -37,39 +65,43 @@ void Foam::SampledPGradField::registerFields() const
     
     if (!db().foundObject<volVectorField>("pGrad"))
     {
-
-        volVectorField
-        (
-            IOobject
+        db().thisDb().store
+        (     
+            new volVectorField
             (
-                "pGrad",
-                db().time().timeName(),
+                IOobject
+                (
+                    "pGrad",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
                 db(),
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            db(),
-            dimensionedVector
-            (
-                "pGrad",
-                dimPressure/dimLength,
-                vector(0, 0, 0)
-            ),
-            h.boundaryField().types()
+                dimensionedVector
+                (
+                    "pGrad",
+                    dimLength/sqr(dimTime),
+                    vector(0, 0, 0)
+                ),
+                h.boundaryField().types()
+            )
         );
 
-        
-        IOField<vector>
-        (
-            IOobject
+        db().thisDb().store
+        (          
+            new IOField<vector>
             (
-                "pGrad",
-                db().time().timeName(),
-                db().subRegistry("wallModelSampling", 0),
-                IOobject::READ_IF_PRESENT,
-                IOobject::AUTO_WRITE
-            ),
-            vectorField(9, pTraits<vector>::zero)
+                IOobject
+                (
+                    "pGrad",
+                    db().time().timeName(),
+                    db().subRegistry("wallModelSampling", 0),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                vectorField(cellIndexList_.size(), pTraits<vector>::zero)
+            )
         );
     }
 }
