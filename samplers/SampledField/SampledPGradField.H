@@ -56,11 +56,11 @@ public:
         //- Construct from patch and index list
         SampledPGradField
         (
-            const fvMesh & db,
+            const fvPatch & patch,
             const labelList & cil
         )
         :
-            SampledField(db, cil)          
+            SampledField(patch, cil)
         {
             registerFields();
         }
@@ -74,6 +74,13 @@ public:
         {
             return 3;
         }
+        
+        //- Return the name of the name of the sampled field
+        virtual word name() const
+        {
+            return "pGrad";
+        }
+        
         
         //- Sample the pressure gradient values
         virtual List<List<scalar> > sample() const;

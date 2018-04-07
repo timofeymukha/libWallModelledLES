@@ -109,41 +109,12 @@ void Foam::wallModelFvPatchScalarField::createFields() const
                 h.boundaryField().types()
             )
         );
-    }
-
-    // Wall-normal velocity gradient
-    if (!db().found("wallGradU"))
-    {
-        db().store
-        (
-            new volVectorField
-            (
-                IOobject
-                (
-                    "wallGradU",
-                    db().time().timeName(),
-                    db(),
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                patch().boundaryMesh().mesh(),
-                dimensionedVector
-                (
-                    "wallGradU",
-                    dimVelocity/dimLength,
-                    vector(0, 0, 0)
-                ),
-                h.boundaryField().types()
-            )
-        );
-    }
-       
+    }    
 }
 
 
 void Foam::wallModelFvPatchScalarField::sample()
 {
-
 }
 
 void

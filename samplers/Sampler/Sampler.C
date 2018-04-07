@@ -28,6 +28,7 @@ License
 #include "SampledField.H"
 #include "SampledVelocityField.H"
 #include "SampledPGradField.H"
+#include "SampledWallGradUField.H"
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
@@ -214,13 +215,15 @@ Foam::Sampler::Sampler
     
     addField
     (
-            new SampledPGradField(mesh(), indexList_)     
+            new SampledVelocityField(patch_, indexList_)     
     );
     
     addField
     (
-            new SampledVelocityField(mesh(), indexList_)     
+            new SampledWallGradUField(patch_, indexList_)     
     );
+    
+    //recomputeFields();
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -248,53 +251,45 @@ void Foam::Sampler::sample() const
     forAll(sampledFields_, fieldI)
     {
 
-        
         List<List<scalar> > sampledList = sampledFields_[fieldI]->sample();
+        //Info << "sampledList " << sampledList << nl;
         
-        Info << sampledList << nl;
         if (sampledFields_[fieldI]->nDims() == 3)
         {
-            const vectorField & sampledField = 
-                listListToField<vector>(sampledList);
+            //const vectorField & sampledField = 
+            //    listListToField<vector>(sampledList);
+            vectorField sampledField(patch_.size());
+            listListToField<vector>(sampledList, sampledField);
+            //Info << "sampledField " << sampledField << nl;
+            
+            vectorField & storedValues = const_cast<vectorField &>
+            (
+                db_.lookupObject<vectorField>(sampledFields_[fieldI]->name())
+            );
+            //Info << "storedvalues" << storedValues << nl;
+            storedValues = eps*sampledField + (1 - eps)*storedValues;
         }
         
-        /*
-                word name = db_.names()[fieldNameI];
-        // Sample velocity
-        const volVectorField & field = mesh_.lookupObject<volVectorField>(name);
-        const vectorField & internal = field.internalField();
 
-
-        vectorField & sampled = 
-                const_cast<vectorField &>(db_.lookupObject<vectorField>(name));
-        
-       vectorField Up(patch().size()); 
-
-        // NO SUPPORT FOR MOVING WALLS FOR NOW
-        forAll(Up, i)
-        {   
-        //    Up[i] = Uinternal[indexList_[i]] - Uwall[i];
-              Up[i] = internal[indexList_[i]];
-        }
-
-        project(Up);
-        
-        
-        forAll(sampled, i)  
-        {    
-            sampled[i] = eps*Up[i] + (1 - eps)*sampled[i];
-        }*/
+        //sampled[i] = eps*sampleField[i] + (1 - eps)*sampled[i];
     }
     
 }
 
 template<class Type>
-Foam::tmp<Foam::Field<Type> >
-Foam::Sampler::listListToField(const List<List<scalar> > & list) const
+//Foam::tmp<Foam::Field<Type> >
+//Foam::Field<Type>
+//Foam::Sampler::listListToField(const List<List<scalar> > & list) const
+void Foam::Sampler::listListToField
+(
+    const List<List<scalar> > & list,
+    Field<Type> & field    
+) const
 {
-    tmp<Field<Type> > tField(new Field<Type>(list.size()));
-    Field<Type> & field = tField();
-    
+//    tmp<Field<Type> > tField(new Field<Type>(list.size()));
+//    Field<Type> & field = tField();
+
+//    Field<Type> field(list.size());
     scalar nDims = list[0].size();
     
     forAll(list, i)
@@ -305,9 +300,10 @@ Foam::Sampler::listListToField(const List<List<scalar> > & list) const
             element[j] = list[i][j];
         }
         field[i] = element;
+        
     }
-    
-    return tField;
+    //return tField;
+    //return field;
 }
 
 

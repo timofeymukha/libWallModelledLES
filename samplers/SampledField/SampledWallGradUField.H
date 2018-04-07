@@ -20,20 +20,21 @@ Class
     Foam::SampledField
 
 Description
-    Base class for a sampled field.
+    Class for the sampled velocity field.
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
-    SampledField.C
+    SampledWallGradUField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef SampledField_H
-#define SampledField_H
+#ifndef SampledWallGradUField_H
+#define SampledWallGradUField_H
 
 #include "fixedValueFvPatchFields.H"
+#include "SampledField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -41,69 +42,55 @@ namespace Foam
 {
     
 /*---------------------------------------------------------------------------*\
-                         Class SampledField Declaration
+                         Class SampledWallGradUField Declaration
 \*---------------------------------------------------------------------------*/
 
-class SampledField
+class SampledWallGradUField
+:
+    public SampledField
 {
-protected:
-    
-    // Protected data
-        const fvPatch & patch_;
-    
-        const fvMesh & db_;
-        
-        const labelList cellIndexList_;
-                    
+   
 public:
-
-
+    
     // Constructors
 
         //- Construct from patch and averaging time
         
-        SampledField
+        SampledWallGradUField
         (
             const fvPatch & patch,
-            const labelList &  cil
+            const labelList & cil    
         )
         :
-            patch_(patch),
-            db_(patch_.boundaryMesh().mesh()),
-            cellIndexList_(cil)
-        {}
-
-        virtual ~SampledField() {};        
+            SampledField(patch, cil)
+        {
+            registerFields();
+        }
+            
+        virtual ~SampledWallGradUField() {};        
             
     // Member functions
         
-        //- Get the mesh
-        const fvMesh & db() const
+        //- Sample the velocity values
+        virtual List<List<scalar> > sample() const;
+                
+        //- Number of dimensions of the sampled field
+        virtual label nDims() const
         {
-            return db_;
+            return 3;
         }
         
-        const labelList & cellIndexList() const
+        //- Return the name of the name of the sampled field
+        virtual word name() const
         {
-            return cellIndexList_;
+            return "wallGradU";
         }
-    
-        const fvPatch & patch() const
-        {
-            return patch_;
-        }
-        
-        virtual word name() const = 0;
-        
-        virtual label nDims() const = 0;
-        
-        virtual List<List<scalar> > sample() const = 0;
         
         // Register appropriate fields in the object registry
-        virtual void registerFields() const {}
+        virtual void registerFields() const;
         
         //- Recompute field
-        virtual void recompute() const = 0;       
+        virtual void recompute() const;   
 };
 
 

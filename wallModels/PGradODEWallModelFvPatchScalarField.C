@@ -52,28 +52,6 @@ source
 
 void Foam::PGradODEWallModelFvPatchScalarField::sample()
 {
-
-    
-    const volScalarField & p = db().lookupObject<volScalarField>("p");
-
-    //calculate pressure Gradient
-    vectorField gradPField = fvc::grad(p);
-    vectorField gradP(patch().size());
-    
-    forAll (gradP, i)
-    {
-        gradP[i] = gradPField[cellIndexList()[i]];
-    }
-    
-    project(gradP);
-    
-    scalar eps = db().time().deltaTValue()/averagingTime_;
-    
-    forAll (pressureGrad_, i)
-    {
-        pressureGrad_[i] = eps*gradP[i] + (1 - eps)*pressureGrad_[i];
-    }
-
     wallModelFvPatchScalarField::sample();
 }
        

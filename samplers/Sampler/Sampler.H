@@ -68,7 +68,7 @@ protected:
         //- Time-averaging scale of the sampled values
         scalar averagingTime_;
         
-        //- The object registry for sampled data
+        //- The object registry for sampled data, subregistry of mesh_
         const objectRegistry & db_;
         
         //- The global object registry
@@ -159,7 +159,10 @@ public:
         void addField(SampledField *);
         
         template<class Type>
-        tmp<Field<Type> > listListToField(const List<List<scalar> > &) const;
+        void listListToField(const List<List<scalar> > &, Field<Type> &) const;
+        //Field<Type> listListToField(const List<List<scalar> > &) const;
+        //tmp<Field<Type> > listListToField(const List<List<scalar> > &) const;
+
 };
 
 

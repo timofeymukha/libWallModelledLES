@@ -39,12 +39,9 @@ Foam::List<Foam::List<Foam::scalar> > Foam::SampledPGradField::sample() const
     const volVectorField & pGradField = db().lookupObject<volVectorField>("pGrad");
     vectorField sampledPGrad(cellIndexList_.size());
     
-    Info << "Entring loop" << nl;
     for(int i=0; i<cellIndexList_.size(); i++)
     {
         sampledPGrad[i] = pGradField[cellIndexList_[i]];
-        Info << cellIndexList_ << nl;
-        Info << sampledPGrad[i] << nl;
         sampledValues[i] = List<scalar>(3);
         
         for(int j=0; j<3; j++)
