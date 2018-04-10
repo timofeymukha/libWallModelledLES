@@ -111,7 +111,13 @@ public:
 
         //- Return the value of nut
         virtual scalarList
-        value(const scalarList & y, scalar uTau, scalar nu) const = 0;
+        value
+        (
+            label index,
+            const scalarList & y,
+            scalar uTau,
+            scalar nu
+        ) const = 0;
         
         //- Write information about the law to stream
         virtual void write(Ostream & os) const; 

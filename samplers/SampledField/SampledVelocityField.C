@@ -27,7 +27,7 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::List<Foam::List<Foam::scalar> > Foam::SampledVelocityField::sample() const
+Foam::scalarListList Foam::SampledVelocityField::sample() const
 {
     
     Info << "Sampling velocity" << nl;

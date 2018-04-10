@@ -27,13 +27,13 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::List<Foam::List<Foam::scalar> > Foam::SampledWallGradUField::sample() const
+Foam::scalarListList Foam::SampledWallGradUField::sample() const
 {
     
     Info << "Sampling wall-normal velocity gradient" << nl;
     
     label pI = patch().index();
-    List<List<scalar> > sampledValues(cellIndexList_.size());
+    scalarListList sampledValues(cellIndexList_.size());
     
     const volVectorField & wallGradU =
         db().lookupObject<volVectorField>("wallGradU");

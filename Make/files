@@ -15,6 +15,7 @@ lawsOfTheWall/IntegratedReichardtLawOfTheWall/IntegratedReichardtLawOfTheWall.C
 lawsOfTheWall/ReichardtLawOfTheWall/ReichardtLawOfTheWall.C
 eddyViscosities/EddyViscosity/EddyViscosity.C
 eddyViscosities/JohnsonKing/JohnsonKingEddyViscosity.C
+eddyViscosities/Duprat/DupratEddyViscosity.C
 wallModels/wallModelFvPatchScalarField.C
 wallModels/LOTWWallModelFvPatchScalarField.C
 wallModels/ODEWallModelFvPatchScalarField.C

@@ -99,10 +99,10 @@ public:
         
         virtual label nDims() const = 0;
         
-        virtual List<List<scalar> > sample() const = 0;
+        virtual scalarListList sample() const = 0;
         
         //- Project vector field to wall-parallel direction
-        void projectVectors(List<List<scalar> > &) const;
+        void projectVectors(scalarListList &) const;
         
         //- Register appropriate fields in the object registry
         virtual void registerFields() const {}

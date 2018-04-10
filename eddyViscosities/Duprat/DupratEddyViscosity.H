@@ -17,53 +17,48 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::JohnsonKingEddyViscosity
+    Foam::DupratEddyViscosity
 
 Description
-    Eddy viscosity model based on the work of Johnson and King.
- 
-    Corresponds to the formulation used by Cabot in [Cabot].
+    Eddy viscosity model based on the work of Duprat et al. [Duprat].
 
     \f[
-        \nu_t = \kappa u_\tau y (1 - \exp(- y^+/A))
+        \nu_t = \nu \kappa y^* [\alpha + y^*(1 - \alpha)^{3/2}]^\beta 
+                (1 - \exp(-y^* /(1 + A \alpha^3)))^2
     \f]
 
     Usage:
     \verbatim
     EddyViscosity
     {
-        type      JohnsonKing;
-        APlus     value; (default 19)
+        type      Duprat;
+        APlus     value; (default 17)
+        beta      value; (default 0.78)
         kappa     value; (default 0.4)
     }
     \endverbatim
 
     References:
     \verbatim
-        [JK]
-        Johnson, D. A., & King, L. S. (1985).
-        A mathematically simple turbulence closure model for attached and
-        separated turbulent boundary layers.
-        AIAA journal,
-        23(11), 1684-1692.
-
-        [Cabot]
-        Cabot, W. (1995).
-        Large-eddy simulations with wall models.
-        Center for turbulence research,
-        Annual Research Briefs, 1995
+        [Duprat]
+        Duprat, C., Balarac, G., Meetais, O.,
+        Congedo, P. M., & Brugiere, O. (2011).
+        A wall-layer model for large-eddy simulations of turbulent flows
+        with/out pressure gradient.
+        Physics of Fluids, 
+        23(1), 15101.
     \endverbatim
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh.
 
 SourceFiles
-    JohnsonKingEddyViscosity.C
+    DupratEddyViscosity.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef JohnsonKingEddyViscosity_H
-#define JohnsonKingEddyViscosity_H
+#ifndef DupratEddyViscosity_H
+#define DupratEddyViscosity_H
 
 #include "scalar.H"
 #include "typeInfo.H"
@@ -77,10 +72,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class JohnsonKingEddyViscosity Declaration
+                    Class DupratEddyViscosity Declaration
 \*---------------------------------------------------------------------------*/
 
-class JohnsonKingEddyViscosity: public EddyViscosity
+class DupratEddyViscosity: public EddyViscosity
 {
     
     // Private data
@@ -91,20 +86,23 @@ class JohnsonKingEddyViscosity: public EddyViscosity
         //- The kappa model constant
         scalar kappa_;
         
+        //- The beta model cosntant
+        scalar beta_;
+        
 public:
     
-    TypeName("JohnsonKing");
+    TypeName("Duprat");
 
     // Constructors
-      
+        
         //- Construct provided dictionary and sampler
-        JohnsonKingEddyViscosity(const dictionary &, Sampler &);
+        DupratEddyViscosity(const dictionary &, Sampler &);
         
         //- Construct provided name, dictionary and sampler
-        JohnsonKingEddyViscosity(const word &, const dictionary &, Sampler &);
+        DupratEddyViscosity(const word &, const dictionary &, Sampler &);
 
     // Destructor
-        virtual ~JohnsonKingEddyViscosity() {};
+        virtual ~DupratEddyViscosity() {};
 
     // Member Functions
         
@@ -116,6 +114,11 @@ public:
         scalar kappa() const
         {
             return kappa_;
+        }
+        
+        scalar beta() const
+        {
+            return beta_;
         }
         
         //- Print info

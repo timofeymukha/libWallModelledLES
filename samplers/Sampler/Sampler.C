@@ -274,7 +274,7 @@ void Foam::Sampler::sample() const
     forAll(sampledFields_, fieldI)
     {
 
-        List<List<scalar> > sampledList = sampledFields_[fieldI]->sample();
+        scalarListList sampledList = sampledFields_[fieldI]->sample();
         //Pout << "sampledList " << sampledList << nl;
         
         if (sampledFields_[fieldI]->nDims() == 3)
@@ -298,7 +298,7 @@ void Foam::Sampler::sample() const
 template<class Type>
 void Foam::Sampler::listListToField
 (
-    const List<List<scalar> > & list,
+    const scalarListList & list,
     Field<Type> & field    
 ) const
 {

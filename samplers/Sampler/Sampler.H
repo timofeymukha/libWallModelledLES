@@ -164,7 +164,7 @@ public:
         
         //- Convert sampled listList to a field
         template<class Type>
-        void listListToField(const List<List<scalar> > &, Field<Type> &) const;
+        void listListToField(const scalarListList &, Field<Type> &) const;
 };
 
 

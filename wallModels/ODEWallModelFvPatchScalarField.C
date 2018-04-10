@@ -169,7 +169,7 @@ calcUTau(const scalarField & magGradU) const
             for (int iterI=0; iterI<maxIter_; iterI++)
             {
                 scalarList nutValues = 
-                    eddyViscosity_->value(y, sqrt(tau), nuw[faceI]);
+                    eddyViscosity_->value(faceI, y, sqrt(tau), nuw[faceI]);
 
                 scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
                 scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));

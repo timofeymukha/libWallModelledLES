@@ -18,21 +18,22 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "JohnsonKingEddyViscosity.H"
+#include "DupratEddyViscosity.H"
 #include "dictionary.H"
 #include "error.H"
 #include "addToRunTimeSelectionTable.H"
+#include "SampledPGradField.H"
 
 namespace Foam
 {
-    defineTypeNameAndDebug(JohnsonKingEddyViscosity, 0);
-    addToRunTimeSelectionTable(EddyViscosity, JohnsonKingEddyViscosity, Dictionary);
-    addToRunTimeSelectionTable(EddyViscosity, JohnsonKingEddyViscosity, TypeAndDictionary);
+    defineTypeNameAndDebug(DupratEddyViscosity, 0);
+    addToRunTimeSelectionTable(EddyViscosity, DupratEddyViscosity, Dictionary);
+    addToRunTimeSelectionTable(EddyViscosity, DupratEddyViscosity, TypeAndDictionary);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
+Foam::DupratEddyViscosity::DupratEddyViscosity
 (
     const dictionary & dict,
     Sampler & sampler
@@ -40,8 +41,17 @@ Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 :
     EddyViscosity(dict, sampler),
     APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
-    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
+    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
+    beta_(dict.lookupOrDefault<scalar>("beta", 0.78))
 {
+    sampler_.addField
+    (
+        new SampledPGradField
+        (
+            sampler_.patch(), sampler_.indexList()
+        )
+    );
+     
     if (debug)
     {        
         printCoeffs();
@@ -49,7 +59,7 @@ Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
     
 }
 
-Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
+Foam::DupratEddyViscosity::DupratEddyViscosity
 (
     const word & modelName,
     const dictionary & dict,
@@ -58,8 +68,18 @@ Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 :
     EddyViscosity(modelName, dict, sampler),
     APlus_(dict.lookupOrDefault<scalar>("APlus", 19)),
-    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
+    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
+    beta_(dict.lookupOrDefault<scalar>("beta", 0.78))
 {
+    
+    sampler_.addField
+    (
+        new SampledPGradField
+        (
+            sampler_.patch(), sampler_.indexList()
+        )
+    );
+    
     if (debug)
     {        
         printCoeffs();
@@ -69,30 +89,40 @@ Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::JohnsonKingEddyViscosity::printCoeffs() const
+void Foam::DupratEddyViscosity::printCoeffs() const
 {
-    Info<< nl << "JohnsonKing eddy viscosity model" << nl;
+    Info<< nl << "Duprat eddy viscosity model" << nl;
     Info<< token::BEGIN_BLOCK << incrIndent << nl;
     Info<< indent << "APlus" << indent << APlus_ << nl;
     Info<< indent << "kappa" << indent <<  kappa_ << nl;
+    Info<< indent << "beta" << indent <<  beta_ << nl;
     Info<< token::END_BLOCK << nl << nl;
 }
 
-Foam::scalarList Foam::JohnsonKingEddyViscosity::value
+Foam::scalarList Foam::DupratEddyViscosity::value
 (
-    label index, 
+    label index,
     const scalarList & y,
     scalar uTau,
     scalar nu
 ) const
 {  
-    const scalarList yPlus = y*uTau/nu;
+    const vectorField & pGrad =
+        sampler_.db().lookupObject<vectorField>("pGrad");
+    
+    scalar uP = pow(nu*mag(pGrad[index]), 1./3);
+    scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
+    scalar alpha = uTau/uTauP;
+        
+    const scalarList yStar = y*uTauP/nu;
     
     scalarList values(y.size(), 0.0);
      
     forAll(values, i)
     {
-        values[i] = kappa_*uTau*y[i]*sqr(1 - exp(-yPlus[i]/APlus_));
+        values[i] = nu*kappa_*yStar[i]*
+                    pow(alpha + yStar[i]*pow(1 - alpha, 1.5), beta_)*
+                    sqr(1 - exp(-yStar[i]/(1 + APlus_*pow(alpha, 3))));
     }
     return values;
 }

@@ -30,11 +30,11 @@ License
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 
-Foam::List<Foam::List<Foam::scalar> > Foam::SampledPGradField::sample() const
+Foam::scalarListList Foam::SampledPGradField::sample() const
 {
     Info << "Sampling pressure gradient" << nl;
     
-    List<List<scalar> > sampledValues(cellIndexList_.size());
+    scalarListList sampledValues(cellIndexList_.size());
     
     const volVectorField & pGradField = db().lookupObject<volVectorField>("pGrad");
     vectorField sampledPGrad(cellIndexList_.size());
