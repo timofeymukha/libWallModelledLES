@@ -42,7 +42,7 @@ namespace Foam
 {
     
 /*---------------------------------------------------------------------------*\
-                         Class SampledVelocityField Declaration
+                    Class SampledVelocityField Declaration
 \*---------------------------------------------------------------------------*/
 
 class SampledVelocityField
@@ -66,7 +66,12 @@ public:
         {
             registerFields();
         }
-            
+
+        virtual SampledVelocityField* clone() const
+        {
+            return new SampledVelocityField(*this);
+        }
+        
         virtual ~SampledVelocityField() {};        
             
     // Member functions

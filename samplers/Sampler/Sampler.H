@@ -79,8 +79,7 @@ protected:
                       
     // Protected Member Functions
         
-        //- Create fields
-        void createFields();
+
              
         //- Create list of cell-indices from where data is sampled
         void createIndexList();
@@ -103,10 +102,15 @@ public:
             scalar averagingTime
         );
         
+        Sampler(const Sampler &);
+        
         ~Sampler();
 
     // Member functions
-      
+
+        //- Create fields
+        void createFields();
+
         //- Return the list of cell-indices that are used to sample data
         labelList indexList() const
         {
@@ -158,11 +162,9 @@ public:
         //- Add field for sampling
         void addField(SampledField *);
         
+        //- Convert sampled listList to a field
         template<class Type>
         void listListToField(const List<List<scalar> > &, Field<Type> &) const;
-        //Field<Type> listListToField(const List<List<scalar> > &) const;
-        //tmp<Field<Type> > listListToField(const List<List<scalar> > &) const;
-
 };
 
 

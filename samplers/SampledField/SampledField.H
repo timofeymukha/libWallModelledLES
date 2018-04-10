@@ -41,7 +41,7 @@ namespace Foam
 {
     
 /*---------------------------------------------------------------------------*\
-                         Class SampledField Declaration
+                        Class SampledField Declaration
 \*---------------------------------------------------------------------------*/
 
 class SampledField
@@ -72,6 +72,8 @@ public:
             db_(patch_.boundaryMesh().mesh()),
             cellIndexList_(cil)
         {}
+            
+        virtual SampledField* clone() const = 0;
 
         virtual ~SampledField() {};        
             
@@ -99,7 +101,10 @@ public:
         
         virtual List<List<scalar> > sample() const = 0;
         
-        // Register appropriate fields in the object registry
+        //- Project vector field to wall-parallel direction
+        void projectVectors(List<List<scalar> > &) const;
+        
+        //- Register appropriate fields in the object registry
         virtual void registerFields() const {}
         
         //- Recompute field

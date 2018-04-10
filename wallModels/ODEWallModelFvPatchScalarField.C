@@ -138,8 +138,11 @@ calcUTau(const scalarField & magGradU) const
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
     
-    // temporary vector for computing the source term
-    vector sourceFVec(0, 0, 0);
+    // vectorField for storing the source term
+    vectorField sourceField(patchSize, vector(0, 0, 0));
+    
+    // Compute the source term
+    source(sourceField);
     
     const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
     scalarField magU = mag(U);
@@ -182,12 +185,11 @@ calcUTau(const scalarField & magGradU) const
                 };
                 
                 
-                // Compute the source term
-                source(faceI, sourceFVec);
+
                 
                 scalar newTau = 
-                        sqr(magU[faceI]) + sqr(mag(sourceFVec)*integral2) -
-                        2*(U[faceI] & sourceFVec)*integral2;
+                        sqr(magU[faceI]) + sqr(mag(sourceField[faceI])*integral2) -
+                        2*(U[faceI] & sourceField[faceI])*integral2;
                 
                 newTau  = sqrt(newTau)/integral;
                 
@@ -270,7 +272,7 @@ ODEWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
     eddyViscosity_(EddyViscosity::New(ptf.eddyViscosity_->type(),
-                   ptf.eddyViscosity_->constDict())),
+                   ptf.eddyViscosity_->constDict(), sampler_)),
     meshes_(ptf.meshes_),
     maxIter_(ptf.maxIter_),
     eps_(ptf.eps_),
@@ -296,7 +298,7 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF, dict),
-    eddyViscosity_(EddyViscosity::New(dict.subDict("EddyViscosity"))),
+    eddyViscosity_(EddyViscosity::New(dict.subDict("EddyViscosity"), sampler_)),
     meshes_(patch().size()),
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
     eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),

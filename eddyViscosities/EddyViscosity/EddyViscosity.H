@@ -43,6 +43,8 @@ SourceFiles
 #include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
 #include "Field.H"
+#include "Sampler.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -58,6 +60,8 @@ protected:
     
     //- Dictionary holding the model constants
     dictionary constDict_;
+    
+    Sampler & sampler_;
 
 public:
 
@@ -65,14 +69,21 @@ public:
     
     // Constructors
     
-        EddyViscosity(const dictionary & dict)
+        EddyViscosity(const dictionary & dict, Sampler & sampler)
         :
-        constDict_(dict)
+        constDict_(dict),
+        sampler_(sampler)
         {}
         
-        EddyViscosity(const word& modelName, const dictionary & dict)
+        EddyViscosity
+        (
+            const word& modelName,
+            const dictionary & dict,
+            Sampler & sampler
+        )
         :
-        constDict_(dict)
+        constDict_(dict),
+        sampler_(sampler)
         {}
 
     // Destructor
@@ -82,13 +93,15 @@ public:
     // Selectors
         static autoPtr<EddyViscosity> New 
         (
-            const dictionary & dict
+            const dictionary & dict,
+            Sampler & sampler
         );
 
         static autoPtr<EddyViscosity> New 
         (
             const word & modelName,
-            const dictionary & dict
+            const dictionary & dict,
+            Sampler & sampler
         );
         
     // Member Functions
@@ -117,9 +130,10 @@ public:
             EddyViscosity,
             Dictionary,
             (
-                const dictionary & dict
+                const dictionary & dict,
+                Sampler & sampler
             ),
-            (dict)
+            (dict, sampler)
         )
 
         // RTS table "TypeAndDictionary"    
@@ -130,9 +144,10 @@ public:
             TypeAndDictionary,
             (
                 const word & modelName,
-                const dictionary & dict
+                const dictionary & dict,
+                Sampler & sampler
             ),
-            (modelName, dict)
+            (modelName, dict, sampler)
         )  
 
 };

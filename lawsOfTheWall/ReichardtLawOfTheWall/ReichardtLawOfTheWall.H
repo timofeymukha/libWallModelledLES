@@ -96,14 +96,14 @@ public:
     // Constructors
 
         //- Construct provided dictionary and cell index list
-        ReichardtLawOfTheWall(const dictionary &, const Sampler &);
+        ReichardtLawOfTheWall(const dictionary &, Sampler &);
         
         //- Construct provided TypeName and dictionary and cell index list
         ReichardtLawOfTheWall
         (
             const word & lawname,
             const dictionary &,
-            const Sampler &    
+            Sampler &    
         );
 
     // Destructor

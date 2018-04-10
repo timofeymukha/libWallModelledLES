@@ -35,8 +35,8 @@ namespace Foam
 
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
-    const Foam::dictionary & dict,
-    const Foam::Sampler & list
+    const dictionary & dict,
+    Sampler & list
 )
 :
     LawOfTheWall(dict, list),
@@ -54,7 +54,7 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict,
-    const Foam::Sampler & list
+    Sampler & list
 )
 :
     LawOfTheWall(lawName, dict, list),

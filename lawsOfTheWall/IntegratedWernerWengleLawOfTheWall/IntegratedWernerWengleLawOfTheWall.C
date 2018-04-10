@@ -44,7 +44,7 @@ namespace Foam
 Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
 (
     const dictionary & dict,
-    const Sampler & list
+    Sampler & list
 )
 :
     LawOfTheWall(dict, list),
@@ -62,7 +62,7 @@ Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict,
-    const Sampler & list
+    Sampler & list
 )
 :
     LawOfTheWall(lawName, dict, list),

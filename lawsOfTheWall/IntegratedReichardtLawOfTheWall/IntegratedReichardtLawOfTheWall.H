@@ -99,7 +99,7 @@ public:
         IntegratedReichardtLawOfTheWall
         (
             const dictionary &,
-            const Sampler &
+            Sampler &
         );
         
         //- Construct provided TypeName and dictionary and cell index list
@@ -107,7 +107,7 @@ public:
         (
             const word & lawname,
             const dictionary &,
-            const Sampler &    
+            Sampler &    
         );
 
     // Destructor

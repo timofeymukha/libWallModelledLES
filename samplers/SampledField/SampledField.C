@@ -26,4 +26,28 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void Foam::SampledField::projectVectors(List<List<scalar> > & field) const
+{
+    const tmp<vectorField> tfaceNormals = patch_.nf();
+    const vectorField faceNormals = tfaceNormals();
+
+    
+    forAll(field, i)
+    {   
+        vector fieldI(field[i][0], field[i][1], field[i][2]);
+        
+        // Normal component as dot product with (inwards) face normal
+        vector normal = -faceNormals[i]*(fieldI & -faceNormals[i]);
+        
+        // Subtract normal component to get the parallel one
+        fieldI -= normal;
+        
+        // Assign back to list
+        List<scalar> fieldIList(3);
+        fieldIList[0] = fieldI[0];
+        fieldIList[1] = fieldI[1];
+        fieldIList[2] = fieldI[2];
+        field[i] = fieldIList;        
+    }
+}
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -66,15 +66,15 @@ class wallModelFvPatchScalarField
 protected:
     
     // Protected data
-     
-        //- The wall-normal velocity gradient
-        vectorField wallGradU_;
-        
+           
         //- Timescale of the averaging
         scalar averagingTime_;
         
         //- The sampler
         Sampler sampler_;
+     
+        //- The wall-normal velocity gradient
+        const vectorField & wallGradU_;        
         
         //- Create fields and add to registry
         virtual void createFields() const;
@@ -89,12 +89,7 @@ protected:
 
         //- Write local wall function variables
         virtual void writeLocalEntries(Ostream&) const;
-        
-        //- Project vectorField onto the wall-parallel direction
-        void project(vectorField & field) const;
-        
-        //- Sample velocity values from the LES
-        virtual void sample();
+
 
 public:
 
@@ -160,6 +155,11 @@ public:
         scalar averagingTime() const
         {
             return averagingTime_;
+        }
+        
+        Sampler sampler() const
+        {
+            return sampler_;
         }
         
         //- Update the boundary values

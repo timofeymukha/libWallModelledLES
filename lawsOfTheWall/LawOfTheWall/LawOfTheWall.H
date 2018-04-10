@@ -62,7 +62,7 @@ protected:
     //- Dictionary holding the model constants that the law uses
     dictionary constDict_;
     
-    const Sampler & sampler_;
+    Sampler & sampler_;
 
 public:
 
@@ -71,7 +71,7 @@ public:
     // Constructors
     
         //- Construct from dictionary and cell index list
-        LawOfTheWall(const dictionary & dict, const Sampler & list)
+        LawOfTheWall(const dictionary & dict, Sampler & list)
         :
         constDict_(dict),
         sampler_(list)
@@ -82,7 +82,7 @@ public:
         (
             const word& lawName,
             const dictionary & dict,
-            const Sampler & list
+            Sampler & list
         )
         :
         constDict_(dict),
@@ -96,14 +96,14 @@ public:
         static autoPtr<LawOfTheWall> New 
         (
             const dictionary & dict,
-            const Sampler & list
+            Sampler & list
         );
 
         static autoPtr<LawOfTheWall> New 
         (
             const word & lawName,
             const dictionary & dict,
-            const Sampler & list
+            Sampler & list
         );
         
     // Member Functions
@@ -130,7 +130,7 @@ public:
         }
         
         //- Return the Sampler object reference
-        const Sampler & sampler() const
+        Sampler & sampler() const
         {
             return sampler_;
         }
@@ -144,7 +144,7 @@ public:
             Dictionary,
             (
                 const dictionary & dict,
-                const Sampler & list
+                Sampler & list
             ),
             (dict, list)
         )
@@ -158,7 +158,7 @@ public:
             (
                 const word & lawName,
                 const dictionary & dict,
-                const Sampler & list
+                Sampler & list
             ),
             (lawName, dict, list)
         )  

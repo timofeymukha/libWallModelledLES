@@ -69,6 +69,7 @@ SourceFiles
 #include "typeInfo.H"
 #include "dictionary.H"
 #include "EddyViscosity.H"
+#include "Sampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -102,9 +103,9 @@ public:
       //  JohnsonKingEddyViscosity(scalar A, scalar B);
         
         //- Construct provided dictionary
-        JohnsonKingEddyViscosity(const dictionary &);
+        JohnsonKingEddyViscosity(const dictionary &, Sampler &);
         
-        JohnsonKingEddyViscosity(const word &, const dictionary &);
+        JohnsonKingEddyViscosity(const word &, const dictionary &, Sampler &);
 
     // Destructor
         virtual ~JohnsonKingEddyViscosity() {};

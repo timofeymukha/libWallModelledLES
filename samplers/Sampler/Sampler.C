@@ -34,9 +34,7 @@ License
 
 void Foam::Sampler::createFields()
 {
-   
-    //const objectRegistry & db = patch_.boundaryMesh().mesh();
-    
+      
     if (!mesh_.thisDb().found("h"))
     {
         mesh_.thisDb().store
@@ -86,7 +84,6 @@ void Foam::Sampler::createFields()
 
 void Foam::Sampler::createIndexList()
 {
-   
     const label patchIndex = patch().index();
     
     // Grab the mesh
@@ -209,6 +206,8 @@ Foam::Sampler::Sampler
     mesh_(patch_.boundaryMesh().mesh()),
     sampledFields_(0)
 {
+    Info<< "Creating sampler for patch " << patch().name() << nl;
+    
     createFields();
     createIndexList();
     createLengthList();
@@ -222,14 +221,31 @@ Foam::Sampler::Sampler
     (
             new SampledWallGradUField(patch_, indexList_)     
     );
-    
-    //recomputeFields();
+}
+
+Foam::Sampler::Sampler(const Sampler & copy)
+:
+    patch_(copy.patch_),
+    indexList_(copy.indexList_),
+    lengthList_(copy.lengthList_),
+    h_(copy.h_),
+    averagingTime_(copy.averagingTime_),
+    db_(copy.db_),
+    mesh_(copy.mesh_),
+    sampledFields_(copy.sampledFields_.size())
+{
+    //Info << "Copying sampler" << nl;
+    forAll(copy.sampledFields_, i)
+    {
+        sampledFields_[i] = copy.sampledFields_[i]->clone();
+    }
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::Sampler::~Sampler()
 {
+    //Info << "deleting sampler" << nl;
     forAll(sampledFields_, i)
     {
         delete sampledFields_[i];
@@ -238,7 +254,14 @@ Foam::Sampler::~Sampler()
 
 void Foam::Sampler::sample() const
 {
-
+    // Ensure this processor has part of the patch
+    if (!patch().size())
+    {
+        return;
+    }    
+        
+    //Info << "Sampling the fields" << nl;
+    
     // Weight for time-averaging, default to 1 i.e no averaging.
     scalar eps = 1;
     if (averagingTime_ > mesh_.time().deltaTValue())
@@ -246,18 +269,16 @@ void Foam::Sampler::sample() const
         eps = mesh_.time().deltaTValue()/averagingTime_;
     }
     
-    Info << db_.names() << nl;
+    //Info << db_.names() << nl;
     
     forAll(sampledFields_, fieldI)
     {
 
         List<List<scalar> > sampledList = sampledFields_[fieldI]->sample();
-        //Info << "sampledList " << sampledList << nl;
+        //Pout << "sampledList " << sampledList << nl;
         
         if (sampledFields_[fieldI]->nDims() == 3)
         {
-            //const vectorField & sampledField = 
-            //    listListToField<vector>(sampledList);
             vectorField sampledField(patch_.size());
             listListToField<vector>(sampledList, sampledField);
             //Info << "sampledField " << sampledField << nl;
@@ -266,32 +287,22 @@ void Foam::Sampler::sample() const
             (
                 db_.lookupObject<vectorField>(sampledFields_[fieldI]->name())
             );
-            //Info << "storedvalues" << storedValues << nl;
             storedValues = eps*sampledField + (1 - eps)*storedValues;
-        }
-        
+            //Info << "storedvalues" << storedValues << nl;
+        }     
 
-        //sampled[i] = eps*sampleField[i] + (1 - eps)*sampled[i];
     }
-    
+    //Info << "Done sampling" << nl;
 }
 
 template<class Type>
-//Foam::tmp<Foam::Field<Type> >
-//Foam::Field<Type>
-//Foam::Sampler::listListToField(const List<List<scalar> > & list) const
 void Foam::Sampler::listListToField
 (
     const List<List<scalar> > & list,
     Field<Type> & field    
 ) const
 {
-//    tmp<Field<Type> > tField(new Field<Type>(list.size()));
-//    Field<Type> & field = tField();
-
-//    Field<Type> field(list.size());
     scalar nDims = list[0].size();
-    
     forAll(list, i)
     {
         Type element;
@@ -302,8 +313,6 @@ void Foam::Sampler::listListToField
         field[i] = element;
         
     }
-    //return tField;
-    //return field;
 }
 
 
@@ -316,6 +325,8 @@ void Foam::Sampler::addField(SampledField * field)
 
 void Foam::Sampler::recomputeFields() const
 {
+    //Info << "Recomputing sampled fields" << nl;
+    
     forAll(sampledFields_, i)
     {
         sampledFields_[i]->recompute();

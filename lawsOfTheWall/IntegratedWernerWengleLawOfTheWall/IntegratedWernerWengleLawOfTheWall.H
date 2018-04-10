@@ -97,7 +97,7 @@ public:
         IntegratedWernerWengleLawOfTheWall
         (
             const dictionary &,
-            const Foam::Sampler &
+            Sampler &
         );
         
         //- Construct provided TypeName and dictionary and cell index list
@@ -105,7 +105,7 @@ public:
         ( 
             const word & lawname,
             const dictionary &,
-            const Foam::Sampler &
+            Sampler &
         );
 
     // Destructor

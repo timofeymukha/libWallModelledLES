@@ -64,7 +64,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
         
-    scalarField magGradU = mag(wallGradU_);
+    scalarField magGradU =  mag(wallGradU_);
     return max
     (
         scalar(0),
@@ -75,7 +75,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
 Foam::tmp<Foam::scalarField> 
 Foam::LOTWWallModelFvPatchScalarField::
 calcUTau(const scalarField & magGradU) const
-{
+{  
     const label patchi = patch().index();
     const label patchSize = patch().size();
     
@@ -107,7 +107,7 @@ calcUTau(const scalarField & magGradU) const
     {
         // Starting guess using old values
         scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
-
+        
         if (ut > ROOTVSMALL)
         {
 
@@ -130,7 +130,6 @@ calcUTau(const scalarField & magGradU) const
 
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryField()[patchi] == uTau;
-    
     return tuTau;
 }
 

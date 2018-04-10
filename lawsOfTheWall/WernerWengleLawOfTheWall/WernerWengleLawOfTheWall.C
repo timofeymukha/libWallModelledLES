@@ -35,7 +35,7 @@ namespace Foam
 Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
     const dictionary & dict,
-    const Sampler & list
+    Sampler & list
 )
 :
     LawOfTheWall(dict, list),
@@ -53,7 +53,7 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict,
-    const Sampler & list
+    Sampler & list
 )
 :
     LawOfTheWall(lawName, dict, list),

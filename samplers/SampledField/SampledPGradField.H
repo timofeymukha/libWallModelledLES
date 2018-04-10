@@ -61,10 +61,15 @@ public:
         )
         :
             SampledField(patch, cil)
-        {
+        { 
             registerFields();
         }
-
+            
+        virtual SampledPGradField* clone() const
+        {
+            return new SampledPGradField(*this);
+        }
+        
         virtual ~SampledPGradField() {};        
             
     // Member functions

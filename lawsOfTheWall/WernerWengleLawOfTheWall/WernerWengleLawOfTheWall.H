@@ -90,14 +90,14 @@ public:
     // Constructors
 
         //- Construct provided dictionary and cell index list
-        WernerWengleLawOfTheWall(const dictionary &, const Foam::Sampler &);
+        WernerWengleLawOfTheWall(const dictionary &, Sampler &);
         
         //- Construct provided TypeName and dictionary and cell index list
         WernerWengleLawOfTheWall
         ( 
             const word & lawname,
             const dictionary &,
-            const Foam::Sampler &
+            Sampler &
         );
 
     // Destructor

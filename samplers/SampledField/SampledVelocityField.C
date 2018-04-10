@@ -45,7 +45,9 @@ Foam::List<Foam::List<Foam::scalar> > Foam::SampledVelocityField::sample() const
         {
             sampledValues[i][j] = sampledU[i][j]; 
         }
-    }   
+    }
+    projectVectors(sampledValues);
+    
     return sampledValues;
 }
 
@@ -66,6 +68,7 @@ void Foam::SampledVelocityField::registerFields() const
             vectorField(cellIndexList_.size(), pTraits<vector>::zero)
         )
     );
+    Info << db().thisDb().subRegistry("wallModelSampling", 0).lookupObject<vectorField>("U") << nl;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

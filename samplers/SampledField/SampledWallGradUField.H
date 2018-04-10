@@ -42,7 +42,7 @@ namespace Foam
 {
     
 /*---------------------------------------------------------------------------*\
-                         Class SampledWallGradUField Declaration
+                    Class SampledWallGradUField Declaration
 \*---------------------------------------------------------------------------*/
 
 class SampledWallGradUField
@@ -67,6 +67,11 @@ public:
             registerFields();
         }
             
+        virtual SampledWallGradUField* clone() const
+        {
+            return new SampledWallGradUField(*this);
+        }
+        
         virtual ~SampledWallGradUField() {};        
             
     // Member functions

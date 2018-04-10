@@ -34,10 +34,11 @@ namespace Foam
 
 Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 (
-    const dictionary & dict
+    const dictionary & dict,
+    Sampler & sampler
 )
 :
-    EddyViscosity(dict),
+    EddyViscosity(dict, sampler),
     APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
 {
@@ -51,10 +52,11 @@ Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 (
     const word & modelName,
-    const dictionary & dict
+    const dictionary & dict,
+    Sampler & sampler
 )
 :
-    EddyViscosity(dict),
+    EddyViscosity(modelName, dict, sampler),
     APlus_(dict.lookupOrDefault<scalar>("APlus", 19)),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
 {

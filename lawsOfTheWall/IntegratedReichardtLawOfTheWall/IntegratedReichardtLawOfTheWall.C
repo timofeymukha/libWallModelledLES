@@ -45,7 +45,7 @@ namespace Foam
 Foam::IntegratedReichardtLawOfTheWall::IntegratedReichardtLawOfTheWall
 (
     const dictionary & dict,
-    const Sampler & list
+    Sampler & list
 )
 :
     LawOfTheWall(dict, list),
@@ -65,7 +65,7 @@ Foam::IntegratedReichardtLawOfTheWall::IntegratedReichardtLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict,
-    const Sampler & list
+    Sampler & list
 )
 :
     LawOfTheWall(lawName, dict, list),

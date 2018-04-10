@@ -48,7 +48,8 @@ Foam::List<Foam::List<Foam::scalar> > Foam::SampledWallGradUField::sample() cons
         {
             sampledValues[i][j] = boundaryValues[i][j]; 
         }
-    }   
+    }
+    projectVectors(sampledValues);
     return sampledValues;
 }
 

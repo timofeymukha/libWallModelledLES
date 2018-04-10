@@ -48,7 +48,9 @@ Foam::List<Foam::List<Foam::scalar> > Foam::SampledPGradField::sample() const
         {
             sampledValues[i][j] = sampledPGrad[i][j]; 
         }
-    }   
+    }
+    projectVectors(sampledValues);
+    
     return sampledValues;
 }
 
@@ -113,8 +115,7 @@ void Foam::SampledPGradField::recompute() const
     const volScalarField & p = db().lookupObject<volScalarField>("p");
     
     pGrad = fvc::grad(p);
-    
-    
+  
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

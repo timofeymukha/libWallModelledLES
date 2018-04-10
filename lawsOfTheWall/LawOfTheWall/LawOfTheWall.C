@@ -38,7 +38,7 @@ namespace Foam
 Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New 
 (
     const Foam::dictionary & dict,
-    const Sampler & list
+    Sampler & list
 )
 {
     Foam::word lawName(dict.lookup("type"));
@@ -69,7 +69,7 @@ Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New
 (
     const Foam::word & lawName,
     const Foam::dictionary & dict,
-    const Sampler & list
+    Sampler & list
 )
 {
     
