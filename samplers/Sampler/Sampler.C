@@ -206,7 +206,7 @@ Foam::Sampler::Sampler
     mesh_(patch_.boundaryMesh().mesh()),
     sampledFields_(0)
 {
-    Info<< "Creating sampler for patch " << patch().name() << nl;
+    //Info<< "Creating sampler for patch " << patch().name() << nl;
     
     createFields();
     createIndexList();
