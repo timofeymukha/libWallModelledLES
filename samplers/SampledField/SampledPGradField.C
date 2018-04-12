@@ -32,7 +32,7 @@ License
 
 Foam::scalarListList Foam::SampledPGradField::sample() const
 {
-    Info << "Sampling pressure gradient" << nl;
+    Info<< "Sampling pressure gradient for patch " << patch_.name() << nl;
     
     scalarListList sampledValues(cellIndexList_.size());
     

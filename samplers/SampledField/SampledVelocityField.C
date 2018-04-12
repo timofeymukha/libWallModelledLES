@@ -30,7 +30,7 @@ License
 Foam::scalarListList Foam::SampledVelocityField::sample() const
 {
     
-    Info << "Sampling velocity" << nl;
+    Info<< "Sampling velocity for patch " << patch_.name() << nl;
     scalarListList sampledValues(cellIndexList_.size());
     
     const volVectorField & UField = db().lookupObject<volVectorField>("U");
@@ -47,7 +47,7 @@ Foam::scalarListList Foam::SampledVelocityField::sample() const
         }
     }
     projectVectors(sampledValues);
-    
+
     return sampledValues;
 }
 
@@ -61,7 +61,7 @@ void Foam::SampledVelocityField::registerFields() const
             (
                 "U",
                 db().time().timeName(),
-                db().subRegistry("wallModelSampling", 0),
+                db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0),
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),

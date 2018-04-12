@@ -22,6 +22,7 @@ License
 #include "dictionary.H"
 #include "error.H"
 #include "addToRunTimeSelectionTable.H"
+#include "volFields.H"
 
 namespace Foam
 {
@@ -87,10 +88,12 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
 ) const
 {
     const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+
     scalar u = mag(U[index]);
 
     scalar y = sampler_.h()[index];
     scalar uPlus = u/uTau;
+
     return uPlus + exp(-kappa_*B_)*(exp(kappa_*uPlus) - 1 - kappa_*uPlus
          - 0.5*sqr(kappa_*uPlus) - 1./6*kappa_*uPlus*sqr(kappa_*uPlus))
          - y*uTau/nu;

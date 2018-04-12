@@ -229,8 +229,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-
-
 void Foam::wallModelFvPatchScalarField::updateCoeffs()
 {
     if (updated())

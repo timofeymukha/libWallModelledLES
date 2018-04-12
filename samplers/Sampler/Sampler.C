@@ -202,11 +202,11 @@ Foam::Sampler::Sampler
     lengthList_(p.size()),
     h_(p.size(), 0),
     averagingTime_(averagingTime),
-    db_(patch_.boundaryMesh().mesh().subRegistry("wallModelSampling", 1)),
+    db_(patch_.boundaryMesh().mesh().subRegistry("wallModelSampling", 1).subRegistry(patch_.name(), 1)),
     mesh_(patch_.boundaryMesh().mesh()),
     sampledFields_(0)
 {
-    //Info<< "Creating sampler for patch " << patch().name() << nl;
+    Pout<< "Creating sampler for patch " << patch().name() << nl;
     
     createFields();
     createIndexList();
@@ -234,7 +234,8 @@ Foam::Sampler::Sampler(const Sampler & copy)
     mesh_(copy.mesh_),
     sampledFields_(copy.sampledFields_.size())
 {
-    //Info << "Copying sampler" << nl;
+    Pout<< "Copying sampler for patch " << patch().name() << nl;
+
     forAll(copy.sampledFields_, i)
     {
         sampledFields_[i] = copy.sampledFields_[i]->clone();
@@ -245,7 +246,7 @@ Foam::Sampler::Sampler(const Sampler & copy)
 
 Foam::Sampler::~Sampler()
 {
-    //Info << "deleting sampler" << nl;
+    Pout<< "deleting sampler for patch " << patch().name() << nl;
     forAll(sampledFields_, i)
     {
         delete sampledFields_[i];
@@ -306,16 +307,13 @@ void Foam::Sampler::listListToField
     forAll(list, i)
     {
         Type element;
-        for (int j=0; j<nDims; j++)
+        forAll(list[i], j)
         {
             element[j] = list[i][j];
         }
         field[i] = element;
-        
     }
 }
-
-
 
 void Foam::Sampler::addField(SampledField * field)
 {

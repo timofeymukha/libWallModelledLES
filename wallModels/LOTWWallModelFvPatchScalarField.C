@@ -65,6 +65,8 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     const scalarField& nuw = tnuw();
         
     scalarField magGradU =  mag(wallGradU_);
+
+
     return max
     (
         scalar(0),
@@ -125,9 +127,10 @@ calcUTau(const scalarField & magGradU) const
       
             // Compute root to get uTau
             uTau[faceI] = max(0.0, rootFinder_->root(ut));
+
         }
     }
-
+    
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryField()[patchi] == uTau;
     return tuTau;

@@ -30,7 +30,7 @@ License
 Foam::scalarListList Foam::SampledWallGradUField::sample() const
 {
     
-    Info << "Sampling wall-normal velocity gradient" << nl;
+    Info<< "Sampling wall-normal velocity gradient for patch " << patch_.name() << nl;
     
     label pI = patch().index();
     scalarListList sampledValues(cellIndexList_.size());
@@ -58,28 +58,32 @@ void Foam::SampledWallGradUField::registerFields() const
     // Grab h to copy bcs from it.
     const volScalarField & h = db().lookupObject<volScalarField>("h");
     
-    db().thisDb().store
-    (     
-        new volVectorField
-        (
-            IOobject
+    if (!db().thisDb().foundObject<volVectorField>("wallGradU"))
+    {
+        Pout<< "Registering wallGradU field" << nl;
+        db().thisDb().store
+        (     
+            new volVectorField
             (
-                "wallGradU",
-                db().time().timeName(),
+                IOobject
+                (
+                    "wallGradU",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
                 db(),
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            db(),
-            dimensionedVector
-            (
-                "wallGradU",
-                dimVelocity/dimLength,
-                vector(0, 0, 0)
-            ),
-            h.boundaryField().types()
-        )
-    );  
+                dimensionedVector
+                (
+                    "wallGradU",
+                    dimVelocity/dimLength,
+                    pTraits<vector>::zero
+                ),
+                h.boundaryField().types()
+            )
+        );  
+    }
     
     db().thisDb().store
     (        
@@ -89,11 +93,11 @@ void Foam::SampledWallGradUField::registerFields() const
             (
                 "wallGradU",
                 db().time().timeName(),
-                db().subRegistry("wallModelSampling", 0),
+                db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0),
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),
-            vectorField(cellIndexList_.size(), pTraits<vector>::zero)
+            vectorField(patch_.size(), pTraits<vector>::zero)
         )
     );
 }
