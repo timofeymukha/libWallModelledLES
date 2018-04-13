@@ -23,42 +23,32 @@ License
 #include "fvcGrad.H"
 #include "List.H"
 
-// * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-
-Foam::scalarListList Foam::SampledPGradField::sample() const
+void Foam::SampledPGradField::sample(Foam::scalarListList & sampledValues) const
 {
     Info<< "Sampling pressure gradient for patch " << patch_.name() << nl;
     
-    scalarListList sampledValues(cellIndexList_.size());
-    
-    const volVectorField & pGradField = db().lookupObject<volVectorField>("pGrad");
+    const volVectorField & pGradField =
+        db().lookupObject<volVectorField>("pGrad");
     vectorField sampledPGrad(cellIndexList_.size());
     
-    for(int i=0; i<cellIndexList_.size(); i++)
+    for (int i=0; i<cellIndexList_.size(); i++)
     {
         sampledPGrad[i] = pGradField[cellIndexList_[i]];
         sampledValues[i] = List<scalar>(3);
         
-        for(int j=0; j<3; j++)
+        for (int j=0; j<3; j++)
         {
             sampledValues[i][j] = sampledPGrad[i][j]; 
         }
     }
     projectVectors(sampledValues);
-    
-    return sampledValues;
 }
 
 
-// Register appropriate fields in the object registry
 void Foam::SampledPGradField::registerFields() const
 {
-    
     // Grab h to copy bcs from it.
     const volScalarField & h = db().lookupObject<volScalarField>("h");
     
@@ -86,26 +76,40 @@ void Foam::SampledPGradField::registerFields() const
                 h.boundaryField().types()
             )
         );
-
-        db().thisDb().store
-        (          
-            new IOField<vector>
+    }
+    
+    const objectRegistry & registry =
+        db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0);
+    
+    db().thisDb().store
+    (          
+        new IOField<vector>
+        (
+            IOobject
             (
-                IOobject
-                (
-                    "pGrad",
-                    db().time().timeName(),
-                    db().subRegistry("wallModelSampling", 0),
-                    IOobject::READ_IF_PRESENT,
-                    IOobject::AUTO_WRITE
-                ),
-                vectorField(cellIndexList_.size(), pTraits<vector>::zero)
-            )
-        );
+                "pGrad",
+                db().time().timeName(),
+                registry,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            vectorField(cellIndexList_.size(), pTraits<vector>::zero)
+        )
+    );
+    
+    recompute();
+    
+    vectorField & sampledPGrad =
+        const_cast<vectorField &>(registry.lookupObject<vectorField>("pGrad"));
+    
+    const volVectorField & pGrad = db().lookupObject<volVectorField>("pGrad");
+    forAll(sampledPGrad, i)
+    {
+        sampledPGrad[i] = pGrad[cellIndexList_[i]];
     }
 }
 
-//- Recompute field
+
 void Foam::SampledPGradField::recompute() const
 {
     volVectorField & pGrad = const_cast<volVectorField &>

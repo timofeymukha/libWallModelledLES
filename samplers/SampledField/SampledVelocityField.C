@@ -21,38 +21,38 @@ License
 #include "SampledVelocityField.H"
 #include "volFields.H"
 
-// * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalarListList Foam::SampledVelocityField::sample() const
+void
+Foam::SampledVelocityField::sample(Foam::scalarListList & sampledValues) const
 {
-    
     Info<< "Sampling velocity for patch " << patch_.name() << nl;
-    scalarListList sampledValues(cellIndexList_.size());
     
     const volVectorField & UField = db().lookupObject<volVectorField>("U");
+    const vectorField & Uwall = UField.boundaryField()[patch().index()];
+    
     vectorField sampledU(cellIndexList_.size());
     
-    for(int i=0; i<cellIndexList_.size(); i++)
+    for (int i=0; i<cellIndexList_.size(); i++)
     {
-        sampledU[i] = UField[cellIndexList_[i]]; 
+        sampledU[i] = UField[cellIndexList_[i]] - Uwall[i]; 
         sampledValues[i] = List<scalar>(3);
         
-        for(int j=0; j<3; j++)
+        for (int j=0; j<3; j++)
         {
             sampledValues[i][j] = sampledU[i][j]; 
         }
     }
     projectVectors(sampledValues);
-
-    return sampledValues;
 }
+
 
 void Foam::SampledVelocityField::registerFields() const
 {
+    const objectRegistry & registry =
+        db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0);
+    
     db().thisDb().store
     (        
         new IOField<vector>
@@ -61,13 +61,22 @@ void Foam::SampledVelocityField::registerFields() const
             (
                 "U",
                 db().time().timeName(),
-                db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0),
+                registry, 
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),
             vectorField(cellIndexList_.size(), pTraits<vector>::zero)
         )
     );
+    
+    vectorField & sampledU =
+        const_cast<vectorField &>(registry.lookupObject<vectorField>("U"));
+    
+    const volVectorField & U = db().lookupObject<volVectorField>("U");
+    forAll(sampledU, i)
+    {
+        sampledU[i] = U[cellIndexList_[i]];
+    }
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

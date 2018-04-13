@@ -20,7 +20,10 @@ Class
     Foam::SampledField
 
 Description
-    Base class for a sampled field.
+    Base class for a sampled field. Handles sampling of recomputing a 
+    specific field. Also registers the field to the object registry
+    under the sub-registry wallModelSampling -- patch-name.
+    
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh
@@ -57,11 +60,9 @@ protected:
                     
 public:
 
-
     // Constructors
 
-        //- Construct from patch and averaging time
-        
+        //- Construct from patch and cell index list
         SampledField
         (
             const fvPatch & patch,
@@ -72,9 +73,11 @@ public:
             db_(patch_.boundaryMesh().mesh()),
             cellIndexList_(cil)
         {}
-            
+        
+        //- Clone the object
         virtual SampledField* clone() const = 0;
 
+        //- Destructor
         virtual ~SampledField() {};        
             
     // Member functions
@@ -85,21 +88,26 @@ public:
             return db_;
         }
         
+        //- Get the cell index list
         const labelList & cellIndexList() const
         {
             return cellIndexList_;
         }
     
+        //- Get the patch
         const fvPatch & patch() const
         {
             return patch_;
         }
         
+        //- Get the name of the sampled field
         virtual word name() const = 0;
         
+        //- The number of dimensions of the field
         virtual label nDims() const = 0;
         
-        virtual scalarListList sample() const = 0;
+        //- Sample the field
+        virtual void sample(scalarListList &) const = 0;
         
         //- Project vector field to wall-parallel direction
         void projectVectors(scalarListList &) const;
@@ -107,7 +115,7 @@ public:
         //- Register appropriate fields in the object registry
         virtual void registerFields() const {}
         
-        //- Recompute field
+        //- Recompute the field
         virtual void recompute() const = 0;       
 };
 

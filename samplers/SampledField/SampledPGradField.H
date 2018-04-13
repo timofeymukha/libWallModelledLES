@@ -53,7 +53,7 @@ public:
 
     // Constructors
 
-        //- Construct from patch and index list
+        //- Construct from patch and cell index list
         SampledPGradField
         (
             const fvPatch & patch,
@@ -64,36 +64,37 @@ public:
         { 
             registerFields();
         }
-            
+        
+        //- Clone the object
         virtual SampledPGradField* clone() const
         {
             return new SampledPGradField(*this);
         }
         
+        //- Destructor
         virtual ~SampledPGradField() {};        
             
     // Member functions
         
-        //- Number of dimensions of the sampled field
+        //- The number of dimensions of the field
         virtual label nDims() const
         {
             return 3;
         }
         
-        //- Return the name of the name of the sampled field
+        //- Get the name of the sampled field
         virtual word name() const
         {
             return "pGrad";
         }
         
-        
         //- Sample the pressure gradient values
-        virtual List<List<scalar> > sample() const;
+        virtual void sample(scalarListList &) const;
         
         //- Register appropriate fields in the object registry
         virtual void registerFields() const;
         
-        //- Recompute field
+        //- Recompute the field
         virtual void recompute() const;       
 };
 

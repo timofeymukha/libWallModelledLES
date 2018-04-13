@@ -173,6 +173,7 @@ void Foam::Sampler::createLengthList()
     
 }
 
+
 void Foam::Sampler::project(vectorField & field) const
 {
     const tmp<vectorField> tfaceNormals = patch_.nf();
@@ -205,9 +206,7 @@ Foam::Sampler::Sampler
     db_(patch_.boundaryMesh().mesh().subRegistry("wallModelSampling", 1).subRegistry(patch_.name(), 1)),
     mesh_(patch_.boundaryMesh().mesh()),
     sampledFields_(0)
-{
-    Pout<< "Creating sampler for patch " << patch().name() << nl;
-    
+{   
     createFields();
     createIndexList();
     createLengthList();
@@ -234,8 +233,6 @@ Foam::Sampler::Sampler(const Sampler & copy)
     mesh_(copy.mesh_),
     sampledFields_(copy.sampledFields_.size())
 {
-    Pout<< "Copying sampler for patch " << patch().name() << nl;
-
     forAll(copy.sampledFields_, i)
     {
         sampledFields_[i] = copy.sampledFields_[i]->clone();
@@ -246,12 +243,12 @@ Foam::Sampler::Sampler(const Sampler & copy)
 
 Foam::Sampler::~Sampler()
 {
-    Pout<< "deleting sampler for patch " << patch().name() << nl;
     forAll(sampledFields_, i)
     {
         delete sampledFields_[i];
     }
 }
+
 
 void Foam::Sampler::sample() const
 {
@@ -260,8 +257,6 @@ void Foam::Sampler::sample() const
     {
         return;
     }    
-        
-    //Info << "Sampling the fields" << nl;
     
     // Weight for time-averaging, default to 1 i.e no averaging.
     scalar eps = 1;
@@ -269,32 +264,28 @@ void Foam::Sampler::sample() const
     {
         eps = mesh_.time().deltaTValue()/averagingTime_;
     }
-    
-    //Info << db_.names() << nl;
-    
+
     forAll(sampledFields_, fieldI)
     {
 
-        scalarListList sampledList = sampledFields_[fieldI]->sample();
-        //Pout << "sampledList " << sampledList << nl;
+        scalarListList sampledList(patch().size());
+        sampledFields_[fieldI]->sample(sampledList);
         
         if (sampledFields_[fieldI]->nDims() == 3)
         {
             vectorField sampledField(patch_.size());
             listListToField<vector>(sampledList, sampledField);
-            //Info << "sampledField " << sampledField << nl;
             
             vectorField & storedValues = const_cast<vectorField &>
             (
                 db_.lookupObject<vectorField>(sampledFields_[fieldI]->name())
             );
             storedValues = eps*sampledField + (1 - eps)*storedValues;
-            //Info << "storedvalues" << storedValues << nl;
         }     
 
     }
-    //Info << "Done sampling" << nl;
 }
+
 
 template<class Type>
 void Foam::Sampler::listListToField
@@ -322,9 +313,7 @@ void Foam::Sampler::addField(SampledField * field)
 
 
 void Foam::Sampler::recomputeFields() const
-{
-    //Info << "Recomputing sampled fields" << nl;
-    
+{  
     forAll(sampledFields_, i)
     {
         sampledFields_[i]->recompute();

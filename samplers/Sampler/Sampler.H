@@ -78,9 +78,7 @@ protected:
         List<SampledField *> sampledFields_;
                       
     // Protected Member Functions
-        
-
-             
+                    
         //- Create list of cell-indices from where data is sampled
         void createIndexList();
         
@@ -91,7 +89,6 @@ protected:
         void project(vectorField & field) const;
         
 public:
-
 
     // Constructors
 

@@ -54,8 +54,7 @@ public:
     
     // Constructors
 
-        //- Construct from patch and averaging time
-        
+        //- Construct from patch and cell index list
         SampledWallGradUField
         (
             const fvPatch & patch,
@@ -67,34 +66,36 @@ public:
             registerFields();
         }
             
+        //- Clone the object    
         virtual SampledWallGradUField* clone() const
         {
             return new SampledWallGradUField(*this);
         }
         
+        //- Destructor
         virtual ~SampledWallGradUField() {};        
             
     // Member functions
         
-        //- Sample the velocity values
-        virtual List<List<scalar> > sample() const;
+        //- Sample the wall-normal velocity gradient values
+        virtual void sample(scalarListList &) const;
                 
-        //- Number of dimensions of the sampled field
+        //- The number of dimensions of the field
         virtual label nDims() const
         {
             return 3;
         }
         
-        //- Return the name of the name of the sampled field
+        //- Get the name of the sampled field
         virtual word name() const
         {
             return "wallGradU";
         }
         
-        // Register appropriate fields in the object registry
+        //- Register appropriate fields in the object registry
         virtual void registerFields() const;
         
-        //- Recompute field
+        //- Recompute the field
         virtual void recompute() const;   
 };
 

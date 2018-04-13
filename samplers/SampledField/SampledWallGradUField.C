@@ -21,20 +21,15 @@ License
 #include "SampledWallGradUField.H"
 #include "volFields.H"
 
-// * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalarListList Foam::SampledWallGradUField::sample() const
+void
+Foam::SampledWallGradUField::sample(Foam::scalarListList & sampledValues) const
 {
-    
     Info<< "Sampling wall-normal velocity gradient for patch " << patch_.name() << nl;
     
     label pI = patch().index();
-    scalarListList sampledValues(cellIndexList_.size());
-    
+   
     const volVectorField & wallGradU =
         db().lookupObject<volVectorField>("wallGradU");
     
@@ -50,8 +45,8 @@ Foam::scalarListList Foam::SampledWallGradUField::sample() const
         }
     }
     projectVectors(sampledValues);
-    return sampledValues;
 }
+
 
 void Foam::SampledWallGradUField::registerFields() const
 {
@@ -85,6 +80,9 @@ void Foam::SampledWallGradUField::registerFields() const
         );  
     }
     
+    const objectRegistry & registry =
+        db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0);
+    
     db().thisDb().store
     (        
         new IOField<vector>
@@ -93,14 +91,34 @@ void Foam::SampledWallGradUField::registerFields() const
             (
                 "wallGradU",
                 db().time().timeName(),
-                db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0),
+                registry,
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),
             vectorField(patch_.size(), pTraits<vector>::zero)
         )
     );
+    
+    recompute();
+    
+    vectorField & sampledWallGradU =
+        const_cast<vectorField &>
+        (
+            registry.lookupObject<vectorField>("wallGradU")
+        );
+    
+    const volVectorField & wallGradU = 
+        db().lookupObject<volVectorField>("wallGradU");
+    
+    label pI = patch().index();
+    const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
+    
+    forAll(sampledWallGradU, i)
+    {
+        sampledWallGradU[i] = boundaryValues[i];
+    }
 }
+
 
 void Foam::SampledWallGradUField::recompute() const
 {
@@ -115,8 +133,6 @@ void Foam::SampledWallGradUField::recompute() const
     const fvPatchVectorField & Uwall = U.boundaryField()[pI];
       
     vectorField Udiff = Uwall.patchInternalField() - Uwall;
-    //project(Udiff);
-
     wallGradU.boundaryField()[pI] == patch().deltaCoeffs()*Udiff;  
 }
 
