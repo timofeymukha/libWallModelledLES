@@ -26,7 +26,8 @@ License
 void
 Foam::SampledWallGradUField::sample(Foam::scalarListList & sampledValues) const
 {
-    Info<< "Sampling wall-normal velocity gradient for patch " << patch_.name() << nl;
+    Info<< "Sampling wall-normal velocity gradient for patch "
+        << patch_.name() << nl;
     
     label pI = patch().index();
    

@@ -235,7 +235,9 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     {
         return;
     }
-
+    
+    label pI = patch().index();
+    
     // Sample fields
     sampler_.recomputeFields();
     sampler_.sample();
@@ -250,12 +252,16 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
             db().lookupObject<volVectorField>("wallShearStress")
         );
     
+    const volVectorField & wallGradUField =
+        db().lookupObject<volVectorField>("wallGradU");
+    
+    const vectorField & wallGradU = wallGradUField.boundaryField()[pI];
     
     const volScalarField & nu = db().lookupObject<volScalarField>("nu");
     const scalarField & nut = *this;
 
-    label pI = patch().index();
-    wss.boundaryField()[pI] == (nut + nu.boundaryField()[pI])*wallGradU_;
+
+    wss.boundaryField()[pI] == (nut + nu.boundaryField()[pI])*wallGradU;
 
     fixedValueFvPatchScalarField::updateCoeffs();
 }
