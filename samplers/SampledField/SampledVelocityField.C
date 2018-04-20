@@ -52,7 +52,22 @@ void Foam::SampledVelocityField::registerFields() const
 {
     const objectRegistry & registry =
         db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0);
-    
+
+    vectorField sampledU = 
+        vectorField(cellIndexList_.size(), pTraits<vector>::zero);
+
+    if (db().thisDb().foundObject<volVectorField>("U"))
+    {
+        const volVectorField & U = db().lookupObject<volVectorField>("U");
+        forAll(sampledU, i)
+        {
+            sampledU[i] = U[cellIndexList_[i]];
+        }
+
+        projectVectors(sampledU);
+    }
+
+
     db().thisDb().store
     (        
         new IOField<vector>
@@ -65,18 +80,10 @@ void Foam::SampledVelocityField::registerFields() const
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),
-            vectorField(cellIndexList_.size(), pTraits<vector>::zero)
+            sampledU
         )
     );
-    
-    vectorField & sampledU =
-        const_cast<vectorField &>(registry.lookupObject<vectorField>("U"));
-    
-    const volVectorField & U = db().lookupObject<volVectorField>("U");
-    forAll(sampledU, i)
-    {
-        sampledU[i] = U[cellIndexList_[i]];
-    }
+
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

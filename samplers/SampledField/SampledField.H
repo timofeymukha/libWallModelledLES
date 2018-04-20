@@ -111,6 +111,8 @@ public:
         
         //- Project vector field to wall-parallel direction
         void projectVectors(scalarListList &) const;
+
+        void projectVectors(vectorField &) const;
         
         //- Register appropriate fields in the object registry
         virtual void registerFields() const {}

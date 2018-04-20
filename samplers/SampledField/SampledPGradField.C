@@ -80,6 +80,22 @@ void Foam::SampledPGradField::registerFields() const
     
     const objectRegistry & registry =
         db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0);
+
+    vectorField sampledPGrad =
+        vectorField(cellIndexList_.size(), pTraits<vector>::zero);
+
+    if (db().thisDb().foundObject<volScalarField>("p"))
+    {
+        recompute();
+        
+        const volVectorField & pGrad = db().lookupObject<volVectorField>("pGrad");
+        forAll(sampledPGrad, i)
+        {
+            sampledPGrad[i] = pGrad[cellIndexList_[i]];
+        }
+
+        projectVectors(sampledPGrad);
+    }
     
     db().thisDb().store
     (          
@@ -93,20 +109,10 @@ void Foam::SampledPGradField::registerFields() const
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),
-            vectorField(cellIndexList_.size(), pTraits<vector>::zero)
-        )
+            sampledPGrad
+         )
     );
     
-    recompute();
-    
-    vectorField & sampledPGrad =
-        const_cast<vectorField &>(registry.lookupObject<vectorField>("pGrad"));
-    
-    const volVectorField & pGrad = db().lookupObject<volVectorField>("pGrad");
-    forAll(sampledPGrad, i)
-    {
-        sampledPGrad[i] = pGrad[cellIndexList_[i]];
-    }
 }
 
 

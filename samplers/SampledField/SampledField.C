@@ -46,4 +46,20 @@ void Foam::SampledField::projectVectors(List<List<scalar> > & field) const
         field[i] = fieldIList;        
     }
 }
+
+void Foam::SampledField::projectVectors(vectorField & field) const
+{
+    const tmp<vectorField> tfaceNormals = patch_.nf();
+    const vectorField faceNormals = tfaceNormals();
+
+    
+    forAll(field, i)
+    {   
+        // Normal component as dot product with (inwards) face normal
+        vector normal = -faceNormals[i]*(field[i] & -faceNormals[i]);
+        
+        // Subtract normal component to get the parallel one
+        field[i] -= normal;
+    }
+}
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

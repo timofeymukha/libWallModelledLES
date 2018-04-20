@@ -55,7 +55,6 @@ void Foam::SampledWallGradUField::registerFields() const
     
     if (!db().thisDb().foundObject<volVectorField>("wallGradU"))
     {
-        Pout<< "Registering wallGradU field" << nl;
         db().thisDb().store
         (     
             new volVectorField
@@ -82,6 +81,29 @@ void Foam::SampledWallGradUField::registerFields() const
     
     const objectRegistry & registry =
         db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0);
+
+    vectorField sampledWallGradU =
+        vectorField(patch_.size(), pTraits<vector>::zero);
+
+
+    if (db().thisDb().foundObject<volVectorField>("U"))
+    {
+        recompute();
+        
+        const volVectorField & wallGradU = 
+            db().lookupObject<volVectorField>("wallGradU");
+        
+        label pI = patch().index();
+        const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
+        
+        forAll(sampledWallGradU, i)
+        {
+            sampledWallGradU[i] = boundaryValues[i];
+        }
+
+        projectVectors(sampledWallGradU);
+    }
+
     
     db().thisDb().store
     (        
@@ -95,28 +117,10 @@ void Foam::SampledWallGradUField::registerFields() const
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),
-            vectorField(patch_.size(), pTraits<vector>::zero)
+            sampledWallGradU
         )
     );
-    
-    recompute();
-    
-    vectorField & sampledWallGradU =
-        const_cast<vectorField &>
-        (
-            registry.lookupObject<vectorField>("wallGradU")
-        );
-    
-    const volVectorField & wallGradU = 
-        db().lookupObject<volVectorField>("wallGradU");
-    
-    label pI = patch().index();
-    const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
-    
-    forAll(sampledWallGradU, i)
-    {
-        sampledWallGradU[i] = boundaryValues[i];
-    }
+
 }
 
 
