@@ -112,7 +112,7 @@ Foam::scalarList Foam::DupratEddyViscosity::value
     
     scalar uP = pow(nu*mag(pGrad[index]), 1./3);
     scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
-    scalar alpha = uTau/uTauP;
+    scalar alpha = sqr(uTau)/sqr(uTauP);
         
     const scalarList yStar = y*uTauP/nu;
     

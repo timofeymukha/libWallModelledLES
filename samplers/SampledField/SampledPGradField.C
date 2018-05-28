@@ -71,7 +71,7 @@ void Foam::SampledPGradField::registerFields() const
                 (
                     "pGrad",
                     dimLength/sqr(dimTime),
-                    vector(0, 0, 0)
+                    pTraits<vector>::zero
                 ),
                 h.boundaryField().types()
             )
@@ -86,9 +86,11 @@ void Foam::SampledPGradField::registerFields() const
 
     if (db().thisDb().foundObject<volScalarField>("p"))
     {
-        recompute();
+        //recompute();
         
-        const volVectorField & pGrad = db().lookupObject<volVectorField>("pGrad");
+        const volVectorField & pGrad = 
+            db().lookupObject<volVectorField>("pGrad");
+        
         forAll(sampledPGrad, i)
         {
             sampledPGrad[i] = pGrad[cellIndexList_[i]];
