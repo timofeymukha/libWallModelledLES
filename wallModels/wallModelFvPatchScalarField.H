@@ -47,7 +47,6 @@ SourceFiles
 #define wallModelFvPatchScalarField_H
 
 #include "fixedValueFvPatchFields.H"
-#include "CellIndexList.H"
 #include "Sampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

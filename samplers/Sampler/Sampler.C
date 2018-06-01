@@ -294,7 +294,6 @@ void Foam::Sampler::listListToField
     Field<Type> & field    
 ) const
 {
-    scalar nDims = list[0].size();
     forAll(list, i)
     {
         Type element;
