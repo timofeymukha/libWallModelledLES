@@ -68,11 +68,21 @@ Naturally, results may vary heavily depending on the case in questions.
   This will need an apriori knowledge of the distribution of delta across the wall.
   A RANS precursor can do the job.
 - Use an isotropic grid in the boundary layer.
+  In particular, no need to refine it towards the wall, which may seem weird after wall-resolved LES.
   For some inspiration on unstructured meshing strategies see (Mukha, Johansson & Liefvendahl, in ECFD 7, Glasgow, UK, 2018).
 - In regions where the TBL is attached, set *h* to be the distance to the second consecutive off-the wall cell centre. In other regions, use *h=0*,
   i.e. sample from the wall-adjacent cell.
 - Use a mildly diffusive numerical scheme, e.g. LUST. Tips regading what other schemes worked well are welcome :).
 - The WALE model is a good first choice for SGS modelling.
+- If your simulation crashes because of the wall model (you can usually see that in the log), make sure you have a good initial condition.
+- If your simulation crashed anyway, use *h =0*, this is the most stable regime.
+- Large values of *h* are known to sometimes lead to a crash, in particular, if the grid below *h* is refined.
+- If you use *h=0*, use an algebraic wall model in integral formulation, i.e. the *LOTWWallModel* with e.g. the *IntegratedReichardt* law.
+- Use a low tolerance and a decent number of iteration for the Newton solver, this will remove spikes in *nut* that may occur when the solver is not converged.
+  A tolerance of 0.0001 and 20-30 iterations is usually a good choice.
+  All te iterations will be taken only if the the tolerance is not achived earlier.
+- Similarly, for ODE models, use a relatively dense 1D grid, e.g. 50 points.
+  There is no large impact on performance.
 
 ## Source files' contents
 
