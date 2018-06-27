@@ -58,6 +58,22 @@ literature. A tiny toy case can be found under tests/testCases/channel\_flow
 where the 0/nut file provides an example of setting up the boundary
 conditions.
 
+## Best practice guidelines ##
+This is intended to be a summary of tips based on the experience of the developers and users of the library.
+The intention is to give a good starting point for new users.
+Naturally, results may vary heavily depending on the case in questions.
+
+- In the boundary layer, define your grid density as the number of cells per delta^3, where delta is the thickness of the boundary layer.
+  A good number is 27000 cells, but you can get good results with less.
+  This will need an apriori knowledge of the distribution of delta across the wall.
+  A RANS precursor can do the job.
+- Use an isotropic grid in the boundary layer.
+  For some inspiration on unstructured meshing strategies see (Mukha, Johansson & Liefvendahl, in ECFD 7, Glasgow, UK, 2018).
+- In regions where the TBL is attached, set *h* to be the distance to the second consecutive off-the wall cell centre. In other regions, use *h=0*,
+  i.e. sample from the wall-adjacent cell.
+- Use a mildly diffusive numerical scheme, e.g. LUST. Tips regading what other schemes worked well are welcome :).
+- The WALE model is a good first choice for SGS modelling.
+
 ## Source files' contents
 
 The contents of the files in each folder is briefly described below.
