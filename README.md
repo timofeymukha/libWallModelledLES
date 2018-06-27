@@ -25,9 +25,11 @@ models.
 
 ## Compatibility ##
 
-The library has been developed using OpenFOAM version 3.0.1. It has also been
-compiled using OpenFOAM 2.3.1. Versions 4.x are currently not supported due
-to breaking changes in the API (dereferencing, in particular).
+The library has been developed using OpenFOAM version 3.0.1.
+A branch for version 2.3.1 is available, but does not contain all the latest featrues.
+Versions 4.x and up are currently not supported due to breaking changes in the API (dereferencing, in particular).
+Setting up a more complicated compilation procedure to support more version is on the todo list, currently no promises can be made regarding when it will be done.
+Contributions are highly welcome :).
 
 ## Installing ##
 
@@ -35,8 +37,26 @@ Clone the repository to the directory of your choice and run wmake inside.
 This should be it!
 
 If you want to build the source code documentation with doxygen, go into the
-docs folder and run "doxygen config". This will create an html folder that
-can be read using a browser.
+docs folder and run "doxygen config".
+This will create an html folder that can be read using a browser.
+
+In the *tests* folder there is a toy channel flow case that you can try running to make sure that things compiled well.
+
+## Case se-up ##
+Assume that you've already set up a case for the classical wall-resolved LES. To convert it to WMLES you need to do the following:
+
+- Add libWallModelledLES.so to the loaded libraries in the controlDict.
+- Go into the *nut* file, and set up wall models as the boundary conditions at the walls.
+  This is similar to what you would do with OpenFOAM's built in model based on Spalding's law, *nutUSpaldingWallFunction*.
+  The set-up and parameters for each model in the library can be found in the header of the associated .H file, see list of files below.
+- In your *0* directory, you should add a new volScalarField, *h*.
+  This will hold the distance from the faces to the cell-center which will be  used for sampling data into the wall model.
+  The value of the internalField is irrelevant, you can put it to some constant scalar, e.g. 0.
+  At boundaries where wall modelling is not applied, *zeroGradient* can be used.
+  At the walls where wall modelling is applied, the value of h should be provided.
+  The value 0 is reserved to indicate sampling from the wall-adjacent cell.
+  You can either provide a uniform value for the whole patch or a list of scalars, with separate values for each face.
+  To do the latter conveniently based on some criteria, using funkySetFields is recommended, it is a utility, which is part of swak4foam.
 
 ## Documentation ##
 
@@ -58,7 +78,7 @@ Each such pair is treated as one item in the list below, without providing the f
     * JohnsonKing/JohnsonKingEddyViscosity Class for eddy visocosity based on the mixing length model with vanDriest damping (van Driest, Journal of the Aeronautical Sciences, 1956)
 
 - lawsOfTheWall
-    * IntegratedReichardtLawOfTheWall/IntegratedReichardtLawOfTheWall
+    * IntegratedReichardtLawOfTheWall/IntegratedReichardtLawOfTheWall Class for the integrated formulation of the algebraic model based on Reichardts' law. (Reichardt, Zeitschrift für Angewandte Mathematik und Mechanik, 1951)
     * IntegratedWernerWengleLawOfTheWall/IntegratedWernerWengleLawOfTheWall
     * LawOfTheWall/LawOfTheWall
     * ReichardLawOfTheWall/ReichardLawOfTheWall
