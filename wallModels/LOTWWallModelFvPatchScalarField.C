@@ -54,30 +54,13 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
         )
     );
     
-    // Velocity at the boundary (in case of moving boundary)
-/*    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
-    vectorField Udiff = Uw.patchInternalField() - Uw;
-    
-    project(Udiff);
-    
-    // Magnitude of wall-normal velocity gradient
-    const vectorField wallGradU(patch().deltaCoeffs()*Udiff);
-    
-    volVectorField & wallGradUField = 
-        const_cast<volVectorField &>
-        (
-            db().lookupObject<volVectorField>("wallGradU")
-        );
-    
-    wallGradUField.boundaryField()[patchi] == wallGradU;
-*/
-
-
     // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();
         
-    scalarField magGradU = mag(wallGradU_);
+    scalarField magGradU =  mag(wallGradU_);
+
+
     return max
     (
         scalar(0),
@@ -88,8 +71,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
 Foam::tmp<Foam::scalarField> 
 Foam::LOTWWallModelFvPatchScalarField::
 calcUTau(const scalarField & magGradU) const
-{
-
+{  
     const label patchi = patch().index();
     const label patchSize = patch().size();
     
@@ -98,9 +80,6 @@ calcUTau(const scalarField & magGradU) const
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
        
-    // Velocity relative to boundary and its magnitude
-    scalarField magU = mag(U_);
-
     // Turbulent viscosity
     const scalarField & nutw = *this;
 
@@ -124,16 +103,17 @@ calcUTau(const scalarField & magGradU) const
     {
         // Starting guess using old values
         scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
-
+        
         if (ut > ROOTVSMALL)
         {
+
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
-            value = std::bind(&LawOfTheWall::value, &law_(), magU[faceI], 
-                              h_[faceI], _1, nuw[faceI]);
+            value = std::bind(&LawOfTheWall::value, &law_(), faceI, _1, 
+                              nuw[faceI]);
             
-            derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
-                                   magU[faceI], h_[faceI], _1, nuw[faceI]);
+            derivValue = std::bind(&LawOfTheWall::derivative, &law_(), faceI,
+                                   _1, nuw[faceI]);
 
             // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
@@ -141,12 +121,12 @@ calcUTau(const scalarField & magGradU) const
       
             // Compute root to get uTau
             uTau[faceI] = max(0.0, rootFinder_->root(ut));
+
         }
     }
-
+    
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryField()[patchi] == uTau;
-    
     return tuTau;
 }
 
@@ -180,7 +160,8 @@ LOTWWallModelFvPatchScalarField
                                 ptf.rootFinder_->eps(),
                                 ptf.rootFinder_->maxIter())),
     law_(LawOfTheWall::New(ptf.law_->type(),
-                           ptf.law_->constDict()))
+                           ptf.law_->constDict(),
+                           ptf.law_->sampler()))
 {
 }
 
@@ -194,7 +175,7 @@ LOTWWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(p, iF, dict),
     rootFinder_(RootFinder::New(dict.subDict("RootFinder"))),
-    law_(LawOfTheWall::New(dict.subDict("Law")))
+    law_(LawOfTheWall::New(dict.subDict("Law"), sampler_))
 {}
 
 

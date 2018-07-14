@@ -33,7 +33,7 @@ Description
         value               uniform 0;
         maxIter             value; (default 10)
         eps                 value; (default 1e-3)
-        nMeshY              value; (default 10)
+        nMeshY              value; (default 30)
 
         EddyViscosity 
         {
@@ -76,7 +76,7 @@ protected:
         virtual void writeLocalEntries(Ostream &) const;
         
         //- The source term, which is zero
-        virtual void source(const int, vector &) const
+        virtual void source(vectorField &) const
         {};
         
 public:

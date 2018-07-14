@@ -20,6 +20,7 @@ License
 
 #include "SpaldingLawOfTheWall.H"
 #include "addToRunTimeSelectionTable.H"
+#include "volFields.H"
 
 namespace Foam
 {
@@ -33,10 +34,11 @@ namespace Foam
 
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
-    const Foam::dictionary & dict
+    const dictionary & dict,
+    Sampler & list
 )
 :
-    LawOfTheWall(dict),
+    LawOfTheWall(dict, list),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
     B_(dict.lookupOrDefault<scalar>("B", 5.5))
 {
@@ -50,10 +52,11 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
     const word & lawName,
-    const dictionary & dict
+    const dictionary & dict,
+    Sampler & list
 )
 :
-    LawOfTheWall(dict),
+    LawOfTheWall(lawName, dict, list),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
     B_(dict.lookupOrDefault<scalar>("B", 5.5))
 {
@@ -77,13 +80,18 @@ void Foam::SpaldingLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::SpaldingLawOfTheWall::value
 (
-    scalar u,
-    scalar y,
+    scalar index,
     scalar uTau,
     scalar nu
 ) const
 {
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+
+    scalar u = mag(U[index]);
+
+    scalar y = sampler_.h()[index];
     scalar uPlus = u/uTau;
+
     return uPlus + exp(-kappa_*B_)*(exp(kappa_*uPlus) - 1 - kappa_*uPlus
          - 0.5*sqr(kappa_*uPlus) - 1./6*kappa_*uPlus*sqr(kappa_*uPlus))
          - y*uTau/nu;
@@ -91,12 +99,15 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
 
 Foam::scalar Foam::SpaldingLawOfTheWall::derivative
 (
-    scalar u,
-    scalar y,
+    scalar index,
     scalar uTau,
     scalar nu        
 ) const
 {
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalar u = mag(U[index]);
+    
+    scalar y = sampler_.h()[index];
     scalar uPlus = u/uTau;
     return -y/nu - u/sqr(uTau) - kappa_*uPlus/uTau*exp(-kappa_*B_)
            *(exp(kappa_*uPlus) - 1 - kappa_*uPlus - 0.5*sqr(kappa_*uPlus));

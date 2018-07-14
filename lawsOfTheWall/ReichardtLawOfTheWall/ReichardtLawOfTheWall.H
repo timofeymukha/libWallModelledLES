@@ -17,48 +17,50 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::SpaldingLawOfTheWall
+    Foam::ReichardtLawOfTheWall
 
 Description
-    The law of the wall proposed by Spalding.
+    The law of the wall proposed by Reichardt.
 
     \f[
-    y^+ = u^+ +  \exp(-\kappa B) \left( \exp (\kappa B) - 1 - \kappa u^+ -
-             \frac{1}{2}(\kappa u^+)^2 - \frac{1}{6}(\kappa u^+)^3 \right)
-    \f]
-
-    Since the formula above is differentiable, it is advised to use Newton's
-    method to solve for \f$u_\tau \f$.
+    u^+ = \frac{1}{\kappa } \ln (1 + \kappa y^+) + C \left( 1 - \exp (-y^+/B_1)-
+          \frac{y^+}{B_1} \exp(-y^+/B_2) \right)
+    \f]   
 
     Usage:
     \verbatim
     Law
     {
-        type      Spalding;
+        type      Reichardt;
         kappa     value; (default 0.4)
-        B         value; (default 5.5)
+        B1        value; (default 11)
+        B2        value; (default 3)
+        C         value; (default 7.8)
     }
     \endverbatim
-    
+
     Reference:
     \verbatim
-        Spalding, D. B. (1961).
-        A single formula for the 'law of the wall'.
-        Journal of Applied Mechanics,
-        28(3), 455-458.
+        Reichardt, H. (1951).
+        Vollstandige Darstellung der turbulenten Geschwindigkeitsverteilung in
+        glatten Leitungen.
+        Zeitschrift fur Angewandte Mathematik und Mechanik 31(7) (pp. 208-219).
     \endverbatim
 
 Authors
-    Timofey Mukha, Saleh Rezaeiravesh.
+    Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
-    SpaldingLawOfTheWall.C
+    ReichardtLawOfTheWall.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef SpaldingLawOfTheWall_H
-#define SpaldingLawOfTheWall_H
+#ifndef ReichardtLawOfTheWall_H
+#define ReichardtLawOfTheWall_H
 
+#include "scalar.H"
+#include "typeInfo.H"
+#include "dictionary.H"
 #include "LawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -67,10 +69,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class SpaldingLawOfTheWall Declaration
+                    Class WernerWengleLawOfTheWall Declaration
 \*---------------------------------------------------------------------------*/
 
-class SpaldingLawOfTheWall: public LawOfTheWall
+class ReichardtLawOfTheWall: public LawOfTheWall
 {
     
     // Private data
@@ -78,42 +80,62 @@ class SpaldingLawOfTheWall: public LawOfTheWall
         //- The kappa model constant
         scalar kappa_;
         
-        //- The B model constant
-        scalar B_;
+        //- The B1 model constant
+        scalar B1_;
+        
+        //- The B1 model constant
+        scalar B2_;
+        
+        //- The C model constant
+        scalar C_;
         
 public:
     
-    TypeName("Spalding");
+    TypeName("Reichardt");
 
     // Constructors
-      
+
         //- Construct provided dictionary and cell index list
-        SpaldingLawOfTheWall(const dictionary &, Sampler &);
+        ReichardtLawOfTheWall(const dictionary &, Sampler &);
         
         //- Construct provided TypeName and dictionary and cell index list
-        SpaldingLawOfTheWall
+        ReichardtLawOfTheWall
         (
             const word & lawname,
             const dictionary &,
-            Sampler &
+            Sampler &    
         );
 
-    //- Destructor
-        virtual ~SpaldingLawOfTheWall() {};
+    // Destructor
+        virtual ~ReichardtLawOfTheWall() {};
 
     // Member Functions
         
+        //- Return the kappa constant
         scalar kappa() const
         {
             return kappa_;
         }
         
-        scalar B() const
+        //- Return the B1 constant
+        scalar B1() const
         {
-            return B_;
+            return B1_;
         }
         
-        //- Print the model coefficients to terminal
+        //- Return the B2 constant
+        scalar B2() const
+        {
+            return B2_;
+        }
+        
+        //- Return the C constant
+        scalar C() const
+        {
+            return C_;
+        }
+        
+        //- Print info to terminal
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law

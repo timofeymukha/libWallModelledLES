@@ -31,7 +31,7 @@ Description
         value               uniform 0;
         maxIter             value; (default 10)
         eps                 value; (default 1e-3)
-        nMeshY              value; (default 10)
+        nMeshY              value; (default 30)
 
         EddyViscosity 
         {
@@ -70,9 +70,6 @@ class PGradODEWallModelFvPatchScalarField
 protected:
 
     // Protected Data
-
-        // Pressure gradient at the cell centers of the whole domain
-        vectorField pressureGrad_;
         
     // Protected Member Functions
         
@@ -80,7 +77,7 @@ protected:
         virtual void writeLocalEntries(Ostream &) const;
               
         //- Compute the source term based on the pressure gradient
-        virtual void source(const int , vector &) const;
+        virtual void source(vectorField &) const;
         
 public:
 
@@ -149,13 +146,6 @@ public:
                 new PGradODEWallModelFvPatchScalarField(*this, iF)
             );
         }
-
-        vectorField pressureGrad() const
-        {
-            return pressureGrad_;
-        }
-        
-        virtual void sample();
 
     // Member functions
 

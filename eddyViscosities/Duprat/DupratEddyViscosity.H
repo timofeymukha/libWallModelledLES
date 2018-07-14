@@ -17,49 +17,54 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::SpaldingLawOfTheWall
+    Foam::DupratEddyViscosity
 
 Description
-    The law of the wall proposed by Spalding.
+    Eddy viscosity model based on the work of Duprat et al. [Duprat].
 
     \f[
-    y^+ = u^+ +  \exp(-\kappa B) \left( \exp (\kappa B) - 1 - \kappa u^+ -
-             \frac{1}{2}(\kappa u^+)^2 - \frac{1}{6}(\kappa u^+)^3 \right)
+        \nu_t = \nu \kappa y^* [\alpha + y^*(1 - \alpha)^{3/2}]^\beta 
+                (1 - \exp(-y^* /(1 + A \alpha^3)))^2
     \f]
-
-    Since the formula above is differentiable, it is advised to use Newton's
-    method to solve for \f$u_\tau \f$.
 
     Usage:
     \verbatim
-    Law
+    EddyViscosity
     {
-        type      Spalding;
+        type      Duprat;
+        APlus     value; (default 17)
+        beta      value; (default 0.78)
         kappa     value; (default 0.4)
-        B         value; (default 5.5)
     }
     \endverbatim
-    
-    Reference:
+
+    References:
     \verbatim
-        Spalding, D. B. (1961).
-        A single formula for the 'law of the wall'.
-        Journal of Applied Mechanics,
-        28(3), 455-458.
+        [Duprat]
+        Duprat, C., Balarac, G., Meetais, O.,
+        Congedo, P. M., & Brugiere, O. (2011).
+        A wall-layer model for large-eddy simulations of turbulent flows
+        with/out pressure gradient.
+        Physics of Fluids, 
+        23(1), 15101.
     \endverbatim
 
 Authors
     Timofey Mukha, Saleh Rezaeiravesh.
 
 SourceFiles
-    SpaldingLawOfTheWall.C
+    DupratEddyViscosity.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef SpaldingLawOfTheWall_H
-#define SpaldingLawOfTheWall_H
+#ifndef DupratEddyViscosity_H
+#define DupratEddyViscosity_H
 
-#include "LawOfTheWall.H"
+#include "scalar.H"
+#include "typeInfo.H"
+#include "dictionary.H"
+#include "EddyViscosity.H"
+#include "Sampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -67,61 +72,62 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class SpaldingLawOfTheWall Declaration
+                    Class DupratEddyViscosity Declaration
 \*---------------------------------------------------------------------------*/
 
-class SpaldingLawOfTheWall: public LawOfTheWall
+class DupratEddyViscosity: public EddyViscosity
 {
     
     // Private data
         
+        //- The A+ model constant
+        scalar APlus_;
+        
         //- The kappa model constant
         scalar kappa_;
         
-        //- The B model constant
-        scalar B_;
+        //- The beta model cosntant
+        scalar beta_;
         
 public:
     
-    TypeName("Spalding");
+    TypeName("Duprat");
 
     // Constructors
-      
-        //- Construct provided dictionary and cell index list
-        SpaldingLawOfTheWall(const dictionary &, Sampler &);
         
-        //- Construct provided TypeName and dictionary and cell index list
-        SpaldingLawOfTheWall
-        (
-            const word & lawname,
-            const dictionary &,
-            Sampler &
-        );
+        //- Construct provided dictionary and sampler
+        DupratEddyViscosity(const dictionary &, Sampler &);
+        
+        //- Construct provided name, dictionary and sampler
+        DupratEddyViscosity(const word &, const dictionary &, Sampler &);
 
-    //- Destructor
-        virtual ~SpaldingLawOfTheWall() {};
+    // Destructor
+        virtual ~DupratEddyViscosity() {};
 
     // Member Functions
+        
+        scalar APlus() const
+        {
+            return APlus_;
+        }
         
         scalar kappa() const
         {
             return kappa_;
         }
         
-        scalar B() const
+        scalar beta() const
         {
-            return B_;
+            return beta_;
         }
         
-        //- Print the model coefficients to terminal
+        //- Print info
         virtual void printCoeffs() const;
 
-        //- Return the value of the implicit function defining the law
-        virtual scalar value(scalar index, scalar uTau, scalar nu) const;
+        //- Return the value of nut
+        virtual scalarList
+        value(label index, const scalarList & y, scalar uTau, scalar nu) const;
         
-        //- Return the value of the derivative of the implicit function
-        //  defining the law
-        virtual scalar derivative(scalar index, scalar uTau, scalar nu) const;
 };
 
 

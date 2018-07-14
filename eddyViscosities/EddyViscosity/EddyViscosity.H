@@ -37,6 +37,10 @@ SourceFiles
 #define EddyViscosity_H
 
 #include "Field.H"
+<<<<<<< HEAD
+=======
+#include "Sampler.H"
+>>>>>>> develop
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,6 +57,8 @@ protected:
     
     //- Dictionary holding the model constants
     dictionary constDict_;
+    
+    Sampler & sampler_;
 
 public:
 
@@ -60,14 +66,21 @@ public:
     
     // Constructors
     
-        EddyViscosity(const dictionary & dict)
+        EddyViscosity(const dictionary & dict, Sampler & sampler)
         :
-        constDict_(dict)
+        constDict_(dict),
+        sampler_(sampler)
         {}
         
-        EddyViscosity(const word& modelName, const dictionary & dict)
+        EddyViscosity
+        (
+            const word& modelName,
+            const dictionary & dict,
+            Sampler & sampler
+        )
         :
-        constDict_(dict)
+        constDict_(dict),
+        sampler_(sampler)
         {}
 
     // Destructor
@@ -77,13 +90,15 @@ public:
     // Selectors
         static autoPtr<EddyViscosity> New 
         (
-            const dictionary & dict
+            const dictionary & dict,
+            Sampler & sampler
         );
 
         static autoPtr<EddyViscosity> New 
         (
             const word & modelName,
-            const dictionary & dict
+            const dictionary & dict,
+            Sampler & sampler
         );
         
     // Member Functions
@@ -93,7 +108,13 @@ public:
 
         //- Return the value of nut
         virtual scalarList
-        value(const scalarList & y, scalar uTau, scalar nu) const = 0;
+        value
+        (
+            label index,
+            const scalarList & y,
+            scalar uTau,
+            scalar nu
+        ) const = 0;
         
         //- Write information about the law to stream
         virtual void write(Ostream & os) const; 
@@ -112,9 +133,10 @@ public:
             EddyViscosity,
             Dictionary,
             (
-                const dictionary & dict
+                const dictionary & dict,
+                Sampler & sampler
             ),
-            (dict)
+            (dict, sampler)
         )
 
         // RTS table "TypeAndDictionary"    
@@ -125,9 +147,10 @@ public:
             TypeAndDictionary,
             (
                 const word & modelName,
-                const dictionary & dict
+                const dictionary & dict,
+                Sampler & sampler
             ),
-            (modelName, dict)
+            (modelName, dict, sampler)
         )  
 
 };

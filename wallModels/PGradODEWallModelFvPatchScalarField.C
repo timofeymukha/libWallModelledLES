@@ -21,7 +21,12 @@ License
 #include "PGradODEWallModelFvPatchScalarField.H"
 #include "turbulenceModel.H"
 #include "addToRunTimeSelectionTable.H"
+<<<<<<< HEAD
 #include "fvcGrad.H"
+=======
+#include "dictionary.H"
+#include "SampledPGradField.H"
+>>>>>>> develop
 
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
@@ -38,42 +43,13 @@ void
 Foam::PGradODEWallModelFvPatchScalarField::
 source
 (
-    const int faceI,
-    vector & sourceFVec
+    vectorField & source
 ) const
 {
     // source term = pressure gradient vector projected on the patch face
-    sourceFVec = pressureGrad_[faceI];
+    source = sampler_.db().lookupObject<vectorField>("pGrad");
 }
 
-
-void Foam::PGradODEWallModelFvPatchScalarField::sample()
-{
-
-    
-    const volScalarField & p = db().lookupObject<volScalarField>("p");
-
-    //calculate pressure Gradient
-    vectorField gradPField = fvc::grad(p);
-    vectorField gradP(patch().size());
-    
-    forAll (gradP, i)
-    {
-        gradP[i] = gradPField[cellIndexList_[i]];
-    }
-    
-    project(gradP);
-    
-    scalar eps = db().time().deltaTValue()/averagingTime_;
-    
-    forAll (pressureGrad_, i)
-    {
-        pressureGrad_[i] = eps*gradP[i] + (1 - eps)*pressureGrad_[i];
-    }
-
-    wallModelFvPatchScalarField::sample();
-}
-       
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -84,8 +60,7 @@ PGradODEWallModelFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    ODEWallModelFvPatchScalarField(p, iF),
-    pressureGrad_(patch().size(), vector(0, 0, 0))
+    ODEWallModelFvPatchScalarField(p, iF)
 {
     if (debug)
     {
@@ -93,16 +68,8 @@ PGradODEWallModelFvPatchScalarField
             << "from fvPatch and DimensionedField for patch " << patch().name()
             <<  nl;
     }
-
-/*    
-    const volScalarField & pressure = db().lookupObject<volScalarField>("p");
-    vectorField gradP = fvc::grad(pressure);
     
-    forAll (pressureGrad_, i)
-    {
-        pressureGrad_[i] = gradP[cellIndexList_[i]];
-    }
-*/
+    sampler_.addField(new SampledPGradField(patch(), sampler_.indexList()));
 }
 
 
@@ -115,8 +82,7 @@ PGradODEWallModelFvPatchScalarField
     const fvPatchFieldMapper& mapper
 )
 :
-    ODEWallModelFvPatchScalarField(ptf, p, iF, mapper),
-    pressureGrad_(ptf.pressureGrad_)
+    ODEWallModelFvPatchScalarField(ptf, p, iF, mapper)
 {
     if (debug)
     {
@@ -135,8 +101,7 @@ PGradODEWallModelFvPatchScalarField
     const dictionary& dict
 )
 :
-    ODEWallModelFvPatchScalarField(p, iF, dict),
-    pressureGrad_(patch().size(), vector(0, 0, 0))
+    ODEWallModelFvPatchScalarField(p, iF, dict)
 {
     if (debug)
     {
@@ -145,14 +110,7 @@ PGradODEWallModelFvPatchScalarField
             <<  nl;
     }
     
-/*    const volScalarField & pressure = db().lookupObject<volScalarField>("p");
-    vectorField gradP = fvc::grad(pressure);
-    
-    forAll (pressureGrad_, i)
-    {
-        pressureGrad_[i] = gradP[cellIndexList_[i]];
-    }
-*/
+    sampler_.addField(new SampledPGradField(patch(), sampler_.indexList()));
 }
 
 
@@ -163,8 +121,7 @@ PGradODEWallModelFvPatchScalarField
     const PGradODEWallModelFvPatchScalarField& wfpsf
 )
 :
-    ODEWallModelFvPatchScalarField(wfpsf),
-    pressureGrad_(wfpsf.pressureGrad_)
+    ODEWallModelFvPatchScalarField(wfpsf)
 {
     if (debug)
     {
@@ -182,8 +139,7 @@ PGradODEWallModelFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    ODEWallModelFvPatchScalarField(wfpsf, iF),
-    pressureGrad_(wfpsf.pressureGrad_)
+    ODEWallModelFvPatchScalarField(wfpsf, iF)
 {
     if (debug)
     {

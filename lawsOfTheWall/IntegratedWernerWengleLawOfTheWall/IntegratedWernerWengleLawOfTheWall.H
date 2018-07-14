@@ -17,48 +17,54 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::SpaldingLawOfTheWall
+    Foam::IntegratedWernerWengleLawOfTheWall
 
 Description
-    The law of the wall proposed by Spalding.
+    The integrated version of the wall proposed by Werner and Wengle.
+    Explicitely couples shear stress with the wall-normal-averaged velocity.
+    Derived assuming that the sampling is from the wall-adjacent cell.
 
-    \f[
-    y^+ = u^+ +  \exp(-\kappa B) \left( \exp (\kappa B) - 1 - \kappa u^+ -
-             \frac{1}{2}(\kappa u^+)^2 - \frac{1}{6}(\kappa u^+)^3 \right)
-    \f]
+    Based on the following law of the wall.
 
-    Since the formula above is differentiable, it is advised to use Newton's
-    method to solve for \f$u_\tau \f$.
+    \f{eqnarray*}{
+        u^+ &=& y^+ \quad y+ \leq 11.81\\
+        u^+ &=& A(y^+)^B \quad y+ > 11.81
+
+    \f}    
 
     Usage:
     \verbatim
     Law
     {
-        type      Spalding;
-        kappa     value; (default 0.4)
-        B         value; (default 5.5)
+        type      IntegratedIntegratedWernerWengle;
+        A         value; (default 8.3)
+        B         value; (default 1/7)
     }
     \endverbatim
-    
+
     Reference:
     \verbatim
-        Spalding, D. B. (1961).
-        A single formula for the 'law of the wall'.
-        Journal of Applied Mechanics,
-        28(3), 455-458.
+        Werner, H., & Wengle, H. (1993).
+        Large-eddy simulation of turbulent flow over and around a cube in a
+        plate channel.
+        In Turbulent Shear Flows 8 (pp. 155-168).
+        Springer, Berlin, Heidelberg.
     \endverbatim
 
 Authors
-    Timofey Mukha, Saleh Rezaeiravesh.
+    Timofey Mukha, Saleh Rezaeiravesh
 
 SourceFiles
-    SpaldingLawOfTheWall.C
+    IntegratedWernerWengleLawOfTheWall.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef SpaldingLawOfTheWall_H
-#define SpaldingLawOfTheWall_H
+#ifndef IntegratedWernerWengleLawOfTheWall_H
+#define IntegratedWernerWengleLawOfTheWall_H
 
+#include "scalar.H"
+#include "typeInfo.H"
+#include "dictionary.H"
 #include "LawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -67,53 +73,59 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class SpaldingLawOfTheWall Declaration
+                    Class IntegratedWernerWengleLawOfTheWall Declaration
 \*---------------------------------------------------------------------------*/
 
-class SpaldingLawOfTheWall: public LawOfTheWall
+class IntegratedWernerWengleLawOfTheWall: public LawOfTheWall
 {
     
     // Private data
         
         //- The kappa model constant
-        scalar kappa_;
+        scalar A_;
         
         //- The B model constant
         scalar B_;
         
 public:
     
-    TypeName("Spalding");
+    TypeName("IntegratedWernerWengle");
 
     // Constructors
-      
+
         //- Construct provided dictionary and cell index list
-        SpaldingLawOfTheWall(const dictionary &, Sampler &);
+        IntegratedWernerWengleLawOfTheWall
+        (
+            const dictionary &,
+            Sampler &
+        );
         
         //- Construct provided TypeName and dictionary and cell index list
-        SpaldingLawOfTheWall
-        (
+        IntegratedWernerWengleLawOfTheWall
+        ( 
             const word & lawname,
             const dictionary &,
             Sampler &
         );
 
-    //- Destructor
-        virtual ~SpaldingLawOfTheWall() {};
+    // Destructor
+        virtual ~IntegratedWernerWengleLawOfTheWall() {};
 
     // Member Functions
         
-        scalar kappa() const
+        //- Return the A constant
+        scalar A() const
         {
-            return kappa_;
+            return A_;
         }
         
+        //- Return the B constant
         scalar B() const
         {
             return B_;
         }
         
-        //- Print the model coefficients to terminal
+        //- Print info to terminal
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law

@@ -66,6 +66,7 @@ SourceFiles
 #define JohnsonKingEddyViscosity_H
 
 #include "EddyViscosity.H"
+#include "Sampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -92,16 +93,12 @@ public:
     TypeName("JohnsonKing");
 
     // Constructors
-        //- Construct with default values
-    //    JohnsonKingEddyViscosity();
-    
-        //- Construct provided kappa, B and viscosity
-      //  JohnsonKingEddyViscosity(scalar A, scalar B);
+      
+        //- Construct provided dictionary and sampler
+        JohnsonKingEddyViscosity(const dictionary &, Sampler &);
         
-        //- Construct provided dictionary
-        JohnsonKingEddyViscosity(const dictionary &);
-        
-        JohnsonKingEddyViscosity(const word &, const dictionary &);
+        //- Construct provided name, dictionary and sampler
+        JohnsonKingEddyViscosity(const word &, const dictionary &, Sampler &);
 
     // Destructor
         virtual ~JohnsonKingEddyViscosity() {};
@@ -123,7 +120,7 @@ public:
 
         //- Return the value of nut
         virtual scalarList
-        value(const scalarList & y, scalar uTau, scalar nu) const;
+        value(label index, const scalarList & y, scalar uTau, scalar nu) const;
         
 };
 

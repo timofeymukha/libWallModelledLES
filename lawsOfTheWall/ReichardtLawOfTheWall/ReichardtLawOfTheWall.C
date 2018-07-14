@@ -18,27 +18,31 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "WernerWengleLawOfTheWall.H"
+#include "ReichardtLawOfTheWall.H"
+#include "dictionary.H"
+#include "error.H"
 #include "addToRunTimeSelectionTable.H"
 
 namespace Foam
 {
-    defineTypeNameAndDebug(WernerWengleLawOfTheWall, 0);
-    addToRunTimeSelectionTable(LawOfTheWall, WernerWengleLawOfTheWall, Dictionary);
-    addToRunTimeSelectionTable(LawOfTheWall, WernerWengleLawOfTheWall, TypeAndDictionary);
+    defineTypeNameAndDebug(ReichardtLawOfTheWall, 0);
+    addToRunTimeSelectionTable(LawOfTheWall, ReichardtLawOfTheWall, Dictionary);
+    addToRunTimeSelectionTable(LawOfTheWall, ReichardtLawOfTheWall, TypeAndDictionary);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
+Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
 (
     const dictionary & dict,
     Sampler & list
 )
 :
     LawOfTheWall(dict, list),
-    A_(dict.lookupOrDefault<scalar>("A", 8.3)),
-    B_(dict.lookupOrDefault<scalar>("B", 1./7))
+    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
+    B1_(dict.lookupOrDefault<scalar>("B1", 11)),
+    B2_(dict.lookupOrDefault<scalar>("B2", 3)),
+    C_(dict.lookupOrDefault<scalar>("C", 7.8))
 {
     if (debug)
     {        
@@ -47,7 +51,7 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
     
 }
 
-Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
+Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict,
@@ -55,8 +59,10 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 )
 :
     LawOfTheWall(lawName, dict, list),
-    A_(dict.lookupOrDefault<scalar>("A", 8.3)),
-    B_(dict.lookupOrDefault<scalar>("B", 1./7))
+    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
+    B1_(dict.lookupOrDefault<scalar>("B1", 11)),
+    B2_(dict.lookupOrDefault<scalar>("B2", 3)),
+    C_(dict.lookupOrDefault<scalar>("C", 7.8))
 {
     if (debug)
     {        
@@ -67,43 +73,39 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::WernerWengleLawOfTheWall::printCoeffs() const
+void Foam::ReichardtLawOfTheWall::printCoeffs() const
 {
-    Info<< nl << "WernerWengle law of the wall" << nl;
+    Info<< nl << "Reichardt law of the wall" << nl;
     Info<< token::BEGIN_BLOCK << incrIndent << nl;
-    Info<< indent << "A" << indent << A_ << nl;
-    Info<< indent << "B" << indent <<  B_ << nl;
+    Info<< indent << "kappa" << indent << kappa_ << nl;
+    Info<< indent << "B1" << indent <<  B1_ << nl;
+    Info<< indent << "B2" << indent <<  B2_ << nl;
+    Info<< indent << "C" << indent <<  C_ << nl;
     Info<< token::END_BLOCK << nl << nl;
 }
 
 
-Foam::scalar Foam::WernerWengleLawOfTheWall::value
+Foam::scalar Foam::ReichardtLawOfTheWall::value
 (
     scalar index,
     scalar uTau,
     scalar nu
 ) const
-{  
+{
     const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
     scalar u = mag(U[index]);
     
     scalar y = sampler_.h()[index];
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
-    scalar yPlusM = pow(A_, 1/(1-B_));
-    
-    if (yPlus <= yPlusM)
-    {
-        return uPlus - yPlus;
-    }
-    else
-    {
-        return uPlus - A_*pow(yPlus, B_);
-    }
+
+    return uPlus - 1/kappa_*log(1 + kappa_*yPlus) -
+           C_*(1 - exp(-yPlus/B1_) -
+           yPlus/B1_*exp(-yPlus/B2_));
 }
 
 
-Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
+Foam::scalar Foam::ReichardtLawOfTheWall::derivative
 (
     scalar index,
     scalar uTau,
@@ -114,17 +116,12 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
     scalar u = mag(U[index]);
     
     scalar y = sampler_.h()[index];
+    scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
-    scalar yPlusM = pow(A_, 1/(1-B_));
-
-    if (yPlus <= yPlusM)
-    {
-        return -u/sqr(uTau) - y/nu;
-    }
-    else
-    {
-        return -u/sqr(uTau) - A_*B_*pow(y/nu, B_)*pow(uTau, B_-1);
-    }
+    
+    return -uPlus/uTau - y/nu/(1 + kappa_*yPlus) - 
+           C_*y/(nu*B1_)*(exp(-yPlus/B1_) -
+           exp(-yPlus/B2_) + yPlus/B2_*exp(-yPlus/B2_));
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

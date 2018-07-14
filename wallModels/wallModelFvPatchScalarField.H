@@ -47,6 +47,7 @@ SourceFiles
 #define wallModelFvPatchScalarField_H
 
 #include "fixedValueFvPatchFields.H"
+#include "Sampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -64,24 +65,18 @@ class wallModelFvPatchScalarField
 protected:
     
     // Protected data
-    
-        //- The indices of the cells that data is sampled from
-        labelList cellIndexList_;
-        
-        //- The distance from the wall that data is sampled from
-        scalarField h_;
-        
-        //- The velocity values the wall model uses
-        vectorField U_;
-        
-        //- The wall-normal velocity gradient
-        vectorField wallGradU_;
-        
+           
         //- Timescale of the averaging
         scalar averagingTime_;
-          
+        
+        //- The sampler
+        Sampler sampler_;
+     
+        //- The wall-normal velocity gradient
+        const vectorField & wallGradU_;        
+        
         //- Create fields and add to registry
-        void createFields() const;
+        virtual void createFields() const;
 
     // Protected Member Functions
 
@@ -93,15 +88,7 @@ protected:
 
         //- Write local wall function variables
         virtual void writeLocalEntries(Ostream&) const;
-                
-        //- Create list of cell-indices from where data is sampled
-        void createCellIndexList();
-        
-        //- Project vectorField onto the wall-parallel direction
-        void project(vectorField & field) const;
-        
-        //- Sample velocity values from the LES
-        virtual void sample();
+
 
 public:
 
@@ -155,24 +142,23 @@ public:
         //- Return the list of cell-indices that are used to sample data
         labelList cellIndexList() const
         {
-            return cellIndexList_;
+            return sampler_.indexList();
         }
         
         //- Return h
         scalarField h() const
         {
-            return h_;
+            return sampler_.h();
         }
-        
-        //- return U_
-        vectorField U() const
-        {
-            return U_;
-        }
-        
+                
         scalar averagingTime() const
         {
             return averagingTime_;
+        }
+        
+        Sampler sampler() const
+        {
+            return sampler_;
         }
         
         //- Update the boundary values

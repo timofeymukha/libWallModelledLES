@@ -86,11 +86,16 @@ public:
 
     // Constructors
 
-        //- Construct provided dictionary
-        WernerWengleLawOfTheWall(const dictionary &);
+        //- Construct provided dictionary and cell index list
+        WernerWengleLawOfTheWall(const dictionary &, Sampler &);
         
-        //- Construct provided TypeName and dictionary
-        WernerWengleLawOfTheWall(const word & lawname, const dictionary &);
+        //- Construct provided TypeName and dictionary and cell index list
+        WernerWengleLawOfTheWall
+        ( 
+            const word & lawname,
+            const dictionary &,
+            Sampler &
+        );
 
     // Destructor
         virtual ~WernerWengleLawOfTheWall() {};
@@ -113,12 +118,11 @@ public:
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(scalar u, scalar y, scalar uTau, scalar nu) const;
+        virtual scalar value(scalar index, scalar uTau, scalar nu) const;
         
         //- Return the value of the derivative of the implicit function
         //  defining the law
-        virtual scalar
-        derivative(scalar u, scalar y, scalar uTau, scalar nu) const;
+        virtual scalar derivative(scalar index, scalar uTau, scalar nu) const;
 };
 
 

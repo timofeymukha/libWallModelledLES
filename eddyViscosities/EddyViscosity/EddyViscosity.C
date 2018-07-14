@@ -33,7 +33,8 @@ namespace Foam
     
 Foam::autoPtr<Foam::EddyViscosity> Foam::EddyViscosity::New 
 (
-    const dictionary & dict
+    const dictionary & dict,
+    Sampler & sampler
 )
 {
     word modelName(dict.lookup("type"));
@@ -56,13 +57,14 @@ Foam::autoPtr<Foam::EddyViscosity> Foam::EddyViscosity::New
     dictionary temp(dict);
     temp.remove("type");
    
-    return cstrIter()(temp);  
+    return cstrIter()(temp, sampler);  
 }
  
 Foam::autoPtr<Foam::EddyViscosity> Foam::EddyViscosity::New 
 (
     const word & modelName,
-    const dictionary & dict
+    const dictionary & dict,
+    Sampler & sampler
 )
 {
     
@@ -81,7 +83,7 @@ Foam::autoPtr<Foam::EddyViscosity> Foam::EddyViscosity::New
             << exit(FatalError);
     }
 
-    return cstrIter()(modelName, dict);  
+    return cstrIter()(modelName, dict, sampler);  
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //

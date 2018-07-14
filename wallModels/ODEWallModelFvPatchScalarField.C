@@ -63,12 +63,17 @@ integrate(const scalarList & y, const scalarList & v) const
 void Foam::ODEWallModelFvPatchScalarField::createMeshes()
 {
 
+    if (debug)
+    {
+        Info<< "Creating 1D meshed for patch " << patch().name();
+    }
+
     // Number of points in the mesh normal to the wall
      label n=nMeshY_;
            
     forAll(patch(), faceI)
     {
-        scalar dx = h_[faceI]/(n -1);
+        scalar dx = sampler_.h()[faceI]/(n -1);
 
         meshes_[faceI].resize(n, 0.0);
         forAll(meshes_[faceI], pointI)
@@ -76,6 +81,11 @@ void Foam::ODEWallModelFvPatchScalarField::createMeshes()
             // uniform distribution
             meshes_[faceI][pointI] = pointI*dx;
         }
+    }
+
+    if (debug)
+    {
+        Info<< " Done" << nl;;
     }
     
 }
@@ -127,10 +137,14 @@ calcUTau(const scalarField & magGradU) const
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
     
-    // temporary vector for computing the source term
-    vector sourceFVec(0, 0, 0);
-        
-    scalarField magU = mag(U_);
+    // vectorField for storing the source term
+    vectorField sourceField(patchSize, vector(0, 0, 0));
+    
+    // Compute the source term
+    source(sourceField);
+    
+    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    scalarField magU = mag(U);
  
     // Turbulent viscosity
     const scalarField & nutw = *this;
@@ -154,7 +168,7 @@ calcUTau(const scalarField & magGradU) const
             for (int iterI=0; iterI<maxIter_; iterI++)
             {
                 scalarList nutValues = 
-                    eddyViscosity_->value(y, sqrt(tau), nuw[faceI]);
+                    eddyViscosity_->value(faceI, y, sqrt(tau), nuw[faceI]);
 
                 scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
                 scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));
@@ -170,12 +184,11 @@ calcUTau(const scalarField & magGradU) const
                 };
                 
                 
-                // Compute the source term
-                source(faceI, sourceFVec);
+
                 
                 scalar newTau = 
-                        sqr(magU[faceI]) + sqr(mag(sourceFVec)*integral2) -
-                        2*(U_[faceI] & sourceFVec)*integral2;
+                        sqr(magU[faceI]) + sqr(mag(sourceField[faceI])*integral2) -
+                        2*(U[faceI] & sourceField[faceI])*integral2;
                 
                 newTau  = sqrt(newTau)/integral;
                 
@@ -232,7 +245,7 @@ ODEWallModelFvPatchScalarField
     meshes_(patch().size()),
     maxIter_(10),
     eps_(1e-3),
-    nMeshY_(5)
+    nMeshY_(30)
 {
 
     if (debug)
@@ -257,7 +270,7 @@ ODEWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
     eddyViscosity_(EddyViscosity::New(ptf.eddyViscosity_->type(),
-                   ptf.eddyViscosity_->constDict())),
+                   ptf.eddyViscosity_->constDict(), sampler_)),
     meshes_(ptf.meshes_),
     maxIter_(ptf.maxIter_),
     eps_(ptf.eps_),
@@ -283,11 +296,11 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF, dict),
-    eddyViscosity_(EddyViscosity::New(dict.subDict("EddyViscosity"))),
+    eddyViscosity_(EddyViscosity::New(dict.subDict("EddyViscosity"), sampler_)),
     meshes_(patch().size()),
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
     eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
-    nMeshY_(dict.lookupOrDefault<label>("nMeshY", 10))
+    nMeshY_(dict.lookupOrDefault<label>("nMeshY", 30))
 
 {
     if (debug)
