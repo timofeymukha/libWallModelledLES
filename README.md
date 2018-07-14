@@ -127,3 +127,10 @@ Each such pair is treated as one item in the list below, without providing the f
     * PGradODEWallModelFvPatchScalarField Class for ODE-based wall model with a source term equal to the pressure gradient.
     * wallModelFvPatchScalarField Base abstract class for wall models.
 
+## Published works using the library
+
+- Mukha, T., Rezaeiravesh, S., & Liefvendahl, M. (2017). An OpenFOAM library for wall-modelled Large-Eddy Simulation. In proceedings of the 12th OpenFOAM Workshop, Exeter, UK.
+- Mukha, T., Johansson, M., & Liefvendahl, M. (2018). Effect of wall-stress model and mesh-cell topology on the predictive accuracy of LES of turbulent boundary layer flows.
+  In 7th European Conference on Computational Fluid Dynamics, Glasgow, UK.
+- Mukha, T., Rezaeiravesh, S., & Liefvendahl, M. (2018). Wall-modelled large-eddy simulation of the flow over a backward-facing step. In proceedings of 13th OpenFOAM Workshop, Shanghai, China. Shanghai, China.
+- Liefvendahl, M., & Johansson, M. (2018). Wall-Modeled LES for Ship Hydrodynamics in Model Scale. In proceedings of the 32nd Symposium on Naval Hydrodynamics, Hamburg, Germany.
