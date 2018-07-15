@@ -33,7 +33,7 @@ Description
     EddyViscosity
     {
         type      JohnsonKing;
-        APlus     value; (default 19)
+        APlus     value; (default 18)
         kappa     value; (default 0.4)
     }
     \endverbatim

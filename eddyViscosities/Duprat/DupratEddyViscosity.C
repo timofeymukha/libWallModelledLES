@@ -67,7 +67,7 @@ Foam::DupratEddyViscosity::DupratEddyViscosity
 )
 :
     EddyViscosity(modelName, dict, sampler),
-    APlus_(dict.lookupOrDefault<scalar>("APlus", 19)),
+    APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
     beta_(dict.lookupOrDefault<scalar>("beta", 0.78))
 {

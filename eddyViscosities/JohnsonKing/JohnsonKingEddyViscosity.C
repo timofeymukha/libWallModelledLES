@@ -57,7 +57,7 @@ Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 )
 :
     EddyViscosity(modelName, dict, sampler),
-    APlus_(dict.lookupOrDefault<scalar>("APlus", 19)),
+    APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
 {
     if (debug)
