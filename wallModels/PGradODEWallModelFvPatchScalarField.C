@@ -21,12 +21,8 @@ License
 #include "PGradODEWallModelFvPatchScalarField.H"
 #include "turbulenceModel.H"
 #include "addToRunTimeSelectionTable.H"
-<<<<<<< HEAD
-#include "fvcGrad.H"
-=======
 #include "dictionary.H"
 #include "SampledPGradField.H"
->>>>>>> develop
 
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //

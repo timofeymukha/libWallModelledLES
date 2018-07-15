@@ -37,10 +37,7 @@ SourceFiles
 #define EddyViscosity_H
 
 #include "Field.H"
-<<<<<<< HEAD
-=======
 #include "Sampler.H"
->>>>>>> develop
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
