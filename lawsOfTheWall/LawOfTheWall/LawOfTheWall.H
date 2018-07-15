@@ -38,13 +38,15 @@ SourceFiles
 #ifndef LawOfTheWall_H
 #define LawOfTheWall_H
 
-#include "scalar.H"
 #include "dictionary.H"
+<<<<<<< HEAD
+=======
 #include "word.H"
 #include "typeInfo.H"
 #include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
 #include "Sampler.H"
+>>>>>>> develop
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

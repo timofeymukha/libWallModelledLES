@@ -19,8 +19,6 @@ License
  \*---------------------------------------------------------------------------*/
 
 #include "SpaldingLawOfTheWall.H"
-#include "dictionary.H"
-#include "error.H"
 #include "addToRunTimeSelectionTable.H"
 #include "volFields.H"
 

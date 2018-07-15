@@ -65,9 +65,6 @@ SourceFiles
 #ifndef JohnsonKingEddyViscosity_H
 #define JohnsonKingEddyViscosity_H
 
-#include "scalar.H"
-#include "typeInfo.H"
-#include "dictionary.H"
 #include "EddyViscosity.H"
 #include "Sampler.H"
 

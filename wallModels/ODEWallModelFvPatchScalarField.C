@@ -20,11 +20,7 @@ License
 
 #include "ODEWallModelFvPatchScalarField.H"
 #include "turbulenceModel.H"
-#include "fvPatchFieldMapper.H"
-#include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
-#include "dictionary.H"
-#include "EddyViscosity.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -45,7 +41,8 @@ void Foam::ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
     os.writeKeyword("maxIter") << maxIter_ << token::END_STATEMENT << endl;
     os.writeKeyword("nMeshY") << nMeshY_ << token::END_STATEMENT << endl;
 }    
-    
+
+
 Foam::scalar 
 Foam::ODEWallModelFvPatchScalarField::
 integrate(const scalarList & y, const scalarList & v) const
@@ -61,6 +58,7 @@ integrate(const scalarList & y, const scalarList & v) const
     
     return 0.5*integral;
 }
+
 
 void Foam::ODEWallModelFvPatchScalarField::createMeshes()
 {
@@ -91,6 +89,7 @@ void Foam::ODEWallModelFvPatchScalarField::createMeshes()
     }
     
 }
+
 
 Foam::tmp<Foam::scalarField>
 Foam::ODEWallModelFvPatchScalarField::calcNut() const
@@ -232,7 +231,6 @@ calcUTau(const scalarField & magGradU) const
     
     return tuTau;
 }
-
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

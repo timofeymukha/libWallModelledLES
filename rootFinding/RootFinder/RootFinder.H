@@ -35,12 +35,7 @@ Authors
 #ifndef RootFinder_H
 #define RootFinder_H
 
-#include "scalar.H"
 #include "dictionary.H"
-#include "word.H"
-#include "typeInfo.H"
-#include "runTimeSelectionTables.H"
-#include "addToRunTimeSelectionTable.H"
 #include <functional>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

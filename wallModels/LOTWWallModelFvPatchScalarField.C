@@ -21,13 +21,7 @@ License
 #include "LOTWWallModelFvPatchScalarField.H"
 #include "turbulenceModel.H"
 #include "fvPatchFieldMapper.H"
-#include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
-#include "SpaldingLawOfTheWall.H"
-#include "LawOfTheWall.H"
-#include "RootFinder.H"
-#include "dictionary.H"
-#include <functional>
 
 using namespace std::placeholders;
 

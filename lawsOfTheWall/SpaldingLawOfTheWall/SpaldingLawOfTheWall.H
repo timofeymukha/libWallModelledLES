@@ -59,9 +59,6 @@ SourceFiles
 #ifndef SpaldingLawOfTheWall_H
 #define SpaldingLawOfTheWall_H
 
-#include "scalar.H"
-#include "typeInfo.H"
-#include "dictionary.H"
 #include "LawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -19,8 +19,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "JohnsonKingEddyViscosity.H"
-#include "dictionary.H"
-#include "error.H"
 #include "addToRunTimeSelectionTable.H"
 
 namespace Foam

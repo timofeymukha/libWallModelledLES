@@ -18,12 +18,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "scalar.H"
-#include "dictionary.H"
-#include "word.H"
-#include "typeInfo.H"
-#include "runTimeSelectionTables.H"
-#include "addToRunTimeSelectionTable.H"
 #include "EddyViscosity.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -20,11 +20,7 @@ License
 
 #include "wallModelFvPatchScalarField.H"
 #include "meshSearch.H"
-#include "fvPatchFieldMapper.H"
-#include "volFields.H"
 #include "wallFvPatch.H"
-#include "addToRunTimeSelectionTable.H"
-#include "objectRegistry.H"
 #include "turbulenceModel.H"
 
 

@@ -36,14 +36,11 @@ SourceFiles
 #ifndef EddyViscosity_H
 #define EddyViscosity_H
 
-#include "scalar.H"
-#include "dictionary.H"
-#include "word.H"
-#include "typeInfo.H"
-#include "runTimeSelectionTables.H"
-#include "addToRunTimeSelectionTable.H"
 #include "Field.H"
+<<<<<<< HEAD
+=======
 #include "Sampler.H"
+>>>>>>> develop
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
