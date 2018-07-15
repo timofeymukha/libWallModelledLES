@@ -18,19 +18,19 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "JohnsonKingEddyViscosity.H"
+#include "VanDriestEddyViscosity.H"
 #include "addToRunTimeSelectionTable.H"
 
 namespace Foam
 {
-    defineTypeNameAndDebug(JohnsonKingEddyViscosity, 0);
-    addToRunTimeSelectionTable(EddyViscosity, JohnsonKingEddyViscosity, Dictionary);
-    addToRunTimeSelectionTable(EddyViscosity, JohnsonKingEddyViscosity, TypeAndDictionary);
+    defineTypeNameAndDebug(VanDriestEddyViscosity, 0);
+    addToRunTimeSelectionTable(EddyViscosity, VanDriestEddyViscosity, Dictionary);
+    addToRunTimeSelectionTable(EddyViscosity, VanDriestEddyViscosity, TypeAndDictionary);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
+Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
 (
     const dictionary & dict,
     Sampler & sampler
@@ -47,7 +47,7 @@ Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
     
 }
 
-Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
+Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
 (
     const word & modelName,
     const dictionary & dict,
@@ -67,16 +67,16 @@ Foam::JohnsonKingEddyViscosity::JohnsonKingEddyViscosity
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::JohnsonKingEddyViscosity::printCoeffs() const
+void Foam::VanDriestEddyViscosity::printCoeffs() const
 {
-    Info<< nl << "JohnsonKing eddy viscosity model" << nl;
+    Info<< nl << "VanDriest eddy viscosity model" << nl;
     Info<< token::BEGIN_BLOCK << incrIndent << nl;
     Info<< indent << "APlus" << indent << APlus_ << nl;
     Info<< indent << "kappa" << indent <<  kappa_ << nl;
     Info<< token::END_BLOCK << nl << nl;
 }
 
-Foam::scalarList Foam::JohnsonKingEddyViscosity::value
+Foam::scalarList Foam::VanDriestEddyViscosity::value
 (
     label index, 
     const scalarList & y,

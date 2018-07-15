@@ -24,43 +24,43 @@ boundaryField
     bottomWall
     {
 /* * * * * * * * * Law of the wall wall model * * * * * * */                  
-//        type		    LOTWWallModel;
-//        value			uniform 1;  //redundant
-//
-//        RootFinder
-//        {
-//            type    Newton;
-//            eps     0.01;
-//            maxIter 10;
-//        }
-//
-//        Law
-//        {
-//            type    Spalding;
-//            type    WernerWengle;
-//            kappa   0.4;
-//            B       5.5;
-//        }
+ //        type		    LOTWWallModel;
+  //       value			uniform 0;  //redundant
+  //
+         RootFinder
+         {
+             type    Newton;
+             eps     0.01;
+             maxIter 10;
+         }
+         Law
+         {
+             type    Spalding;
+            kappa   0.4;
+            B       5.5;
+       }
       
           
 /* * * * * * * * * Equilibrion ODE wall model * * * * * * */                  
-        type	EquilibriumODEWallModel;
-        value   uniform 1;  //redundant
-        maxIter   10;
-        eps       1e-3;
-        nMeshY    5;
-       
-        EddyViscosity
-        {
-             type    JohnsonKing;
-             APlus   17.8;
-             kappa   0.39;
-        }
-    }
-
-    topWall
-    {
-    
+  //     type	PGradODEWallModel;
+       type	EquilibriumODEWallModel;
+       value   uniform 1;  //redundant
+       maxIter   10;
+       eps       1e-3;
+       nMeshY    5;
+      
+       EddyViscosity
+       {
+            type    VanDriest;
+            //type    Duprat;
+            APlus   17.8;
+            kappa   0.39;
+       }
+   }
+  
+   topWall
+   {
+   
 /* * * * * * * * * OpenFOAM's default wall model * * * * * * */                  
         type	        nutUSpaldingWallFunction;
         Cmu             0.09;

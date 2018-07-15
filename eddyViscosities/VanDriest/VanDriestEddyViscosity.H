@@ -17,11 +17,11 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::JohnsonKingEddyViscosity
+    Foam::VanDriestEddyViscosity
 
 Description
-    Eddy viscosity model based on the work of Johnson and King.
- 
+    A mixing-length based eddy viscosity model using a van Driest damping
+    function.
     Corresponds to the formulation used by Cabot in [Cabot].
 
     \f[
@@ -32,7 +32,7 @@ Description
     \verbatim
     EddyViscosity
     {
-        type      JohnsonKing;
+        type      VanDriest;
         APlus     value; (default 18)
         kappa     value; (default 0.4)
     }
@@ -40,13 +40,6 @@ Description
 
     References:
     \verbatim
-        [JK]
-        Johnson, D. A., & King, L. S. (1985).
-        A mathematically simple turbulence closure model for attached and
-        separated turbulent boundary layers.
-        AIAA journal,
-        23(11), 1684-1692.
-
         [Cabot]
         Cabot, W. (1995).
         Large-eddy simulations with wall models.
@@ -58,12 +51,12 @@ Authors
     Timofey Mukha, Saleh Rezaeiravesh.
 
 SourceFiles
-    JohnsonKingEddyViscosity.C
+    VanDriestEddyViscosity.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef JohnsonKingEddyViscosity_H
-#define JohnsonKingEddyViscosity_H
+#ifndef VanDriestEddyViscosity_H
+#define VanDriestEddyViscosity_H
 
 #include "EddyViscosity.H"
 #include "Sampler.H"
@@ -74,10 +67,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class JohnsonKingEddyViscosity Declaration
+                    Class VanDriestEddyViscosity Declaration
 \*---------------------------------------------------------------------------*/
 
-class JohnsonKingEddyViscosity: public EddyViscosity
+class VanDriestEddyViscosity: public EddyViscosity
 {
     
     // Private data
@@ -90,18 +83,18 @@ class JohnsonKingEddyViscosity: public EddyViscosity
         
 public:
     
-    TypeName("JohnsonKing");
+    TypeName("VanDriest");
 
     // Constructors
       
         //- Construct provided dictionary and sampler
-        JohnsonKingEddyViscosity(const dictionary &, Sampler &);
+        VanDriestEddyViscosity(const dictionary &, Sampler &);
         
         //- Construct provided name, dictionary and sampler
-        JohnsonKingEddyViscosity(const word &, const dictionary &, Sampler &);
+        VanDriestEddyViscosity(const word &, const dictionary &, Sampler &);
 
     // Destructor
-        virtual ~JohnsonKingEddyViscosity() {};
+        virtual ~VanDriestEddyViscosity() {};
 
     // Member Functions
         
