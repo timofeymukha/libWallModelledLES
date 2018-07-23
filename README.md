@@ -2,16 +2,20 @@
 
 libWallModelledLES is a library based on OpenFOAM® technology, extending the capabilities of OpenFOAM in the area of wall-modelled LES (WMLES).
 In particular, so-called wall-stress models are considered. These aim at correctly predicting the wall shear stress at the wall without the need for the LES mesh to resolve the inner part of the turbulent boundary layers.
-Note, that, unlike some other  approaches (e.g. hybrid LES/RANS), the LES domain here extends all the way to the wall.
+Note, that, unlike some other  approaches (e.g. hybrid LES/RANS), the LES domain here extends all the way to the wall and **only the inner layer is modelled**, whereas the outer layer of TBLs is fully-resolved.
 
 To simplify application to general geometries the models in the library predict the magnitude of the wall shear stress instead of its individual
 components.
 Similarly to OpenFOAM's native wall functions, the value of the shear stress is enforced by setting a non-zero value to the turbulent viscosity at the wall.
-Therefore, the models are chosen and configured individually for each wall boundary in the 0/nut file.
+Therefore, the models are chosen and configured individually for each wall boundary in the 0/nut file, see below.
 
 The library provides a set of new models, both based on non-linear algebraic equations (laws-of-the-wall) and ordinary differential equations.
 Fine grain control over the models' behaviour is given to the user.
 The library also provides developers a convenient framework to quickly add new models.
+A full description of the library can be found in the following paper, please cite it if you use the library in your work:
+
+*link to arxiv*
+
 
 **This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD® trademarks.**
 
@@ -32,7 +36,14 @@ If you want to build the source code documentation with doxygen, go into the
 docs folder and run "doxygen config".
 This will create an html folder that can be read using a browser.
 
+
+## Validation cases ##
 In the *tests* folder there is a toy channel flow case that you can try running to make sure that things compiled well.
+No more simulation cases are shipped with the library.
+However, OpenFOAM cases for turbulent channel flow and flow over a backward-facing step can be found using the following DOI: 10.6084/m9.figshare.6790013
+These thus serve both as turtorials for cas set-up and as validation cases.
+Further results obtained using the library can be found in the publications listed below.
+The cases considered in these publication can thus also be used for validation.
 
 ## Case set-up ##
 Assume that you've already set up a case for the classical wall-resolved LES. To convert it to WMLES you need to do the following:
@@ -42,7 +53,7 @@ Assume that you've already set up a case for the classical wall-resolved LES. To
   This is similar to what you would do with OpenFOAM's built-in model based on Spalding's law, *nutUSpaldingWallFunction*.
   The set-up and parameters for each model in the library can be found in the header of the associated .H file, see list of files below.
 - In your *0* directory, you should add a new volScalarField, *h*.
-  This will hold the distance from the faces to the cell-centre which will be  used for sampling data into the wall model.
+  This will hold the distance from the faces to the cell-centre which will be used for sampling data into the wall model.
   The value of the internalField is irrelevant, you can put it to some constant scalar, e.g. 0.
   At boundaries where wall modelling is not applied, *zeroGradient* can be used.
   At the walls where wall modelling is applied, the value of h should be provided.
@@ -57,37 +68,37 @@ usage instructions, and, where applicable, formulas and references to
 literature. A tiny toy case can be found under tests/testCases/channel\_flow
 where the 0/nut file provides an example of setting up the boundary
 conditions.
+The article linked to in the beginning of the README also serves as documenation.
 
 ## Best practice guidelines ##
 This is intended to be a summary of tips based on the experience of the developers and users of the library.
 The intention is to give a good starting point for new users.
-Naturally, results may vary heavily depending on the case in questions.
+Naturally, results may vary heavily depending on the case in question.
 
 - In the boundary layer, define your grid density as the number of cells per delta^3, where delta is the thickness of the boundary layer.
   A good number is 27000 cells, but you can get good results with less.
-  This will need an apriori knowledge of the distribution of delta across the wall.
+  This will need an a-priori knowledge of the distribution of delta across the wall.
   A RANS precursor can do the job.
 - Use an isotropic grid in the boundary layer.
-  In particular, no need to refine it towards the wall, which may seem weird after wall-resolved LES.
+  In particular, no need to refine it towards the wall, which may at first seem weird for practitioners of hybrid RANS/LES methods.
   For some inspiration on unstructured meshing strategies see (Mukha, Johansson & Liefvendahl, in ECFD 7, Glasgow, UK, 2018).
 - In regions where the TBL is attached, set *h* to be the distance to the second consecutive off-the wall cell centre. In other regions, use *h=0*,
   i.e. sample from the wall-adjacent cell.
 - Use a mildly diffusive numerical scheme, e.g. LUST. Tips regading what other schemes worked well are welcome :).
 - The WALE model is a good first choice for SGS modelling.
 - If your simulation crashes because of the wall model (you can usually see that in the log), make sure you have a good initial condition.
-- If your simulation crashed anyway, use *h =0*, this is the most stable regime.
+- If your simulation crashed anyway, use *h =0*, this is pretty much guaranteed to be stable.
 - Large values of *h* are known to sometimes lead to a crash, in particular, if the grid below *h* is refined.
 - If you use *h=0*, use an algebraic wall model in integral formulation, i.e. the *LOTWWallModel* with e.g. the *IntegratedReichardt* law.
-- Use a low tolerance and a decent number of iteration for the Newton solver, this will remove spikes in *nut* that may occur when the solver is not converged.
+- Use a low tolerance and a decent number of iteration for the Newton solver, this will remove occasional spikes in *nut* that may occur when the solver is not converged but have no impact on the performance in general.
   A tolerance of 0.0001 and 20-30 iterations is usually a good choice.
-  All te iterations will be taken only if the the tolerance is not achived earlier.
 - Similarly, for ODE models, use a relatively dense 1D grid, e.g. 50 points.
-  There is no large impact on performance.
+  There is no large impact on performance either.
 
 ## Source files' contents
 
 The contents of the files in each folder is briefly described below.
-Most classes are implemented in a pair of files with the same name ending with .C and .H, as is customary in C++.
+Most classes are implemented in a pair of files with the same name ending with .C and .H, as is customary in C++ and OpenFOAM.
 Each such pair is treated as one item in the list below, without providing the file extension.
 
 - eddyViscosities
