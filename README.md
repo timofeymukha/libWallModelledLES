@@ -12,10 +12,6 @@ Therefore, the models are chosen and configured individually for each wall bound
 The library provides a set of new models, both based on non-linear algebraic equations (laws-of-the-wall) and ordinary differential equations.
 Fine grain control over the models' behaviour is given to the user.
 The library also provides developers a convenient framework to quickly add new models.
-A full description of the library can be found in the following paper, please cite it if you use the library in your work:
-
-*link to arxiv*
-
 
 **This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD® trademarks.**
 
