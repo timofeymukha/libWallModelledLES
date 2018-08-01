@@ -13,6 +13,10 @@ The library provides a set of new models, both based on non-linear algebraic equ
 Fine grain control over the models' behaviour is given to the user.
 The library also provides developers a convenient framework to quickly add new models.
 
+If you use the library, please cite the following publication, which fully describes the implemented functionality.
+
+https://arxiv.org/abs/1807.11786
+
 **This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD® trademarks.**
 
 ## Compatibility ##
@@ -37,7 +41,7 @@ This will create an html folder that can be read using a browser.
 In the *tests* folder there is a toy channel flow case that you can try running to make sure that things compiled well.
 No more simulation cases are shipped with the library.
 However, OpenFOAM cases for turbulent channel flow and flow over a backward-facing step can be found using the following DOI: 10.6084/m9.figshare.6790013
-These thus serve both as turtorials for cas set-up and as validation cases.
+These thus serve both as turtorials for case set-up and as validation cases.
 Further results obtained using the library can be found in the publications listed below.
 The cases considered in these publication can thus also be used for validation.
 
@@ -141,3 +145,4 @@ Each such pair is treated as one item in the list below, without providing the f
   In 7th European Conference on Computational Fluid Dynamics, Glasgow, UK.
 - Mukha, T., Rezaeiravesh, S., & Liefvendahl, M. (2018). Wall-modelled large-eddy simulation of the flow over a backward-facing step. In proceedings of 13th OpenFOAM Workshop, Shanghai, China. Shanghai, China.
 - Liefvendahl, M., & Johansson, M. (2018). Wall-Modeled LES for Ship Hydrodynamics in Model Scale. In proceedings of the 32nd Symposium on Naval Hydrodynamics, Hamburg, Germany.
+- Mukha, T., Rezeeiravesh, S., & Liefvendahl, M. (2018). A library for wall-modelled large-eddy simulation based on OpenFOAM technology. Available: https://arxiv.org/abs/1807.11786
