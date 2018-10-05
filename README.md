@@ -3,6 +3,9 @@
 libWallModelledLES is a library based on OpenFOAM® technology, extending the capabilities of OpenFOAM in the area of wall-modelled LES (WMLES).
 In particular, so-called wall-stress models are considered. These aim at correctly predicting the wall shear stress at the wall without the need for the LES mesh to resolve the inner part of the turbulent boundary layers.
 Note, that, unlike some other  approaches (e.g. hybrid LES/RANS), the LES domain here extends all the way to the wall and **only the inner layer is modelled**, whereas the outer layer of TBLs is fully-resolved.
+Chapter 5 of the following thesis may be of interest for getting further acquainted with the methodology of WMLES, see also the publication list in the end of the README.
+
+http://www.diva-portal.org/smash/record.jsf?pid=diva2%3A1236761
 
 To simplify application to general geometries the models in the library predict the magnitude of the wall shear stress instead of its individual
 components.
@@ -16,6 +19,8 @@ The library also provides developers a convenient framework to quickly add new m
 If you use the library, please cite the following publication, which fully describes the implemented functionality.
 
 https://arxiv.org/abs/1807.11786
+
+
 
 **This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD® trademarks.**
 
