@@ -151,3 +151,6 @@ Each such pair is treated as one item in the list below, without providing the f
 - Mukha, T., Rezaeiravesh, S., & Liefvendahl, M. (2018). Wall-modelled large-eddy simulation of the flow over a backward-facing step. In proceedings of 13th OpenFOAM Workshop, Shanghai, China. Shanghai, China.
 - Liefvendahl, M., & Johansson, M. (2018). Wall-Modeled LES for Ship Hydrodynamics in Model Scale. In proceedings of the 32nd Symposium on Naval Hydrodynamics, Hamburg, Germany.
 - Mukha, T., Rezeeiravesh, S., & Liefvendahl, M. (2018). A library for wall-modelled large-eddy simulation based on OpenFOAM technology. Available: https://arxiv.org/abs/1807.11786
+- Bezinge, G. (2018) Wall-unresolved large eddy simulation of turbulent flow at high Reynolds number: Performance and computational cost investigation. Master thesis.
+  Department of Mathematics University of Wyoming (UW) Laramie Institute of Fluid Dynamics Swiss Federal Institute of Technology (ETH) Zürich.
+- Rezeeiravesh, S., Mukha, T., & Liefvendahl, M. (2018). Systematic study of accuracy of wall-modeled large eddy simulation using uncertainty quantification techniques. Available: https://arxiv.org/abs/1810.05213
