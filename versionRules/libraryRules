@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 # Set switches for libraries that were renamed between versions
-# Code copied by swak4foam, (c) Bernhard F.W. Gschaider
+# Code copied from swak4foam, (c) Bernhard F.W. Gschaider
 
 # Where am I
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))

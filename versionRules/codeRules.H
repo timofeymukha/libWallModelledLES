@@ -20,8 +20,8 @@ Class
 
 
 Description
-    Define versions and flags for the library to distinguish different features
-    via #ifdef
+    Based on the OpenFOAM version, generates macros that can be used to make
+    the code support multiple versions via #ifdef statemtes.
     The file is adopted with minor changes from swak4foam, see list of
     contributors below.
 
@@ -515,7 +515,7 @@ Contributors/Copyright:
 
 #if (OPENFOAM_COM >= 1612) \
     || (defined(FOAM_VERSION4WMLES_IS_ORG) && FOAM_VERSION4WMLES>VERSION_NR2(3,0))
-#define FOAM_NO_DIMENSIONEDINTERNAL_IN_GEOMETRIC
+#define FOAM_NEW_GEOMFIELD_RULES
 #endif
 
 #if (OPENFOAM_COM >= 1612) \
@@ -571,9 +571,6 @@ Contributors/Copyright:
 #if (defined(FOAM_VERSION4WMLES_IS_ORG) && FOAM_VERSION4WMLES>=VERSION_NR(6,0,0))
 #define FOAM_TIME_HAS_SEPARATE_SETDELTAT_NOADJUST
 #endif
-
-#include "swakVersion.H"
-#include "DebugOStream.H"
 
 #endif
 

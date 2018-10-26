@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
-# This is a bit warped because
-# a. It has to support inconsistent version numbers
-# b. Should give the same results as the old shell-implementation
+# This script processses $WM_PRJECT_VERSION and outputs the result to 
+# foamVersion4wmles.H
+# Code copied from swak4foam, (c) Bernhard F.W. Gschaider
 
 import re
 import sys
