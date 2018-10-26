@@ -1,8 +1,22 @@
 #! /bin/bash
 
 echo "Current OpenFOAM version is $WM_PROJECT_VERSION."
+if [ -e foamVersionThisIsCompiledFor ]; then
+    prevVersion=$(<foamVersionThisIsCompiledFor)
+    echo "Previously compiled for OpenFOAM ($prevVersion)"
+    if [ "$WM_PROJECT_VERSION" != "$prevVersion" ]
+    then
+        echo "Different than current OpenFOAM ($WM_PROJECT_VERSION) version."
+        echo "   Use ./Allwclean before compiling"
+        exit 42
+    fi
+        unset prevVersion
+else
+        echo "This is a clean install"
+        echo $WM_PROJECT_VERSION >foamVersionThisIsCompiledFor
+fi
 
-versionFile=versionRules/foamVersio4wmles.H
+versionFile=versionRules/foamVersion4wmles.H
 
 versionRules/makeFoamVersionHeader.py $WM_PROJECT_VERSION >$versionFile.tmp
 
@@ -24,7 +38,7 @@ fi
 
 # Ensure consistent definition of OPENFOAM_COM without relying anything else.   
 # This may be available from the regular wmake rules, but use our own convention
-#sed -ne 's/.*SWAK_IS_COM \([0-9][0-9]*\)/OPENFOAM_COM=\1/p' < $versionFile > rules/foamVersion
+sed -ne 's/.*SWAK_IS_COM \([0-9][0-9]*\)/OPENFOAM_COM=\1/p' < $versionFile > versionRules/foamVersion
                                                                                 
 echo                                                                            
 echo "Please include the output above when reporting a problem in the compilation. It helps diagnosing the problem    "
