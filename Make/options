@@ -1,3 +1,5 @@
+include $(OBJECTS_DIR)/../../versionRules/libraryRules
+
 EXE_INC = -std=c++0x \
 -I$(LIB_SRC)/finiteVolume/lnInclude \
 -I$(LIB_SRC)/OpenFOAM/lnInclude \
@@ -6,6 +8,7 @@ EXE_INC = -std=c++0x \
 -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
 -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
 -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
+-IcodeRules \
 -IrootFinding/RootFinder \
 -IlawsOfTheWall/LawOfTheWall \
 -IlawsOfTheWall/SpaldingLawOfTheWall \
