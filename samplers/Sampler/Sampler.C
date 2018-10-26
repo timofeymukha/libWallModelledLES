@@ -29,6 +29,7 @@ License
 #include "SampledVelocityField.H"
 #include "SampledPGradField.H"
 #include "SampledWallGradUField.H"
+#include "codeRules.H"
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
@@ -142,7 +143,13 @@ void Foam::Sampler::createIndexList()
     }
     
     // Assign computed h_ to the global h field
-    h.boundaryField()[patch().index()] == h_;
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+    h.boundaryFieldRef()[patch().index()]
+#else        
+    h.boundaryField()[patch().index()]
+#endif
+    ==
+        h_;
     
     // Grab samplingCells field
     volScalarField & samplingCells = 

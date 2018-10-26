@@ -20,6 +20,7 @@ License
 
 #include "SampledWallGradUField.H"
 #include "volFields.H"
+#include "codeRules.H"
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
@@ -138,7 +139,13 @@ void Foam::SampledWallGradUField::recompute() const
     const fvPatchVectorField & Uwall = U.boundaryField()[pI];
       
     vectorField Udiff = Uwall.patchInternalField() - Uwall;
-    wallGradU.boundaryField()[pI] == patch().deltaCoeffs()*Udiff;  
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+    wallGradU.boundaryFieldRef()[pI]
+#else        
+    wallGradU.boundaryField()[pI]
+#endif
+    ==
+        patch().deltaCoeffs()*Udiff;  
 }
 
 
