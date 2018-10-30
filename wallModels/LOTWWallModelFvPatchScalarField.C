@@ -22,6 +22,7 @@ License
 #include "turbulenceModel.H"
 #include "fvPatchFieldMapper.H"
 #include "addToRunTimeSelectionTable.H"
+#include "codeRules.H"
 
 using namespace std::placeholders;
 
@@ -50,7 +51,11 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
         IOobject::groupName
         (
             turbulenceModel::propertiesName,
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+            internalField().group()
+#else        
             dimensionedInternalField().group()
+#endif
         )
     );
     
@@ -85,7 +90,12 @@ calcUTau(const scalarField & magGradU) const
 
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
-    scalarField& uTau = tuTau();
+    scalarField & uTau =
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+        tuTau.ref();
+#else        
+        tuTau();
+#endif
     
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
@@ -126,7 +136,13 @@ calcUTau(const scalarField & magGradU) const
     }
     
     // Assign computed uTau to the boundary field of the global field
-    uTauField.boundaryField()[patchi] == uTau;
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+    uTauField.boundaryFieldRef()[patchi]
+#else        
+    uTauField.boundaryField()[patchi]
+#endif
+    ==
+        uTau;
     return tuTau;
 }
 

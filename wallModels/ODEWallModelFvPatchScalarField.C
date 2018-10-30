@@ -21,6 +21,7 @@ License
 #include "ODEWallModelFvPatchScalarField.H"
 #include "turbulenceModel.H"
 #include "addToRunTimeSelectionTable.H"
+#include "codeRules.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -108,7 +109,11 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
         IOobject::groupName
         (
             turbulenceModel::propertiesName,
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+            internalField().group()
+#else        
             dimensionedInternalField().group()
+#endif
         )
     );
       
@@ -152,7 +157,12 @@ calcUTau(const scalarField & magGradU) const
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     
-    scalarField & uTau = tuTau();            
+    scalarField & uTau =
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+        tuTau.ref();
+#else        
+        tuTau();
+#endif
     
     // Compute uTau for each face
     forAll(uTau, faceI)
@@ -227,7 +237,13 @@ calcUTau(const scalarField & magGradU) const
         );
      
     // Assign computed uTau to the boundary field of the global field
-    uTauField.boundaryField()[patch().index()] == uTau;
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+    uTauField.boundaryFieldRef()[patch().index()]
+#else        
+    uTauField.boundaryField()[patch().index()]
+#endif
+    ==
+        uTau;
     
     return tuTau;
 }
