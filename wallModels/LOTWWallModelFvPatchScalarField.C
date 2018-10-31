@@ -91,7 +91,7 @@ calcUTau(const scalarField & magGradU) const
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     scalarField & uTau =
-#ifdef FOAM_NEW_GEOMFIELD_RULES
+#ifdef FOAM_NEW_TMP_RULES
         tuTau.ref();
 #else        
         tuTau();
