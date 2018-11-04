@@ -577,6 +577,10 @@ Contributors/Copyright:
 #define FOAM_TIME_HAS_SEPARATE_SETDELTAT_NOADJUST
 #endif
 
+#if FOAM_VERSION4WMLES >= VERSION_NR(3,0,0) && !defined(FOAM_VERSION4WMLES_IS_EXTEND)
+#define FOAM_NEW_TURBULENCE_STRUCTURE
+#endif
+
 #endif
 
 // ************************************************************************* //
