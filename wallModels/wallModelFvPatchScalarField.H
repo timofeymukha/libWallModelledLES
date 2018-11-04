@@ -48,6 +48,7 @@ SourceFiles
 
 #include "fixedValueFvPatchFields.H"
 #include "Sampler.H"
+#include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
