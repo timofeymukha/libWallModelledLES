@@ -146,7 +146,7 @@ public:
                 Sampler & list
             ),
             (dict, list)
-        )
+        );
 
         // RTS table "TypeAndDictionary"    
         declareRunTimeSelectionTable
@@ -160,7 +160,7 @@ public:
                 Sampler & list
             ),
             (lawName, dict, list)
-        )  
+        );  
 };
 
 

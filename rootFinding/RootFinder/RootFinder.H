@@ -200,7 +200,7 @@ public:
                 const label maxIter
             ),
             (rootFinderName, f, d, eps, maxIter)
-        )
+        );
 
         // RTS table "Dictionary"    
         declareRunTimeSelectionTable
@@ -214,7 +214,7 @@ public:
                 const dictionary & dict
             ),
             (f, d, dict)
-        )
+        );
 
         // RTS table "DictionaryOnly"    
         declareRunTimeSelectionTable
@@ -226,7 +226,7 @@ public:
                 const dictionary & dict
             ),
             (dict)
-        )
+        );
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

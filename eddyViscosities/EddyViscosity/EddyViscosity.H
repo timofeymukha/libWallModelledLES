@@ -134,7 +134,7 @@ public:
                 Sampler & sampler
             ),
             (dict, sampler)
-        )
+        );
 
         // RTS table "TypeAndDictionary"    
         declareRunTimeSelectionTable
@@ -148,7 +148,7 @@ public:
                 Sampler & sampler
             ),
             (modelName, dict, sampler)
-        )  
+        ); 
 
 };
 
