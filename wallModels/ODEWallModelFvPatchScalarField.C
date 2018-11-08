@@ -19,7 +19,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ODEWallModelFvPatchScalarField.H"
-#include "turbulenceModel.H"
+//#include "turbulenceModel.H"
 #include "addToRunTimeSelectionTable.H"
 #include "codeRules.H"
 
@@ -104,7 +104,7 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
     const label patchi = patch().index();
 
     // Grab turbulence model to get fields access
-    const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
+/*    const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
     (
         IOobject::groupName
         (
@@ -120,6 +120,12 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
     // Viscosity
     const tmp<scalarField> tnuw = turbModel.nu(patchi);
     const scalarField& nuw = tnuw();    
+    */
+
+    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
+    
+    // Velocity and viscosity on boundary
+    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
     
     scalarField magGradU = mag(wallGradU_);
     return max

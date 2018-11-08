@@ -21,7 +21,6 @@ License
 #include "wallModelFvPatchScalarField.H"
 #include "meshSearch.H"
 #include "wallFvPatch.H"
-#include "turbulenceModel.H"
 #include "codeRules.H"
 
 
