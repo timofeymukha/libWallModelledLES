@@ -44,4 +44,4 @@ echo
 echo "Please include the output above when reporting a problem in the compilation. It helps diagnosing the problem    "
 echo                                                                            
 
-wmake 
+wmake libso
