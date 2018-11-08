@@ -82,7 +82,7 @@ void Foam::SampledWallGradUField::registerFields() const
     }
     
     const objectRegistry & registry =
-        db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0);
+        db().subRegistry("wallModelSampling").subRegistry(patch_.name());
 
     vectorField sampledWallGradU =
         vectorField(patch_.size(), pTraits<vector>::zero);

@@ -51,7 +51,7 @@ Foam::SampledVelocityField::sample(Foam::scalarListList & sampledValues) const
 void Foam::SampledVelocityField::registerFields() const
 {
     const objectRegistry & registry =
-        db().subRegistry("wallModelSampling", 0).subRegistry(patch_.name(), 0);
+        db().subRegistry("wallModelSampling").subRegistry(patch_.name());
 
     vectorField sampledU = 
         vectorField(cellIndexList_.size(), pTraits<vector>::zero);
