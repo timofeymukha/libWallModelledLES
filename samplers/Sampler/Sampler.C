@@ -109,7 +109,7 @@ void Foam::Sampler::createIndexList()
     const vectorField cellCentres = tcellCentres();
     
     // Grab the global indices of adjacent cells 
-    const labelUList & faceCells = patch().faceCells();
+    const UList<label> & faceCells = patch().faceCells();
 
     vector point;
     forAll(faceCentres, i)
@@ -341,7 +341,8 @@ void Foam::Sampler::listListToField
 
 void Foam::Sampler::addField(SampledField * field)
 {
-    sampledFields_.append(field);
+//    sampledFields_.append(field);
+    sampledFields_.setSize(sampledFields_.size() + 1, field);
 }
 
 
