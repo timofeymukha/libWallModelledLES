@@ -68,9 +68,6 @@ protected:
         //- Time-averaging scale of the sampled values
         scalar averagingTime_;
         
-        //- The object registry for sampled data, subregistry of mesh_
-        const objectRegistry & db_;
-        
         //- The global object registry
         const fvMesh & mesh_;
         
@@ -135,7 +132,7 @@ public:
         //- Get the registry with sampled fields
         const objectRegistry & db() const
         {
-            return db_;
+            return mesh().subRegistry("wallModelSampling").subRegistry(patch().name());
         }
         
         //- Get the mesh
