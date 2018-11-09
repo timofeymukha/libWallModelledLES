@@ -44,20 +44,6 @@ Foam::KnownWallShearStressWallModelFvPatchScalarField::calcNut() const
     
     const label patchi = patch().index();
 
-    // Grab turbulence model to get fields access
- /*   const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
-    (
-        IOobject::groupName
-        (
-            turbulenceModel::propertiesName,
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-            internalField().group()
-#else        
-            dimensionedInternalField().group()
-#endif
-        )
-    );
-*/    
     // Velocity at the boundary
     const volVectorField & UField = db().lookupObject<volVectorField>("U");
     const fvPatchVectorField& Uw = UField.boundaryField()[patchi];
