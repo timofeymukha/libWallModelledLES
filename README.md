@@ -5,6 +5,8 @@ In particular, so-called wall-stress models are considered. These aim at correct
 Note, that, unlike some other  approaches (e.g. hybrid LES/RANS), the LES domain here extends all the way to the wall and **only the inner layer is modelled**, whereas the outer layer of TBLs is fully-resolved.
 Chapter 5 of the following thesis may be of interest for getting further acquainted with the methodology of WMLES, see also the publication list in the end of the README.
 
+http://www.diva-portal.org/smash/record.jsf?pid=diva2%3A1236761
+
 To simplify application to general geometries the models in the library predict the magnitude of the wall shear stress instead of its individual components.
 Similarly to OpenFOAM's native wall functions, the value of the shear stress is enforced by setting a non-zero value to the turbulent viscosity at the wall.
 Therefore, the models are chosen and configured individually for each wall boundary in the 0/nut file, see below.
@@ -16,8 +18,6 @@ The library also provides developers a convenient framework to quickly add new m
 If you use the library, please cite the following publication, which fully describes the implemented functionality.
 
 https://arxiv.org/abs/1807.11786
-
-
 
 **This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD® trademarks.**
 
@@ -32,7 +32,7 @@ A branch for version 2.3.1 is available but is now very outdated and will not be
 
 Clone the repository to the directory of your choice and run the Allwmake file inside.
 This should be it!
-If you want to get a specific version of the library, go to Downloads, Tags, and download the associated archive.
+If you want to get a specific version of the library, go to Downloads in the menu on the left, then to Tags, and download the associated archive.
 
 If you want to build the source code documentation with doxygen, go into the
 docs folder and run "doxygen config".
@@ -154,4 +154,4 @@ Each such pair is treated as one item in the list below, without providing the f
 - Mukha, T., Rezeeiravesh, S., & Liefvendahl, M. (2018). A library for wall-modelled large-eddy simulation based on OpenFOAM technology. Available: https://arxiv.org/abs/1807.11786
 - Bezinge, G. (2018) Wall-unresolved large eddy simulation of turbulent flow at high Reynolds number: Performance and computational cost investigation. Master thesis.
   Department of Mathematics University of Wyoming (UW) Laramie Institute of Fluid Dynamics Swiss Federal Institute of Technology (ETH) Zürich.
-- Rezeeiravesh, S., Mukha, T., & Liefvendahl, M. (2018). Systematic study of accuracy of wall-modeled large eddy simulation using uncertainty quantification techniques. Available: https://arxiv.org/abs/1810.05213
+- Rezaeiravesh, S., Mukha, T., & Liefvendahl, M. (2018). Systematic study of accuracy of wall-modeled large eddy simulation using uncertainty quantification techniques. Available: https://arxiv.org/abs/1810.05213
