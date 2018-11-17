@@ -3,5 +3,5 @@
 wclean
 
 rm -f foamVersionThisIsCompiledFor
-rm -f versionRules/foamVersion4wmles
+rm -f versionRules/foamVersion4wmles.H
 rm -f versionRules/foamVersion
