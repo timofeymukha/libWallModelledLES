@@ -2,7 +2,7 @@
 
 libWallModelledLES is a library based on OpenFOAM® technology, extending the capabilities of OpenFOAM in the area of wall-modelled LES (WMLES).
 In particular, so-called wall-stress models are considered. These aim at correctly predicting the wall shear stress at the wall without the need for the LES mesh to resolve the inner part of the turbulent boundary layers.
-Note, that, unlike some other  approaches (e.g. hybrid LES/RANS), the LES domain here extends all the way to the wall and **only the inner layer is modelled**, whereas the outer layer of TBLs is fully-resolved.
+Note, that, unlike some other approaches (e.g. hybrid LES/RANS), the LES domain here extends all the way to the wall and **only the inner layer is modelled**, whereas the outer layer of TBLs is fully-resolved.
 Chapter 5 of the following thesis may be of interest for getting further acquainted with the methodology of WMLES, see also the publication list in the end of the README.
 
 http://www.diva-portal.org/smash/record.jsf?pid=diva2%3A1236761
@@ -19,7 +19,11 @@ If you use the library, please cite the following publication, which fully descr
 
 https://arxiv.org/abs/1807.11786
 
-**This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD® trademarks.**
+**This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM® and OpenCFD® trademarks.**
+
+## News ##
+
+- **2018-11-17** Version 0.4 released, see CHANGELOG.md for list of changes.
 
 ## Compatibility ##
 
@@ -43,7 +47,7 @@ This will create an html folder that can be read using a browser.
 In the *tests* folder there is a toy channel flow case that you can try running to make sure that things compiled well.
 No more simulation cases are shipped with the library.
 However, OpenFOAM cases for turbulent channel flow and flow over a backward-facing step can be found using the following DOI: 10.6084/m9.figshare.6790013
-These thus serve both as turtorials for case set-up and as validation cases.
+These thus serve both as tutorials for case set-up and as validation cases.
 Further results obtained using the library can be found in the publications listed below.
 The cases considered in these publication can thus also be used for validation.
 
@@ -70,7 +74,7 @@ usage instructions, and, where applicable, formulas and references to
 literature. A tiny toy case can be found under tests/testCases/channel\_flow
 where the 0/nut file provides an example of setting up the boundary
 conditions.
-The article linked to in the beginning of the README also serves as documenation.
+The article linked to in the beginning of the README also serves as documentation.
 
 ## Best practice guidelines ##
 This is intended to be a summary of tips based on the experience of the developers and users of the library.
@@ -86,7 +90,7 @@ Naturally, results may vary heavily depending on the case in question.
   For some inspiration on unstructured meshing strategies see (Mukha, Johansson & Liefvendahl, in ECFD 7, Glasgow, UK, 2018).
 - In regions where the TBL is attached, set *h* to be the distance to the second consecutive off-the wall cell centre. In other regions, use *h=0*,
   i.e. sample from the wall-adjacent cell.
-- Use a mildly diffusive numerical scheme, e.g. LUST. Tips regading what other schemes worked well are welcome :).
+- Use a mildly diffusive numerical scheme, e.g. LUST. Tips regarding what other schemes worked well are welcome :).
 - The WALE model is a good first choice for SGS modelling.
 - If your simulation crashes because of the wall model (you can usually see that in the log), make sure you have a good initial condition.
 - If your simulation crashed anyway, use *h =0*, this is pretty much guaranteed to be stable.
