@@ -26,8 +26,9 @@ Description
     wall. The root finders are therefore used in conjuction with the LOTW
     wall model
  
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
+Contributors/Copyright:
+    2016-2018 Timofey Mukha
+    2017      Saleh Rezaeiravesh
 
 
 \*---------------------------------------------------------------------------*/
@@ -200,7 +201,7 @@ public:
                 const label maxIter
             ),
             (rootFinderName, f, d, eps, maxIter)
-        )
+        );
 
         // RTS table "Dictionary"    
         declareRunTimeSelectionTable
@@ -214,7 +215,7 @@ public:
                 const dictionary & dict
             ),
             (f, d, dict)
-        )
+        );
 
         // RTS table "DictionaryOnly"    
         declareRunTimeSelectionTable
@@ -226,7 +227,7 @@ public:
                 const dictionary & dict
             ),
             (dict)
-        )
+        );
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

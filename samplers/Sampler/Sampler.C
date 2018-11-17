@@ -29,6 +29,7 @@ License
 #include "SampledVelocityField.H"
 #include "SampledPGradField.H"
 #include "SampledWallGradUField.H"
+#include "codeRules.H"
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
@@ -108,7 +109,7 @@ void Foam::Sampler::createIndexList()
     const vectorField cellCentres = tcellCentres();
     
     // Grab the global indices of adjacent cells 
-    const labelUList & faceCells = patch().faceCells();
+    const UList<label> & faceCells = patch().faceCells();
 
     vector point;
     forAll(faceCentres, i)
@@ -142,7 +143,13 @@ void Foam::Sampler::createIndexList()
     }
     
     // Assign computed h_ to the global h field
-    h.boundaryField()[patch().index()] == h_;
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+    h.boundaryFieldRef()[patch().index()]
+#else        
+    h.boundaryField()[patch().index()]
+#endif
+    ==
+        h_;
     
     // Grab samplingCells field
     volScalarField & samplingCells = 
@@ -203,10 +210,38 @@ Foam::Sampler::Sampler
     lengthList_(p.size()),
     h_(p.size(), 0),
     averagingTime_(averagingTime),
-    db_(patch_.boundaryMesh().mesh().subRegistry("wallModelSampling", 1).subRegistry(patch_.name(), 1)),
     mesh_(patch_.boundaryMesh().mesh()),
     sampledFields_(0)
-{   
+{
+    if (!mesh_.foundObject<objectRegistry>("wallModelSampling"))
+    {
+        objectRegistry * subObr = new objectRegistry
+        (
+            IOobject
+            (
+                "wallModelSampling",
+                patch_.boundaryMesh().mesh().time().constant(),
+                patch_.boundaryMesh().mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            )
+        );
+        subObr->store();
+    }
+
+    objectRegistry * subObr = new objectRegistry
+    (
+        IOobject
+        (
+            patch_.name(),
+            patch_.boundaryMesh().mesh().time().constant(),
+            patch_.boundaryMesh().mesh().subRegistry("wallModelSampling"),
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        )
+    );
+    subObr->store();
+
     createFields();
     createIndexList();
     createLengthList();
@@ -229,7 +264,6 @@ Foam::Sampler::Sampler(const Sampler & copy)
     lengthList_(copy.lengthList_),
     h_(copy.h_),
     averagingTime_(copy.averagingTime_),
-    db_(copy.db_),
     mesh_(copy.mesh_),
     sampledFields_(copy.sampledFields_.size())
 {
@@ -278,7 +312,7 @@ void Foam::Sampler::sample() const
             
             vectorField & storedValues = const_cast<vectorField &>
             (
-                db_.lookupObject<vectorField>(sampledFields_[fieldI]->name())
+                db().lookupObject<vectorField>(sampledFields_[fieldI]->name())
             );
             storedValues = eps*sampledField + (1 - eps)*storedValues;
         }     
@@ -307,7 +341,8 @@ void Foam::Sampler::listListToField
 
 void Foam::Sampler::addField(SampledField * field)
 {
-    sampledFields_.append(field);
+//    sampledFields_.append(field);
+    sampledFields_.setSize(sampledFields_.size() + 1, field);
 }
 
 

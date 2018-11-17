@@ -24,6 +24,7 @@ momentumSource
     {
         selectionMode   all;       //cellSet // points //cellZone
         fieldNames  (U);
+        fields  (U);
         Ubar        ( 1 0 0 );
     }
 }

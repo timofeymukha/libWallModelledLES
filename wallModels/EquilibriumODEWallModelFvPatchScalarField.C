@@ -19,7 +19,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "EquilibriumODEWallModelFvPatchScalarField.H"
-#include "turbulenceModel.H"
 #include "addToRunTimeSelectionTable.H"
 
 

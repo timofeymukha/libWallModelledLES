@@ -22,8 +22,10 @@ Class
 Description
     Class for sampling data to the wall models.
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
+Contributors/Copyright:
+    2016-2018 Timofey Mukha
+    2017      Saleh Rezaeiravesh
+
 
 SourceFiles
     Sampler.C
@@ -67,9 +69,6 @@ protected:
         
         //- Time-averaging scale of the sampled values
         scalar averagingTime_;
-        
-        //- The object registry for sampled data, subregistry of mesh_
-        const objectRegistry & db_;
         
         //- The global object registry
         const fvMesh & mesh_;
@@ -135,7 +134,7 @@ public:
         //- Get the registry with sampled fields
         const objectRegistry & db() const
         {
-            return db_;
+            return mesh().subRegistry("wallModelSampling").subRegistry(patch().name());
         }
         
         //- Get the mesh

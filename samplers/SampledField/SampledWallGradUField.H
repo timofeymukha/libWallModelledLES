@@ -22,8 +22,8 @@ Class
 Description
     Class for the sampled velocity field.
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
+Contributors/Copyright:
+    2018 Timofey Mukha
 
 SourceFiles
     SampledWallGradUField.C

@@ -47,8 +47,9 @@ Description
         Annual Research Briefs, 1995
     \endverbatim
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh.
+Contributors/Copyright:
+    2016-2018 Timofey Mukha
+    2017      Saleh Rezaeiravesh
 
 SourceFiles
     VanDriestEddyViscosity.C

@@ -47,8 +47,8 @@ Description
         Zeitschrift fur Angewandte Mathematik und Mechanik 31(7) (pp. 208-219).
     \endverbatim
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
+Contributors/Copyright:
+    2018 Timofey Mukha
 
 SourceFiles
     IntegratedReichardtLawOfTheWall.C

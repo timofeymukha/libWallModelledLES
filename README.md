@@ -5,10 +5,7 @@ In particular, so-called wall-stress models are considered. These aim at correct
 Note, that, unlike some other  approaches (e.g. hybrid LES/RANS), the LES domain here extends all the way to the wall and **only the inner layer is modelled**, whereas the outer layer of TBLs is fully-resolved.
 Chapter 5 of the following thesis may be of interest for getting further acquainted with the methodology of WMLES, see also the publication list in the end of the README.
 
-http://www.diva-portal.org/smash/record.jsf?pid=diva2%3A1236761
-
-To simplify application to general geometries the models in the library predict the magnitude of the wall shear stress instead of its individual
-components.
+To simplify application to general geometries the models in the library predict the magnitude of the wall shear stress instead of its individual components.
 Similarly to OpenFOAM's native wall functions, the value of the shear stress is enforced by setting a non-zero value to the turbulent viscosity at the wall.
 Therefore, the models are chosen and configured individually for each wall boundary in the 0/nut file, see below.
 
@@ -26,16 +23,16 @@ https://arxiv.org/abs/1807.11786
 
 ## Compatibility ##
 
-The library has been developed using OpenFOAM version 3.0.1.
-A branch for version 2.3.1 is available but does not contain all the latest features.
-Versions 4.x and up are currently not supported due to breaking changes in the API (dereferencing, in particular).
-Setting up a more complicated compilation procedure to support more version is on the todo list, currently, no promises can be made regarding when it will be done.
-Contributions are highly welcome :).
+The library has been developed and tested using OpenFOAM version 3.0.1.
+Currently, the library also compiles for versions 4.x, 5.x and 6.x of from the OpenFOAM Foundation, and versions 1606+, 1612+ and 1806 from OpenCFD. 
+It is noted that pretty much no testing using these versions has been performed but since the changes to the code are minimal, things should in principle work properly.
+A branch for version 2.3.1 is available but is now very outdated and will not be further supported.
 
 ## Installing ##
 
-Clone the repository to the directory of your choice and run wmake inside.
+Clone the repository to the directory of your choice and run the Allwmake file inside.
 This should be it!
+If you want to get a specific version of the library, go to Downloads, Tags, and download the associated archive.
 
 If you want to build the source code documentation with doxygen, go into the
 docs folder and run "doxygen config".
@@ -116,25 +113,29 @@ Each such pair is treated as one item in the list below, without providing the f
     * IntegratedWernerWengleLawOfTheWall/IntegratedWernerWengleLawOfTheWall Class for the integrated formulation of the law of Werner and Wengle, (Werner & Wengle, Turb. Shear Flows 8, 1991).
     * LawOfTheWall/LawOfTheWall Base abstract class for laws of the wall.
     * ReichardLawOfTheWall/ReichardLawOfTheWall Class for Reichardt's law of the wall, (Reichardt, Zeit. für Ang. Math. und Mech., 1951).
-	* SpaldingLawOfTheWall/SpaldingLawOfTheWall Class for Spalding's law of the wall, (Spalding, J. of Applied Mechanics, 1961).
-	* WernerWengleLawOfTheWall/WernerWengleLawOfTheWall Class for Werner and Wengle's law of the wall, (Werner & Wengle, Turb. Shear Flows 8, 1991).
+    * SpaldingLawOfTheWall/SpaldingLawOfTheWall Class for Spalding's law of the wall, (Spalding, J. of Applied Mechanics, 1961).
+    * WernerWengleLawOfTheWall/WernerWengleLawOfTheWall Class for Werner and Wengle's law of the wall, (Werner & Wengle, Turb. Shear Flows 8, 1991).
 - Make
     * files File used by wmake to determine what source files to compile.
-	* options File used by wmkae to determine what libraries and headers to include at compilation.
+    * options File used by wmkae to determine what libraries and headers to include at compilation.
 - rootFinding
     * BisectionRootFinder/BisectionRootFinder Class for a root finder implementing the bisection method.
-	* NewtonRootFinder/NewtonRootFinder Class for a root finder implementing Newton's method.
-	* RootFinder/RootFinder Base abstract class for root finders.
+    * NewtonRootFinder/NewtonRootFinder Class for a root finder implementing Newton's method.
+    * RootFinder/RootFinder Base abstract class for root finders.
 - samplers
-	* SampledField/SampledField Base abstract class for a field to be sampled by the wall models.
-	* SampledField/SampledPGradField Class for sampling the pressure gradient
-	* SampledField/SampledVelocityField Class for sampling the velocity
-	* SampledField/SampledWallGradUField Class for sampling the wall-normal gradient of velocity.
-	* Sampler/Sampler
+    * SampledField/SampledField Base abstract class for a field to be sampled by the wall models.
+    * SampledField/SampledPGradField Class for sampling the pressure gradient
+    * SampledField/SampledVelocityField Class for sampling the velocity
+    * SampledField/SampledWallGradUField Class for sampling the wall-normal gradient of velocity.
+    * Sampler/Sampler
 - sgsModels
-	* makeSGSModel.C Helper file to create a new turbulence model
-	* NoModel Class for an SGS model with zero SGS viscosity in the internal field.
+    * makeSGSModel.C Helper file to create a new turbulence model
+    * NoModel Class for an SGS model with zero SGS viscosity in the internal field.
 - tests
+- versionRules
+    * codeRules.H Defines macros based on the version of OpenFOAM which is used.
+    * libraryRules.H Defines locations of libraries included in Make/options depending on the OpenFOAM version used.
+    * makeFoamVersionHeader.py A Python script that determines the version of OpenFOAM which is used and writes-out associated data to foamVersion4wmles.H
 - wallModels
     * EquilibriumODEWallModelFvPatchScalarField Class for the ODE-based wall model with a zero source term.
     * KnownWallShearStressWallModelFvPatchScalarField Class for wall model that reads a-priori known wall shear stress from disk.

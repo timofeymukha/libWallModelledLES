@@ -35,8 +35,8 @@ Description
     gradient.
 
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
+Contributors/Copyright:
+    2018 Timofey Mukha
 
 SourceFiles
     wallModelFvPatchScalarField.C
@@ -48,6 +48,7 @@ SourceFiles
 
 #include "fixedValueFvPatchFields.H"
 #include "Sampler.H"
+#include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

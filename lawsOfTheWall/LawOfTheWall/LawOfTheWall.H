@@ -30,8 +30,10 @@ Description
 Authors
     Timofey Mukha, Saleh Rezaeiravesh.
 
-SourceFiles
-    LawOfTheWall.C
+Contributors/Copyright:
+    2016-2018 Timofey Mukha
+    2017      Saleh Rezaeiravesh
+
 
 \*---------------------------------------------------------------------------*/
 
@@ -146,7 +148,7 @@ public:
                 Sampler & list
             ),
             (dict, list)
-        )
+        );
 
         // RTS table "TypeAndDictionary"    
         declareRunTimeSelectionTable
@@ -160,7 +162,7 @@ public:
                 Sampler & list
             ),
             (lawName, dict, list)
-        )  
+        );  
 };
 
 

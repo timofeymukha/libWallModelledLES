@@ -19,9 +19,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "LOTWWallModelFvPatchScalarField.H"
-#include "turbulenceModel.H"
 #include "fvPatchFieldMapper.H"
 #include "addToRunTimeSelectionTable.H"
+#include "codeRules.H"
 
 using namespace std::placeholders;
 
@@ -44,20 +44,11 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
 
     const label patchi = patch().index();
 
-    // Grab turbulence model to get fields access
-    const turbulenceModel& turbModel = db().lookupObject<turbulenceModel>
-    (
-        IOobject::groupName
-        (
-            turbulenceModel::propertiesName,
-            dimensionedInternalField().group()
-        )
-    );
+    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
     
-    // Viscosity
-    const tmp<scalarField> tnuw = turbModel.nu(patchi);
-    const scalarField& nuw = tnuw();
-        
+    // Velocity and viscosity on boundary
+    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
+
     scalarField magGradU =  mag(wallGradU_);
 
 
@@ -85,7 +76,12 @@ calcUTau(const scalarField & magGradU) const
 
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
-    scalarField& uTau = tuTau();
+    scalarField & uTau =
+#ifdef FOAM_NEW_TMP_RULES
+        tuTau.ref();
+#else        
+        tuTau();
+#endif
     
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
@@ -126,7 +122,13 @@ calcUTau(const scalarField & magGradU) const
     }
     
     // Assign computed uTau to the boundary field of the global field
-    uTauField.boundaryField()[patchi] == uTau;
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+    uTauField.boundaryFieldRef()[patchi]
+#else        
+    uTauField.boundaryField()[patchi]
+#endif
+    ==
+        uTau;
     return tuTau;
 }
 

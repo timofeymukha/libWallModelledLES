@@ -22,7 +22,6 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "makeTurbulenceModel.H"
 
-#include "laminar.H"
 #include "RASModel.H"
 #include "LESModel.H"
 

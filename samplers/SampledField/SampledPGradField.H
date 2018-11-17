@@ -22,8 +22,8 @@ Class
 Description
     Class for a sampled pressure gradient field.
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
+Contributors/Copyright:
+    2018 Timofey Mukha
 
 SourceFiles
     SampledPGradField.C

@@ -21,7 +21,7 @@ License
 #include "wallModelFvPatchScalarField.H"
 #include "meshSearch.H"
 #include "wallFvPatch.H"
-#include "turbulenceModel.H"
+#include "codeRules.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -256,10 +256,13 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     const volScalarField & nu = db().lookupObject<volScalarField>("nu");
     const scalarField & nut = *this;
 
-
-    wss.boundaryField()[pI] == (nut + nu.boundaryField()[pI])*wallGradU;
-
-    fixedValueFvPatchScalarField::updateCoeffs();
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+    wss.boundaryFieldRef()[pI]
+#else        
+    wss.boundaryField()[pI]
+#endif
+    ==
+        (nut + nu.boundaryField()[pI])*wallGradU;
 }
 
 

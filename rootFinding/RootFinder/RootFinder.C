@@ -105,9 +105,9 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
     Foam::word rootFinderName = dict.lookup("type");
 
     DictionaryOnlyConstructorTable::iterator cstrIter =
-    DictionaryOnlyConstructorTablePtr_->find(rootFinderName);
+        DictionaryOnlyConstructorTablePtr_->find(rootFinderName);
 
-    if (cstrIter == DictionaryConstructorTablePtr_->end())
+    if (cstrIter == DictionaryOnlyConstructorTablePtr_->end())
     {
         FatalErrorIn
         (
