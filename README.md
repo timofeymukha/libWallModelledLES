@@ -28,9 +28,10 @@ https://arxiv.org/abs/1807.11786
 ## Compatibility ##
 
 The library has been developed and tested using OpenFOAM version 3.0.1.
-Currently, the library also compiles for versions 4.x, 5.x and 6.x of from the OpenFOAM Foundation, and versions 1606+, 1612+ and 1806 from OpenCFD. 
+Currently, the library also compiles for versions 4.x, 5.x and 6.x of from the OpenFOAM Foundation, and versions 1606+ through 1806 from OpenCFD. 
 It is noted that pretty much no testing using these versions has been performed but since the changes to the code are minimal, things should in principle work properly.
-A branch for version 2.3.1 is available but is now very outdated and will not be further supported.
+Reports on compilation and running on these versions is highly welcome.
+A special branch on the repository for version 2.3.1 is available but is now very outdated and will not be further supported.
 
 ## Installing ##
 
