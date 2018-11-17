@@ -53,8 +53,9 @@ Description
     - eps, the relative error tolerance for the convergence of the wall shear
     stress.
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
+Contributors/Copyright:
+    2016-2018 Timofey Mukha
+    2017      Saleh Rezaeiravesh
 
 SourceFiles
     ODEWallModelFvPatchScalarField.C

@@ -25,8 +25,8 @@ Description
     under the sub-registry wallModelSampling -- patch-name.
     
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
+Contributors/Copyright:
+    2018 Timofey Mukha
 
 SourceFiles
     SampledField.C

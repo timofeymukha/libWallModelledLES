@@ -48,8 +48,10 @@ Description
         28(3), 455-458.
     \endverbatim
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh.
+Contributors/Copyright:
+    2016-2018 Timofey Mukha
+    2017      Saleh Rezaeiravesh
+
 
 SourceFiles
     SpaldingLawOfTheWall.C

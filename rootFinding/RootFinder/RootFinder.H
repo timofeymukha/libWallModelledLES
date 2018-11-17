@@ -26,8 +26,9 @@ Description
     wall. The root finders are therefore used in conjuction with the LOTW
     wall model
  
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
+Contributors/Copyright:
+    2016-2018 Timofey Mukha
+    2017      Saleh Rezaeiravesh
 
 
 \*---------------------------------------------------------------------------*/

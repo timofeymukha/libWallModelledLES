@@ -25,8 +25,9 @@ Description
     Meant to be used with ODE based wall models that need the distribution
     of eddy viscosity on a wall-normal 1D mesh associated with each face.
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh.
+Contributors/Copyright:
+    2016-2018 Timofey Mukha
+    2017      Saleh Rezaeiravesh
 
 SourceFiles
     LawOfTheWall.C

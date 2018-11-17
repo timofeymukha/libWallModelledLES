@@ -2,7 +2,11 @@
 
 # This script processses $WM_PRJECT_VERSION and outputs the result to 
 # foamVersion4wmles.H
-# Code copied from swak4foam, (c) Bernhard F.W. Gschaider
+# Code copied from swak4foam with minor modification
+# 
+# Contributors/Copyright:
+    2012-2018 Bernhard F.W. Gschaider
+    2018      Timofey Mukha
 
 import re
 import sys

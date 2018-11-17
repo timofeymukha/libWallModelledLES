@@ -51,8 +51,8 @@ Description
         Springer, Berlin, Heidelberg.
     \endverbatim
 
-Authors
-    Timofey Mukha, Saleh Rezaeiravesh
+Contributors/Copyright:
+    2018 Timofey Mukha
 
 SourceFiles
     IntegratedWernerWengleLawOfTheWall.C
