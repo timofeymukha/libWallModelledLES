@@ -38,7 +38,7 @@ fi
 
 # Ensure consistent definition of OPENFOAM_COM without relying anything else.   
 # This may be available from the regular wmake rules, but use our own convention
-sed -ne 's/.*SWAK_IS_COM \([0-9][0-9]*\)/OPENFOAM_COM=\1/p' < $versionFile > versionRules/foamVersion
+sed -ne 's/.*WMLES_IS_COM \([0-9][0-9]*\)/OPENFOAM_COM=\1/p' < $versionFile > versionRules/foamVersion
                                                                                 
 echo                                                                            
 echo "Please include the output above when reporting a problem in the compilation. It helps diagnosing the problem    "

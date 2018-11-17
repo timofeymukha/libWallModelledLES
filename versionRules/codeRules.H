@@ -21,7 +21,7 @@ Class
 
 Description
     Based on the OpenFOAM version, generates macros that can be used to make
-    the code support multiple versions via #ifdef statemtes.
+    the code support multiple versions via #ifdef statements.
     The file is adopted with minor changes from swak4foam, see list of
     contributors below.
 
