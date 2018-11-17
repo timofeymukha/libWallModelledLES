@@ -43,6 +43,12 @@ If you want to build the source code documentation with doxygen, go into the
 docs folder and run "doxygen config".
 This will create an html folder that can be read using a browser.
 
+## Key features ##
+
+- Provides a number of wall models, based on both non-linear algebraic and ordinary differential equations, see the class-headers in the wallModels folder.
+- Makes it possible to specify the distance to the wall model's sampling point, h, on a per-face basis.
+- Allows the user to control all the other parameters of wall modelling, e.g. model constants, iterative solver settings etc.
+- Serves a as a convenient framework for implementing new models without a lot of code duplication.
 
 ## Validation cases ##
 In the *tests* folder there is a toy channel flow case that you can try running to make sure that things compiled well.
@@ -70,11 +76,9 @@ Assume that you've already set up a case for the classical wall-resolved LES. To
 
 ## Documentation ##
 
-Each class is documented in the corresponding .H header file. This includes
-usage instructions, and, where applicable, formulas and references to
-literature. A tiny toy case can be found under tests/testCases/channel\_flow
-where the 0/nut file provides an example of setting up the boundary
-conditions.
+Each class is documented in the corresponding .H header file.
+This includes usage instructions, and, where applicable, formulas and references to literature.
+A tiny toy case can be found under tests/testCases/channel\_flow where the 0/nut file provides an example of setting up the boundary conditions.
 The article linked to in the beginning of the README also serves as documentation.
 
 ## Best practice guidelines ##
