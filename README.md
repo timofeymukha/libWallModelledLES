@@ -26,6 +26,7 @@ A branch for version 2.3.1 is available but is now very outdated and will not be
 
 Clone the repository to the directory of your choice and run the Allwmake file inside.
 This should be it!
+If you want to get a specific version of the library, go to Downloads, Tags, and download the associated archive.
 
 If you want to build the source code documentation with doxygen, go into the
 docs folder and run "doxygen config".
@@ -99,24 +100,24 @@ Each such pair is treated as one item in the list below, without providing the f
     * IntegratedWernerWengleLawOfTheWall/IntegratedWernerWengleLawOfTheWall Class for the integrated formulation of the law of Werner and Wengle, (Werner & Wengle, Turb. Shear Flows 8, 1991).
     * LawOfTheWall/LawOfTheWall Base abstract class for laws of the wall.
     * ReichardLawOfTheWall/ReichardLawOfTheWall Class for Reichardt's law of the wall, (Reichardt, Zeit. für Ang. Math. und Mech., 1951).
-	* SpaldingLawOfTheWall/SpaldingLawOfTheWall Class for Spalding's law of the wall, (Spalding, J. of Applied Mechanics, 1961).
-	* WernerWengleLawOfTheWall/WernerWengleLawOfTheWall Class for Werner and Wengle's law of the wall, (Werner & Wengle, Turb. Shear Flows 8, 1991).
+    * SpaldingLawOfTheWall/SpaldingLawOfTheWall Class for Spalding's law of the wall, (Spalding, J. of Applied Mechanics, 1961).
+    * WernerWengleLawOfTheWall/WernerWengleLawOfTheWall Class for Werner and Wengle's law of the wall, (Werner & Wengle, Turb. Shear Flows 8, 1991).
 - Make
     * files File used by wmake to determine what source files to compile.
-	* options File used by wmkae to determine what libraries and headers to include at compilation.
+    * options File used by wmkae to determine what libraries and headers to include at compilation.
 - rootFinding
     * BisectionRootFinder/BisectionRootFinder Class for a root finder implementing the bisection method.
-	* NewtonRootFinder/NewtonRootFinder Class for a root finder implementing Newton's method.
-	* RootFinder/RootFinder Base abstract class for root finders.
+    * NewtonRootFinder/NewtonRootFinder Class for a root finder implementing Newton's method.
+    * RootFinder/RootFinder Base abstract class for root finders.
 - samplers
-	* SampledField/SampledField Base abstract class for a field to be sampled by the wall models.
-	* SampledField/SampledPGradField Class for sampling the pressure gradient
-	* SampledField/SampledVelocityField Class for sampling the velocity
-	* SampledField/SampledWallGradUField Class for sampling the wall-normal gradient of velocity.
-	* Sampler/Sampler
+    * SampledField/SampledField Base abstract class for a field to be sampled by the wall models.
+    * SampledField/SampledPGradField Class for sampling the pressure gradient
+    * SampledField/SampledVelocityField Class for sampling the velocity
+    * SampledField/SampledWallGradUField Class for sampling the wall-normal gradient of velocity.
+    * Sampler/Sampler
 - sgsModels
-	* makeSGSModel.C Helper file to create a new turbulence model
-	* NoModel Class for an SGS model with zero SGS viscosity in the internal field.
+    * makeSGSModel.C Helper file to create a new turbulence model
+    * NoModel Class for an SGS model with zero SGS viscosity in the internal field.
 - tests
 - versionRules
     * codeRules.H Defines macros based on the version of OpenFOAM which is used.
