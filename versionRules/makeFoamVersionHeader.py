@@ -5,8 +5,8 @@
 # Code copied from swak4foam with minor modification
 # 
 # Contributors/Copyright:
-    2012-2018 Bernhard F.W. Gschaider
-    2018      Timofey Mukha
+#    2012-2018 Bernhard F.W. Gschaider
+#    2018      Timofey Mukha
 
 import re
 import sys
