@@ -29,7 +29,12 @@ License
 #include "SampledVelocityField.H"
 #include "SampledPGradField.H"
 #include "SampledWallGradUField.H"
+#include "treeDataCell.H"
+#include "treeBoundBox.H"
+#include "indexedOctree.H"
 #include "codeRules.H"
+#include "wallDist.H"
+
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
@@ -50,7 +55,7 @@ void Foam::Sampler::createFields()
                     IOobject::MUST_READ,
                     IOobject::AUTO_WRITE
                 ),
-                patch_.boundaryMesh().mesh()
+                mesh_
             )
         );
     }
@@ -87,19 +92,57 @@ void Foam::Sampler::createIndexList()
 {
     const label patchIndex = patch().index();
     
-    // Grab the mesh
-    const fvMesh & mesh = patch().boundaryMesh().mesh();
-    
     // Grab h for the current patch
     volScalarField & h = 
-        const_cast<volScalarField &>(mesh.lookupObject<volScalarField> ("h"));
+        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
     
     h_ = h.boundaryField()[patchIndex];
 
+    scalar maxH = max(h_);
 
+    const volVectorField & C = mesh_.C();
+
+    treeBoundBox boundBox(mesh_.bounds());
+
+
+    wallDist distance(mesh_);
+    const volScalarField & distanceField = distance.y();
+
+
+    // Indices of cells lying closer than 2h to the patch
+    labelList searchCellLabels(C.size());
+    label nSearchCells = 0;
+    forAll(searchCellLabels, i)
+    {
+        if (distanceField[i] < 2*maxH)
+        {
+            searchCellLabels[nSearchCells] = i;
+            nSearchCells++;
+        }
+    }
+    searchCellLabels.resize(nSearchCells);
+
+    Info << "Planting the tree" << nl;
+    indexedOctree<treeDataCell> * treePtr = new indexedOctree<treeDataCell>
+    (
+        treeDataCell
+        (
+            false,
+            mesh_,
+            searchCellLabels,
+            polyMesh::CELL_TETS
+        ),
+        boundBox,
+        8,
+        10,
+        3.0
+    );
+    Info << "Grown" << nl;
 
     // Create a searcher for the mesh
-    meshSearch ms(mesh);
+    Info << "Creating meshsearch" << nl;
+    meshSearch ms(mesh_);
+    Info << "Done" << nl;
     
     // Grab face centres, normal and adjacent cells' centres to each patch face
     const vectorField & faceCentres = patch().Cf();
@@ -112,12 +155,15 @@ void Foam::Sampler::createIndexList()
     const UList<label> & faceCells = patch().faceCells();
 
     vector point;
+    pointIndexHit pih;
+
     forAll(faceCentres, i)
     {
         // If h is zero, set it to distance to adjacent cell's centre
-        // Set the cellIndexList component accordingly.
+        // Set the cellIndexList component accordingly
+        // Note that if maxH is 0, we will never use our empty tree
         if (h_[i] == 0)
-        {          
+        {
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
             indexList_[i] = faceCells[i];          
         }
@@ -128,17 +174,24 @@ void Foam::Sampler::createIndexList()
 
             // Check that point is inside the (processor) domain
             // Otherwise fall back to adjacent cell's centre.
-            if (!ms.isInside(point))
-            {
-                point = cellCentres[i];
-            }
+//            Info << "Check if inside" << nl;
+//            if (!ms.isInside(point))
+//            {
+//                point = cellCentres[i];
+//            }
+//            Info << "Done" << nl;
 
             // Find the cell where the point is located
-            indexList_[i] = ms.findNearestCell(point, -1, true);
+//            indexList_[i] = ms.findNearestCell(point, -1, true);
+//            pih = treePtr->findNearest(point, treePtr->bb().mag());
+            pih = treePtr->findNearest(point, treePtr->bb().mag());
+            indexList_[i] = searchCellLabels[pih.index()];
+//            Info << indexList_[i] << " " << pih << " " << searchCellLabels[pih.index()] << nl;
+            Info << treePtr->findInside(point) << nl;
                         
             // Set h to the distance between face centre and located cell's
             // center
-            h_[i] = mag(mesh.C()[indexList_[i]] - faceCentres[i]);
+            h_[i] = mag(C[indexList_[i]] - faceCentres[i]);
         }
     }
     
@@ -155,7 +208,7 @@ void Foam::Sampler::createIndexList()
     volScalarField & samplingCells = 
         const_cast<volScalarField &>
         (
-            mesh.lookupObject<volScalarField> ("samplingCells")
+            mesh_.lookupObject<volScalarField> ("samplingCells")
         );
     
     forAll(indexList_, i)
@@ -167,11 +220,8 @@ void Foam::Sampler::createIndexList()
 
 void Foam::Sampler::createLengthList()
 {
-    // Grab the mesh
-    const fvMesh & mesh = patch().boundaryMesh().mesh(); 
-    
     // Cell volumes
-    const scalarField & V = mesh.V();
+    const scalarField & V = mesh_.V();
     
     forAll(lengthList_, i)
     {
@@ -220,8 +270,8 @@ Foam::Sampler::Sampler
             IOobject
             (
                 "wallModelSampling",
-                patch_.boundaryMesh().mesh().time().constant(),
-                patch_.boundaryMesh().mesh(),
+                mesh_.time().constant(),
+                mesh_,
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             )
@@ -234,8 +284,8 @@ Foam::Sampler::Sampler
         IOobject
         (
             patch_.name(),
-            patch_.boundaryMesh().mesh().time().constant(),
-            patch_.boundaryMesh().mesh().subRegistry("wallModelSampling"),
+            mesh_.time().constant(),
+            mesh_.subRegistry("wallModelSampling"),
             IOobject::NO_READ,
             IOobject::NO_WRITE
         )
