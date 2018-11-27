@@ -30,6 +30,7 @@ License
 #include "SampledPGradField.H"
 #include "SampledWallGradUField.H"
 #include "treeDataCell.H"
+#include "treeDataFace.H"
 #include "treeBoundBox.H"
 #include "indexedOctree.H"
 #include "codeRules.H"
@@ -104,8 +105,9 @@ void Foam::Sampler::createIndexList()
 
     treeBoundBox boundBox(mesh_.bounds());
 
+    labelHashSet patchIDs{patch().index()};
 
-    wallDist distance(mesh_);
+    wallDist distance(mesh_, "meshWave", patchIDs, "wall");
     const volScalarField & distanceField = distance.y();
 
 
@@ -139,10 +141,34 @@ void Foam::Sampler::createIndexList()
     );
     Info << "Grown" << nl;
 
+
+    Info << "Planting the boundary tree" << nl;
+
+    List<label> bndFaces(mesh_.nFaces() - mesh_.nInternalFaces());
+    forAll(bndFaces, i)
+    {
+        bndFaces[i] = mesh_.nInternalFaces() + i;
+    }
+
+    indexedOctree<treeDataFace> * boundaryTreePtr = new indexedOctree<treeDataFace>
+    (
+        treeDataFace
+        (
+            false,
+            mesh_,
+            bndFaces
+        ),
+        boundBox,
+        8,
+        10,
+        3.0
+    );
+    Info << "Grown" << nl;
+
     // Create a searcher for the mesh
-    Info << "Creating meshsearch" << nl;
-    meshSearch ms(mesh_);
-    Info << "Done" << nl;
+//    Info << "Creating meshsearch" << nl;
+//    meshSearch ms(mesh_);
+//    Info << "Done" << nl;
     
     // Grab face centres, normal and adjacent cells' centres to each patch face
     const vectorField & faceCentres = patch().Cf();
@@ -155,22 +181,27 @@ void Foam::Sampler::createIndexList()
     const UList<label> & faceCells = patch().faceCells();
 
     vector point;
+    //label pih;
     pointIndexHit pih;
 
     forAll(faceCentres, i)
     {
+        // Grab the point h away along the face normal
+        point = faceCentres[i] - faceNormals[i]*h_[i];
+//        pih = treePtr->findInside(point);
+
         // If h is zero, set it to distance to adjacent cell's centre
         // Set the cellIndexList component accordingly
         // Note that if maxH is 0, we will never use our empty tree
-        if (h_[i] == 0)
+//        if ((h_[i] == 0) || (pih.index() == -1))
+        bool inside = boundaryTreePtr->getVolumeType(point) == volumeType::INSIDE;
+        if ((h_[i] == 0) || (!inside))
         {
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
             indexList_[i] = faceCells[i];          
         }
         else
         {
-            // Grab the point h away along the face normal
-            point = faceCentres[i] - faceNormals[i]*h_[i];
 
             // Check that point is inside the (processor) domain
             // Otherwise fall back to adjacent cell's centre.
@@ -184,10 +215,11 @@ void Foam::Sampler::createIndexList()
             // Find the cell where the point is located
 //            indexList_[i] = ms.findNearestCell(point, -1, true);
 //            pih = treePtr->findNearest(point, treePtr->bb().mag());
+//            pih = treePtr->findNearest(point, treePtr->bb().mag());
             pih = treePtr->findNearest(point, treePtr->bb().mag());
             indexList_[i] = searchCellLabels[pih.index()];
 //            Info << indexList_[i] << " " << pih << " " << searchCellLabels[pih.index()] << nl;
-            Info << treePtr->findInside(point) << nl;
+//            Info << treePtr->findInside(point) << nl;
                         
             // Set h to the distance between face centre and located cell's
             // center
