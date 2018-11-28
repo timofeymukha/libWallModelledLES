@@ -581,6 +581,10 @@ Contributors/Copyright:
 #define FOAM_NEW_TURBULENCE_STRUCTURE
 #endif
 
+#if (defined(FOAM_VERSION4WMLES_IS_COM))
+#define FOAM_WALLDIST_CONSTRUCTOR_ACCEPTS_METHOD
+#endif
+
 #endif
 
 // ************************************************************************* //

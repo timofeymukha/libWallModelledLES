@@ -107,7 +107,11 @@ void Foam::Sampler::createIndexList()
 
     labelHashSet patchIDs{patch().index()};
 
+#if FOAM_WALLDIST_CONSTRUCTOR_ACCEPTS_METHOD
     wallDist distance(mesh_, "meshWave", patchIDs, "wall");
+#else
+    wallDist distance(mesh_, patchIDs, "wall");
+#endif
     const volScalarField & distanceField = distance.y();
 
 
