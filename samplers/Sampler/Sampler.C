@@ -107,7 +107,9 @@ void Foam::Sampler::createIndexList()
 
     treeBoundBox boundBox(mesh_.bounds());
 
-    labelHashSet patchIDs{patch().index()};
+    labelHashSet patchIDs(1);
+    patchIDs.insert(patch().index());
+    Info<<patchIDs << nl;
 
 #ifdef FOAM_WALLDIST_CONSTRUCTOR_ACCEPTS_METHOD
     wallDist distance(mesh_, "meshWave", patchIDs, "wall");
@@ -115,6 +117,7 @@ void Foam::Sampler::createIndexList()
     wallDist distance(mesh_, patchIDs, "wall");
 #endif
     const volScalarField & distanceField = distance.y();
+    Info << distanceField << nl;
     Info<< "Done computing wall distance" << nl;
 
     Info<< "Searching for indices of cells closer than 2max(h) to patch" << nl;
