@@ -91,6 +91,7 @@ void Foam::Sampler::createFields()
 
 void Foam::Sampler::createIndexList()
 {
+    Info << "Entered createIndexList() for patch " << patch().name() <<  nl;
     const label patchIndex = patch().index();
     
     // Grab h for the current patch
@@ -100,6 +101,7 @@ void Foam::Sampler::createIndexList()
     h_ = h.boundaryField()[patchIndex];
 
     scalar maxH = max(h_);
+    Info << "The maximum h value is " << maxH << nl;
 
     const volVectorField & C = mesh_.C();
 
@@ -113,8 +115,9 @@ void Foam::Sampler::createIndexList()
     wallDist distance(mesh_, patchIDs, "wall");
 #endif
     const volScalarField & distanceField = distance.y();
+    Info<< "Done computing wall distance" << nl;
 
-
+    Info<< "Searching for indices of cells closer than 2max(h) to patch" << nl;
     // Indices of cells lying closer than 2h to the patch
     labelList searchCellLabels(C.size());
     label nSearchCells = 0;
@@ -127,8 +130,9 @@ void Foam::Sampler::createIndexList()
         }
     }
     searchCellLabels.resize(nSearchCells);
+    Info<< "Found " << searchCellLabels.size() << " cells" << nl;
 
-    Info << "Planting the tree" << nl;
+    Info<< "Planting the tree" << nl;
     indexedOctree<treeDataCell> * treePtr = new indexedOctree<treeDataCell>
     (
         treeDataCell
@@ -144,6 +148,14 @@ void Foam::Sampler::createIndexList()
         3.0
     );
     Info << "Grown" << nl;
+
+    if (treePtr->nodes().empty() && (maxH != 0))
+    {
+        Warning
+            << "Sampler: max(h) is " << maxH << " but no cell centres within "
+            << "distance 2*max(h) were found. "
+            << "Will sample from wall-adjacent cells." << nl; 
+    }
 
 
     Info << "Planting the boundary tree" << nl;
@@ -188,6 +200,7 @@ void Foam::Sampler::createIndexList()
     //label pih;
     pointIndexHit pih;
 
+    Info << "Starting search for sampling cells" << nl;
     forAll(faceCentres, i)
     {
         // Grab the point h away along the face normal
@@ -199,7 +212,7 @@ void Foam::Sampler::createIndexList()
         // Note that if maxH is 0, we will never use our empty tree
 //        if ((h_[i] == 0) || (pih.index() == -1))
         bool inside = boundaryTreePtr->getVolumeType(point) == volumeType::INSIDE;
-        if ((h_[i] == 0) || (!inside))
+        if ((h_[i] == 0) || (!inside) || (treePtr->nodes().empty()))
         {
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
             indexList_[i] = faceCells[i];          
@@ -230,6 +243,7 @@ void Foam::Sampler::createIndexList()
             h_[i] = mag(C[indexList_[i]] - faceCentres[i]);
         }
     }
+    Info << "Done" << nl;
     
     // Assign computed h_ to the global h field
 #ifdef FOAM_NEW_GEOMFIELD_RULES
