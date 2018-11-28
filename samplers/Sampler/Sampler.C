@@ -34,7 +34,7 @@ License
 #include "treeBoundBox.H"
 #include "indexedOctree.H"
 #include "codeRules.H"
-#include "wallDist.H"
+#include "patchDistMethod.H"
 
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
@@ -111,15 +111,46 @@ void Foam::Sampler::createIndexList()
     patchIDs.insert(patch().index());
     Info<<patchIDs << nl;
 
+    dictionary methodDict = dictionary();
+    methodDict.lookupOrAddDefault(word("method"), word("meshWave"));
+
+    autoPtr<patchDistMethod>  pdm_
+    (
+        patchDistMethod::New
+        (
+            methodDict,
+            mesh_,
+            patchIDs
+        )
+    );
+
+    Info << "Constructing distanceField"<<nl;
+    volScalarField distanceField
+    (
+        IOobject
+        (
+            "distanceField",
+            mesh_.time().timeName(),
+            mesh_
+        ),
+        mesh_,
+        dimensionedScalar("distanceField", dimLength, SMALL),
+        patchDistMethod::patchTypes<scalar>(mesh_, patchIDs)
+    );
+
+    Info << "Computing distanceField"<<nl;
+    pdm_->correct(distanceField);
+
+/*
 #ifdef FOAM_WALLDIST_CONSTRUCTOR_ACCEPTS_METHOD
     wallDist distance(mesh_, "meshWave", patchIDs, "wall");
 #else
-    wallDist distance(mesh_, patchIDs, "wall");
+    wallDist distance(mesh_, patchIDs);
 #endif
     const volScalarField & distanceField = distance.y();
     Info << distanceField << nl;
     Info<< "Done computing wall distance" << nl;
-
+*/
     Info<< "Searching for indices of cells closer than 2max(h) to patch" << nl;
     // Indices of cells lying closer than 2h to the patch
     labelList searchCellLabels(C.size());
