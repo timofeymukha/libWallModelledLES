@@ -89,6 +89,9 @@ protected:
         
 public:
 
+    //- Runtime type information
+    TypeName("Sampler");
+
     // Constructors
 
         //- Construct from patch and averaging time
@@ -100,7 +103,8 @@ public:
         
         Sampler(const Sampler &);
         
-        ~Sampler();
+    // Destructor
+        virtual ~Sampler();
 
     // Member functions
 

@@ -37,6 +37,13 @@ License
 #include "patchDistMethod.H"
 
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(Sampler, 0);
+}
+
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
 void Foam::Sampler::createFields()
@@ -44,6 +51,11 @@ void Foam::Sampler::createFields()
       
     if (!mesh_.thisDb().found("h"))
     {
+        if (debug)
+        {
+            Info<< "Sampler: Creating h field" << nl;
+        }
+
         mesh_.thisDb().store
         (
             new volScalarField
@@ -60,13 +72,84 @@ void Foam::Sampler::createFields()
             )
         );
     }
-    
+
     volScalarField & h = 
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
+
+    // Try to read field with distance from cell to patches
+    
+    if (debug)
+    {
+        Info<< "Sampler: Creating dist field" << nl;
+    }
+
+    if (!mesh_.thisDb().found("dist"))
+    {
+        mesh_.thisDb().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "dist",
+                    mesh_.time().timeName(),
+                    mesh_,
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh_,
+                dimensionedScalar("dist", dimLength,0),
+                h.boundaryField().types()
+            )
+        );
+    }
+    volScalarField & dist = 
+        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField>("dist"));
+
+    if (mag(max(dist.internalField()).value()) < VSMALL)
+    {
+        if (debug)
+        {
+            Info<< "Sampler: Computing dist field" << nl;
+        }
+
+        labelHashSet patchIDs(1);
+        patchIDs.insert(patch().index());
+        //Info<<patchIDs << nl;
+
+        dictionary methodDict = dictionary();
+        methodDict.lookupOrAddDefault(word("method"), word("meshWave"));
+
+        if (debug)
+        {
+            Info<< "    Initializing patchDistanceMethod" << nl;
+        }
+
+        autoPtr<patchDistMethod>  pdm_
+        (
+            patchDistMethod::New
+            (
+                methodDict,
+                mesh_,
+                patchIDs
+            )
+        );
+
+        if (debug)
+        {
+            Info<< "    Computing" << nl;
+        }
+        pdm_->correct(dist);
+    }
     
    // Field that marks cells that are used for sampling
     if (!mesh_.thisDb().found("samplingCells"))
     {
+        if (debug)
+        {
+            Info<< "Sampler: Creating samplingCells field" << nl;
+        }
+
         mesh_.thisDb().store
         (
             new volScalarField
@@ -91,70 +174,42 @@ void Foam::Sampler::createFields()
 
 void Foam::Sampler::createIndexList()
 {
-    Info << "Entered createIndexList() for patch " << patch().name() <<  nl;
     const label patchIndex = patch().index();
     
     // Grab h for the current patch
     volScalarField & h = 
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
+
     
     h_ = h.boundaryField()[patchIndex];
 
     scalar maxH = max(h_);
-    Info << "The maximum h value is " << maxH << nl;
+    if (debug)
+    {
+        Info << "Sampler: The maximum h value is " << maxH << nl;
+    }
 
     const volVectorField & C = mesh_.C();
 
+    if (debug)
+    {
+        Info<< "Sampler: Constructing mesh bounding box" << nl;
+    }
+
     treeBoundBox boundBox(mesh_.bounds());
 
-    labelHashSet patchIDs(1);
-    patchIDs.insert(patch().index());
-    Info<<patchIDs << nl;
-
-    dictionary methodDict = dictionary();
-    methodDict.lookupOrAddDefault(word("method"), word("meshWave"));
-
-    autoPtr<patchDistMethod>  pdm_
-    (
-        patchDistMethod::New
-        (
-            methodDict,
-            mesh_,
-            patchIDs
-        )
-    );
-
-    Info << "Constructing distanceField"<<nl;
-    volScalarField distanceField
-    (
-        IOobject
-        (
-            "distanceField",
-            mesh_.time().timeName(),
-            mesh_
-        ),
-        mesh_,
-        dimensionedScalar("distanceField", dimLength, SMALL),
-        patchDistMethod::patchTypes<scalar>(mesh_, patchIDs)
-    );
-
-    Info << "Computing distanceField"<<nl;
-    pdm_->correct(distanceField);
-
-/*
-#ifdef FOAM_WALLDIST_CONSTRUCTOR_ACCEPTS_METHOD
-    wallDist distance(mesh_, "meshWave", patchIDs, "wall");
-#else
-    wallDist distance(mesh_, patchIDs);
-#endif
-    const volScalarField & distanceField = distance.y();
-    Info << distanceField << nl;
-    Info<< "Done computing wall distance" << nl;
-*/
-    Info<< "Searching for indices of cells closer than 2max(h) to patch" << nl;
-    // Indices of cells lying closer than 2h to the patch
     labelList searchCellLabels(C.size());
     label nSearchCells = 0;
+
+    const volScalarField & distanceField = 
+        mesh_.lookupObject<volScalarField> ("dist");
+
+    if (debug)
+    {
+        Info<< "Sampler: Searching for cells closer to 2maxH to the wall"
+            << nl;
+    }
+
     forAll(searchCellLabels, i)
     {
         if (distanceField[i] < 2*maxH)
@@ -163,10 +218,14 @@ void Foam::Sampler::createIndexList()
             nSearchCells++;
         }
     }
-    searchCellLabels.resize(nSearchCells);
-    Info<< "Found " << searchCellLabels.size() << " cells" << nl;
 
-    Info<< "Planting the tree" << nl;
+    searchCellLabels.resize(nSearchCells);
+
+    if (debug)
+    {
+        Info<< "Sampler: Found " << searchCellLabels.size() << " cells" << nl;
+        Info<< "Sampler: Constructing cell octree" << nl;
+    }
     indexedOctree<treeDataCell> * treePtr = new indexedOctree<treeDataCell>
     (
         treeDataCell
@@ -181,7 +240,6 @@ void Foam::Sampler::createIndexList()
         10,
         3.0
     );
-    Info << "Grown" << nl;
 
     if (treePtr->nodes().empty() && (maxH != 0))
     {
@@ -192,7 +250,10 @@ void Foam::Sampler::createIndexList()
     }
 
 
-    Info << "Planting the boundary tree" << nl;
+    if (debug)
+    {
+        Info<< "Sampler: Constructing face octree" << nl;
+    }
 
     List<label> bndFaces(mesh_.nFaces() - mesh_.nInternalFaces());
     forAll(bndFaces, i)
@@ -200,7 +261,8 @@ void Foam::Sampler::createIndexList()
         bndFaces[i] = mesh_.nInternalFaces() + i;
     }
 
-    indexedOctree<treeDataFace> * boundaryTreePtr = new indexedOctree<treeDataFace>
+    indexedOctree<treeDataFace> * boundaryTreePtr =
+    new indexedOctree<treeDataFace>
     (
         treeDataFace
         (
@@ -213,13 +275,8 @@ void Foam::Sampler::createIndexList()
         10,
         3.0
     );
-    Info << "Grown" << nl;
 
-    // Create a searcher for the mesh
-//    Info << "Creating meshsearch" << nl;
-//    meshSearch ms(mesh_);
-//    Info << "Done" << nl;
-    
+
     // Grab face centres, normal and adjacent cells' centres to each patch face
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();
@@ -234,17 +291,19 @@ void Foam::Sampler::createIndexList()
     //label pih;
     pointIndexHit pih;
 
-    Info << "Starting search for sampling cells" << nl;
+    if (debug)
+    {
+        Info << "Sampler: Starting search for sampling cells" << nl;
+    }
+    
     forAll(faceCentres, i)
     {
         // Grab the point h away along the face normal
         point = faceCentres[i] - faceNormals[i]*h_[i];
-//        pih = treePtr->findInside(point);
 
-        // If h is zero, set it to distance to adjacent cell's centre
+        // If h is zero, or the point is outside the domain,
+        // set it to distance to adjacent cell's centre
         // Set the cellIndexList component accordingly
-        // Note that if maxH is 0, we will never use our empty tree
-//        if ((h_[i] == 0) || (pih.index() == -1))
         bool inside = boundaryTreePtr->getVolumeType(point) == volumeType::INSIDE;
         if ((h_[i] == 0) || (!inside) || (treePtr->nodes().empty()))
         {
@@ -254,30 +313,15 @@ void Foam::Sampler::createIndexList()
         else
         {
 
-            // Check that point is inside the (processor) domain
-            // Otherwise fall back to adjacent cell's centre.
-//            Info << "Check if inside" << nl;
-//            if (!ms.isInside(point))
-//            {
-//                point = cellCentres[i];
-//            }
-//            Info << "Done" << nl;
-
-            // Find the cell where the point is located
-//            indexList_[i] = ms.findNearestCell(point, -1, true);
-//            pih = treePtr->findNearest(point, treePtr->bb().mag());
-//            pih = treePtr->findNearest(point, treePtr->bb().mag());
             pih = treePtr->findNearest(point, treePtr->bb().mag());
             indexList_[i] = searchCellLabels[pih.index()];
-//            Info << indexList_[i] << " " << pih << " " << searchCellLabels[pih.index()] << nl;
-//            Info << treePtr->findInside(point) << nl;
-                        
-            // Set h to the distance between face centre and located cell's
-            // center
             h_[i] = mag(C[indexList_[i]] - faceCentres[i]);
         }
     }
-    Info << "Done" << nl;
+    if (debug)
+    {
+        Info << "Sampler: Done" << nl;
+    }
     
     // Assign computed h_ to the global h field
 #ifdef FOAM_NEW_GEOMFIELD_RULES
