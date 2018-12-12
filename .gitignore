@@ -37,6 +37,7 @@ nbproject/
 lnInclude/
 
 **.dep
+**.swp
 
 **/Make/*
 **/processor*
