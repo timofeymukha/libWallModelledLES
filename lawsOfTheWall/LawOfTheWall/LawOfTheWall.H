@@ -45,7 +45,7 @@ Contributors/Copyright:
 #include "typeInfo.H"
 #include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
-#include "Sampler.H"
+#include "SingleCellSampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -63,31 +63,26 @@ protected:
     //- Dictionary holding the model constants that the law uses
     dictionary constDict_;
     
-    Sampler & sampler_;
-
 public:
 
     TypeName("LawOfTheWall");
     
     // Constructors
     
-        //- Construct from dictionary and cell index list
-        LawOfTheWall(const dictionary & dict, Sampler & list)
+        //- Construct from dictionary
+        LawOfTheWall(const dictionary & dict)
         :
-        constDict_(dict),
-        sampler_(list)
+        constDict_(dict)
         {}
         
-        //- Construct from TypeName, dictionary and cell index list
+        //- Construct from TypeName and dictionary
         LawOfTheWall
         (
             const word& lawName,
-            const dictionary & dict,
-            Sampler & list
+            const dictionary & dict
         )
         :
-        constDict_(dict),
-        sampler_(list)
+        constDict_(dict)
         {}
 
     //- Destructor
@@ -96,30 +91,33 @@ public:
     // Selectors
         static autoPtr<LawOfTheWall> New 
         (
-            const dictionary & dict,
-            Sampler & list
+            const dictionary & dict
         );
 
         static autoPtr<LawOfTheWall> New 
         (
             const word & lawName,
-            const dictionary & dict,
-            Sampler & list
+            const dictionary & dict
         );
         
     // Member Functions
     
+        //- Add necessary sampled fields to the sampler
+        virtual void addFieldsToSampler(Sampler & sampler){}
+
         //- Print info to terminal
         virtual void printCoeffs() const = 0; 
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(scalar index, scalar uTau, scalar nu) const = 0;
+        virtual scalar value(const SingleCellSampler & sampler, scalar index,
+                             scalar uTau, scalar nu) const = 0;
 
         //- Return the value of the  derivative of the implicit function
         //  defining the law. Should throw an error if derivative does not 
         //  exist.
         virtual scalar 
-        derivative(scalar index, scalar uTau, scalar nu) const = 0;
+        derivative(const SingleCellSampler & sampler, scalar index,
+                  scalar uTau, scalar nu) const = 0;
         
         //- Write information about the law to stream
         virtual void write(Ostream & os) const; 
@@ -130,11 +128,6 @@ public:
             return constDict_;
         }
         
-        //- Return the Sampler object reference
-        Sampler & sampler() const
-        {
-            return sampler_;
-        }
         
     // RTS tables
         // RTS table "Dictionary"    
@@ -144,10 +137,9 @@ public:
             LawOfTheWall,
             Dictionary,
             (
-                const dictionary & dict,
-                Sampler & list
+                const dictionary & dict
             ),
-            (dict, list)
+            (dict)
         );
 
         // RTS table "TypeAndDictionary"    
@@ -158,10 +150,9 @@ public:
             TypeAndDictionary,
             (
                 const word & lawName,
-                const dictionary & dict,
-                Sampler & list
+                const dictionary & dict
             ),
-            (lawName, dict, list)
+            (lawName, dict)
         );  
 };
 

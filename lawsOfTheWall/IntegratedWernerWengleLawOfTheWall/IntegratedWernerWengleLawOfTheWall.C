@@ -43,11 +43,10 @@ namespace Foam
 
 Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
 (
-    const dictionary & dict,
-    Sampler & list
+    const dictionary & dict
 )
 :
-    LawOfTheWall(dict, list),
+    LawOfTheWall(dict),
     A_(dict.lookupOrDefault<scalar>("A", 8.3)),
     B_(dict.lookupOrDefault<scalar>("B", 1./7))
 {
@@ -61,11 +60,10 @@ Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
 Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
 (
     const word & lawName,
-    const dictionary & dict,
-    Sampler & list
+    const dictionary & dict
 )
 :
-    LawOfTheWall(lawName, dict, list),
+    LawOfTheWall(lawName, dict),
     A_(dict.lookupOrDefault<scalar>("A", 8.3)),
     B_(dict.lookupOrDefault<scalar>("B", 1./7))
 {
@@ -90,17 +88,18 @@ void Foam::IntegratedWernerWengleLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::value
 (
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu
 ) const
 {
-    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    const vectorField & U = sampler.db().lookupObject<vectorField>("U");
     scalar u = mag(U[index]);
     
-    scalar h = sampler_.h()[index]; 
-    //scalar h1 = h - sampler_.lengthList()[index]/2;
-    scalar h2 = h + sampler_.lengthList()[index]/2;
+    scalar h = sampler.h()[index]; 
+    //scalar h1 = h - sampler.lengthList()[index]/2;
+    scalar h2 = h + sampler.lengthList()[index]/2;
 
     //scalar yPlusM = pow(A_, 1/(1-B_));            
     
@@ -113,6 +112,7 @@ Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::value
 
 Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::derivative
 (
+    const SingleCellSampler & sampler,
     scalar y,
     scalar uTau,
     scalar nu        

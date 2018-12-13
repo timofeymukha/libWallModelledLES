@@ -44,11 +44,10 @@ namespace Foam
 
 Foam::IntegratedReichardtLawOfTheWall::IntegratedReichardtLawOfTheWall
 (
-    const dictionary & dict,
-    Sampler & list
+    const dictionary & dict
 )
 :
-    LawOfTheWall(dict, list),
+    LawOfTheWall(dict),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
     B1_(dict.lookupOrDefault<scalar>("B1", 11)),
     B2_(dict.lookupOrDefault<scalar>("B2", 3)),
@@ -64,11 +63,10 @@ Foam::IntegratedReichardtLawOfTheWall::IntegratedReichardtLawOfTheWall
 Foam::IntegratedReichardtLawOfTheWall::IntegratedReichardtLawOfTheWall
 (
     const word & lawName,
-    const dictionary & dict,
-    Sampler & list
+    const dictionary & dict
 )
 :
-    LawOfTheWall(lawName, dict, list),
+    LawOfTheWall(lawName, dict),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
     B1_(dict.lookupOrDefault<scalar>("B1", 11)),
     B2_(dict.lookupOrDefault<scalar>("B2", 3)),
@@ -97,18 +95,20 @@ void Foam::IntegratedReichardtLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
 (
+ 
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu
 ) const
 {  
-    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    const vectorField & U = sampler.db().lookupObject<vectorField>("U");
     scalar u = mag(U[index]);
     
-    scalar h = sampler_.h()[index];
+    scalar h = sampler.h()[index];
     
-    scalar h1 = mag(h - sampler_.lengthList()[index]/2);
-    scalar h2 = h + sampler_.lengthList()[index]/2;
+    scalar h1 = mag(h - sampler.lengthList()[index]/2);
+    scalar h2 = h + sampler.lengthList()[index]/2;
     
     return u*(h2 - h1) - (logTerm(h2, uTau, nu) - logTerm(h1, uTau, nu) +
                           expTerm(h2, uTau, nu) - expTerm(h1, uTau, nu));
@@ -117,15 +117,16 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
 
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::derivative
 (
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu        
 ) const
 { 
-    scalar h = sampler_.h()[index];
+    scalar h = sampler.h()[index];
     
-    scalar h1 = mag(h - sampler_.lengthList()[index]/2);
-    scalar h2 = h + sampler_.lengthList()[index]/2;
+    scalar h1 = mag(h - sampler.lengthList()[index]/2);
+    scalar h2 = h + sampler.lengthList()[index]/2;
         
     return -(logTermDerivative(h2, uTau, nu) - logTermDerivative(h1, uTau, nu) +
              expTermDerivative(h2, uTau, nu) - logTermDerivative(h1, uTau, nu));
