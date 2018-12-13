@@ -37,7 +37,8 @@ SourceFiles
 
 #include "fixedValueFvPatchFields.H"
 #include "SampledField.H"
-
+#include "runTimeSelectionTables.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -58,15 +59,6 @@ protected:
         //- The patch to build the list for
         const fvPatch & patch_;    
     
-        //- The indices of the cells that data is sampled from
-        labelList indexList_;
-        
-        //- A list of wall-normal length-scales associated with the cells
-        scalarField lengthList_;
-        
-        //- The distance from the wall that data is sampled from
-        scalarField h_;
-        
         //- Time-averaging scale of the sampled values
         scalar averagingTime_;
         
@@ -79,18 +71,21 @@ protected:
     // Protected Member Functions
                     
         //- Create list of cell-indices from where data is sampled
-        void createIndexList();
+        virtual void createIndexList(){}
         
         //- Compute the length-scales
-        void createLengthList();
+        virtual void createLengthList(){}
         
         //- Project a vector field
         void project(vectorField & field) const;
+
+        //- Create fields
+        virtual void createFields();
         
 public:
 
     //- Runtime type information
-    TypeName("Sampler");
+        TypeName("Sampler");
 
     // Constructors
 
@@ -106,29 +101,16 @@ public:
     // Destructor
         virtual ~Sampler();
 
+    // Selectors
+        static autoPtr<Sampler> New
+        (
+            const word & samplerName,
+            const fvPatch&,
+            scalar averagingTime
+        );
+
     // Member functions
 
-        //- Create fields
-        void createFields();
-
-        //- Return the list of cell-indices that are used to sample data
-        labelList indexList() const
-        {
-            return indexList_;
-        }
-        
-        //- Return h
-        scalarField h() const
-        {
-            return h_;
-        }
-                
-        //- Return the length-list
-        scalarField lengthList() const
-        {
-            return lengthList_;
-        }
-        
         //- Return the patch
         const fvPatch & patch() const
         {
@@ -147,17 +129,11 @@ public:
             return mesh_;
         }
         
-        //- Element access operator
-        inline label operator[](const label i) const
-        {
-            return indexList_[i];
-        }
-        
         //- Recompute fields to be sampled
         void recomputeFields() const;
         
         //- Sample the fields
-        void sample() const; 
+        virtual void sample() const = 0; 
         
         //- Add field for sampling
         void addField(SampledField *);
@@ -165,6 +141,35 @@ public:
         //- Convert sampled listList to a field
         template<class Type>
         void listListToField(const scalarListList &, Field<Type> &) const;
+
+    // RTS tables
+        
+        // RTS table "PatchAndAveragingTime"
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            Sampdictler,
+            PatchAndAveragingTime,
+            (
+                const word& samplerName,
+                const fvPatch& p,
+                scalar averagingTime
+            ),
+            (samplerName, p, averagingTime)
+        );
+
+        // RTS table "DictionaryAndAveragingTime"
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            Sampler,
+            PatchAndAveragingTime,
+            (
+                const dictionary & dict,
+                scalar averagingTime
+            ),
+            (dict, averagingTime)
+        );
 };
 
 
