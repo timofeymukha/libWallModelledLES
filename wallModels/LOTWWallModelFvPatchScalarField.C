@@ -105,11 +105,11 @@ calcUTau(const scalarField & magGradU) const
 
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
-            value = std::bind(&LawOfTheWall::value, &law_(), faceI, _1, 
-                              nuw[faceI]);
+            value = std::bind(&LawOfTheWall::value, &law_(), Sampler_, faceI,
+                              _1, nuw[faceI]);
             
-            derivValue = std::bind(&LawOfTheWall::derivative, &law_(), faceI,
-                                   _1, nuw[faceI]);
+            derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
+                                   Sampler_,faceI, _1, nuw[faceI]);
 
             // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
@@ -162,9 +162,9 @@ LOTWWallModelFvPatchScalarField
                                 ptf.rootFinder_->eps(),
                                 ptf.rootFinder_->maxIter())),
     law_(LawOfTheWall::New(ptf.law_->type(),
-                           ptf.law_->constDict(),
-                           ptf.law_->sampler()))
+                           ptf.law_->constDict()))
 {
+    law_->addFieldsToSampler(sampler());
 }
 
 Foam::LOTWWallModelFvPatchScalarField::
@@ -178,7 +178,9 @@ LOTWWallModelFvPatchScalarField
     wallModelFvPatchScalarField(p, iF, dict),
     rootFinder_(RootFinder::New(dict.subDict("RootFinder"))),
     law_(LawOfTheWall::New(dict.subDict("Law"), sampler_))
-{}
+{
+    law_->addFieldsToSampler(sampler());
+}
 
 
 Foam::LOTWWallModelFvPatchScalarField::

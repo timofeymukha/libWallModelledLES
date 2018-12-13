@@ -118,8 +118,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF),
     averagingTime_(0), 
-    sampler_(patch(), averagingTime_),
-    wallGradU_(sampler_.db().lookupObject<vectorField>("wallGradU"))
+    sampler_(Sampler::New(patch(), averagingTime_)),
+    wallGradU_(sampler_().db().lookupObject<vectorField>("wallGradU"))
 {
     if (debug)
     {
@@ -130,7 +130,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     
     checkType();
     createFields();
-   
 }
 
 

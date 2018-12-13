@@ -71,7 +71,7 @@ protected:
         scalar averagingTime_;
         
         //- The sampler
-        Sampler sampler_;
+        autoPtr<Sampler> sampler_;
      
         //- The wall-normal velocity gradient
         const vectorField & wallGradU_;        
@@ -157,9 +157,9 @@ public:
             return averagingTime_;
         }
         
-        Sampler sampler() const
+        Sampler & sampler()
         {
-            return sampler_;
+            return sampler_();
         }
         
         //- Update the boundary values
