@@ -118,7 +118,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF),
     averagingTime_(0), 
-    sampler_(Sampler::New(patch(), averagingTime_)),
+    sampler_(Sampler::New("SingleCellSampler", patch(), averagingTime_)),
     wallGradU_(sampler_().db().lookupObject<vectorField>("wallGradU"))
 {
     if (debug)
@@ -144,7 +144,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
     averagingTime_(ptf.averagingTime_), 
     sampler_(ptf.sampler_),
-    wallGradU_(sampler_.db().lookupObject<vectorField>("wallGradU"))
+    wallGradU_(sampler().db().lookupObject<vectorField>("wallGradU"))
 {
     if (debug)
     {
@@ -166,8 +166,16 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF, dict),
     averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0)),
-    sampler_(patch(), averagingTime_),
-    wallGradU_(sampler_.db().lookupObject<vectorField>("wallGradU"))
+    sampler_
+    (
+        Sampler::New
+        (
+            dict.lookupOrDefault<word>("Sampler", "SingleCellSampler"),
+            patch(),
+            averagingTime_
+        )
+    ),
+    wallGradU_(sampler().db().lookupObject<vectorField>("wallGradU"))
 {
     if (debug)
     {
@@ -189,7 +197,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(wmpsf),  
     averagingTime_(wmpsf.averagingTime_),
     sampler_(wmpsf.sampler_),
-    wallGradU_(sampler_.db().lookupObject<vectorField>("wallGradU"))    
+    wallGradU_(sampler().db().lookupObject<vectorField>("wallGradU"))    
 {
     if (debug)
     {
@@ -210,7 +218,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(wmpsf, iF),       
     averagingTime_(wmpsf.averagingTime_),
     sampler_(wmpsf.sampler_),
-    wallGradU_(sampler_.db().lookupObject<vectorField>("wallGradU"))
+    wallGradU_(sampler().db().lookupObject<vectorField>("wallGradU"))
 {
     if (debug)
     {
@@ -234,8 +242,8 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     label pI = patch().index();
     
     // Sample fields
-    sampler_.recomputeFields();
-    sampler_.sample();
+    sampler().recomputeFields();
+    sampler().sample();
             
     // Compute nut and assign
     operator==(calcNut());
