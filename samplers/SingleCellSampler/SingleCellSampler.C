@@ -292,10 +292,6 @@ Foam::SingleCellSampler::SingleCellSampler
 
 Foam::SingleCellSampler::~SingleCellSampler()
 {
-    forAll(sampledFields_, i)
-    {
-        delete sampledFields_[i];
-    }
 }
 
 

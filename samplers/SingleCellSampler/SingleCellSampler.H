@@ -107,7 +107,7 @@ public:
         }
         
         //- Return h
-        scalarField h() const
+        const scalarField & h() const
         {
             return h_;
         }
