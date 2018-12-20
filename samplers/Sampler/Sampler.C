@@ -40,7 +40,7 @@ namespace Foam
     defineTypeNameAndDebug(Sampler, 0);
     defineRunTimeSelectionTable(Sampler, PatchAndAveragingTime);
 }
-//
+
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
 
 Foam::autoPtr<Foam::Sampler> Foam::Sampler::New 
@@ -239,6 +239,11 @@ Foam::Sampler::Sampler
     mesh_(patch_.boundaryMesh().mesh()),
     sampledFields_(0)
 {
+    if (debug)
+    {
+        Info << "Sampler: Constructing from patch and avrg time" << nl;
+    }
+
     if (!mesh_.foundObject<objectRegistry>("wallModelSampling"))
     {
         objectRegistry * subObr = new objectRegistry
@@ -283,6 +288,11 @@ Foam::Sampler::Sampler
     mesh_(patch_.boundaryMesh().mesh()),
     sampledFields_(0)
 {
+    if (debug)
+    {
+        Info << "Sampler: Constructing from name, patch and avrg time" << nl;
+    }
+
     if (!mesh_.foundObject<objectRegistry>("wallModelSampling"))
     {
         objectRegistry * subObr = new objectRegistry
@@ -322,6 +332,10 @@ Foam::Sampler::Sampler(const Sampler & copy)
     mesh_(copy.mesh_),
     sampledFields_(copy.sampledFields_.size())
 {
+    if (debug)
+    {
+        Info << "Sampler: Running copy constructor" << nl;
+    }
     forAll(copy.sampledFields_, i)
     {
         sampledFields_[i] = copy.sampledFields_[i]->clone();
@@ -332,27 +346,14 @@ Foam::Sampler::Sampler(const Sampler & copy)
 
 Foam::Sampler::~Sampler()
 {
+    if (debug)
+    {
+        Info << "Sampler: Running destructor" << nl;
+    }
+
     forAll(sampledFields_, i)
     {
         delete sampledFields_[i];
-    }
-}
-
-template<class Type>
-void Foam::Sampler::listListToField
-(
-    const scalarListList & list,
-    Field<Type> & field    
-) const
-{
-    forAll(list, i)
-    {
-        Type element;
-        forAll(list[i], j)
-        {
-            element[j] = list[i][j];
-        }
-        field[i] = element;
     }
 }
 

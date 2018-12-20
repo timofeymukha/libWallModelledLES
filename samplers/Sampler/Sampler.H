@@ -44,6 +44,21 @@ SourceFiles
 
 namespace Foam
 {
+        
+//- Convert sampled listList to a field
+template<class Type>
+void listListToField(const scalarListList & list, Field<Type> & field)
+{
+    forAll(list, i)
+    {
+        Type element;
+        forAll(list[i], j)
+        {
+            element[j] = list[i][j];
+        }
+        field[i] = element;
+    }
+}
 
     
 /*---------------------------------------------------------------------------*\
@@ -150,13 +165,12 @@ public:
         
         //- Sample the fields
         virtual void sample() const = 0; 
+
+        //- Return sampling height
+        virtual const scalarField & h() const = 0;
         
         //- Add field for sampling
         void addField(SampledField *);
-        
-        //- Convert sampled listList to a field
-        template<class Type>
-        void listListToField(const scalarListList &, Field<Type> &) const;
 
     // RTS tables
         
