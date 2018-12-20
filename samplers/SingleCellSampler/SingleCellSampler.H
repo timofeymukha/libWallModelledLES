@@ -84,6 +84,14 @@ public:
             const fvPatch&,
             scalar averagingTime
         );
+
+        //- Construct from type, patch and averaging time
+        SingleCellSampler
+        (
+            const word & samplerName,
+            const fvPatch & p,
+            scalar averagingTime
+        );
         
         SingleCellSampler(const SingleCellSampler &) = default;
         

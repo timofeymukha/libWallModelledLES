@@ -53,7 +53,7 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
     PatchAndAveragingTimeConstructorTable::iterator cstrIter =
     PatchAndAveragingTimeConstructorTablePtr_->find(samplerName);
 
-    if (cstrIter == WordConstructorTablePtr_->end())
+    if (cstrIter == PatchAndAveragingTimeConstructorTablePtr_->end())
     {
         FatalErrorIn
         (
@@ -62,12 +62,25 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         )   << "Unknown Sampler type "
             << samplerName << nl << nl
             << "Valid Sampler types are :" << nl
-            << WordConstructorTablePtr_->sortedToc()
+            << PatchAndAveragingTimeConstructorTablePtr_->sortedToc()
             << exit(FatalError);
     }
 
     return cstrIter()(samplerName, p, averagingTime);
 }  
+
+Foam::autoPtr<Foam::Sampler> Foam::Sampler::New 
+(
+    const dictionary & dict,
+    const fvPatch & p
+)
+{
+    word samplerName = dict.lookupOrDefault<word>("type", "SingleCellSampler");
+    scalar averagingTime = dict.lookupOrDefault<scalar>("averagingTime", 0.0);
+
+    return Foam::Sampler::New(samplerName, p, averagingTime);
+}  
+
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
@@ -217,6 +230,50 @@ void Foam::Sampler::project(vectorField & field) const
 
 Foam::Sampler::Sampler
 (
+    const fvPatch & p,
+    scalar averagingTime
+)
+:
+    patch_(p),
+    averagingTime_(averagingTime),
+    mesh_(patch_.boundaryMesh().mesh()),
+    sampledFields_(0)
+{
+    if (!mesh_.foundObject<objectRegistry>("wallModelSampling"))
+    {
+        objectRegistry * subObr = new objectRegistry
+        (
+            IOobject
+            (
+                "wallModelSampling",
+                mesh_.time().constant(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            )
+        );
+        subObr->store();
+    }
+
+    objectRegistry * subObr = new objectRegistry
+    (
+        IOobject
+        (
+            patch_.name(),
+            mesh_.time().constant(),
+            mesh_.subRegistry("wallModelSampling"),
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        )
+    );
+    subObr->store();
+
+    createFields();
+}
+
+Foam::Sampler::Sampler
+(
+    const word & samplerName,
     const fvPatch & p,
     scalar averagingTime
 )

@@ -92,21 +92,37 @@ public:
         //- Construct from patch and averaging time
         Sampler
         (
-            const fvPatch&,
+            const fvPatch &,
             scalar averagingTime
         );
-        
+
+        //- Construct from type, patch and averaging time
+        Sampler
+        (
+            const word & samplerName,
+            const fvPatch &,
+            scalar averagingTime
+        );
+
+
+        //- Copy constructor
         Sampler(const Sampler &);
         
-    // Destructor
+        //- Destructor
         virtual ~Sampler();
 
     // Selectors
         static autoPtr<Sampler> New
         (
             const word & samplerName,
-            const fvPatch&,
+            const fvPatch &,
             scalar averagingTime
+        );
+
+        static autoPtr<Sampler> New
+        (
+            const dictionary &,
+            const fvPatch &
         );
 
     // Member functions
@@ -148,7 +164,7 @@ public:
         declareRunTimeSelectionTable
         (
             autoPtr,
-            Sampdictler,
+            Sampler,
             PatchAndAveragingTime,
             (
                 const word& samplerName,
@@ -156,19 +172,6 @@ public:
                 scalar averagingTime
             ),
             (samplerName, p, averagingTime)
-        );
-
-        // RTS table "DictionaryAndAveragingTime"
-        declareRunTimeSelectionTable
-        (
-            autoPtr,
-            Sampler,
-            PatchAndAveragingTime,
-            (
-                const dictionary & dict,
-                scalar averagingTime
-            ),
-            (dict, averagingTime)
         );
 };
 
