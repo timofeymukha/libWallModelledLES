@@ -35,6 +35,7 @@ SourceFiles
 #ifndef Sampler_H
 #define Sampler_H
 
+#include "tmp.H"
 #include "fixedValueFvPatchFields.H"
 #include "SampledField.H"
 #include "runTimeSelectionTables.H"
@@ -96,6 +97,9 @@ protected:
 
         //- Create fields
         virtual void createFields();
+
+        //- Compute cell indices suitable for searching sampling cells
+        tmp<labelField> findSearchCellLabels() const;
         
 public:
 
@@ -168,6 +172,8 @@ public:
 
         //- Return sampling height
         virtual const scalarField & h() const = 0;
+
+        virtual const scalarField & lengthList() const = 0;
         
         //- Add field for sampling
         void addField(SampledField *);

@@ -146,10 +146,6 @@ void Foam::Sampler::createFields()
 
     if (mag(max(dist.internalField()).value()) < VSMALL)
     {
-        if (debug)
-        {
-            Info<< "Sampler: Computing dist field" << nl;
-        }
 
         labelHashSet patchIDs(1);
         patchIDs.insert(patch().index());
@@ -160,7 +156,7 @@ void Foam::Sampler::createFields()
 
         if (debug)
         {
-            Info<< "    Initializing patchDistanceMethod" << nl;
+            Info<< "Initializing patchDistanceMethod" << nl;
         }
 
         autoPtr<patchDistMethod>  pdm_
@@ -175,7 +171,7 @@ void Foam::Sampler::createFields()
 
         if (debug)
         {
-            Info<< "    Computing" << nl;
+            Info<< "Sampler: Computing dist field" << nl;
         }
         pdm_->correct(dist);
     }
@@ -207,6 +203,67 @@ void Foam::Sampler::createFields()
         );
     }
       
+}
+
+
+Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
+{
+    const label patchIndex = patch().index();
+    
+    // Grab h for the current patch
+    volScalarField & h = 
+        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
+
+    
+    
+    scalar maxH = max(h.boundaryField()[patchIndex]);
+    if (debug)
+    {
+        Info << "Sampler: The maximum h value is " << maxH << nl;
+    }
+
+    const volVectorField & C = mesh_.C();
+
+    if (debug)
+    {
+        Info<< "Sampler: Constructing mesh bounding box" << nl;
+    }
+
+    tmp<labelField> tSearchCellLabels(new labelField(C.size()));
+#ifdef FOAM_NEW_TMP_RULES
+    labelField & searchCellLabels = tSearchCellLabels.ref();
+#else
+    labelField & searchCellLabels = tSearchCellLabels();
+#endif
+    label nSearchCells = 0;
+
+    const volScalarField & distanceField = 
+        mesh_.lookupObject<volScalarField> ("dist");
+
+    if (debug)
+    {
+        Info<< "Sampler: Searching for cells closer to 2maxH to the wall"
+            << nl;
+    }
+
+    forAll(searchCellLabels, i)
+    {
+        if (distanceField[i] < 2*maxH)
+        {
+            searchCellLabels[nSearchCells] = i;
+            nSearchCells++;
+        }
+    }
+
+    searchCellLabels.resize(nSearchCells);
+
+    if (debug)
+    {
+        Info<< "Sampler: Found " << searchCellLabels.size() << " cells" << nl;
+        Info<< "Sampler: Constructing cell octree" << nl;
+    }
+
+    return tSearchCellLabels;
 }
 
 
