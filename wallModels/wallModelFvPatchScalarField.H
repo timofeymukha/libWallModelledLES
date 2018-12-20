@@ -141,15 +141,15 @@ public:
     // Member functions
       
         //- Return the list of cell-indices that are used to sample data
-        labelList cellIndexList() const
-        {
-            return sampler_.indexList();
-        }
+        //labelList cellIndexList() const
+        //{
+            //return sampler_.indexList();
+        //}
         
         //- Return h
         scalarField h() const
         {
-            return sampler_.h();
+            return sampler_->h();
         }
                 
         scalar averagingTime() const
