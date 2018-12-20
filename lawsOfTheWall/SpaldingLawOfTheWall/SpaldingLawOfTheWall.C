@@ -78,7 +78,7 @@ void Foam::SpaldingLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::SpaldingLawOfTheWall::value
 (
-    const SingleCellSampler & sampler,
+    const Sampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu
@@ -87,8 +87,10 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
     const vectorField & U = sampler.db().lookupObject<vectorField>("U");
 
     scalar u = mag(U[index]);
+    Info << "Sampled u " << u << nl;
 
     scalar y = sampler.h()[index];
+    Info << "Sampled y " << y << nl;
     scalar uPlus = u/uTau;
 
     return uPlus + exp(-kappa_*B_)*(exp(kappa_*uPlus) - 1 - kappa_*uPlus
@@ -98,7 +100,7 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
 
 Foam::scalar Foam::SpaldingLawOfTheWall::derivative
 (
-    const SingleCellSampler & sampler,
+    const Sampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu        
