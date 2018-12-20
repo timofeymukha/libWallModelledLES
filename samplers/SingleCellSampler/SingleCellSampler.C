@@ -57,14 +57,7 @@ void Foam::SingleCellSampler::createIndexList()
 
     
     h_ = h.boundaryField()[patchIndex];
-
     scalar maxH = max(h_);
-    if (debug)
-    {
-        Info << "SingleCellSampler: The maximum h value is " << maxH << nl;
-    }
-
-    const volVectorField & C = mesh_.C();
 
     if (debug)
     {
@@ -73,47 +66,25 @@ void Foam::SingleCellSampler::createIndexList()
 
     treeBoundBox boundBox(mesh_.bounds());
 
-    labelList searchCellLabels(C.size());
-    label nSearchCells = 0;
+    tmp<labelField> tSearchCellLabels = findSearchCellLabels();
+    const labelField & searchCellLabels = tSearchCellLabels();
 
-    const volScalarField & distanceField = 
-        mesh_.lookupObject<volScalarField> ("dist");
-
-    if (debug)
-    {
-        Info<< "SingleCellSampler: Searching for cells closer to 2maxH to the wall"
-            << nl;
-    }
-
-    forAll(searchCellLabels, i)
-    {
-        if (distanceField[i] < 2*maxH)
-        {
-            searchCellLabels[nSearchCells] = i;
-            nSearchCells++;
-        }
-    }
-
-    searchCellLabels.resize(nSearchCells);
-
-    if (debug)
-    {
-        Info<< "SingleCellSampler: Found " << searchCellLabels.size() << " cells" << nl;
-        Info<< "SingleCellSampler: Constructing cell octree" << nl;
-    }
-    indexedOctree<treeDataCell> * treePtr = new indexedOctree<treeDataCell>
+    autoPtr<indexedOctree<treeDataCell> > treePtr
     (
-        treeDataCell
+        new indexedOctree<treeDataCell>
         (
-            false,
-            mesh_,
-            searchCellLabels,
-            polyMesh::CELL_TETS
-        ),
-        boundBox,
-        8,
-        10,
-        3.0
+            treeDataCell
+            (
+                false,
+                mesh_,
+                searchCellLabels,
+                polyMesh::CELL_TETS
+            ),
+            boundBox,
+            8,
+            10,
+            3.0
+        )
     );
 
     if (treePtr->nodes().empty() && (maxH != 0))
@@ -130,25 +101,27 @@ void Foam::SingleCellSampler::createIndexList()
         Info<< "SingleCellSampler: Constructing face octree" << nl;
     }
 
-    List<label> bndFaces(mesh_.nFaces() - mesh_.nInternalFaces());
+    labelList bndFaces(mesh_.nFaces() - mesh_.nInternalFaces());
     forAll(bndFaces, i)
     {
         bndFaces[i] = mesh_.nInternalFaces() + i;
     }
 
-    indexedOctree<treeDataFace> * boundaryTreePtr =
-    new indexedOctree<treeDataFace>
+    autoPtr<indexedOctree<treeDataFace> > boundaryTreePtr
     (
-        treeDataFace
+        new indexedOctree<treeDataFace>
         (
-            false,
-            mesh_,
-            bndFaces
-        ),
-        boundBox,
-        8,
-        10,
-        3.0
+            treeDataFace
+            (
+                false,
+                mesh_,
+                bndFaces
+            ),
+            boundBox,
+            8,
+            10,
+            3.0
+        )
     );
 
 
@@ -158,6 +131,7 @@ void Foam::SingleCellSampler::createIndexList()
     const vectorField faceNormals = tfaceNormals();
     const tmp<vectorField> tcellCentres = patch().Cn();
     const vectorField cellCentres = tcellCentres();
+    const volVectorField & C = mesh_.C();
     
     // Grab the global indices of adjacent cells 
     const UList<label> & faceCells = patch().faceCells();

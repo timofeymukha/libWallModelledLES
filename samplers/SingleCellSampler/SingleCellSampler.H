@@ -113,7 +113,7 @@ public:
         }
                 
         //- Return the length-list
-        scalarField lengthList() const
+        virtual const scalarField & lengthList() const
         {
             return lengthList_;
         }
@@ -123,7 +123,6 @@ public:
         {
             return indexList_[i];
         }
-        
         
         //- Sample the fields
         virtual void sample() const; 
