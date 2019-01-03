@@ -35,6 +35,7 @@ License
 #include "indexedOctree.H"
 #include "codeRules.H"
 #include "patchDistMethod.H"
+#include "scalarListIOList.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -275,17 +276,19 @@ void Foam::SingleCellSampler::sample() const
         scalarListList sampledList(patch().size());
         sampledFields_[fieldI]->sample(sampledList);
         
-        if (sampledFields_[fieldI]->nDims() == 3)
+        scalarListIOList & storedValues = const_cast<scalarListIOList & >
+        (
+            db().lookupObject<scalarListIOList>(sampledFields_[fieldI]->name())
+        );
+
+        forAll(storedValues, i)
         {
-            vectorField sampledField(patch_.size());
-            listListToField<vector>(sampledList, sampledField);
-            
-            vectorField & storedValues = const_cast<vectorField &>
-            (
-                db().lookupObject<vectorField>(sampledFields_[fieldI]->name())
-            );
-            storedValues = eps*sampledField + (1 - eps)*storedValues;
-        }     
+            forAll(storedValues[i], j)
+            {
+                storedValues[i][j] = eps*sampledList[i][j] +
+                                     (1 - eps)*storedValues[i][j];
+            }
+        }
 
     }
 }
