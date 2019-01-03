@@ -61,7 +61,7 @@ void Foam::MultiCellSampler::createIndexList()
 
     if (debug)
     {
-        Info<< "SingleCellSampler: Constructing mesh bounding box" << nl;
+        Info<< "MultiCellSampler: Constructing mesh bounding box" << nl;
     }
 
     treeBoundBox boundBox(mesh_.bounds());
@@ -90,7 +90,7 @@ void Foam::MultiCellSampler::createIndexList()
     if (treePtr->nodes().empty() && (maxH != 0))
     {
         Warning
-            << "SingleCellSampler: max(h) is " << maxH << " but no cell centres within "
+            << "MultiCellSampler: max(h) is " << maxH << " but no cell centres within "
             << "distance 2*max(h) were found. "
             << "Will sample from wall-adjacent cells." << nl; 
     }
@@ -98,7 +98,7 @@ void Foam::MultiCellSampler::createIndexList()
 
     if (debug)
     {
-        Info<< "SingleCellSampler: Constructing face octree" << nl;
+        Info<< "MultiCellSampler: Constructing face octree" << nl;
     }
 
     labelList bndFaces(mesh_.nFaces() - mesh_.nInternalFaces());
@@ -136,40 +136,84 @@ void Foam::MultiCellSampler::createIndexList()
     // Grab the global indices of adjacent cells 
     const UList<label> & faceCells = patch().faceCells();
 
-    vector point;
+    vector p;
     //label pih;
     pointIndexHit pih;
 
     if (debug)
     {
-        Info << "SingleCellSampler: Starting search for sampling cells" << nl;
+        Info << "MultiCellSampler: Starting search for sampling cells" << nl;
     }
     
     forAll(faceCentres, i)
     {
         // Grab the point h away along the face normal
-        point = faceCentres[i] - faceNormals[i]*h_[i];
+        p = faceCentres[i] - faceNormals[i]*h_[i];
+
+        vector tolVector = (p - faceCentres[i])*1e-6;
+        point startP = faceCentres[i] - tolVector;
+        point endP = p + tolVector;
 
         // If h is zero, or the point is outside the domain,
         // set it to distance to adjacent cell's centre
         // Set the cellIndexList component accordingly
-        bool inside = boundaryTreePtr->getVolumeType(point) == volumeType::INSIDE;
+        bool inside = boundaryTreePtr->getVolumeType(p) == volumeType::INSIDE;
         if ((h_[i] == 0) || (!inside) || (treePtr->nodes().empty()))
         {
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
             indexList_[i] = faceCells[i];          
+            multiindexList_[i] = labelList(1);
+            multiindexList_[i][0] = faceCells[i];
         }
         else
         {
+            // Allocate list for the sampling cell indices for face i
+            multiindexList_[i] = List<label>(50);
 
-            pih = treePtr->findNearest(point, treePtr->bb().mag());
-            indexList_[i] = searchCellLabels[pih.index()];
-            h_[i] = mag(C[indexList_[i]] - faceCentres[i]);
+            // Amount of cells sampled from for this face
+            label n = 0;
+
+            while (true)
+            {
+                pih = treePtr->findLine(startP, endP);
+
+                if (pih.hit())
+                {
+                    const point hitP = pih.hitPoint();
+                    const label cellI =
+                        treePtr->findNearest(hitP - tolVector, treePtr->bb().mag()).index();
+
+                    multiindexList_[i][n] = searchCellLabels[cellI];
+                    Info<< "Face: " << hitP << nl;
+                    Info<< "CC: " << C[searchCellLabels[cellI]] << nl;
+                    
+
+                    n++;
+
+                    if (mag(hitP - faceCentres[i]) >= h_[i])
+                    {
+                        Info<< mag(hitP - faceCentres[i]) << "  " << nl;
+                        multiindexList_[i].setSize(n);
+                        break;
+                    }
+
+                    startP = hitP + tolVector;
+                    Info << startP << endP << nl;
+                }
+                else
+                {
+                    multiindexList_[i].setSize(n);
+                    break;
+                }
+            }
+
+            h_[i] = mag(cellCentres[i] - faceCentres[i]);
+            indexList_[i] = faceCells[i];          
         }
     }
     if (debug)
     {
-        Info << "SingleCellSampler: Done" << nl;
+        Info << "MultiCellSampler: Done" << nl;
     }
     
     // Assign computed h_ to the global h field
@@ -190,8 +234,23 @@ void Foam::MultiCellSampler::createIndexList()
     
     forAll(indexList_, i)
     {
-        samplingCells[indexList_[i]] = patchIndex; 
+        //samplingCells[indexList_[i]] = patchIndex; 
     }
+
+    label totalSize = 0;
+    forAll(multiindexList_, i)
+    {
+        totalSize += multiindexList_[i].size();
+
+        forAll(multiindexList_[i], j)
+        {
+            samplingCells[multiindexList_[i][j]] = patchIndex;
+        }
+    }
+    
+    //TODO parallel
+    Info<< "Average number of sampling cells per face is " <<
+        totalSize/patch().size() << nl;
 }
 
 void Foam::MultiCellSampler::createLengthList()
@@ -217,6 +276,7 @@ Foam::MultiCellSampler::MultiCellSampler
 :
     Sampler(p, averagingTime),
     indexList_(p.size()),
+    multiindexList_(p.size()),
     lengthList_(p.size()),
     h_(p.size(), 0)
 {
@@ -244,6 +304,7 @@ Foam::MultiCellSampler::MultiCellSampler
 :
     Sampler(p, averagingTime),
     indexList_(p.size()),
+    multiindexList_(p.size()),
     lengthList_(p.size()),
     h_(p.size(), 0)
 {
