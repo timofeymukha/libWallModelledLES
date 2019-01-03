@@ -4,6 +4,7 @@ samplers/SampledField/SampledVelocityField.C
 samplers/SampledField/SampledWallGradUField.C
 samplers/Sampler/Sampler.C
 samplers/SingleCellSampler/SingleCellSampler.C
+samplers/MultiCellSampler/MultiCellSampler.C
 rootFinding/RootFinder/RootFinder.C
 rootFinding/NewtonRootFinder/NewtonRootFinder.C
 rootFinding/BisectionRootFinder/BisectionRootFinder.C
@@ -13,15 +14,9 @@ lawsOfTheWall/WernerWengleLawOfTheWall/WernerWengleLawOfTheWall.C
 lawsOfTheWall/IntegratedWernerWengleLawOfTheWall/IntegratedWernerWengleLawOfTheWall.C
 lawsOfTheWall/IntegratedReichardtLawOfTheWall/IntegratedReichardtLawOfTheWall.C
 lawsOfTheWall/ReichardtLawOfTheWall/ReichardtLawOfTheWall.C
-eddyViscosities/EddyViscosity/EddyViscosity.C
-eddyViscosities/VanDriest/VanDriestEddyViscosity.C
-eddyViscosities/Duprat/DupratEddyViscosity.C
 wallModels/wallModelFvPatchScalarField.C
 wallModels/LOTWWallModelFvPatchScalarField.C
-wallModels/ODEWallModelFvPatchScalarField.C
-wallModels/EquilibriumODEWallModelFvPatchScalarField.C
-wallModels/PGradODEWallModelFvPatchScalarField.C
-wallModels/KnownWallShearStressWallModelFvPatchScalarField.C
+wallModels/LSQRWallModelFvPatchScalarField.C
 sgsModels/makeSGSModel.C
 
 LIB = $(FOAM_USER_LIBBIN)/libWallModelledLES
