@@ -340,46 +340,8 @@ Foam::Sampler::Sampler
     scalar averagingTime
 )
 :
-    patch_(p),
-    averagingTime_(averagingTime),
-    mesh_(patch_.boundaryMesh().mesh()),
-    sampledFields_(0)
+    Sampler(p, averagingTime)
 {
-    if (debug)
-    {
-        Info << "Sampler: Constructing from name, patch and avrg time" << nl;
-    }
-
-    if (!mesh_.foundObject<objectRegistry>("wallModelSampling"))
-    {
-        objectRegistry * subObr = new objectRegistry
-        (
-            IOobject
-            (
-                "wallModelSampling",
-                mesh_.time().constant(),
-                mesh_,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            )
-        );
-        subObr->store();
-    }
-
-    objectRegistry * subObr = new objectRegistry
-    (
-        IOobject
-        (
-            patch_.name(),
-            mesh_.time().constant(),
-            mesh_.subRegistry("wallModelSampling"),
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        )
-    );
-    subObr->store();
-
-    createFields();
 }
 
 Foam::Sampler::Sampler(const Sampler & copy)
