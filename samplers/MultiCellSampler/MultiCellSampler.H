@@ -23,7 +23,7 @@ Description
     Class for sampling from several consequtive cells.
 
 Contributors/Copyright:
-    2018 Timofey Mukha
+    2018-2019 Timofey Mukha
 
 SourceFiles
     MultiCellSampler.C
@@ -56,6 +56,9 @@ protected:
         
         //- The lists of indices of the cells that data is sampled from
         labelList indexList_;
+
+        //- The lists of indices of the cells that data is sampled from
+        labelListList multiindexList_;
         
         //- A list of wall-normal length-scales associated with the cells
         scalarField lengthList_;
@@ -105,6 +108,12 @@ public:
         labelList indexList() const
         {
             return indexList_;
+        }
+
+        //- Return the list of cell-indices that are used to sample data
+        const labelListList multiindexList() const
+        {
+            return multiindexList_;
         }
         
         //- Return h
