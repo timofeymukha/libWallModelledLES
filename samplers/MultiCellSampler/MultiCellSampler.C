@@ -35,6 +35,7 @@ License
 #include "indexedOctree.H"
 #include "codeRules.H"
 #include "patchDistMethod.H"
+#include "scalarListIOList.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -292,6 +293,34 @@ Foam::MultiCellSampler::MultiCellSampler
     (
             new SampledWallGradUField(patch_, indexList_)     
     );
+
+    //List<vectorList> sampledU(10);
+    //forAll (sampledU, i)
+    //{
+        //sampledU[i] = List<vector>(3);
+
+        //forAll (sampledU[i], j)
+        //{
+            //sampledU[i][j] = pTraits<vector>::zero;
+        //}
+    //}
+    
+    //mesh().thisDb().store
+    //(
+        //new IOList<vectorList >
+        //(
+            //IOobject
+            //(
+                //"Utest",
+                //db().time().timeName(),
+                //mesh(), 
+                //IOobject::READ_IF_PRESENT,
+                //IOobject::AUTO_WRITE
+            //),
+            //sampledU
+        //)
+    //);
+
 }
 
 
@@ -302,24 +331,8 @@ Foam::MultiCellSampler::MultiCellSampler
     scalar averagingTime
 )
 :
-    Sampler(p, averagingTime),
-    indexList_(p.size()),
-    multiindexList_(p.size()),
-    lengthList_(p.size()),
-    h_(p.size(), 0)
+    MultiCellSampler(p, averagingTime)
 {
-    createIndexList();
-    createLengthList();
-    
-    addField
-    (
-            new SampledVelocityField(patch_, indexList_)     
-    );
-    
-    addField
-    (
-            new SampledWallGradUField(patch_, indexList_)     
-    );
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -350,17 +363,19 @@ void Foam::MultiCellSampler::sample() const
         scalarListList sampledList(patch().size());
         sampledFields_[fieldI]->sample(sampledList);
         
-        if (sampledFields_[fieldI]->nDims() == 3)
+        scalarListIOList & storedValues = const_cast<scalarListIOList & >
+        (
+            db().lookupObject<scalarListIOList>(sampledFields_[fieldI]->name())
+        );
+
+        forAll(storedValues, i)
         {
-            vectorField sampledField(patch_.size());
-            listListToField<vector>(sampledList, sampledField);
-            
-            vectorField & storedValues = const_cast<vectorField &>
-            (
-                db().lookupObject<vectorField>(sampledFields_[fieldI]->name())
-            );
-            storedValues = eps*sampledField + (1 - eps)*storedValues;
-        }     
+            forAll(storedValues[i], j)
+            {
+                storedValues[i][j] = eps*sampledList[i][j] +
+                                     (1 - eps)*storedValues[i][j];
+            }
+        }
 
     }
 }
