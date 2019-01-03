@@ -170,7 +170,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     (
         Sampler::New
         (
-            dict.lookupOrDefault<word>("Sampler", "SingleCellSampler"),
+            dict.lookupOrDefault<word>("sampler", "SingleCellSampler"),
             patch(),
             averagingTime_
         )
