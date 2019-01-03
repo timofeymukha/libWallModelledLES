@@ -118,8 +118,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF),
     averagingTime_(0), 
-    sampler_(Sampler::New("SingleCellSampler", patch(), averagingTime_)),
-    wallGradU_(sampler_().db().lookupObject<vectorField>("wallGradU"))
+    sampler_(Sampler::New("SingleCellSampler", patch(), averagingTime_))
 {
     if (debug)
     {
@@ -143,8 +142,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
     averagingTime_(ptf.averagingTime_), 
-    sampler_(ptf.sampler_),
-    wallGradU_(sampler().db().lookupObject<vectorField>("wallGradU"))
+    sampler_(ptf.sampler_)
 {
     if (debug)
     {
@@ -174,8 +172,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
             patch(),
             averagingTime_
         )
-    ),
-    wallGradU_(sampler().db().lookupObject<vectorField>("wallGradU"))
+    )
 {
     if (debug)
     {
@@ -196,8 +193,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(wmpsf),  
     averagingTime_(wmpsf.averagingTime_),
-    sampler_(wmpsf.sampler_),
-    wallGradU_(sampler().db().lookupObject<vectorField>("wallGradU"))    
+    sampler_(wmpsf.sampler_)
 {
     if (debug)
     {
@@ -217,8 +213,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(wmpsf, iF),       
     averagingTime_(wmpsf.averagingTime_),
-    sampler_(wmpsf.sampler_),
-    wallGradU_(sampler().db().lookupObject<vectorField>("wallGradU"))
+    sampler_(wmpsf.sampler_)
 {
     if (debug)
     {

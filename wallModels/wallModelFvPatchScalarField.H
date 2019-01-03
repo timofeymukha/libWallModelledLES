@@ -73,9 +73,6 @@ protected:
         //- The sampler
         autoPtr<Sampler> sampler_;
      
-        //- The wall-normal velocity gradient
-        const vectorField & wallGradU_;        
-        
         //- Create fields and add to registry
         virtual void createFields() const;
 
