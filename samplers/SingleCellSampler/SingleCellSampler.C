@@ -243,23 +243,8 @@ Foam::SingleCellSampler::SingleCellSampler
     scalar averagingTime
 )
 :
-    Sampler(p, averagingTime),
-    indexList_(p.size()),
-    lengthList_(p.size()),
-    h_(p.size(), 0)
+    SingleCellSampler(p, averagingTime)
 {
-    createIndexList();
-    createLengthList();
-    
-    addField
-    (
-            new SampledVelocityField(patch_, indexList_)     
-    );
-    
-    addField
-    (
-            new SampledWallGradUField(patch_, indexList_)     
-    );
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
