@@ -36,6 +36,7 @@ License
 #include "codeRules.H"
 #include "patchDistMethod.H"
 #include "scalarListIOList.H"
+#include "scalarListListIOList.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -360,22 +361,22 @@ void Foam::MultiCellSampler::sample() const
     forAll(sampledFields_, fieldI)
     {
 
-        scalarListList sampledList(patch().size());
-        sampledFields_[fieldI]->sample(sampledList);
+        scalarListListList sampledList(patch().size());
+        //sampledFields_[fieldI]->sample(sampledList);
         
-        scalarListIOList & storedValues = const_cast<scalarListIOList & >
-        (
-            db().lookupObject<scalarListIOList>(sampledFields_[fieldI]->name())
-        );
+        //scalarListIOList & storedValues = const_cast<scalarListIOList & >
+        //(
+            //db().lookupObject<scalarListIOList>(sampledFields_[fieldI]->name())
+        //);
 
-        forAll(storedValues, i)
-        {
-            forAll(storedValues[i], j)
-            {
-                storedValues[i][j] = eps*sampledList[i][j] +
-                                     (1 - eps)*storedValues[i][j];
-            }
-        }
+        //forAll(storedValues, i)
+        //{
+            //forAll(storedValues[i], j)
+            //{
+                //storedValues[i][j] = eps*sampledList[i][j] +
+                                     //(1 - eps)*storedValues[i][j];
+            //}
+        //}
 
     }
 }
