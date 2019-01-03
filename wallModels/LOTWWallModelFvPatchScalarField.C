@@ -100,29 +100,23 @@ calcUTau(const scalarField & magGradU) const
         // Starting guess using old values
         scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
         
-        Info << ut << nl;
         if (ut > ROOTVSMALL)
         {
 
-            Info << "value" << nl;
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
             value = std::bind(&LawOfTheWall::value, &law_(), std::ref(sampler_()), faceI,
                               _1, nuw[faceI]);
             
-            Info << "deriv" << nl;
             derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
                                    std::ref(sampler_), faceI, _1, nuw[faceI]);
 
-            Info << "set functions" << nl;
             // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
             const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
 
-            Info << "solver" << nl;
             // Compute root to get uTau
             uTau[faceI] = max(0.0, rootFinder_->root(ut));
-            Info << uTau[faceI] << nl;
 
         }
     }
