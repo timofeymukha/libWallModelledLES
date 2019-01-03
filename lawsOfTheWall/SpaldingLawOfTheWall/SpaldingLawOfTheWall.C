@@ -87,10 +87,7 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
     const vectorField & U = sampler.db().lookupObject<vectorField>("U");
 
     scalar u = mag(U[index]);
-    Info << "Sampled u " << u << nl;
-
     scalar y = sampler.h()[index];
-    Info << "Sampled y " << y << nl;
     scalar uPlus = u/uTau;
 
     return uPlus + exp(-kappa_*B_)*(exp(kappa_*uPlus) - 1 - kappa_*uPlus
