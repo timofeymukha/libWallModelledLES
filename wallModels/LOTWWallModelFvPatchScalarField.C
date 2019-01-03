@@ -56,7 +56,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     scalarField magGradU(patch().size());
     forAll(magGradU, i)
     {
-        magGradU[i] = mag(vector(wallGradU[0], wallGradU[1], wallGradU[2]));
+        magGradU[i] = mag(vector(wallGradU[i][0], wallGradU[i][1], wallGradU[i][2]));
     }
 
     return max

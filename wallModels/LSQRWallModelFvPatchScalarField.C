@@ -22,6 +22,7 @@ License
 #include "fvPatchFieldMapper.H"
 #include "addToRunTimeSelectionTable.H"
 #include "codeRules.H"
+#include "scalarListIOList.H"
 
 using namespace std::placeholders;
 
@@ -49,7 +50,14 @@ Foam::LSQRWallModelFvPatchScalarField::calcNut() const
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
 
-    scalarField magGradU =  mag(wallGradU_);
+    const scalarListIOList & wallGradU =
+        sampler_->db().lookupObject<scalarListIOList>("wallGradU");
+
+    scalarField magGradU(patch().size());
+    forAll(magGradU, i)
+    {
+        magGradU[i] = mag(vector(wallGradU[i][0], wallGradU[i][1], wallGradU[i][2]));
+    }
 
     return
     (
