@@ -84,9 +84,7 @@ void Foam::SampledWallGradUField::registerFields() const
     const objectRegistry & registry =
         db().subRegistry("wallModelSampling").subRegistry(patch_.name());
 
-    vectorField sampledWallGradU =
-        vectorField(patch_.size(), pTraits<vector>::zero);
-
+    scalarListList sampledWallGradU(patch_.size());
 
     if (db().thisDb().foundObject<volVectorField>("U"))
     {
@@ -100,7 +98,11 @@ void Foam::SampledWallGradUField::registerFields() const
         
         forAll(sampledWallGradU, i)
         {
-            sampledWallGradU[i] = boundaryValues[i];
+            sampledWallGradU[i] = scalarList(3);
+            forAll(sampledWallGradU[i], j)
+            {
+                sampledWallGradU[i][j] = boundaryValues[i][j];
+            }
         }
 
         projectVectors(sampledWallGradU);
@@ -109,7 +111,7 @@ void Foam::SampledWallGradUField::registerFields() const
     
     db().thisDb().store
     (        
-        new IOField<vector>
+        new IOList<scalarList>
         (
             IOobject
             (

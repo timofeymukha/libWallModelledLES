@@ -53,15 +53,19 @@ void Foam::SampledVelocityField::registerFields() const
     const objectRegistry & registry =
         db().subRegistry("wallModelSampling").subRegistry(patch_.name());
 
-    vectorField sampledU = 
-        vectorField(cellIndexList_.size(), pTraits<vector>::zero);
-
+    scalarListList sampledU(cellIndexList_.size());
+        //vectorField(cellIndexList_.size(), pTraits<vector>::zero);
+        
     if (db().thisDb().foundObject<volVectorField>("U"))
     {
         const volVectorField & U = db().lookupObject<volVectorField>("U");
         forAll(sampledU, i)
         {
-            sampledU[i] = U[cellIndexList_[i]];
+            sampledU[i] = scalarList(3);
+            forAll(sampledU[i], j)
+            {
+                sampledU[i][j] = U[cellIndexList_[i]][j];
+            }
         }
 
         projectVectors(sampledU);
@@ -70,7 +74,7 @@ void Foam::SampledVelocityField::registerFields() const
 
     db().thisDb().store
     (        
-        new IOField<vector>
+        new IOList<scalarList>
         (
             IOobject
             (
