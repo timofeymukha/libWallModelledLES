@@ -24,9 +24,11 @@ boundaryField
     bottomWall
     {
 /* * * * * * * * * Law of the wall wall model * * * * * * */                  
- //        type		    LOTWWallModel;
-  //       value			uniform 0;  //redundant
+         //type           LOTWWallModel;
+         type           LSQRWallModel;
+  //       value            uniform 0;  //redundant
   //
+         sampler     MultiCellSampler;
          RootFinder
          {
              type    Newton;
@@ -42,8 +44,8 @@ boundaryField
       
           
 /* * * * * * * * * Equilibrion ODE wall model * * * * * * */                  
-  //     type	PGradODEWallModel;
-       type	EquilibriumODEWallModel;
+  //     type   PGradODEWallModel;
+  //     type   EquilibriumODEWallModel;
        value   uniform 1;  //redundant
        maxIter   10;
        eps       1e-3;
@@ -62,11 +64,11 @@ boundaryField
    {
    
 /* * * * * * * * * OpenFOAM's default wall model * * * * * * */                  
-        type	        nutUSpaldingWallFunction;
+        type            nutUSpaldingWallFunction;
         Cmu             0.09;
         kappa           0.42;
         E               8.52;
-        value		uniform 0;
+        value       uniform 0;
     }
 
     left
