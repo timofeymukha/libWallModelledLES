@@ -22,7 +22,6 @@ License
 #include "fvPatchFieldMapper.H"
 #include "addToRunTimeSelectionTable.H"
 #include "codeRules.H"
-#include "scalarListIOList.H"
 
 using namespace std::placeholders;
 
@@ -50,14 +49,8 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
 
-    const scalarListIOList & wallGradU =
-        sampler_->db().lookupObject<scalarListIOList>("wallGradU");
-
-    scalarField magGradU(patch().size());
-    forAll(magGradU, i)
-    {
-        magGradU[i] = mag(vector(wallGradU[0], wallGradU[1], wallGradU[2]));
-    }
+    scalarField magGradU =
+        mag(sampler().db().lookupObject<vectorField>("wallGradU"));
 
     return max
     (
@@ -97,9 +90,10 @@ calcUTau(const scalarField & magGradU) const
     // Grab global uTau field
     volScalarField & uTauField = 
         const_cast<volScalarField &>
-        (
+ло        (
             db().lookupObject<volScalarField>("uTauPredicted")
         );
+
 
     // Compute uTau for each face
     forAll(uTau, faceI)
@@ -112,16 +106,36 @@ calcUTau(const scalarField & magGradU) const
 
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
-            value = std::bind(&LawOfTheWall::value, &law_(), std::ref(sampler_()), faceI,
-                              _1, nuw[faceI]);
+            const SingleCellSampler & a =
+                static_cast<const SingleCellSampler &>(sampler_());
+            a.test();
+            Info << "kek";
+            value = std::bind
+            (
+                &LawOfTheWall::value,
+                &law_(),
+                a,
+                faceI,
+                _1,
+                nuw[faceI]
+            );
             
-            derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
-                                   std::ref(sampler_), faceI, _1, nuw[faceI]);
+            Info << "kek";
+            derivValue = std::bind
+            (
+                &LawOfTheWall::derivative,
+                &law_(),
+                dynamic_cast<const SingleCellSampler &>(sampler_()),
+                faceI,
+                _1,
+                nuw[faceI]
+            );
 
+            Info << "kek";
             // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
             const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
-
+      
             // Compute root to get uTau
             uTau[faceI] = max(0.0, rootFinder_->root(ut));
 
