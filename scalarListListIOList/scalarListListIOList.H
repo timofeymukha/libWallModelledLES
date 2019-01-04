@@ -40,8 +40,8 @@ SourceFiles
 
 namespace Foam
 {
-    typedef List<List<scalarList> > scalarListListList;
-    typedef IOList<List<scalarList> > scalarListListIOList;
+    typedef List<scalarListList> scalarListListList;
+    typedef IOList<scalarListList> scalarListListIOList;
 }
 
 #endif

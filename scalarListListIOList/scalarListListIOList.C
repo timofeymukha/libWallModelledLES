@@ -33,6 +33,6 @@ namespace Foam
         0
     );
 
-    defineCompoundTypeName(List<List<scalarList> >, scalarListListList);
-    addCompoundToRunTimeSelectionTable(List<List<scalarList> >, scalarListListList);
+    defineCompoundTypeName(List<scalarListList>, scalarListListList);
+    addCompoundToRunTimeSelectionTable(List<scalarListList>, scalarListListList);
 }
