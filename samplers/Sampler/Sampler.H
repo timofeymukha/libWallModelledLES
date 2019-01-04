@@ -81,7 +81,7 @@ protected:
         //- The global object registry
         const fvMesh & mesh_;
         
-        //- Whether we need to compute the pressure gradient
+        //- List of sampled fields
         List<SampledField *> sampledFields_;
                       
     // Protected Member Functions
