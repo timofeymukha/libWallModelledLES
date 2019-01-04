@@ -143,6 +143,8 @@ public:
 
         //- Write to stream
         virtual void write(Ostream& os) const;
+
+        virtual void updateCoeffs();
 };
 
 

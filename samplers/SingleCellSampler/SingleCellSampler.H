@@ -99,7 +99,6 @@ public:
         virtual ~SingleCellSampler();
 
     // Member functions
-
         //- Add field for sampling
         virtual void addField(SampledField *);
 

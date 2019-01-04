@@ -237,8 +237,8 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     label pI = patch().index();
     
     // Sample fields
-    sampler().recomputeFields();
-    sampler().sample();
+    //sampler().recomputeFields();
+    //sampler().sample();
             
     // Compute nut and assign
     operator==(calcNut());

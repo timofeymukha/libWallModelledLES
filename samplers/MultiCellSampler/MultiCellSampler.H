@@ -121,7 +121,7 @@ public:
         }
         
         //- Return h
-        const scalarField & h() const
+        virtual const scalarField & h() const
         {
             return h_;
         }

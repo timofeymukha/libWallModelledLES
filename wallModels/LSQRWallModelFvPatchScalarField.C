@@ -22,7 +22,8 @@ License
 #include "fvPatchFieldMapper.H"
 #include "addToRunTimeSelectionTable.H"
 #include "codeRules.H"
-#include "scalarListIOList.H"
+#include "scalarListListIOList.H"
+#include "MultiCellSampler.H"
 
 using namespace std::placeholders;
 
@@ -50,19 +51,20 @@ Foam::LSQRWallModelFvPatchScalarField::calcNut() const
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
 
-    const scalarListIOList & wallGradU =
-        sampler_->db().lookupObject<scalarListIOList>("wallGradU");
+    const scalarListListIOList & wallGradU =
+        sampler_->db().lookupObject<scalarListListIOList>("wallGradU");
 
     scalarField magGradU(patch().size());
     forAll(magGradU, i)
     {
-        magGradU[i] = mag(vector(wallGradU[i][0], wallGradU[i][1], wallGradU[i][2]));
+        magGradU[i] = 
+            mag(vector(wallGradU[i][0][0], wallGradU[i][0][1], wallGradU[i][0][2]));
     }
 
     return
     (
         scalar(0),
-        sqr(0.)/(magGradU + ROOTVSMALL) - nuw
+        sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw
     );
 }
 
@@ -110,20 +112,26 @@ calcUTau(const scalarField & magGradU) const
         if (ut > ROOTVSMALL)
         {
 
+            const MultiCellSampler & sampler2 =
+                dynamic_cast<const MultiCellSampler &>(sampler_());
+
+            //const labelListList & indexListList = sampler2.multiindexList();
+
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
-            value = std::bind(&LawOfTheWall::value, &law_(), std::ref(sampler_()), faceI,
-                              _1, nuw[faceI]);
+            //value = std::bind(&LawOfTheWall::value, &law_(), std::ref(sampler_()), faceI,
+                              //_1, nuw[faceI]);
             
-            derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
-                                   std::ref(sampler_), faceI, _1, nuw[faceI]);
+            //derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
+                                   //std::ref(sampler_), faceI, _1, nuw[faceI]);
 
             // Supply the functions to the root finder
-            const_cast<RootFinder &>(rootFinder_()).setFunction(value);
-            const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
+            //const_cast<RootFinder &>(rootFinder_()).setFunction(value);
+            //const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
 
             // Compute root to get uTau
-            uTau[faceI] = max(0.0, rootFinder_->root(ut));
+            //uTau[faceI] = max(0.0, rootFinder_->root(ut));
+            uTau[faceI] = ut;
 
         }
     }
@@ -220,6 +228,19 @@ LSQRWallModelFvPatchScalarField
 void Foam::LSQRWallModelFvPatchScalarField::write(Ostream& os) const
 {
     wallModelFvPatchScalarField::write(os);
+}
+
+void Foam::LSQRWallModelFvPatchScalarField::updateCoeffs()
+{
+    if (updated())
+    {
+        return;
+    }
+
+    sampler().recomputeFields();
+    sampler().sample();
+
+    wallModelFvPatchScalarField::updateCoeffs();
 }
 
 
