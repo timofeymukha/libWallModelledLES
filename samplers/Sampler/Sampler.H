@@ -176,7 +176,7 @@ public:
         virtual const scalarField & lengthList() const = 0;
         
         //- Add field for sampling
-        void addField(SampledField *);
+        virtual void addField(SampledField *);
 
     // RTS tables
         
