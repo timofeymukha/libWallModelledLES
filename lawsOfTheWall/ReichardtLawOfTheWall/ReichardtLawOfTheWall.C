@@ -22,6 +22,7 @@ License
 #include "dictionary.H"
 #include "error.H"
 #include "addToRunTimeSelectionTable.H"
+#include "scalarListIOList.H"
 
 namespace Foam
 {
@@ -91,8 +92,8 @@ Foam::scalar Foam::ReichardtLawOfTheWall::value
     scalar nu
 ) const
 {
-    const vectorField & U = sampler.db().lookupObject<vectorField>("U");
-    scalar u = mag(U[index]);
+    const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
     
     scalar y = sampler.h()[index];
     scalar uPlus = u/uTau;
@@ -112,8 +113,8 @@ Foam::scalar Foam::ReichardtLawOfTheWall::derivative
     scalar nu        
 ) const
 {
-    const vectorField & U = sampler.db().lookupObject<vectorField>("U");
-    scalar u = mag(U[index]);
+    const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
     
     scalar y = sampler.h()[index];
     scalar uPlus = u/uTau;

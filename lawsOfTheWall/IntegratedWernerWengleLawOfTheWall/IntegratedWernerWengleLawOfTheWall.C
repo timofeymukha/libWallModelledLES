@@ -22,6 +22,7 @@ License
 #include "dictionary.H"
 #include "error.H"
 #include "addToRunTimeSelectionTable.H"
+#include "scalarListIOList.H"
 
 namespace Foam
 {
@@ -94,8 +95,9 @@ Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::value
     scalar nu
 ) const
 {
-    const vectorField & U = sampler.db().lookupObject<vectorField>("U");
-    scalar u = mag(U[index]);
+    const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
+
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
     
     scalar h = sampler.h()[index]; 
     //scalar h1 = h - sampler.lengthList()[index]/2;

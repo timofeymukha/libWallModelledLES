@@ -20,6 +20,7 @@ License
 
 #include "WernerWengleLawOfTheWall.H"
 #include "addToRunTimeSelectionTable.H"
+#include "scalarListIOList.H"
 
 namespace Foam
 {
@@ -83,9 +84,9 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::value
     scalar nu
 ) const
 {  
-    const vectorField & U = sampler.db().lookupObject<vectorField>("U");
-    scalar u = mag(U[index]);
-    
+    const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
+
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
     scalar y = sampler.h()[index];
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
@@ -110,9 +111,9 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
     scalar nu        
 ) const
 {
-    const vectorField & U = sampler.db().lookupObject<vectorField>("U");
-    scalar u = mag(U[index]);
-    
+    const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
+
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
     scalar y = sampler.h()[index];
     scalar yPlus = y*uTau/nu;
     scalar yPlusM = pow(A_, 1/(1-B_));

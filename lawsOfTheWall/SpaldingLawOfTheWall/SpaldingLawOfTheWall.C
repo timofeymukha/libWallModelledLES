@@ -21,6 +21,7 @@ License
 #include "SpaldingLawOfTheWall.H"
 #include "addToRunTimeSelectionTable.H"
 #include "volFields.H"
+#include "scalarListIOList.H"
 
 namespace Foam
 {
@@ -84,9 +85,9 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
     scalar nu
 ) const
 {
-    const vectorField & U = sampler.db().lookupObject<vectorField>("U");
+    const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
 
-    scalar u = mag(U[index]);
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
     scalar y = sampler.h()[index];
     scalar uPlus = u/uTau;
 
@@ -103,9 +104,9 @@ Foam::scalar Foam::SpaldingLawOfTheWall::derivative
     scalar nu        
 ) const
 {
-    const vectorField & U = sampler.db().lookupObject<vectorField>("U");
-    scalar u = mag(U[index]);
-    
+    const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
+
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
     scalar y = sampler.h()[index];
     scalar uPlus = u/uTau;
     return -y/nu - u/sqr(uTau) - kappa_*uPlus/uTau*exp(-kappa_*B_)
