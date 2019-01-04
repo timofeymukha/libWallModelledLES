@@ -378,7 +378,6 @@ Foam::Sampler::~Sampler()
 
 void Foam::Sampler::addField(SampledField * field)
 {
-//    sampledFields_.append(field);
     sampledFields_.setSize(sampledFields_.size() + 1, field);
 }
 

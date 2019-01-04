@@ -62,7 +62,6 @@ public:
         :
             SampledField(patch)
         {
-            registerFields();
         }
             
         //- Clone the object    
@@ -78,6 +77,9 @@ public:
         
         //- Sample the wall-normal velocity gradient values
         virtual void sample(scalarListList &, const labelList &) const;
+
+        //- Sample the wall-normal velocity gradient values from multiple cells
+        virtual void sample(scalarListListList &, const labelListList &) const;
                 
         //- The number of dimensions of the field
         virtual label nDims() const
@@ -93,6 +95,8 @@ public:
         
         //- Register appropriate fields in the object registry
         virtual void registerFields() const;
+
+        virtual void registerFields(const labelListList &) const; 
         
         //- Recompute the field
         virtual void recompute() const;   

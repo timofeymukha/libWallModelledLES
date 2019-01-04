@@ -37,6 +37,7 @@ SourceFiles
 #define SampledField_H
 
 #include "fixedValueFvPatchFields.H"
+#include "scalarListListIOList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -124,14 +125,21 @@ public:
         
         //- Sample the field
         virtual void sample(scalarListList &, const labelList &) const = 0;
+
+        //- Sample the field from multiple cells
+        virtual void sample(scalarListListList &, const labelListList &) const = 0;
         
         //- Project vector field to wall-parallel direction
         void projectVectors(scalarListList &) const;
 
+        void projectVectors(scalarListListList &) const;
+
         void projectVectors(vectorField &) const;
         
         //- Register appropriate fields in the object registry
-        virtual void registerFields() const {}
+        virtual void registerFields() const = 0; 
+
+        virtual void registerFields(const labelListList &) const = 0; 
         
         //- Recompute the field
         virtual void recompute() const = 0;       

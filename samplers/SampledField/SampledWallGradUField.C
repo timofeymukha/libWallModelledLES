@@ -54,6 +54,39 @@ Foam::SampledWallGradUField::sample
 }
 
 
+void
+Foam::SampledWallGradUField::sample
+(
+    Foam::scalarListListList & sampledValues,
+    const Foam::labelListList & indexListList
+) const
+{
+    Info<< "Sampling wall-normal velocity gradient for patch "
+        << patch_.name() << nl;
+    
+    label pI = patch().index();
+   
+    const volVectorField & wallGradU =
+        db().lookupObject<volVectorField>("wallGradU");
+    
+    const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
+    
+    for(int i=0; i<indexListList.size(); i++)
+    {
+        sampledValues[i] = scalarListList(1);
+        sampledValues[i][0] = scalarList(3);
+        
+        for(int j=0; j<3; j++)
+        {
+            sampledValues[i][0][j] = boundaryValues[i][j]; 
+        }
+    }
+    projectVectors(sampledValues);
+
+    Info << sampledValues << nl;
+}
+
+
 void Foam::SampledWallGradUField::registerFields() const
 {
     // Grab h to copy bcs from it.
@@ -116,6 +149,74 @@ void Foam::SampledWallGradUField::registerFields() const
     db().thisDb().store
     (        
         new IOList<scalarList>
+        (
+            IOobject
+            (
+                "wallGradU",
+                db().time().timeName(),
+                registry,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            sampledWallGradU
+        )
+    );
+
+}
+
+void Foam::SampledWallGradUField::registerFields
+(
+    const labelListList & indexListList
+) const
+{
+    // Grab h to copy bcs from it.
+    const volScalarField & h = db().lookupObject<volScalarField>("h");
+    
+    if (!db().thisDb().foundObject<volVectorField>("wallGradU"))
+    {
+        db().thisDb().store
+        (     
+            new volVectorField
+            (
+                IOobject
+                (
+                    "wallGradU",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                db(),
+                dimensionedVector
+                (
+                    "wallGradU",
+                    dimVelocity/dimLength,
+                    pTraits<vector>::zero
+                ),
+                h.boundaryField().types()
+            )
+        );  
+    }
+    
+    const objectRegistry & registry =
+        db().subRegistry("wallModelSampling").subRegistry(patch().name());
+
+    scalarListListList sampledWallGradU(patch().size());
+
+    if (db().thisDb().foundObject<volVectorField>("U"))
+    {
+        
+        forAll(sampledWallGradU, i)
+        {
+            sampledWallGradU[i] = scalarListList(1);
+            sampledWallGradU[i][0] = scalarList(3, 0.0);
+        }
+    }
+
+    
+    db().thisDb().store
+    (        
+        new scalarListListIOList
         (
             IOobject
             (

@@ -100,6 +100,9 @@ public:
 
     // Member functions
 
+        //- Add field for sampling
+        virtual void addField(SampledField *);
+
         //- Return the list of cell-indices that are used to sample data
         const labelList & indexList() const
         {

@@ -35,6 +35,7 @@ SourceFiles
 
 #include "fixedValueFvPatchFields.H"
 #include "SampledField.H"
+#include "scalarListListIOList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -62,7 +63,7 @@ public:
         :
             SampledField(patch)
         {
-            registerFields();
+            //registerFields();
         }
             
         //- Clone the object
@@ -78,6 +79,13 @@ public:
         
         //- Sample the velocity values
         virtual void sample(scalarListList &, const labelList &) const;
+
+        //- Sample the velocity value from multile cellss
+        virtual void sample
+        (
+            scalarListListList &,
+            const labelListList &
+        ) const;
                 
         //- The number of dimensions of the field
         virtual label nDims() const
@@ -93,6 +101,9 @@ public:
         
         //- Register appropriate fields in the object registry
         virtual void registerFields() const;
+
+        //- Register appropriate fields in the object registry
+        virtual void registerFields(const labelListList &) const;
         
         //- Recompute the field
         virtual void recompute() const {}      

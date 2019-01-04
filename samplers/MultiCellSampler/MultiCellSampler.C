@@ -358,27 +358,36 @@ void Foam::MultiCellSampler::sample() const
         eps = mesh_.time().deltaTValue()/averagingTime_;
     }
 
+    Info << "Sampling" << nl;
     forAll(sampledFields_, fieldI)
     {
 
-        scalarListList sampledList(patch().size());
-        //sampledFields_[fieldI]->sample(sampledList);
+        scalarListListList sampledList(patch().size());
+        sampledFields_[fieldI]->sample(sampledList, multiindexList());
         
-        //scalarListIOList & storedValues = const_cast<scalarListIOList & >
-        //(
-            //db().lookupObject<scalarListIOList>(sampledFields_[fieldI]->name())
-        //);
+        scalarListListIOList & storedValues = const_cast<scalarListListIOList & >
+        (
+            db().lookupObject<scalarListListIOList>(sampledFields_[fieldI]->name())
+        );
 
-        //forAll(storedValues, i)
-        //{
-            //forAll(storedValues[i], j)
-            //{
-                //storedValues[i][j] = eps*sampledList[i][j] +
-                                     //(1 - eps)*storedValues[i][j];
-            //}
-        //}
+        forAll(storedValues, i)
+        {
+            forAll(storedValues[i], j)
+            {
+                forAll(storedValues[i][j], k)
+                storedValues[i][j][k] = eps*sampledList[i][j][k] +
+                                     (1 - eps)*storedValues[i][j][k];
+            }
+        }
 
     }
+}
+
+
+void Foam::MultiCellSampler::addField(SampledField * field)
+{
+    Sampler::addField(field);
+    field->registerFields(multiindexList());
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

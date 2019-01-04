@@ -52,6 +52,39 @@ Foam::SampledVelocityField::sample
 }
 
 
+void
+Foam::SampledVelocityField::sample
+(
+    Foam::scalarListListList & sampledValues,
+    const Foam::labelListList & indexList
+) const
+{
+    Info<< "Sampling velocity for patch " << patch().name() << nl;
+    
+    const volVectorField & UField = db().lookupObject<volVectorField>("U");
+    const vectorField & Uwall = UField.boundaryField()[patch().index()];
+    
+    Info << indexList << nl;
+    forAll(indexList, i)
+    {
+        sampledValues[i] = scalarListList(indexList[i].size());
+        forAll(indexList[i], j)
+        {
+            sampledValues[i][j] = scalarList(3);
+
+            Info << i << " " << j << " " << UField[indexList[i][j]] - Uwall[i] << nl;
+            forAll(sampledValues[i][j], k)
+            {
+                sampledValues[i][j][k] = 
+                    (UField[indexList[i][j]] - Uwall[i])[k]; 
+            }
+        }
+    }
+    projectVectors(sampledValues);
+    Info << sampledValues << nl;
+}
+
+
 void Foam::SampledVelocityField::registerFields() const
 {
     const objectRegistry & registry =
@@ -77,6 +110,50 @@ void Foam::SampledVelocityField::registerFields() const
     db().thisDb().store
     (        
         new IOList<scalarList>
+        (
+            IOobject
+            (
+                "U",
+                db().time().timeName(),
+                registry, 
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            sampledU
+        )
+    );
+}
+
+
+void Foam::SampledVelocityField::registerFields
+(
+    const labelListList & indexListList
+) const
+{
+    const objectRegistry & registry =
+        db().subRegistry("wallModelSampling").subRegistry(patch_.name());
+
+    scalarListListList sampledU(patch().size());
+        
+    if (db().thisDb().foundObject<volVectorField>("U"))
+    {
+        forAll(sampledU, i)
+        {
+            sampledU[i] = scalarListList(indexListList[i].size());
+
+            forAll(sampledU[i], j)
+            {
+                sampledU[i][j] = scalarList(3, 0.0);
+            }
+        }
+
+        //projectVectors(sampledU);
+    }
+
+
+    db().thisDb().store
+    (        
+        new scalarListListIOList
         (
             IOobject
             (
