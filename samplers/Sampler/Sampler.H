@@ -87,7 +87,7 @@ protected:
     // Protected Member Functions
                     
         //- Create list of cell-indices from where data is sampled
-        virtual void createIndexList(){}
+        virtual void createIndexList() = 0;
         
         //- Compute the length-scales
         virtual void createLengthList(){}

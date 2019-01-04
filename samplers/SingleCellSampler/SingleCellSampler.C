@@ -227,12 +227,14 @@ Foam::SingleCellSampler::SingleCellSampler
     
     addField
     (
-            new SampledVelocityField(patch_, indexList_)     
+            //new SampledVelocityField(patch_, indexList_)     
+            new SampledVelocityField(patch_)     
     );
     
     addField
     (
-            new SampledWallGradUField(patch_, indexList_)     
+            //new SampledWallGradUField(patch_, indexList_)     
+            new SampledWallGradUField(patch_)     
     );
 }
 
@@ -274,7 +276,7 @@ void Foam::SingleCellSampler::sample() const
     {
 
         scalarListList sampledList(patch().size());
-        sampledFields_[fieldI]->sample(sampledList);
+        sampledFields_[fieldI]->sample(sampledList, indexList());
         
         scalarListIOList & storedValues = const_cast<scalarListIOList & >
         (

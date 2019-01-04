@@ -25,7 +25,11 @@ License
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void
-Foam::SampledWallGradUField::sample(Foam::scalarListList & sampledValues) const
+Foam::SampledWallGradUField::sample
+(
+    Foam::scalarListList & sampledValues,
+    const Foam::labelList & indexList
+) const
 {
     Info<< "Sampling wall-normal velocity gradient for patch "
         << patch_.name() << nl;
@@ -37,7 +41,7 @@ Foam::SampledWallGradUField::sample(Foam::scalarListList & sampledValues) const
     
     const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
     
-    for(int i=0; i<cellIndexList_.size(); i++)
+    for(int i=0; i<indexList.size(); i++)
     {
         sampledValues[i] = List<scalar>(3);
         

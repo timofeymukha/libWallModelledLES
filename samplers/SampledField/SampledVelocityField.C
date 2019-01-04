@@ -25,18 +25,22 @@ License
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void
-Foam::SampledVelocityField::sample(Foam::scalarListList & sampledValues) const
+Foam::SampledVelocityField::sample
+(
+    Foam::scalarListList & sampledValues,
+    const Foam::labelList & indexList
+) const
 {
     Info<< "Sampling velocity for patch " << patch_.name() << nl;
     
     const volVectorField & UField = db().lookupObject<volVectorField>("U");
     const vectorField & Uwall = UField.boundaryField()[patch().index()];
     
-    vectorField sampledU(cellIndexList_.size());
+    vectorField sampledU(indexList.size());
     
-    for (int i=0; i<cellIndexList_.size(); i++)
+    for (int i=0; i<indexList.size(); i++)
     {
-        sampledU[i] = UField[cellIndexList_[i]] - Uwall[i]; 
+        sampledU[i] = UField[indexList[i]] - Uwall[i]; 
         sampledValues[i] = List<scalar>(3);
         
         for (int j=0; j<3; j++)
@@ -53,22 +57,20 @@ void Foam::SampledVelocityField::registerFields() const
     const objectRegistry & registry =
         db().subRegistry("wallModelSampling").subRegistry(patch_.name());
 
-    scalarListList sampledU(cellIndexList_.size());
-        //vectorField(cellIndexList_.size(), pTraits<vector>::zero);
+    scalarListList sampledU(patch().size());
         
     if (db().thisDb().foundObject<volVectorField>("U"))
     {
-        const volVectorField & U = db().lookupObject<volVectorField>("U");
         forAll(sampledU, i)
         {
-            sampledU[i] = scalarList(3);
-            forAll(sampledU[i], j)
-            {
-                sampledU[i][j] = U[cellIndexList_[i]][j];
-            }
+            sampledU[i] = scalarList(3, 0.0);
+            //forAll(sampledU[i], j)
+            //{
+                //sampledU[i][j] = 0;
+            //}
         }
 
-        projectVectors(sampledU);
+        //projectVectors(sampledU);
     }
 
 

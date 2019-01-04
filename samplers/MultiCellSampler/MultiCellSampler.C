@@ -287,12 +287,12 @@ Foam::MultiCellSampler::MultiCellSampler
     
     addField
     (
-            new SampledVelocityField(patch_, indexList_)     
+            new SampledVelocityField(patch_)     
     );
     
     addField
     (
-            new SampledWallGradUField(patch_, indexList_)     
+            new SampledWallGradUField(patch_)     
     );
 
     //List<vectorList> sampledU(10);
@@ -361,7 +361,7 @@ void Foam::MultiCellSampler::sample() const
     forAll(sampledFields_, fieldI)
     {
 
-        scalarListListList sampledList(patch().size());
+        scalarListList sampledList(patch().size());
         //sampledFields_[fieldI]->sample(sampledList);
         
         //scalarListIOList & storedValues = const_cast<scalarListIOList & >

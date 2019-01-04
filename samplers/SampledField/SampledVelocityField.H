@@ -57,11 +57,10 @@ public:
         //- Construct from patch and cell index list
         SampledVelocityField
         (
-            const fvPatch & patch,
-            const labelList & cil    
+            const fvPatch & patch
         )
         :
-            SampledField(patch, cil)
+            SampledField(patch)
         {
             registerFields();
         }
@@ -78,7 +77,7 @@ public:
     // Member functions
         
         //- Sample the velocity values
-        virtual void sample(scalarListList &) const;
+        virtual void sample(scalarListList &, const labelList &) const;
                 
         //- The number of dimensions of the field
         virtual label nDims() const

@@ -101,7 +101,7 @@ public:
     // Member functions
 
         //- Return the list of cell-indices that are used to sample data
-        labelList indexList() const
+        const labelList & indexList() const
         {
             return indexList_;
         }
