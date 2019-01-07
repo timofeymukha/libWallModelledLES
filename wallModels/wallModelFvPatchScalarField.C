@@ -55,6 +55,29 @@ void Foam::wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 
 void Foam::wallModelFvPatchScalarField::createFields() const
 {
+    if (!db().found("h"))
+    {
+        if (debug)
+        {
+            Info<< "Sampler: Creating h field" << nl;
+        }
+
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "h",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh()
+            )
+        );
+    }
       
     const volScalarField & h = db().lookupObject<volScalarField>("h");
     
