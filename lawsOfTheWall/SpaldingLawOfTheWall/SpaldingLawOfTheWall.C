@@ -66,6 +66,27 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 }
 
 
+Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
+(
+    scalar kappa,
+    scalar B
+)
+:
+    LawOfTheWall(),
+    kappa_(kappa),
+    B_(B)
+{
+    constDict_.add("kappa", kappa);
+    constDict_.add("B", B);
+
+    if (debug)
+    {        
+        printCoeffs();
+    }
+
+}
+
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::SpaldingLawOfTheWall::printCoeffs() const
@@ -79,7 +100,7 @@ void Foam::SpaldingLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::SpaldingLawOfTheWall::value
 (
-    const Sampler & sampler,
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu
@@ -98,7 +119,7 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
 
 Foam::scalar Foam::SpaldingLawOfTheWall::derivative
 (
-    const Sampler & sampler,
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu        

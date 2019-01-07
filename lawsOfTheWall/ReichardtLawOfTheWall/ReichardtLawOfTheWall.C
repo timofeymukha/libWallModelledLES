@@ -86,7 +86,7 @@ void Foam::ReichardtLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::ReichardtLawOfTheWall::value
 (
-    const Sampler & sampler,
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu
@@ -107,7 +107,7 @@ Foam::scalar Foam::ReichardtLawOfTheWall::value
 
 Foam::scalar Foam::ReichardtLawOfTheWall::derivative
 (
-    const Sampler & sampler,
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu        

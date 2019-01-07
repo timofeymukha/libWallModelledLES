@@ -78,7 +78,7 @@ void Foam::WernerWengleLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::WernerWengleLawOfTheWall::value
 (
-    const Sampler & sampler,
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu
@@ -105,7 +105,7 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::value
 
 Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
 (
-    const Sampler & sampler,
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu        

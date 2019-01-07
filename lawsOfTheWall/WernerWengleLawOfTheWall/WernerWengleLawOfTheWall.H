@@ -119,13 +119,13 @@ public:
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(const Sampler & sampler, scalar index,
+        virtual scalar value(const SingleCellSampler & sampler, scalar index,
                              scalar uTau, scalar nu) const;
 
         //- Return the value of the  derivative of the implicit function
         //  defining the law.
         virtual scalar 
-        derivative(const Sampler & sampler, scalar index,
+        derivative(const SingleCellSampler & sampler, scalar index,
                    scalar uTau, scalar nu) const;
 };
 

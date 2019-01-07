@@ -85,6 +85,9 @@ public:
         constDict_(dict)
         {}
 
+        LawOfTheWall()
+        {}
+
     //- Destructor
         virtual ~LawOfTheWall() {}
 
@@ -109,14 +112,14 @@ public:
         virtual void printCoeffs() const = 0; 
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(const Sampler & sampler, scalar index,
+        virtual scalar value(const SingleCellSampler & sampler, scalar index,
                              scalar uTau, scalar nu) const = 0;
 
         //- Return the value of the  derivative of the implicit function
         //  defining the law. Should throw an error if derivative does not 
         //  exist.
         virtual scalar 
-        derivative(const Sampler & sampler, scalar index,
+        derivative(const SingleCellSampler & sampler, scalar index,
                   scalar uTau, scalar nu) const = 0;
         
         //- Write information about the law to stream
