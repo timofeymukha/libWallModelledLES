@@ -87,29 +87,6 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
 void Foam::Sampler::createFields()
 {
       
-    if (!mesh_.thisDb().found("h"))
-    {
-        if (debug)
-        {
-            Info<< "Sampler: Creating h field" << nl;
-        }
-
-        mesh_.thisDb().store
-        (
-            new volScalarField
-            (
-                IOobject
-                (
-                    "h",
-                    mesh_.time().timeName(),
-                    mesh_,
-                    IOobject::MUST_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh_
-            )
-        );
-    }
 
     volScalarField & h = 
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));

@@ -36,6 +36,7 @@ SourceFiles
 #include "fixedValueFvPatchFields.H"
 #include "Sampler.H"
 #include "SampledField.H"
+#include "scalarListIOList.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -55,16 +56,13 @@ protected:
     // Protected data
         
         //- The lists of indices of the cells that data is sampled from
-        labelList indexList_;
-
-        //- The lists of indices of the cells that data is sampled from
-        labelListList multiindexList_;
-        
-        //- A list of wall-normal length-scales associated with the cells
-        scalarField lengthList_;
+        labelListList indexList_;
         
         //- The distance from the wall that data is sampled from
-        scalarField h_;
+        scalarListList h_;
+
+        //- The distance from the wall that data is sampled from
+        scalarListList lengthList_;
         
     // Protected Member Functions
                     
@@ -104,36 +102,31 @@ public:
 
     // Member functions
 
-
         //- Add field for sampling
         virtual void addField(SampledField *);
 
-        //- Return the list of cell-indices that are used to sample data
-        labelList indexList() const
+        //- Return the list of lists of cell-indices that are used to sample data
+        const labelListList & indexList() const
         {
             return indexList_;
         }
 
-        //- Return the list of cell-indices that are used to sample data
-        const labelListList & multiindexList() const
-        {
-            return multiindexList_;
-        }
-        
+
         //- Return h
-        virtual const scalarField & h() const
+        virtual const scalarListList & h() const
         {
             return h_;
         }
+
                 
         //- Return the length-list
-        virtual const scalarField & lengthList() const
+        virtual const scalarListList & lengthList() const
         {
             return lengthList_;
         }
         
         //- Element access operator
-        inline label operator[](const label i) const
+        inline labelList operator[](const label i) const
         {
             return indexList_[i];
         }

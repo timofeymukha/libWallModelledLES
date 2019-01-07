@@ -163,18 +163,13 @@ public:
         {
             return mesh_;
         }
-        
+
         //- Recompute fields to be sampled
         void recomputeFields() const;
         
         //- Sample the fields
         virtual void sample() const = 0; 
 
-        //- Return sampling height
-        virtual const scalarField & h() const = 0;
-
-        virtual const scalarField & lengthList() const = 0;
-        
         //- Add field for sampling
         virtual void addField(SampledField *);
 

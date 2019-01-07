@@ -57,9 +57,9 @@ void Foam::MultiCellSampler::createIndexList()
     volScalarField & h = 
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
 
-    
-    h_ = h.boundaryField()[patchIndex];
-    scalar maxH = max(h_);
+    scalarField hPatch = h.boundaryField()[patchIndex];
+
+    scalar maxH = max(hPatch);
 
     if (debug)
     {
@@ -130,16 +130,15 @@ void Foam::MultiCellSampler::createIndexList()
     // Grab face centres, normal and adjacent cells' centres to each patch face
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField faceNormals = tfaceNormals();
+    const vectorField & faceNormals = tfaceNormals();
     const tmp<vectorField> tcellCentres = patch().Cn();
-    const vectorField cellCentres = tcellCentres();
+    const vectorField & cellCentres = tcellCentres();
     const volVectorField & C = mesh_.C();
     
     // Grab the global indices of adjacent cells 
     const UList<label> & faceCells = patch().faceCells();
 
     vector p;
-    //label pih;
     pointIndexHit pih;
 
     if (debug)
@@ -150,7 +149,7 @@ void Foam::MultiCellSampler::createIndexList()
     forAll(faceCentres, i)
     {
         // Grab the point h away along the face normal
-        p = faceCentres[i] - faceNormals[i]*h_[i];
+        p = faceCentres[i] - faceNormals[i]*hPatch[i];
 
         vector tolVector = (p - faceCentres[i])*1e-6;
         point startP = faceCentres[i] - tolVector;
@@ -160,17 +159,19 @@ void Foam::MultiCellSampler::createIndexList()
         // set it to distance to adjacent cell's centre
         // Set the cellIndexList component accordingly
         bool inside = boundaryTreePtr->getVolumeType(p) == volumeType::INSIDE;
-        if ((h_[i] == 0) || (!inside) || (treePtr->nodes().empty()))
+        if ((hPatch[i] == 0) || (!inside) || (treePtr->nodes().empty()))
         {
+            indexList_[i] = labelList(1);
+            indexList_[i][0] = faceCells[i];
+
+            h_[i] = scalarList(1);
             h_[i] = mag(cellCentres[i] - faceCentres[i]);
-            indexList_[i] = faceCells[i];          
-            multiindexList_[i] = labelList(1);
-            multiindexList_[i][0] = faceCells[i];
         }
         else
         {
-            // Allocate list for the sampling cell indices for face i
-            multiindexList_[i] = List<label>(50);
+            // Allocate list for the sampling cell indices for face i, and associated heights
+            indexList_[i] = labelList(50);
+            h_[i] = scalarList(50);
 
             // Amount of cells sampled from for this face
             label n = 0;
@@ -185,17 +186,19 @@ void Foam::MultiCellSampler::createIndexList()
                     const label cellI =
                         treePtr->findNearest(hitP - tolVector, treePtr->bb().mag()).index();
 
-                    multiindexList_[i][n] = searchCellLabels[cellI];
+                    indexList_[i][n] = searchCellLabels[cellI];
+                    h_[i][n] = mag(C[searchCellLabels[cellI]] - faceCentres[i]);
+
                     Info<< "Face: " << hitP << nl;
                     Info<< "CC: " << C[searchCellLabels[cellI]] << nl;
                     
 
                     n++;
 
-                    if (mag(hitP - faceCentres[i]) >= h_[i])
+                    if (mag(hitP - faceCentres[i]) >= hPatch[i])
                     {
-                        Info<< mag(hitP - faceCentres[i]) << "  " << nl;
-                        multiindexList_[i].setSize(n);
+                        indexList_[i].setSize(n);
+                        h_[i].setSize(n);
                         break;
                     }
 
@@ -204,14 +207,25 @@ void Foam::MultiCellSampler::createIndexList()
                 }
                 else
                 {
-                    multiindexList_[i].setSize(n);
+                    // Not a single face intersected, revert to wall-adjacent cell
+                    if (n == 0)
+                    {
+                        indexList_[i].setSize(1);
+                        indexList_[i][0] = faceCells[i];
+
+                        h_[i].setSize(1);
+                        h_[i] = mag(cellCentres[i] - faceCentres[i]);
+                        break;
+                    
+                    }
+                    indexList_[i].setSize(n);
+                    h_[i].setSize(n);
                     break;
                 }
             }
 
-            h_[i] = mag(cellCentres[i] - faceCentres[i]);
-            indexList_[i] = faceCells[i];          
         }
+        hPatch[i] = h_[i][h_[i].size() -1];
     }
     if (debug)
     {
@@ -225,7 +239,7 @@ void Foam::MultiCellSampler::createIndexList()
     h.boundaryField()[patch().index()]
 #endif
     ==
-        h_;
+        hPatch;
     
     // Grab samplingCells field
     volScalarField & samplingCells = 
@@ -234,19 +248,15 @@ void Foam::MultiCellSampler::createIndexList()
             mesh_.lookupObject<volScalarField> ("samplingCells")
         );
     
-    forAll(indexList_, i)
-    {
-        //samplingCells[indexList_[i]] = patchIndex; 
-    }
 
     label totalSize = 0;
-    forAll(multiindexList_, i)
+    forAll(indexList_, i)
     {
-        totalSize += multiindexList_[i].size();
+        totalSize += indexList_[i].size();
 
-        forAll(multiindexList_[i], j)
+        forAll(indexList_[i], j)
         {
-            samplingCells[multiindexList_[i][j]] = patchIndex;
+            samplingCells[indexList_[i][j]] = patchIndex;
         }
     }
     
@@ -262,7 +272,12 @@ void Foam::MultiCellSampler::createLengthList()
     
     forAll(lengthList_, i)
     {
-        lengthList_[i] = pow(V[indexList_[i]], 1.0/3.0);
+        lengthList_[i] = scalarList(indexList_[i].size());
+        
+        forAll(lengthList_[i], j)
+        {
+            lengthList_[i][j] = pow(V[indexList_[i][j]], 1.0/3.0);
+        }
     }
     
 }
@@ -278,9 +293,8 @@ Foam::MultiCellSampler::MultiCellSampler
 :
     Sampler(p, averagingTime),
     indexList_(p.size()),
-    multiindexList_(p.size()),
-    lengthList_(p.size()),
-    h_(p.size(), 0)
+    h_(p.size()),
+    lengthList_(p.size())
 {
     createIndexList();
     createLengthList();
@@ -294,34 +308,6 @@ Foam::MultiCellSampler::MultiCellSampler
     (
             new SampledWallGradUField(patch_)     
     );
-
-    //List<vectorList> sampledU(10);
-    //forAll (sampledU, i)
-    //{
-        //sampledU[i] = List<vector>(3);
-
-        //forAll (sampledU[i], j)
-        //{
-            //sampledU[i][j] = pTraits<vector>::zero;
-        //}
-    //}
-    
-    //mesh().thisDb().store
-    //(
-        //new IOList<vectorList >
-        //(
-            //IOobject
-            //(
-                //"Utest",
-                //db().time().timeName(),
-                //mesh(), 
-                //IOobject::READ_IF_PRESENT,
-                //IOobject::AUTO_WRITE
-            //),
-            //sampledU
-        //)
-    //);
-
 }
 
 
@@ -363,7 +349,7 @@ void Foam::MultiCellSampler::sample() const
     {
 
         scalarListListList sampledList(patch().size());
-        sampledFields_[fieldI]->sample(sampledList, multiindexList());
+        sampledFields_[fieldI]->sample(sampledList, indexList());
         
         scalarListListIOList & storedValues = const_cast<scalarListListIOList & >
         (
@@ -387,7 +373,7 @@ void Foam::MultiCellSampler::sample() const
 void Foam::MultiCellSampler::addField(SampledField * field)
 {
     Sampler::addField(field);
-    field->registerFields(multiindexList());
+    field->registerFields(indexList());
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
