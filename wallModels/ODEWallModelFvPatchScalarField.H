@@ -85,7 +85,10 @@ protected:
     // Protected Data
         //- Pointer to an eddy viscosity model    
         autoPtr<EddyViscosity> eddyViscosity_;
-    
+
+        //- The sampler
+        autoPtr<SingleCellSampler> sampler_;
+
         //- A list of lists of points each defining a 1d mesh between 0 and h
         //  for a given face
         scalarListList meshes_;
@@ -171,6 +174,8 @@ public:
         //- Write
         virtual void write(Ostream& os) const;
             
+        virtual void updateCoeffs();
+
         //- Return the error tolerance
         scalar eps() const
         {
@@ -187,6 +192,11 @@ public:
         scalar nMeshY() const
         {
             return nMeshY_;
+        }
+
+        Sampler & sampler()
+        {
+            return sampler_();
         }
 };
 

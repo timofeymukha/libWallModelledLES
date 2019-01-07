@@ -35,6 +35,7 @@ SourceFiles
 #include "wallModelFvPatchScalarField.H"
 #include "LawOfTheWall.H"
 #include "RootFinder.H"
+#include "MultiCellSampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -50,15 +51,18 @@ class LSQRWallModelFvPatchScalarField
     public wallModelFvPatchScalarField
 {
 protected:
-    
+
     // Protected Data
-    
+
         //- Pointer to the root finder
         autoPtr<RootFinder> rootFinder_;
-    
+
         //- Pointer to the LSQR to be used
         autoPtr<LawOfTheWall> law_;
-    
+
+        //- Pointer to the sampler
+        autoPtr<MultiCellSampler> sampler_;
+
     // Protected Member Functions
         //- Write root finder and LSQR properties to stream
         virtual void writeLocalEntries(Ostream &) const;
@@ -145,6 +149,12 @@ public:
         virtual void write(Ostream& os) const;
 
         virtual void updateCoeffs();
+
+        //- Return the sampler
+        Sampler & sampler()
+        {
+            return sampler_();
+        }
 };
 
 

@@ -64,15 +64,12 @@ class wallModelFvPatchScalarField
     public fixedValueFvPatchScalarField
 {
 protected:
-    
+
     // Protected data
            
         //- Timescale of the averaging
         scalar averagingTime_;
-        
-        //- The sampler
-        autoPtr<Sampler> sampler_;
-     
+
         //- Create fields and add to registry
         virtual void createFields() const;
 
@@ -143,21 +140,12 @@ public:
             //return sampler_.indexList();
         //}
         
-        //- Return h
-        scalarField h() const
-        {
-            return sampler_->h();
-        }
                 
         scalar averagingTime() const
         {
             return averagingTime_;
         }
         
-        Sampler & sampler()
-        {
-            return sampler_();
-        }
         
         //- Update the boundary values
         virtual void updateCoeffs();

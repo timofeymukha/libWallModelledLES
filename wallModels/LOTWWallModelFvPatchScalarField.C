@@ -169,7 +169,8 @@ LOTWWallModelFvPatchScalarField
                                 ptf.rootFinder_->eps(),
                                 ptf.rootFinder_->maxIter())),
     law_(LawOfTheWall::New(ptf.law_->type(),
-                           ptf.law_->constDict()))
+                           ptf.law_->constDict())),
+    sampler_(new SingleCellSampler(p, averagingTime_))
 {
     law_->addFieldsToSampler(sampler());
 }
@@ -184,7 +185,8 @@ LOTWWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(p, iF, dict),
     rootFinder_(RootFinder::New(dict.subDict("RootFinder"))),
-    law_(LawOfTheWall::New(dict.subDict("Law")))
+    law_(LawOfTheWall::New(dict.subDict("Law"))),
+    sampler_(new SingleCellSampler(p, averagingTime_))
 {
     law_->addFieldsToSampler(sampler());
 }
@@ -198,7 +200,8 @@ LOTWWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(wfpsf),
     rootFinder_(wfpsf.rootFinder_),
-    law_(wfpsf.law_)
+    law_(wfpsf.law_),
+    sampler_(wfpsf.sampler_)
 {}
 
 
@@ -211,7 +214,8 @@ LOTWWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(wfpsf, iF),
     rootFinder_(wfpsf.rootFinder_),
-    law_(wfpsf.law_)
+    law_(wfpsf.law_),
+    sampler_(wfpsf.sampler_)
 {}
 
 
@@ -222,6 +226,19 @@ void Foam::LOTWWallModelFvPatchScalarField::write(Ostream& os) const
     wallModelFvPatchScalarField::write(os);
 }
 
+
+void Foam::LOTWWallModelFvPatchScalarField::updateCoeffs()
+{
+    if (updated())
+    {
+        return;
+    }
+
+    sampler().recomputeFields();
+    sampler().sample();
+
+    wallModelFvPatchScalarField::updateCoeffs();
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

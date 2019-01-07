@@ -82,6 +82,9 @@ protected:
     
         //- Pointer to the LOTW to be used
         autoPtr<LawOfTheWall> law_;
+
+        //- The sampler
+        autoPtr<SingleCellSampler> sampler_;
     
     // Protected Member Functions
         //- Write root finder and LOTW properties to stream
@@ -164,6 +167,13 @@ public:
         }
 
     // Member functions
+
+        Sampler & sampler()
+        {
+            return sampler_();
+        }
+
+        virtual void updateCoeffs();
 
         //- Write to stream
         virtual void write(Ostream& os) const;
