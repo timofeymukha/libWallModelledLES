@@ -24,6 +24,7 @@ License
 #include "codeRules.H"
 #include "scalarListListIOList.H"
 #include "MultiCellSampler.H"
+#include "SpaldingLawOfTheWall.H"
 
 using namespace std::placeholders;
 
@@ -61,7 +62,7 @@ Foam::LSQRWallModelFvPatchScalarField::calcNut() const
             mag(vector(wallGradU[i][0][0], wallGradU[i][0][1], wallGradU[i][0][2]));
     }
 
-    return
+    return max
     (
         scalar(0),
         sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw
@@ -76,7 +77,7 @@ calcUTau(const scalarField & magGradU) const
     const label patchSize = patch().size();
     
     const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
-    
+
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
        
@@ -103,27 +104,64 @@ calcUTau(const scalarField & magGradU) const
             db().lookupObject<volScalarField>("uTauPredicted")
         );
 
+    const scalarListList & h = sampler().h();
+    const scalarListListList & U = sampler().db().lookupObject<scalarListListIOList>("U");
+
     // Compute uTau for each face
     forAll(uTau, faceI)
     {
+
         // Starting guess using old values
         scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
         
         if (ut > ROOTVSMALL)
         {
 
-            const MultiCellSampler & sampler2 =
-                dynamic_cast<const MultiCellSampler &>(sampler_());
 
-            //const labelListList & indexListList = sampler2.multiindexList();
+            const label n = h[faceI].size();
+            scalarList yStar =  h[faceI]*ut/nuw[faceI]; 
+            scalarList uStar(n); 
+
+            scalar sumUStar = 0;
+            scalar sumLogYStar = 0;
+            scalar sumULogYStar = 0;
+            scalar sumLogYStar2 = 0;
+
+            forAll(uStar, i)
+            {
+                uStar[i] =
+                    mag(vector(U[faceI][i][0], U[faceI][i][1], U[faceI][i][2]))/ut;
+
+                sumUStar += uStar[i];
+                sumLogYStar += log(yStar[i]);
+                sumLogYStar2 += sqr(log(yStar[i]));
+                sumULogYStar += uStar[i]*log(yStar[i]);
+            }
+
+            const scalar kappaNom = n*sumLogYStar2 - sqr(sumLogYStar);
+            const scalar kappaDenom = n*sumULogYStar - sumUStar*sumLogYStar;
+
+            const scalar kappa = kappaNom/(kappaDenom + VSMALL);
+
+            const scalar B = (sumUStar - 1/kappa*sumLogYStar)/n;
+
+            Info<< "y* " << yStar << nl;
+            Info<< "u* " << uStar << nl;
+            Info<< "kappa " << kappa << " B " << B << nl;
+
+            //SpaldingLawOfTheWall law(kappa, B);
 
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
-            //value = std::bind(&LawOfTheWall::value, &law_(), std::ref(sampler_()), faceI,
-                              //_1, nuw[faceI]);
+            value = std::bind(&LawOfTheWall::value, &law_(), std::ref(sampler_()), faceI,
+                              _1, nuw[faceI]);
+
+            //value = std::bind(&SpaldingLawOfTheWall::value, &law, uStar[0]*ut,
+                              //yStar[0]*nuw[faceI]/ut, _1, nuw[faceI]);
             
-            //derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
-                                   //std::ref(sampler_), faceI, _1, nuw[faceI]);
+            //derivValue = std::bind(&SpaldingLawOfTheWall::derivative, &law,
+                                   //uStar[0]*ut, yStar[0]*nuw[faceI]/ut, _1,
+                                   //nuw[faceI]);
 
             // Supply the functions to the root finder
             //const_cast<RootFinder &>(rootFinder_()).setFunction(value);

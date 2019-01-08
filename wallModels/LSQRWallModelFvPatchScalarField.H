@@ -151,7 +151,12 @@ public:
         virtual void updateCoeffs();
 
         //- Return the sampler
-        Sampler & sampler()
+        const MultiCellSampler & sampler() const
+        {
+            return sampler_();
+        }
+
+        MultiCellSampler & sampler()
         {
             return sampler_();
         }
