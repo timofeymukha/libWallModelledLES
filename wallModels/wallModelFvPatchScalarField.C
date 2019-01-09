@@ -173,6 +173,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     }
 
     checkType();   
+    createFields();
 }
 
 
