@@ -67,6 +67,11 @@ void Foam::MultiCellSampler::createIndexList()
     }
 
     treeBoundBox boundBox(mesh_.bounds());
+    Random rndGen(261782);    
+    boundBox.extend(rndGen, 1e-4);
+    boundBox.min() -= point(ROOTVSMALL, ROOTVSMALL, ROOTVSMALL);
+    boundBox.max() += point(ROOTVSMALL, ROOTVSMALL, ROOTVSMALL);
+
 
     tmp<labelField> tSearchCellLabels = findSearchCellLabels();
     const labelField & searchCellLabels = tSearchCellLabels();
