@@ -57,11 +57,6 @@ void Foam::wallModelFvPatchScalarField::createFields() const
 {
     if (!db().found("h"))
     {
-        if (debug)
-        {
-            Info<< "Sampler: Creating h field" << nl;
-        }
-
         db().store
         (
             new volScalarField
