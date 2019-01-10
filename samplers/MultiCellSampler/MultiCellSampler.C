@@ -266,8 +266,14 @@ void Foam::MultiCellSampler::createIndexList()
     }
     
     //TODO parallel
-    Info<< "Average number of sampling cells per face is " <<
-        totalSize/patch().size() << nl;
+    label totalPatchSize =  patch().size();
+    reduce(totalPatchSize, sumOp<label>());
+    reduce(totalSize, sumOp<scalar>());
+    if (totalPatchSize > 0)
+    {
+        Info<< "Average number of sampling cells per face is " <<
+                totalSize/totalPatchSize << nl;
+    }
 }
 
 void Foam::MultiCellSampler::createLengthList()
