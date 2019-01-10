@@ -274,7 +274,7 @@ ODEWallModelFvPatchScalarField
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
     eddyViscosity_(EddyViscosity::New(ptf.eddyViscosity_->type(),
                    ptf.eddyViscosity_->constDict(), sampler_)),
-    sampler_(new SingleCellSampler(p, averagingTime_)),
+    sampler_(new SingleCellSampler(ptf.sampler())),
     meshes_(ptf.meshes_),
     maxIter_(ptf.maxIter_),
     eps_(ptf.eps_),

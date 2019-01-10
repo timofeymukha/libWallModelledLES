@@ -216,7 +216,8 @@ LSQRWallModelFvPatchScalarField
                                 ptf.rootFinder_->maxIter())),
     law_(LawOfTheWall::New(ptf.law_->type(),
                            ptf.law_->constDict())),
-    sampler_(new MultiCellSampler(p, averagingTime_))
+    //sampler_(new MultiCellSampler(p, averagingTime_))
+    sampler_(new MultiCellSampler(ptf.sampler()))
 {
     law_->addFieldsToSampler(sampler());
 }

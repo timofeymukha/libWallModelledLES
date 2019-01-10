@@ -170,7 +170,7 @@ LOTWWallModelFvPatchScalarField
                                 ptf.rootFinder_->maxIter())),
     law_(LawOfTheWall::New(ptf.law_->type(),
                            ptf.law_->constDict())),
-    sampler_(new SingleCellSampler(p, averagingTime_))
+    sampler_(new SingleCellSampler(ptf.sampler()))
 {
     law_->addFieldsToSampler(sampler());
 }
