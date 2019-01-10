@@ -157,7 +157,7 @@ void Foam::MultiCellSampler::createIndexList()
         p = faceCentres[i] - faceNormals[i]*hPatch[i];
 
         vector tolVector = (p - faceCentres[i])*1e-6;
-        point startP = faceCentres[i] - tolVector;
+        point startP = faceCentres[i] + tolVector;
         point endP = p + tolVector;
 
         // If h is zero, or the point is outside the domain,
@@ -183,6 +183,7 @@ void Foam::MultiCellSampler::createIndexList()
 
             while (true)
             {
+                Info << "Start: " << startP << " End: " << endP << nl;
                 pih = treePtr->findLine(startP, endP);
 
                 if (pih.hit())
@@ -194,7 +195,7 @@ void Foam::MultiCellSampler::createIndexList()
                     indexList_[i][n] = searchCellLabels[cellI];
                     h_[i][n] = mag(C[searchCellLabels[cellI]] - faceCentres[i]);
 
-                    Info<< "Face: " << hitP << nl;
+                    Info<< "Hit face: " << hitP << nl;
                     Info<< "CC: " << C[searchCellLabels[cellI]] << nl;
                     
 
@@ -208,13 +209,13 @@ void Foam::MultiCellSampler::createIndexList()
                     }
 
                     startP = hitP + tolVector;
-                    Info << startP << endP << nl;
                 }
                 else
                 {
                     // Not a single face intersected, revert to wall-adjacent cell
                     if (n == 0)
                     {
+                        Info << "No faces were intersected, reverting to wall-adjacent cell" << nl;
                         indexList_[i].setSize(1);
                         indexList_[i][0] = faceCells[i];
 
