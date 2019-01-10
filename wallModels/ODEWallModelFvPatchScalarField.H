@@ -194,7 +194,12 @@ public:
             return nMeshY_;
         }
 
-        Sampler & sampler()
+        SingleCellSampler & sampler()
+        {
+            return sampler_();
+        }
+
+        const SingleCellSampler & sampler() const
         {
             return sampler_();
         }
