@@ -83,7 +83,7 @@ Foam::SampledWallGradUField::sample
     }
     projectVectors(sampledValues);
 
-    Info << sampledValues << nl;
+    //Info << sampledValues << nl;
 }
 
 

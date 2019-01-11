@@ -64,7 +64,6 @@ Foam::SampledVelocityField::sample
     const volVectorField & UField = db().lookupObject<volVectorField>("U");
     const vectorField & Uwall = UField.boundaryField()[patch().index()];
     
-    Info << indexList << nl;
     forAll(indexList, i)
     {
         sampledValues[i] = scalarListList(indexList[i].size());
@@ -72,7 +71,7 @@ Foam::SampledVelocityField::sample
         {
             sampledValues[i][j] = scalarList(3);
 
-            Info << i << " " << j << " " << UField[indexList[i][j]] - Uwall[i] << nl;
+            //Info << i << " " << j << " " << UField[indexList[i][j]] - Uwall[i] << nl;
             forAll(sampledValues[i][j], k)
             {
                 sampledValues[i][j][k] = 
@@ -81,7 +80,7 @@ Foam::SampledVelocityField::sample
         }
     }
     projectVectors(sampledValues);
-    Info << sampledValues << nl;
+    //Info << sampledValues << nl;
 }
 
 

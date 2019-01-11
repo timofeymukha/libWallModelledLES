@@ -228,6 +228,7 @@ void Foam::MultiCellSampler::createIndexList()
                         break;
                     
                     }
+                        Info << "No face intersected, done" << nl;
                     indexList_[i].setSize(n);
                     h_[i].setSize(n);
                     break;
