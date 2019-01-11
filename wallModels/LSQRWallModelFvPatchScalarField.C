@@ -116,78 +116,79 @@ calcUTau(const scalarField & magGradU) const
         
         if (ut > ROOTVSMALL)
         {
-
-
-            const label n = h[faceI].size();
-            const scalarList yStar =  h[faceI]*ut/nuw[faceI]; 
-            scalarList u(n);
-            forAll(u, i)
+            for (int iterI=0; iterI<5; iterI++)
             {
-                u[i] =
-                    mag(vector(U[faceI][i][0], U[faceI][i][1], U[faceI][i][2]));
+                const label n = h[faceI].size();
+                const scalarList yStar =  h[faceI]*ut/nuw[faceI]; 
+                scalarList u(n);
+                forAll(u, i)
+                {
+                    u[i] =
+                        mag(vector(U[faceI][i][0], U[faceI][i][1], U[faceI][i][2]));
+                }
+
+                // Set default values
+                scalar kappa = 0.4;
+                scalar B = 5.5;
+
+                // Need at least 2 points for a linear fit
+                if (n != 1)
+                {
+                    scalarList uStar = u/ut; 
+
+                    scalar sumUStar = sum(uStar);
+                    scalar sumLogYStar = sum(log(yStar));
+                    scalar sumULogYStar = sum(uStar*log(yStar));
+                    scalar sumLogYStar2 = sum(sqr(log(yStar)));
+
+                    const scalar kappaNom = n*sumLogYStar2 - sqr(sumLogYStar);
+                    const scalar kappaDenom = n*sumULogYStar - sumUStar*sumLogYStar;
+
+                    kappa = kappaNom/(kappaDenom + VSMALL);
+                    kappa = max(0.05, min(10, kappa));
+
+                    B = (sumUStar - 1/(kappa + VSMALL)*sumLogYStar)/n;
+
+                    //Info<< "y* " << yStar << nl;
+                    //Info<< "u* " << uStar << nl;
+                    Info<< "kappa " << kappa << " B " << B << nl;
+                }
+
+                SpaldingLawOfTheWall law(kappa, B);
+
+                // Construct functions dependant on a single parameter (uTau)
+                // from functions given by the law of the wall
+                value = std::bind
+                (
+                    static_cast<scalar(SpaldingLawOfTheWall::*)(scalar, scalar, scalar, scalar) const>(&SpaldingLawOfTheWall::value),
+                    &law,
+                    u[n-1],
+                    h[faceI][n-1],
+                    _1, 
+                    nuw[faceI]
+                );
+
+                derivValue = std::bind
+                (
+                    static_cast<scalar(SpaldingLawOfTheWall::*)(scalar, scalar, scalar, scalar) const>(&SpaldingLawOfTheWall::derivative),
+                    &law,
+                    u[n-1],
+                    h[faceI][n-1],
+                    _1, 
+                    nuw[faceI]
+                );
+
+                // Supply the functions to the root finder
+                const_cast<RootFinder &>(rootFinder_()).setFunction(value);
+                const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
+
+                //Info<< ut << nl;
+
+                // Compute root to get uTau
+                ut = max(0.0, rootFinder_->root(ut));
             }
 
-            // Set default values
-            scalar kappa = 0.4;
-            scalar B = 5.5;
-
-            // Need at least 2 points for a linear fit
-            if (n != 1)
-            {
-                scalarList uStar = u/ut; 
-
-                scalar sumUStar = sum(uStar);
-                scalar sumLogYStar = sum(log(yStar));
-                scalar sumULogYStar = sum(uStar*log(yStar));
-                scalar sumLogYStar2 = sum(sqr(log(yStar)));
-
-                Info<< sumUStar << sumLogYStar << sumLogYStar2 << nl;
-
-                const scalar kappaNom = n*sumLogYStar2 - sqr(sumLogYStar);
-                const scalar kappaDenom = n*sumULogYStar - sumUStar*sumLogYStar;
-
-                kappa = kappaNom/(kappaDenom + VSMALL);
-                kappa = max(0.05, min(10, kappa));
-
-                B = (sumUStar - 1/(kappa + VSMALL)*sumLogYStar)/n;
-
-                //Info<< "y* " << yStar << nl;
-                //Info<< "u* " << uStar << nl;
-                Info<< "kappa " << kappa << " B " << B << nl;
-            }
-
-            SpaldingLawOfTheWall law(kappa, B);
-
-            // Construct functions dependant on a single parameter (uTau)
-            // from functions given by the law of the wall
-            value = std::bind
-            (
-                static_cast<scalar(SpaldingLawOfTheWall::*)(scalar, scalar, scalar, scalar) const>(&SpaldingLawOfTheWall::value),
-                &law,
-                u[n-1],
-                h[faceI][n-1],
-                _1, 
-                nuw[faceI]
-            );
-
-            derivValue = std::bind
-            (
-                static_cast<scalar(SpaldingLawOfTheWall::*)(scalar, scalar, scalar, scalar) const>(&SpaldingLawOfTheWall::derivative),
-                &law,
-                u[n-1],
-                h[faceI][n-1],
-                _1, 
-                nuw[faceI]
-            );
-
-            // Supply the functions to the root finder
-            const_cast<RootFinder &>(rootFinder_()).setFunction(value);
-            const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
-
-            // Compute root to get uTau
-            Info<< ut << nl;
-            uTau[faceI] = max(0.0, rootFinder_->root(ut));
-            //uTau[faceI] = ut;
+            uTau[faceI] = ut;
 
         }
     }
