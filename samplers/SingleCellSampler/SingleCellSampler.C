@@ -67,7 +67,11 @@ void Foam::SingleCellSampler::createIndexList()
 
     treeBoundBox boundBox(mesh_.bounds());
     Random rndGen(261782);    
+#ifdef FOAM_TREEBOUNDBOX_DOES_NOT_ACCEPT_RNG
+    boundBox.extend(1e-4);
+#else
     boundBox.extend(rndGen, 1e-4);
+#endif
     boundBox.min() -= point(ROOTVSMALL, ROOTVSMALL, ROOTVSMALL);
     boundBox.max() += point(ROOTVSMALL, ROOTVSMALL, ROOTVSMALL);
 
