@@ -91,67 +91,6 @@ void Foam::Sampler::createFields()
     volScalarField & h = 
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
 
-    // Try to read field with distance from cell to patches
-    
-    if (debug)
-    {
-        Info<< "Sampler: Creating dist field" << nl;
-    }
-
-    if (!mesh_.thisDb().found("dist"))
-    {
-        mesh_.thisDb().store
-        (
-            new volScalarField
-            (
-                IOobject
-                (
-                    "dist",
-                    mesh_.time().timeName(),
-                    mesh_,
-                    IOobject::READ_IF_PRESENT,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh_,
-                dimensionedScalar("dist", dimLength,0),
-                h.boundaryField().types()
-            )
-        );
-    }
-    volScalarField & dist = 
-        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField>("dist"));
-
-    if (mag(max(dist.internalField()).value()) < VSMALL)
-    {
-
-        labelHashSet patchIDs(1);
-        patchIDs.insert(patch().index());
-        //Info<<patchIDs << nl;
-
-        dictionary methodDict = dictionary();
-        methodDict.lookupOrAddDefault(word("method"), word("meshWave"));
-
-        if (debug)
-        {
-            Info<< "Initializing patchDistanceMethod" << nl;
-        }
-
-        autoPtr<patchDistMethod>  pdm_
-        (
-            patchDistMethod::New
-            (
-                methodDict,
-                mesh_,
-                patchIDs
-            )
-        );
-
-        if (debug)
-        {
-            Info<< "Sampler: Computing dist field" << nl;
-        }
-        pdm_->correct(dist);
-    }
     
    // Field that marks cells that are used for sampling
     if (!mesh_.thisDb().found("samplingCells"))
@@ -191,6 +130,64 @@ Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
     volScalarField & h = 
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
 
+    if (debug)
+    {
+        Info<< "Sampler: Creating dist field" << nl;
+    }
+
+    autoPtr<volScalarField> dist( 
+            new volScalarField
+            (
+                IOobject
+                (
+                    "dist",
+                    mesh_.time().timeName(),
+                    mesh_,
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::NO_WRITE
+                ),
+                mesh_,
+                dimensionedScalar("dist", dimLength,0),
+                h.boundaryField().types()
+            ));
+
+    bool precomputedDist = mag(max(dist().internalField()).value()) > VSMALL;
+    
+    if (debug)
+    {
+        Info<<"Sampler: using precumputed distance field" << nl;
+    }
+
+    if (!precomputedDist)
+    {
+
+        labelHashSet patchIDs(1);
+        patchIDs.insert(patch().index());
+
+        dictionary methodDict = dictionary();
+        methodDict.lookupOrAddDefault(word("method"), word("meshWave"));
+
+        if (debug)
+        {
+            Info<< "Initializing patchDistanceMethod" << nl;
+        }
+
+        autoPtr<patchDistMethod>  pdm_
+        (
+            patchDistMethod::New
+            (
+                methodDict,
+                mesh_,
+                patchIDs
+            )
+        );
+
+        if (debug)
+        {
+            Info<< "Sampler: Computing dist field" << nl;
+        }
+        pdm_->correct(dist());
+    }
     
     
     scalar maxH = max(h.boundaryField()[patchIndex]);
@@ -214,9 +211,6 @@ Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
 #endif
     label nSearchCells = 0;
 
-    const volScalarField & distanceField = 
-        mesh_.lookupObject<volScalarField> ("dist");
-
     if (debug)
     {
         Info<< "Sampler: Searching for cells closer to 2maxH to the wall"
@@ -225,7 +219,7 @@ Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
 
     forAll(searchCellLabels, i)
     {
-        if (distanceField[i] < 2*maxH)
+        if (dist()[i] < 2*maxH)
         {
             searchCellLabels[nSearchCells] = i;
             nSearchCells++;
