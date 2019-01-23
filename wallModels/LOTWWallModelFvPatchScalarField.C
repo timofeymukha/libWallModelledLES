@@ -227,9 +227,36 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf, iF),
-    rootFinder_(wfpsf.rootFinder_),
-    law_(wfpsf.law_)
-{}
+    rootFinder_
+    (
+        RootFinder::New 
+        (
+            wfpsf.rootFinder_->type(),
+            wfpsf.rootFinder_->f(),
+            wfpsf.rootFinder_->d(),
+            wfpsf.rootFinder_->eps(),
+            wfpsf.rootFinder_->maxIter()
+        )
+    ),
+    law_
+    (
+        LawOfTheWall::New 
+        (
+            wfpsf.law_->type(),
+            wfpsf.law_->constDict(),
+            wfpsf.law_->sampler()
+        )
+    )
+{
+
+    if (debug)
+    {
+        Info<< "Constructing LOTWModelFvPatchScalarField (lotw5) "
+            << "from copy and DimensionedField for patch " << patch().name()
+            << nl;
+    }
+
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
