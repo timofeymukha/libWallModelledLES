@@ -143,7 +143,14 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF)
-{}
+{
+    if (debug)
+    {
+        Info<< "Constructing LOTWwallModelFvPatchScalarField (lotw1) "
+            << "from fvPatch and DimensionedField for patch " << patch().name()
+            <<  nl;
+    }
+}
 
 
 Foam::LOTWWallModelFvPatchScalarField::
@@ -165,6 +172,12 @@ LOTWWallModelFvPatchScalarField
                            ptf.law_->constDict(),
                            ptf.law_->sampler()))
 {
+    if (debug)
+    {
+        Info<< "Constructing LOTWWallModelFvPatchScalarField (lotw2) "
+            << "from copy, fvPatch, DimensionedField, and fvPatchFieldMapper"
+            << " for patch " << patch().name() << nl;
+    }
 }
 
 Foam::LOTWWallModelFvPatchScalarField::
@@ -178,7 +191,14 @@ LOTWWallModelFvPatchScalarField
     wallModelFvPatchScalarField(p, iF, dict),
     rootFinder_(RootFinder::New(dict.subDict("RootFinder"))),
     law_(LawOfTheWall::New(dict.subDict("Law"), sampler_))
-{}
+{
+    if (debug)
+    {
+        Info<< "Constructing LOTWWallModelFvPatchScalarField (lotw3) "
+            << "from fvPatch, DimensionedField, and dictionary for patch "
+            << patch().name() << nl;
+    }
+}
 
 
 Foam::LOTWWallModelFvPatchScalarField::
@@ -190,7 +210,13 @@ LOTWWallModelFvPatchScalarField
     wallModelFvPatchScalarField(wfpsf),
     rootFinder_(wfpsf.rootFinder_),
     law_(wfpsf.law_)
-{}
+{
+    if (debug)
+    {
+        Info<< "Constructing LOTWWallModelFvPatchScalarField (lotw4)"
+            << "from copy for patch " << patch().name() << nl;           
+    }
+}
 
 
 Foam::LOTWWallModelFvPatchScalarField::
