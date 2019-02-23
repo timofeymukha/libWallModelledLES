@@ -207,7 +207,6 @@ LOTWWallModelFvPatchScalarField
             << "from fvPatch, DimensionedField, and dictionary for patch "
             << patch().name() << nl;
     }
-{
     law_->addFieldsToSampler(sampler());
 }
 
@@ -255,8 +254,7 @@ LOTWWallModelFvPatchScalarField
         LawOfTheWall::New 
         (
             wfpsf.law_->type(),
-            wfpsf.law_->constDict(),
-            wfpsf.law_->sampler()
+            wfpsf.law_->constDict()
         )
     ),
     sampler_(new SingleCellSampler(wfpsf.sampler_()))
