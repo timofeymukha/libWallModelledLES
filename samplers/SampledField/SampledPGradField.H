@@ -56,13 +56,11 @@ public:
         //- Construct from patch and cell index list
         SampledPGradField
         (
-            const fvPatch & patch,
-            const labelList & cil
+            const fvPatch & patch
         )
         :
-            SampledField(patch, cil)
+            SampledField(patch)
         { 
-            registerFields();
         }
         
         //- Clone the object
@@ -87,12 +85,16 @@ public:
         {
             return "pGrad";
         }
-        
+
         //- Sample the pressure gradient values
-        virtual void sample(scalarListList &) const;
+        virtual void sample(scalarListList &, const labelList &) const;
+
+        virtual void sample(scalarListListList &, const labelListList &) const;
         
         //- Register appropriate fields in the object registry
         virtual void registerFields() const;
+
+        virtual void registerFields(const labelListList &) const; 
         
         //- Recompute the field
         virtual void recompute() const;       

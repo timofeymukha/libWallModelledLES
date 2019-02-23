@@ -90,14 +90,19 @@ public:
     // Constructors
       
         //- Construct provided dictionary and cell index list
-        SpaldingLawOfTheWall(const dictionary &, Sampler &);
+        SpaldingLawOfTheWall(const dictionary &);
         
         //- Construct provided TypeName and dictionary and cell index list
         SpaldingLawOfTheWall
         (
             const word & lawname,
-            const dictionary &,
-            Sampler &
+            const dictionary &
+        );
+
+        SpaldingLawOfTheWall
+        (
+            scalar kappa,
+            scalar B
         );
 
     //- Destructor
@@ -119,11 +124,28 @@ public:
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(scalar index, scalar uTau, scalar nu) const;
-        
-        //- Return the value of the derivative of the implicit function
-        //  defining the law
-        virtual scalar derivative(scalar index, scalar uTau, scalar nu) const;
+        virtual scalar value
+        (
+            const SingleCellSampler & sampler,
+            scalar index,
+            scalar uTau,
+            scalar nu
+        ) const;
+
+        scalar value(scalar u, scalar y, scalar uTau, scalar nu) const;
+
+                             
+        //- Return the value of the  derivative of the implicit function
+        //  defining the law.
+        virtual scalar derivative
+        (
+            const SingleCellSampler & sampler,
+            scalar index,
+            scalar uTau,
+            scalar nu
+        ) const;
+
+        scalar derivative(scalar u, scalar y, scalar uTau, scalar nu) const;
 };
 
 

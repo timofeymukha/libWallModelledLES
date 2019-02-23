@@ -64,18 +64,12 @@ class wallModelFvPatchScalarField
     public fixedValueFvPatchScalarField
 {
 protected:
-    
+
     // Protected data
            
         //- Timescale of the averaging
         scalar averagingTime_;
-        
-        //- The sampler
-        Sampler sampler_;
-     
-        //- The wall-normal velocity gradient
-        const vectorField & wallGradU_;        
-        
+
         //- Create fields and add to registry
         virtual void createFields() const;
 
@@ -141,26 +135,17 @@ public:
     // Member functions
       
         //- Return the list of cell-indices that are used to sample data
-        labelList cellIndexList() const
-        {
-            return sampler_.indexList();
-        }
+        //labelList cellIndexList() const
+        //{
+            //return sampler_.indexList();
+        //}
         
-        //- Return h
-        scalarField h() const
-        {
-            return sampler_.h();
-        }
                 
         scalar averagingTime() const
         {
             return averagingTime_;
         }
         
-        Sampler sampler() const
-        {
-            return sampler_;
-        }
         
         //- Update the boundary values
         virtual void updateCoeffs();

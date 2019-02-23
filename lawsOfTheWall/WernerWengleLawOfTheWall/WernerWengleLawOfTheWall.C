@@ -20,6 +20,7 @@ License
 
 #include "WernerWengleLawOfTheWall.H"
 #include "addToRunTimeSelectionTable.H"
+#include "scalarListIOList.H"
 
 namespace Foam
 {
@@ -32,11 +33,10 @@ namespace Foam
 
 Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
-    const dictionary & dict,
-    Sampler & list
+    const dictionary & dict
 )
 :
-    LawOfTheWall(dict, list),
+    LawOfTheWall(dict),
     A_(dict.lookupOrDefault<scalar>("A", 8.3)),
     B_(dict.lookupOrDefault<scalar>("B", 1./7))
 {
@@ -50,11 +50,10 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 (
     const word & lawName,
-    const dictionary & dict,
-    Sampler & list
+    const dictionary & dict
 )
 :
-    LawOfTheWall(lawName, dict, list),
+    LawOfTheWall(lawName, dict),
     A_(dict.lookupOrDefault<scalar>("A", 8.3)),
     B_(dict.lookupOrDefault<scalar>("B", 1./7))
 {
@@ -79,15 +78,16 @@ void Foam::WernerWengleLawOfTheWall::printCoeffs() const
 
 Foam::scalar Foam::WernerWengleLawOfTheWall::value
 (
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu
 ) const
 {  
-    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
-    scalar u = mag(U[index]);
-    
-    scalar y = sampler_.h()[index];
+    const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
+
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
+    scalar y = sampler.h()[index];
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
     scalar yPlusM = pow(A_, 1/(1-B_));
@@ -105,15 +105,16 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::value
 
 Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
 (
+    const SingleCellSampler & sampler,
     scalar index,
     scalar uTau,
     scalar nu        
 ) const
 {
-    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
-    scalar u = mag(U[index]);
-    
-    scalar y = sampler_.h()[index];
+    const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
+
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
+    scalar y = sampler.h()[index];
     scalar yPlus = y*uTau/nu;
     scalar yPlusM = pow(A_, 1/(1-B_));
 

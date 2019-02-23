@@ -17,48 +17,25 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::LOTWWallModelFvPatchScalarField
+    Foam::LSQRWallModelFvPatchScalarField
 
 Description
-    Class for the wall models based on a law of the wall.
- 
-    Needs a root finder and a law of the wall to be defined.
-
-    Usage
-    \verbatim
-    patchName
-    {
-        type                LOTWWallModel;
-        value               uniform 0;
-        RootFinder
-        {
-            type            RootFinderType;
-            otherParams     value;
-        }
-
-        Law
-        {
-            type            LawOfTheWallType;
-            otherParams     value;
-        }
-    }
-    \endverbatim
 
 Contributors/Copyright:
-    2016-2018 Timofey Mukha
-    2017      Saleh Rezaeiravesh
+    2019 Timofey Mukha
 
 SourceFiles
-    LOTWWallModelFvPatchScalarField.C
+    LSQRWallModelFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef LOTWWallModelFvPatchScalarField_H
-#define LOTWWallModelFvPatchScalarField_H
+#ifndef LSQRWallModelFvPatchScalarField_H
+#define LSQRWallModelFvPatchScalarField_H
 
 #include "wallModelFvPatchScalarField.H"
 #include "LawOfTheWall.H"
 #include "RootFinder.H"
+#include "MultiCellSampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -66,28 +43,28 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-          Class LOTWWallModelPatchScalarField Declaration
+          Class LSQRWallModelPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class LOTWWallModelFvPatchScalarField
+class LSQRWallModelFvPatchScalarField
 :
     public wallModelFvPatchScalarField
 {
 protected:
-    
+
     // Protected Data
-    
+
         //- Pointer to the root finder
         autoPtr<RootFinder> rootFinder_;
-    
-        //- Pointer to the LOTW to be used
+
+        //- Pointer to the LSQR to be used
         autoPtr<LawOfTheWall> law_;
 
-        //- The sampler
-        autoPtr<SingleCellSampler> sampler_;
-    
+        //- Pointer to the sampler
+        autoPtr<MultiCellSampler> sampler_;
+
     // Protected Member Functions
-        //- Write root finder and LOTW properties to stream
+        //- Write root finder and LSQR properties to stream
         virtual void writeLocalEntries(Ostream &) const;
         
         //- Calculate the turbulence viscosity
@@ -101,20 +78,20 @@ protected:
 public:
 
     //- Runtime type information
-    TypeName("LOTWWallModel");
+    TypeName("LSQRWallModel");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        LOTWWallModelFvPatchScalarField
+        LSQRWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        LOTWWallModelFvPatchScalarField
+        LSQRWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
@@ -122,20 +99,20 @@ public:
         );
 
         //- Construct by mapping given
-        //  LOTWWallModelFvPatchScalarField
+        //  LSQRWallModelFvPatchScalarField
         //  onto a new patch
-        LOTWWallModelFvPatchScalarField
+        LSQRWallModelFvPatchScalarField
         (
-            const LOTWWallModelFvPatchScalarField&,
+            const LSQRWallModelFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct as copy
-        LOTWWallModelFvPatchScalarField
+        LSQRWallModelFvPatchScalarField
         (
-            const LOTWWallModelFvPatchScalarField&
+            const LSQRWallModelFvPatchScalarField&
         );
 
         //- Construct and return a clone
@@ -143,14 +120,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new LOTWWallModelFvPatchScalarField(*this)
+                new LSQRWallModelFvPatchScalarField(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        LOTWWallModelFvPatchScalarField
+        LSQRWallModelFvPatchScalarField
         (
-            const LOTWWallModelFvPatchScalarField&,
+            const LSQRWallModelFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -162,26 +139,27 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new LOTWWallModelFvPatchScalarField(*this, iF)
+                new LSQRWallModelFvPatchScalarField(*this, iF)
             );
         }
 
     // Member functions
 
-        SingleCellSampler & sampler()
-        {
-            return sampler_();
-        }
-
-        const SingleCellSampler & sampler() const
-        {
-            return sampler_();
-        }
+        //- Write to stream
+        virtual void write(Ostream& os) const;
 
         virtual void updateCoeffs();
 
-        //- Write to stream
-        virtual void write(Ostream& os) const;
+        //- Return the sampler
+        const MultiCellSampler & sampler() const
+        {
+            return sampler_();
+        }
+
+        MultiCellSampler & sampler()
+        {
+            return sampler_();
+        }
 };
 
 

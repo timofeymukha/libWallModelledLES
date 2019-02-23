@@ -18,17 +18,19 @@ License
  
 \*---------------------------------------------------------------------------*/
 
-#include "LOTWWallModelFvPatchScalarField.H"
+#include "LSQRWallModelFvPatchScalarField.H"
 #include "fvPatchFieldMapper.H"
 #include "addToRunTimeSelectionTable.H"
 #include "codeRules.H"
-#include "scalarListIOList.H"
+#include "scalarListListIOList.H"
+#include "MultiCellSampler.H"
+#include "SpaldingLawOfTheWall.H"
 
 using namespace std::placeholders;
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
-void Foam::LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
+void Foam::LSQRWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
     wallModelFvPatchScalarField::writeLocalEntries(os);
     rootFinder_->write(os);
@@ -36,7 +38,7 @@ void Foam::LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 }    
     
 Foam::tmp<Foam::scalarField> 
-Foam::LOTWWallModelFvPatchScalarField::calcNut() const
+Foam::LSQRWallModelFvPatchScalarField::calcNut() const
 {
     if (debug)
     {
@@ -50,13 +52,14 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
 
-    const scalarListIOList & wallGradU =
-        sampler_->db().lookupObject<scalarListIOList>("wallGradU");
+    const scalarListListIOList & wallGradU =
+        sampler_->db().lookupObject<scalarListListIOList>("wallGradU");
 
     scalarField magGradU(patch().size());
     forAll(magGradU, i)
     {
-        magGradU[i] = mag(vector(wallGradU[i][0], wallGradU[i][1], wallGradU[i][2]));
+        magGradU[i] = 
+            mag(vector(wallGradU[i][0][0], wallGradU[i][0][1], wallGradU[i][0][2]));
     }
 
     return max
@@ -67,14 +70,14 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
 }
 
 Foam::tmp<Foam::scalarField> 
-Foam::LOTWWallModelFvPatchScalarField::
+Foam::LSQRWallModelFvPatchScalarField::
 calcUTau(const scalarField & magGradU) const
 {  
     const label patchi = patch().index();
     const label patchSize = patch().size();
     
     const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
-    
+
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
        
@@ -101,29 +104,91 @@ calcUTau(const scalarField & magGradU) const
             db().lookupObject<volScalarField>("uTauPredicted")
         );
 
+    const scalarListList & h = sampler().h();
+    const scalarListListList & U = sampler().db().lookupObject<scalarListListIOList>("U");
+
     // Compute uTau for each face
     forAll(uTau, faceI)
     {
+
         // Starting guess using old values
         scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
         
         if (ut > ROOTVSMALL)
         {
+            for (int iterI=0; iterI<5; iterI++)
+            {
+                const label n = h[faceI].size();
+                const scalarList yStar =  h[faceI]*ut/nuw[faceI]; 
+                scalarList u(n);
+                forAll(u, i)
+                {
+                    u[i] =
+                        mag(vector(U[faceI][i][0], U[faceI][i][1], U[faceI][i][2]));
+                }
 
-            // Construct functions dependant on a single parameter (uTau)
-            // from functions given by the law of the wall
-            value = std::bind(&LawOfTheWall::value, &law_(), std::ref(sampler_()), faceI,
-                              _1, nuw[faceI]);
-            
-            derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
-                                   std::ref(sampler_), faceI, _1, nuw[faceI]);
+                // Set default values
+                scalar kappa = 0.4;
+                scalar B = 5.5;
 
-            // Supply the functions to the root finder
-            const_cast<RootFinder &>(rootFinder_()).setFunction(value);
-            const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
+                // Need at least 2 points for a linear fit
+                if (n != 1)
+                {
+                    scalarList uStar = u/ut; 
 
-            // Compute root to get uTau
-            uTau[faceI] = max(0.0, rootFinder_->root(ut));
+                    scalar sumUStar = sum(uStar);
+                    scalar sumLogYStar = sum(log(yStar));
+                    scalar sumULogYStar = sum(uStar*log(yStar));
+                    scalar sumLogYStar2 = sum(sqr(log(yStar)));
+
+                    const scalar kappaNom = n*sumLogYStar2 - sqr(sumLogYStar);
+                    const scalar kappaDenom = n*sumULogYStar - sumUStar*sumLogYStar;
+
+                    kappa = kappaNom/(kappaDenom + VSMALL);
+                    kappa = max(0.05, min(10, kappa));
+
+                    B = (sumUStar - 1/(kappa + VSMALL)*sumLogYStar)/n;
+
+                    //Info<< "y* " << yStar << nl;
+                    //Info<< "u* " << uStar << nl;
+                    Info<< "kappa " << kappa << " B " << B << nl;
+                }
+
+                SpaldingLawOfTheWall law(kappa, B);
+
+                // Construct functions dependant on a single parameter (uTau)
+                // from functions given by the law of the wall
+                value = std::bind
+                (
+                    static_cast<scalar(SpaldingLawOfTheWall::*)(scalar, scalar, scalar, scalar) const>(&SpaldingLawOfTheWall::value),
+                    &law,
+                    u[n-1],
+                    h[faceI][n-1],
+                    _1, 
+                    nuw[faceI]
+                );
+
+                derivValue = std::bind
+                (
+                    static_cast<scalar(SpaldingLawOfTheWall::*)(scalar, scalar, scalar, scalar) const>(&SpaldingLawOfTheWall::derivative),
+                    &law,
+                    u[n-1],
+                    h[faceI][n-1],
+                    _1, 
+                    nuw[faceI]
+                );
+
+                // Supply the functions to the root finder
+                const_cast<RootFinder &>(rootFinder_()).setFunction(value);
+                const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
+
+                //Info<< ut << nl;
+
+                // Compute root to get uTau
+                ut = max(0.0, rootFinder_->root(ut));
+            }
+
+            uTau[faceI] = ut;
 
         }
     }
@@ -142,28 +207,21 @@ calcUTau(const scalarField & magGradU) const
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::LOTWWallModelFvPatchScalarField::
-LOTWWallModelFvPatchScalarField
+Foam::LSQRWallModelFvPatchScalarField::
+LSQRWallModelFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
     wallModelFvPatchScalarField(p, iF)
-{
-    if (debug)
-    {
-        Info<< "Constructing LOTWwallModelFvPatchScalarField (lotw1) "
-            << "from fvPatch and DimensionedField for patch " << patch().name()
-            <<  nl;
-    }
-}
+{}
 
 
-Foam::LOTWWallModelFvPatchScalarField::
-LOTWWallModelFvPatchScalarField
+Foam::LSQRWallModelFvPatchScalarField::
+LSQRWallModelFvPatchScalarField
 (
-    const LOTWWallModelFvPatchScalarField& ptf,
+    const LSQRWallModelFvPatchScalarField& ptf,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -177,19 +235,14 @@ LOTWWallModelFvPatchScalarField
                                 ptf.rootFinder_->maxIter())),
     law_(LawOfTheWall::New(ptf.law_->type(),
                            ptf.law_->constDict())),
-    sampler_(new SingleCellSampler(ptf.sampler()))
+    //sampler_(new MultiCellSampler(p, averagingTime_))
+    sampler_(new MultiCellSampler(ptf.sampler()))
 {
-    if (debug)
-    {
-        Info<< "Constructing LOTWWallModelFvPatchScalarField (lotw2) "
-            << "from copy, fvPatch, DimensionedField, and fvPatchFieldMapper"
-            << " for patch " << patch().name() << nl;
-    }
     law_->addFieldsToSampler(sampler());
 }
 
-Foam::LOTWWallModelFvPatchScalarField::
-LOTWWallModelFvPatchScalarField
+Foam::LSQRWallModelFvPatchScalarField::
+LSQRWallModelFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
@@ -199,87 +252,47 @@ LOTWWallModelFvPatchScalarField
     wallModelFvPatchScalarField(p, iF, dict),
     rootFinder_(RootFinder::New(dict.subDict("RootFinder"))),
     law_(LawOfTheWall::New(dict.subDict("Law"))),
-    sampler_(new SingleCellSampler(p, averagingTime_))
-{
-    if (debug)
-    {
-        Info<< "Constructing LOTWWallModelFvPatchScalarField (lotw3) "
-            << "from fvPatch, DimensionedField, and dictionary for patch "
-            << patch().name() << nl;
-    }
+    sampler_(new MultiCellSampler(p, averagingTime_))
 {
     law_->addFieldsToSampler(sampler());
 }
 
 
-Foam::LOTWWallModelFvPatchScalarField::
-LOTWWallModelFvPatchScalarField
+Foam::LSQRWallModelFvPatchScalarField::
+LSQRWallModelFvPatchScalarField
 (
-    const LOTWWallModelFvPatchScalarField& wfpsf
+    const LSQRWallModelFvPatchScalarField& wfpsf
 )
 :
     wallModelFvPatchScalarField(wfpsf),
     rootFinder_(wfpsf.rootFinder_),
     law_(wfpsf.law_),
     sampler_(wfpsf.sampler_)
-{
-    if (debug)
-    {
-        Info<< "Constructing LOTWWallModelFvPatchScalarField (lotw4)"
-            << "from copy for patch " << patch().name() << nl;           
-    }
-}
+{}
 
 
-Foam::LOTWWallModelFvPatchScalarField::
-LOTWWallModelFvPatchScalarField
+Foam::LSQRWallModelFvPatchScalarField::
+LSQRWallModelFvPatchScalarField
 (
-    const LOTWWallModelFvPatchScalarField& wfpsf,
+    const LSQRWallModelFvPatchScalarField& wfpsf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
     wallModelFvPatchScalarField(wfpsf, iF),
-    rootFinder_
-    (
-        RootFinder::New 
-        (
-            wfpsf.rootFinder_->type(),
-            wfpsf.rootFinder_->f(),
-            wfpsf.rootFinder_->d(),
-            wfpsf.rootFinder_->eps(),
-            wfpsf.rootFinder_->maxIter()
-        )
-    ),
-    law_
-    (
-        LawOfTheWall::New 
-        (
-            wfpsf.law_->type(),
-            wfpsf.law_->constDict(),
-            wfpsf.law_->sampler()
-        )
-    ),
-    sampler_(new SingleCellSampler(wfpsf.sampler_()))
-{
+    rootFinder_(wfpsf.rootFinder_),
+    law_(wfpsf.law_),
+    sampler_(wfpsf.sampler_)
+{}
 
-    if (debug)
-    {
-        Info<< "Constructing LOTWModelFvPatchScalarField (lotw5) "
-            << "from copy and DimensionedField for patch " << patch().name()
-            << nl;
-    }
-
-}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::LOTWWallModelFvPatchScalarField::write(Ostream& os) const
+void Foam::LSQRWallModelFvPatchScalarField::write(Ostream& os) const
 {
     wallModelFvPatchScalarField::write(os);
 }
 
-
-void Foam::LOTWWallModelFvPatchScalarField::updateCoeffs()
+void Foam::LSQRWallModelFvPatchScalarField::updateCoeffs()
 {
     if (updated())
     {
@@ -292,6 +305,7 @@ void Foam::LOTWWallModelFvPatchScalarField::updateCoeffs()
     wallModelFvPatchScalarField::updateCoeffs();
 }
 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -299,7 +313,7 @@ namespace Foam
     makePatchTypeField
     (
         fvPatchScalarField,
-        LOTWWallModelFvPatchScalarField
+        LSQRWallModelFvPatchScalarField
     );
 }
 

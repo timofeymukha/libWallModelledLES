@@ -20,13 +20,13 @@ Class
     Foam::SampledField
 
 Description
-    Base class for a sampled field. Handles sampling of recomputing a 
+    Base class for a sampled field. Handles sampling of and recomputing a 
     specific field. Also registers the field to the object registry
     under the sub-registry wallModelSampling -- patch-name.
     
 
 Contributors/Copyright:
-    2018 Timofey Mukha
+    2018-2019 Timofey Mukha
 
 SourceFiles
     SampledField.C
@@ -37,6 +37,7 @@ SourceFiles
 #define SampledField_H
 
 #include "fixedValueFvPatchFields.H"
+#include "scalarListListIOList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -56,7 +57,12 @@ protected:
     
         const fvMesh & db_;
         
-        const labelList cellIndexList_;
+        //const labelList cellIndexList_;
+
+        //const labelListList cellMultiIndexList_;
+        
+        //- The sampler
+        //const Sampler & sampler_;
                     
 public:
 
@@ -65,14 +71,25 @@ public:
         //- Construct from patch and cell index list
         SampledField
         (
-            const fvPatch & patch,
-            const labelList &  cil
+            const fvPatch & patch
+            //const labelList &  cil
         )
         :
             patch_(patch),
-            db_(patch_.boundaryMesh().mesh()),
-            cellIndexList_(cil)
+            db_(patch_.boundaryMesh().mesh())
         {}
+
+        //- Construct from patch and cell multiindex list
+        //SampledField
+        //(
+            //const fvPatch & patch,
+            //const labelListList &  cil
+        //)
+        //:
+            //patch_(patch),
+            //db_(patch_.boundaryMesh().mesh()),
+            //cellMultiIndexList_(cil)
+        //{}
         
         //- Clone the object
         virtual SampledField* clone() const = 0;
@@ -89,10 +106,10 @@ public:
         }
         
         //- Get the cell index list
-        const labelList & cellIndexList() const
-        {
-            return cellIndexList_;
-        }
+        //const labelList & cellIndexList() const
+        //{
+            //return cellIndexList_;
+        //}
     
         //- Get the patch
         const fvPatch & patch() const
@@ -107,15 +124,22 @@ public:
         virtual label nDims() const = 0;
         
         //- Sample the field
-        virtual void sample(scalarListList &) const = 0;
+        virtual void sample(scalarListList &, const labelList &) const = 0;
+
+        //- Sample the field from multiple cells
+        virtual void sample(scalarListListList &, const labelListList &) const = 0;
         
         //- Project vector field to wall-parallel direction
         void projectVectors(scalarListList &) const;
 
+        void projectVectors(scalarListListList &) const;
+
         void projectVectors(vectorField &) const;
         
         //- Register appropriate fields in the object registry
-        virtual void registerFields() const {}
+        virtual void registerFields() const = 0; 
+
+        virtual void registerFields(const labelListList &) const = 0; 
         
         //- Recompute the field
         virtual void recompute() const = 0;       

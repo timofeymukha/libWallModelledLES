@@ -25,22 +25,55 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::SampledPGradField::sample(Foam::scalarListList & sampledValues) const
+void Foam::SampledPGradField::sample
+(
+    Foam::scalarListList & sampledValues,
+    const Foam::labelList & indexList
+) const
 {
     Info<< "Sampling pressure gradient for patch " << patch_.name() << nl;
     
     const volVectorField & pGradField =
         db().lookupObject<volVectorField>("pGrad");
-    vectorField sampledPGrad(cellIndexList_.size());
+    vectorField sampledPGrad(indexList.size());
     
-    for (int i=0; i<cellIndexList_.size(); i++)
+    for (int i=0; i<indexList.size(); i++)
     {
-        sampledPGrad[i] = pGradField[cellIndexList_[i]];
+        sampledPGrad[i] = pGradField[indexList[i]];
         sampledValues[i] = List<scalar>(3);
         
         for (int j=0; j<3; j++)
         {
             sampledValues[i][j] = sampledPGrad[i][j]; 
+        }
+    }
+    projectVectors(sampledValues);
+}
+
+
+void
+Foam::SampledPGradField::sample
+(
+    Foam::scalarListListList & sampledValues,
+    const Foam::labelListList & indexList
+) const
+{
+    Info<< "Sampling pressure gradient for patch " << patch().name() << nl;
+    
+    const volVectorField & pGradField =
+        db().lookupObject<volVectorField>("pGrad");
+    
+    forAll(indexList, i)
+    {
+        sampledValues[i] = scalarListList(indexList[i].size());
+        forAll(indexList[i], j)
+        {
+            sampledValues[i][j] = scalarList(3);
+
+            forAll(sampledValues[i][j], k)
+            {
+                sampledValues[i][j][k] = pGradField[indexList[i][j]][k]; 
+            }
         }
     }
     projectVectors(sampledValues);
@@ -81,27 +114,27 @@ void Foam::SampledPGradField::registerFields() const
     const objectRegistry & registry =
         db().subRegistry("wallModelSampling").subRegistry(patch_.name());
 
-    vectorField sampledPGrad =
-        vectorField(cellIndexList_.size(), pTraits<vector>::zero);
+    scalarListList sampledPGrad(patch().size());
 
     if (db().thisDb().foundObject<volScalarField>("p"))
     {
         //recompute();
         
-        const volVectorField & pGrad = 
-            db().lookupObject<volVectorField>("pGrad");
-        
         forAll(sampledPGrad, i)
         {
-            sampledPGrad[i] = pGrad[cellIndexList_[i]];
+            sampledPGrad[i] = scalarList(3, 0.0);
+            //forAll(sampledPGrad[i], j)
+            //{
+                //sampledPGrad[i][j] = 0; //pGrad[cellIndexList_[i]][j];
+            //}
         }
-
-        projectVectors(sampledPGrad);
+        
+        //projectVectors(sampledPGrad);
     }
     
     db().thisDb().store
     (          
-        new IOField<vector>
+        new IOList<scalarList>
         (
             IOobject
             (
@@ -117,6 +150,76 @@ void Foam::SampledPGradField::registerFields() const
     
 }
 
+
+void Foam::SampledPGradField::registerFields
+(
+    const labelListList & indexListList
+) const
+{
+    // Grab h to copy bcs from it.
+    const volScalarField & h = db().lookupObject<volScalarField>("h");
+    
+    if (!db().foundObject<volVectorField>("pGrad"))
+    {
+        db().thisDb().store
+        (     
+            new volVectorField
+            (
+                IOobject
+                (
+                    "pGrad",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                db(),
+                dimensionedVector
+                (
+                    "pGrad",
+                    dimLength/sqr(dimTime),
+                    pTraits<vector>::zero
+                ),
+                h.boundaryField().types()
+            )
+        );
+    }
+
+    const objectRegistry & registry =
+        db().subRegistry("wallModelSampling").subRegistry(patch_.name());
+
+    scalarListListList sampledPGrad(patch().size());
+
+    if (db().thisDb().foundObject<volScalarField>("p"))
+    {
+        forAll(sampledPGrad, i)
+        {
+            sampledPGrad[i] = scalarListList(indexListList[i].size());
+
+            forAll(sampledPGrad[i], j)
+            {
+                sampledPGrad[i][j] = scalarList(3, 0.0);
+            }
+        }
+    }
+    
+    db().thisDb().store
+    (          
+        new scalarListListIOList
+        (
+            IOobject
+            (
+                "pGrad",
+                db().time().timeName(),
+                registry,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            sampledPGrad
+         )
+    );
+    
+}
 
 void Foam::SampledPGradField::recompute() const
 {

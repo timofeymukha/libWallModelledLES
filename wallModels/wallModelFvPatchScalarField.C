@@ -55,6 +55,24 @@ void Foam::wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 
 void Foam::wallModelFvPatchScalarField::createFields() const
 {
+    if (!db().found("h"))
+    {
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "h",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh()
+            )
+        );
+    }
       
     const volScalarField & h = db().lookupObject<volScalarField>("h");
     
@@ -117,9 +135,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    averagingTime_(0), 
-    sampler_(patch(), averagingTime_),
-    wallGradU_(sampler_.db().lookupObject<vectorField>("wallGradU"))
+    averagingTime_(0)
 {
     if (debug)
     {
@@ -130,7 +146,6 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     
     checkType();
     createFields();
-   
 }
 
 
@@ -143,9 +158,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
-    averagingTime_(ptf.averagingTime_), 
-    sampler_(ptf.sampler_),
-    wallGradU_(sampler_.db().lookupObject<vectorField>("wallGradU"))
+    averagingTime_(ptf.averagingTime_) 
 {
     if (debug)
     {
@@ -155,6 +168,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     }
 
     checkType();   
+    createFields();
 }
 
 
@@ -166,9 +180,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF, dict),
-    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0)),
-    sampler_(patch(), averagingTime_),
-    wallGradU_(sampler_.db().lookupObject<vectorField>("wallGradU"))
+    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0))
 {
     if (debug)
     {
@@ -188,9 +200,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf),  
-    averagingTime_(wmpsf.averagingTime_),
-    sampler_(wmpsf.sampler_),
-    wallGradU_(sampler_.db().lookupObject<vectorField>("wallGradU"))    
+    averagingTime_(wmpsf.averagingTime_)
 {
     if (debug)
     {
@@ -209,9 +219,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf, iF),       
-    averagingTime_(wmpsf.averagingTime_),
-    sampler_(wmpsf.sampler_),
-    wallGradU_(sampler_.db().lookupObject<vectorField>("wallGradU"))
+    averagingTime_(wmpsf.averagingTime_)
 {
     if (debug)
     {
@@ -235,8 +243,8 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     label pI = patch().index();
     
     // Sample fields
-    sampler_.recomputeFields();
-    sampler_.sample();
+    //sampler().recomputeFields();
+    //sampler().sample();
             
     // Compute nut and assign
     operator==(calcNut());

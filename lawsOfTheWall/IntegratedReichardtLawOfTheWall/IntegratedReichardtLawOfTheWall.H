@@ -98,16 +98,14 @@ public:
         //- Construct provided dictionary and cell index list
         IntegratedReichardtLawOfTheWall
         (
-            const dictionary &,
-            Sampler &
+            const dictionary &
         );
         
         //- Construct provided TypeName and dictionary and cell index list
         IntegratedReichardtLawOfTheWall
         (
             const word & lawname,
-            const dictionary &,
-            Sampler &    
+            const dictionary &
         );
 
     // Destructor
@@ -143,12 +141,15 @@ public:
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(scalar index, scalar uTau, scalar nu) const;
-        
-        //- Return the value of the derivative of the implicit function
-        //  defining the law
-        virtual scalar derivative(scalar index, scalar uTau, scalar nu) const;
-        
+        virtual scalar value(const SingleCellSampler & sampler, scalar index,
+                             scalar uTau, scalar nu) const;
+
+        //- Return the value of the  derivative of the implicit function
+        //  defining the law.
+        virtual scalar
+        derivative(const SingleCellSampler & sampler, scalar index,
+                   scalar uTau, scalar nu) const;
+
         //- The log-term in the integrated law
         scalar logTerm(scalar y, scalar uTau, scalar nu) const;
         

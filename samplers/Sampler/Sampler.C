@@ -29,10 +29,6 @@ License
 #include "SampledVelocityField.H"
 #include "SampledPGradField.H"
 #include "SampledWallGradUField.H"
-#include "treeDataCell.H"
-#include "treeDataFace.H"
-#include "treeBoundBox.H"
-#include "indexedOctree.H"
 #include "codeRules.H"
 #include "patchDistMethod.H"
 
@@ -42,105 +38,59 @@ License
 namespace Foam
 {
     defineTypeNameAndDebug(Sampler, 0);
+    defineRunTimeSelectionTable(Sampler, PatchAndAveragingTime);
 }
+
+// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
+
+Foam::autoPtr<Foam::Sampler> Foam::Sampler::New 
+(
+    const word & samplerName,
+    const fvPatch & p,
+    scalar averagingTime
+)
+{
+    PatchAndAveragingTimeConstructorTable::iterator cstrIter =
+    PatchAndAveragingTimeConstructorTablePtr_->find(samplerName);
+
+    if (cstrIter == PatchAndAveragingTimeConstructorTablePtr_->end())
+    {
+        FatalErrorIn
+        (
+            "Sampler::New(const word&, const fvPatch & p, scalar averagingTime"
+            
+        )   << "Unknown Sampler type "
+            << samplerName << nl << nl
+            << "Valid Sampler types are :" << nl
+            << PatchAndAveragingTimeConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
+    }
+
+    return cstrIter()(samplerName, p, averagingTime);
+}  
+
+Foam::autoPtr<Foam::Sampler> Foam::Sampler::New 
+(
+    const dictionary & dict,
+    const fvPatch & p
+)
+{
+    word samplerName = dict.lookupOrDefault<word>("type", "SingleCellSampler");
+    scalar averagingTime = dict.lookupOrDefault<scalar>("averagingTime", 0.0);
+
+    return Foam::Sampler::New(samplerName, p, averagingTime);
+}  
+
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
 void Foam::Sampler::createFields()
 {
       
-    if (!mesh_.thisDb().found("h"))
-    {
-        if (debug)
-        {
-            Info<< "Sampler: Creating h field" << nl;
-        }
-
-        mesh_.thisDb().store
-        (
-            new volScalarField
-            (
-                IOobject
-                (
-                    "h",
-                    mesh_.time().timeName(),
-                    mesh_,
-                    IOobject::MUST_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh_
-            )
-        );
-    }
 
     volScalarField & h = 
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
 
-    // Try to read field with distance from cell to patches
-    
-    if (debug)
-    {
-        Info<< "Sampler: Creating dist field" << nl;
-    }
-
-    if (!mesh_.thisDb().found("dist"))
-    {
-        mesh_.thisDb().store
-        (
-            new volScalarField
-            (
-                IOobject
-                (
-                    "dist",
-                    mesh_.time().timeName(),
-                    mesh_,
-                    IOobject::READ_IF_PRESENT,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh_,
-                dimensionedScalar("dist", dimLength,0),
-                h.boundaryField().types()
-            )
-        );
-    }
-    volScalarField & dist = 
-        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField>("dist"));
-
-    if (mag(max(dist.internalField()).value()) < VSMALL)
-    {
-        if (debug)
-        {
-            Info<< "Sampler: Computing dist field" << nl;
-        }
-
-        labelHashSet patchIDs(1);
-        patchIDs.insert(patch().index());
-        //Info<<patchIDs << nl;
-
-        dictionary methodDict = dictionary();
-        methodDict.lookupOrAddDefault(word("method"), word("meshWave"));
-
-        if (debug)
-        {
-            Info<< "    Initializing patchDistanceMethod" << nl;
-        }
-
-        autoPtr<patchDistMethod>  pdm_
-        (
-            patchDistMethod::New
-            (
-                methodDict,
-                mesh_,
-                patchIDs
-            )
-        );
-
-        if (debug)
-        {
-            Info<< "    Computing" << nl;
-        }
-        pdm_->correct(dist);
-    }
     
    // Field that marks cells that are used for sampling
     if (!mesh_.thisDb().found("samplingCells"))
@@ -172,7 +122,7 @@ void Foam::Sampler::createFields()
 }
 
 
-void Foam::Sampler::createIndexList()
+Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
 {
     const label patchIndex = patch().index();
     
@@ -180,10 +130,67 @@ void Foam::Sampler::createIndexList()
     volScalarField & h = 
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
 
-    
-    h_ = h.boundaryField()[patchIndex];
+    if (debug)
+    {
+        Info<< "Sampler: Creating dist field" << nl;
+    }
 
-    scalar maxH = max(h_);
+    autoPtr<volScalarField> dist( 
+            new volScalarField
+            (
+                IOobject
+                (
+                    "dist",
+                    mesh_.time().timeName(),
+                    mesh_,
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::NO_WRITE
+                ),
+                mesh_,
+                dimensionedScalar("dist", dimLength,0),
+                h.boundaryField().types()
+            ));
+
+    bool precomputedDist = mag(max(dist().internalField()).value()) > VSMALL;
+    
+    if (debug)
+    {
+        Info<<"Sampler: using precumputed distance field" << nl;
+    }
+
+    if (!precomputedDist)
+    {
+
+        labelHashSet patchIDs(1);
+        patchIDs.insert(patch().index());
+
+        dictionary methodDict = dictionary();
+        methodDict.lookupOrAddDefault(word("method"), word("meshWave"));
+
+        if (debug)
+        {
+            Info<< "Initializing patchDistanceMethod" << nl;
+        }
+
+        autoPtr<patchDistMethod>  pdm_
+        (
+            patchDistMethod::New
+            (
+                methodDict,
+                mesh_,
+                patchIDs
+            )
+        );
+
+        if (debug)
+        {
+            Info<< "Sampler: Computing dist field" << nl;
+        }
+        pdm_->correct(dist());
+    }
+    
+    
+    scalar maxH = max(h.boundaryField()[patchIndex]);
     if (debug)
     {
         Info << "Sampler: The maximum h value is " << maxH << nl;
@@ -196,13 +203,13 @@ void Foam::Sampler::createIndexList()
         Info<< "Sampler: Constructing mesh bounding box" << nl;
     }
 
-    treeBoundBox boundBox(mesh_.bounds());
-
-    labelList searchCellLabels(C.size());
+    tmp<labelField> tSearchCellLabels(new labelField(C.size()));
+#ifdef FOAM_NEW_TMP_RULES
+    labelField & searchCellLabels = tSearchCellLabels.ref();
+#else
+    labelField & searchCellLabels = tSearchCellLabels();
+#endif
     label nSearchCells = 0;
-
-    const volScalarField & distanceField = 
-        mesh_.lookupObject<volScalarField> ("dist");
 
     if (debug)
     {
@@ -212,7 +219,7 @@ void Foam::Sampler::createIndexList()
 
     forAll(searchCellLabels, i)
     {
-        if (distanceField[i] < 2*maxH)
+        if (dist()[i] < 2*maxH)
         {
             searchCellLabels[nSearchCells] = i;
             nSearchCells++;
@@ -226,136 +233,8 @@ void Foam::Sampler::createIndexList()
         Info<< "Sampler: Found " << searchCellLabels.size() << " cells" << nl;
         Info<< "Sampler: Constructing cell octree" << nl;
     }
-    indexedOctree<treeDataCell> * treePtr = new indexedOctree<treeDataCell>
-    (
-        treeDataCell
-        (
-            false,
-            mesh_,
-            searchCellLabels,
-            polyMesh::CELL_TETS
-        ),
-        boundBox,
-        8,
-        10,
-        3.0
-    );
 
-    if (treePtr->nodes().empty() && (maxH != 0))
-    {
-        Warning
-            << "Sampler: max(h) is " << maxH << " but no cell centres within "
-            << "distance 2*max(h) were found. "
-            << "Will sample from wall-adjacent cells." << nl; 
-    }
-
-
-    if (debug)
-    {
-        Info<< "Sampler: Constructing face octree" << nl;
-    }
-
-    List<label> bndFaces(mesh_.nFaces() - mesh_.nInternalFaces());
-    forAll(bndFaces, i)
-    {
-        bndFaces[i] = mesh_.nInternalFaces() + i;
-    }
-
-    indexedOctree<treeDataFace> * boundaryTreePtr =
-    new indexedOctree<treeDataFace>
-    (
-        treeDataFace
-        (
-            false,
-            mesh_,
-            bndFaces
-        ),
-        boundBox,
-        8,
-        10,
-        3.0
-    );
-
-
-    // Grab face centres, normal and adjacent cells' centres to each patch face
-    const vectorField & faceCentres = patch().Cf();
-    const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField faceNormals = tfaceNormals();
-    const tmp<vectorField> tcellCentres = patch().Cn();
-    const vectorField cellCentres = tcellCentres();
-    
-    // Grab the global indices of adjacent cells 
-    const UList<label> & faceCells = patch().faceCells();
-
-    vector point;
-    //label pih;
-    pointIndexHit pih;
-
-    if (debug)
-    {
-        Info << "Sampler: Starting search for sampling cells" << nl;
-    }
-    
-    forAll(faceCentres, i)
-    {
-        // Grab the point h away along the face normal
-        point = faceCentres[i] - faceNormals[i]*h_[i];
-
-        // If h is zero, or the point is outside the domain,
-        // set it to distance to adjacent cell's centre
-        // Set the cellIndexList component accordingly
-        bool inside = boundaryTreePtr->getVolumeType(point) == volumeType::INSIDE;
-        if ((h_[i] == 0) || (!inside) || (treePtr->nodes().empty()))
-        {
-            h_[i] = mag(cellCentres[i] - faceCentres[i]);
-            indexList_[i] = faceCells[i];          
-        }
-        else
-        {
-
-            pih = treePtr->findNearest(point, treePtr->bb().mag());
-            indexList_[i] = searchCellLabels[pih.index()];
-            h_[i] = mag(C[indexList_[i]] - faceCentres[i]);
-        }
-    }
-    if (debug)
-    {
-        Info << "Sampler: Done" << nl;
-    }
-    
-    // Assign computed h_ to the global h field
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-    h.boundaryFieldRef()[patch().index()]
-#else        
-    h.boundaryField()[patch().index()]
-#endif
-    ==
-        h_;
-    
-    // Grab samplingCells field
-    volScalarField & samplingCells = 
-        const_cast<volScalarField &>
-        (
-            mesh_.lookupObject<volScalarField> ("samplingCells")
-        );
-    
-    forAll(indexList_, i)
-    {
-        samplingCells[indexList_[i]] = patchIndex; 
-    }
-}
-
-
-void Foam::Sampler::createLengthList()
-{
-    // Cell volumes
-    const scalarField & V = mesh_.V();
-    
-    forAll(lengthList_, i)
-    {
-        lengthList_[i] = pow(V[indexList_[i]], 1.0/3.0);
-    }
-    
+    return tSearchCellLabels;
 }
 
 
@@ -384,13 +263,15 @@ Foam::Sampler::Sampler
 )
 :
     patch_(p),
-    indexList_(p.size()),
-    lengthList_(p.size()),
-    h_(p.size(), 0),
     averagingTime_(averagingTime),
     mesh_(patch_.boundaryMesh().mesh()),
     sampledFields_(0)
 {
+    if (debug)
+    {
+        Info << "Sampler: Constructing from patch and avrg time" << nl;
+    }
+
     if (!mesh_.foundObject<objectRegistry>("wallModelSampling"))
     {
         objectRegistry * subObr = new objectRegistry
@@ -421,30 +302,30 @@ Foam::Sampler::Sampler
     subObr->store();
 
     createFields();
-    createIndexList();
-    createLengthList();
-    
-    addField
-    (
-            new SampledVelocityField(patch_, indexList_)     
-    );
-    
-    addField
-    (
-            new SampledWallGradUField(patch_, indexList_)     
-    );
+}
+
+Foam::Sampler::Sampler
+(
+    const word & samplerName,
+    const fvPatch & p,
+    scalar averagingTime
+)
+:
+    Sampler(p, averagingTime)
+{
 }
 
 Foam::Sampler::Sampler(const Sampler & copy)
 :
     patch_(copy.patch_),
-    indexList_(copy.indexList_),
-    lengthList_(copy.lengthList_),
-    h_(copy.h_),
     averagingTime_(copy.averagingTime_),
     mesh_(copy.mesh_),
     sampledFields_(copy.sampledFields_.size())
 {
+    if (debug)
+    {
+        Info << "Sampler: Running copy constructor" << nl;
+    }
     forAll(copy.sampledFields_, i)
     {
         sampledFields_[i] = copy.sampledFields_[i]->clone();
@@ -455,71 +336,19 @@ Foam::Sampler::Sampler(const Sampler & copy)
 
 Foam::Sampler::~Sampler()
 {
+    if (debug)
+    {
+        Info << "Sampler: Running destructor" << nl;
+    }
+
     forAll(sampledFields_, i)
     {
         delete sampledFields_[i];
     }
 }
 
-
-void Foam::Sampler::sample() const
-{
-    // Ensure this processor has part of the patch
-    if (!patch().size())
-    {
-        return;
-    }    
-    
-    // Weight for time-averaging, default to 1 i.e no averaging.
-    scalar eps = 1;
-    if (averagingTime_ > mesh_.time().deltaTValue())
-    {
-        eps = mesh_.time().deltaTValue()/averagingTime_;
-    }
-
-    forAll(sampledFields_, fieldI)
-    {
-
-        scalarListList sampledList(patch().size());
-        sampledFields_[fieldI]->sample(sampledList);
-        
-        if (sampledFields_[fieldI]->nDims() == 3)
-        {
-            vectorField sampledField(patch_.size());
-            listListToField<vector>(sampledList, sampledField);
-            
-            vectorField & storedValues = const_cast<vectorField &>
-            (
-                db().lookupObject<vectorField>(sampledFields_[fieldI]->name())
-            );
-            storedValues = eps*sampledField + (1 - eps)*storedValues;
-        }     
-
-    }
-}
-
-
-template<class Type>
-void Foam::Sampler::listListToField
-(
-    const scalarListList & list,
-    Field<Type> & field    
-) const
-{
-    forAll(list, i)
-    {
-        Type element;
-        forAll(list[i], j)
-        {
-            element[j] = list[i][j];
-        }
-        field[i] = element;
-    }
-}
-
 void Foam::Sampler::addField(SampledField * field)
 {
-//    sampledFields_.append(field);
     sampledFields_.setSize(sampledFields_.size() + 1, field);
 }
 

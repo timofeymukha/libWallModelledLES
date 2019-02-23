@@ -244,6 +244,7 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF),
+    sampler_(new SingleCellSampler(p, averagingTime_)),
     meshes_(patch().size()),
     maxIter_(10),
     eps_(1e-3),
@@ -273,6 +274,7 @@ ODEWallModelFvPatchScalarField
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
     eddyViscosity_(EddyViscosity::New(ptf.eddyViscosity_->type(),
                    ptf.eddyViscosity_->constDict(), sampler_)),
+    sampler_(new SingleCellSampler(ptf.sampler())),
     meshes_(ptf.meshes_),
     maxIter_(ptf.maxIter_),
     eps_(ptf.eps_),
@@ -299,6 +301,7 @@ ODEWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(p, iF, dict),
     eddyViscosity_(EddyViscosity::New(dict.subDict("EddyViscosity"), sampler_)),
+    sampler_(new SingleCellSampler(p, averagingTime_)),
     meshes_(patch().size()),
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
     eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
@@ -325,6 +328,7 @@ ODEWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(wfpsf),
     eddyViscosity_(wfpsf.eddyViscosity_),
+    sampler_(wfpsf.sampler_),
     meshes_(wfpsf.meshes_),
     maxIter_(wfpsf.maxIter_),
     eps_(wfpsf.eps_),
@@ -351,6 +355,7 @@ ODEWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(wfpsf, iF),
     eddyViscosity_(wfpsf.eddyViscosity_),
+    sampler_(wfpsf.sampler_),
     meshes_(wfpsf.meshes_),
     maxIter_(wfpsf.maxIter_),
     eps_(wfpsf.eps_),
@@ -371,6 +376,20 @@ ODEWallModelFvPatchScalarField
 void Foam::ODEWallModelFvPatchScalarField::write(Ostream& os) const
 {
     wallModelFvPatchScalarField::write(os);
+}
+
+
+void Foam::ODEWallModelFvPatchScalarField::updateCoeffs()
+{
+    if (updated())
+    {
+        return;
+    }
+
+    sampler().recomputeFields();
+    sampler().sample();
+
+    wallModelFvPatchScalarField::updateCoeffs();
 }
 
 // ************************************************************************* //

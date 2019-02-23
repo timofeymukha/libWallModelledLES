@@ -23,7 +23,7 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         1;
+endTime         0.01;
 
 deltaT          0.01
 
@@ -51,7 +51,10 @@ functions
 
 DebugSwitches
 {
-//   wallModel        1;
+   Sampler          1;
+   MultiCellSampler 1;
+   SingleCellSampler 1;
+   wallModel        1;
 //   LOTWWallModel    1;
 //   LawOfTheWall     2;
 //    Spalding   2;
