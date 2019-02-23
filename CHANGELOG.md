@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.4.1
+This a hotfix release, squashing a bug in one of the constructors of the LOTW model.
+
 ## v0.4.0 ##
 
 ### For users ###
