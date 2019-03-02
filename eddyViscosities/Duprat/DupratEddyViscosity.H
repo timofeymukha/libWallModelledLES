@@ -97,10 +97,10 @@ public:
     // Constructors
         
         //- Construct provided dictionary and sampler
-        DupratEddyViscosity(const dictionary &, Sampler &);
+        DupratEddyViscosity(const dictionary &);
         
         //- Construct provided name, dictionary and sampler
-        DupratEddyViscosity(const word &, const dictionary &, Sampler &);
+        DupratEddyViscosity(const word &, const dictionary &);
 
     // Destructor
         virtual ~DupratEddyViscosity() {};
@@ -127,7 +127,14 @@ public:
 
         //- Return the value of nut
         virtual scalarList
-        value(label index, const scalarList & y, scalar uTau, scalar nu) const;
+        value
+        (
+            const SingleCellSampler & sampler,
+            const label index,
+            const scalarList & y,
+            const scalar uTau,
+            const scalar nu
+        ) const;
         
 };
 

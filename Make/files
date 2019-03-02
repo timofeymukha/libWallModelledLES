@@ -15,9 +15,14 @@ lawsOfTheWall/WernerWengleLawOfTheWall/WernerWengleLawOfTheWall.C
 lawsOfTheWall/IntegratedWernerWengleLawOfTheWall/IntegratedWernerWengleLawOfTheWall.C
 lawsOfTheWall/IntegratedReichardtLawOfTheWall/IntegratedReichardtLawOfTheWall.C
 lawsOfTheWall/ReichardtLawOfTheWall/ReichardtLawOfTheWall.C
+eddyViscosities/EddyViscosity/EddyViscosity.C
+eddyViscosities/VanDriest/VanDriestEddyViscosity.C
+eddyViscosities/Duprat/DupratEddyViscosity.C
 wallModels/wallModelFvPatchScalarField.C
 wallModels/LOTWWallModelFvPatchScalarField.C
 wallModels/LSQRWallModelFvPatchScalarField.C
+wallModels/EquilibriumODEWallModelFvPatchScalarField.C
+wallModels/PGradODEWallModelFvPatchScalarField.C
 sgsModels/makeSGSModel.C
 
 LIB = $(FOAM_USER_LIBBIN)/libWallModelledLES

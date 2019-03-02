@@ -26,7 +26,7 @@ Description
     of eddy viscosity on a wall-normal 1D mesh associated with each face.
 
 Contributors/Copyright:
-    2016-2018 Timofey Mukha
+    2016-2019 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -38,7 +38,7 @@ SourceFiles
 #define EddyViscosity_H
 
 #include "Field.H"
-#include "Sampler.H"
+#include "SingleCellSampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -56,29 +56,24 @@ protected:
     //- Dictionary holding the model constants
     dictionary constDict_;
     
-    Sampler & sampler_;
-
 public:
 
     TypeName("EddyViscosity");
     
     // Constructors
     
-        EddyViscosity(const dictionary & dict, Sampler & sampler)
+        EddyViscosity(const dictionary & dict)
         :
-        constDict_(dict),
-        sampler_(sampler)
+        constDict_(dict)
         {}
         
         EddyViscosity
         (
             const word& modelName,
-            const dictionary & dict,
-            Sampler & sampler
+            const dictionary & dict
         )
         :
-        constDict_(dict),
-        sampler_(sampler)
+        constDict_(dict)
         {}
 
     // Destructor
@@ -88,15 +83,13 @@ public:
     // Selectors
         static autoPtr<EddyViscosity> New 
         (
-            const dictionary & dict,
-            Sampler & sampler
+            const dictionary & dict
         );
 
         static autoPtr<EddyViscosity> New 
         (
             const word & modelName,
-            const dictionary & dict,
-            Sampler & sampler
+            const dictionary & dict
         );
         
     // Member Functions
@@ -108,10 +101,11 @@ public:
         virtual scalarList
         value
         (
-            label index,
+            const SingleCellSampler & sampler,
+            const label index,
             const scalarList & y,
-            scalar uTau,
-            scalar nu
+            const scalar uTau,
+            const scalar nu
         ) const = 0;
         
         //- Write information about the law to stream
@@ -124,6 +118,7 @@ public:
         }
         
      // RTS tables
+
         // RTS table "Dictionary"    
         declareRunTimeSelectionTable
         (
@@ -131,10 +126,9 @@ public:
             EddyViscosity,
             Dictionary,
             (
-                const dictionary & dict,
-                Sampler & sampler
+                const dictionary & dict
             ),
-            (dict, sampler)
+            (dict)
         );
 
         // RTS table "TypeAndDictionary"    
@@ -145,10 +139,9 @@ public:
             TypeAndDictionary,
             (
                 const word & modelName,
-                const dictionary & dict,
-                Sampler & sampler
+                const dictionary & dict
             ),
-            (modelName, dict, sampler)
+            (modelName, dict)
         ); 
 
 };

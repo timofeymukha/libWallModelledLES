@@ -32,11 +32,10 @@ namespace Foam
 
 Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
 (
-    const dictionary & dict,
-    Sampler & sampler
+    const dictionary & dict
 )
 :
-    EddyViscosity(dict, sampler),
+    EddyViscosity(dict),
     APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
 {
@@ -50,18 +49,11 @@ Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
 Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
 (
     const word & modelName,
-    const dictionary & dict,
-    Sampler & sampler
+    const dictionary & dict
 )
 :
-    EddyViscosity(modelName, dict, sampler),
-    APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
-    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
+    VanDriestEddyViscosity(dict)
 {
-    if (debug)
-    {        
-        printCoeffs();
-    }
 }
 
 
@@ -78,10 +70,11 @@ void Foam::VanDriestEddyViscosity::printCoeffs() const
 
 Foam::scalarList Foam::VanDriestEddyViscosity::value
 (
-    label index, 
+    const SingleCellSampler & sampler,
+    const label index, 
     const scalarList & y,
-    scalar uTau,
-    scalar nu
+    const scalar uTau,
+    const scalar nu
 ) const
 {  
     const scalarList yPlus = y*uTau/nu;

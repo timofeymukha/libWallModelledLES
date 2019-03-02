@@ -48,7 +48,7 @@ Description
     \endverbatim
 
 Contributors/Copyright:
-    2016-2018 Timofey Mukha
+    2016-2019 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -89,10 +89,10 @@ public:
     // Constructors
       
         //- Construct provided dictionary and sampler
-        VanDriestEddyViscosity(const dictionary &, Sampler &);
+        VanDriestEddyViscosity(const dictionary &);
         
         //- Construct provided name, dictionary and sampler
-        VanDriestEddyViscosity(const word &, const dictionary &, Sampler &);
+        VanDriestEddyViscosity(const word &, const dictionary &);
 
     // Destructor
         virtual ~VanDriestEddyViscosity() {};
@@ -114,8 +114,15 @@ public:
 
         //- Return the value of nut
         virtual scalarList
-        value(label index, const scalarList & y, scalar uTau, scalar nu) const;
-        
+        value
+        (
+            const SingleCellSampler & sampler,
+            const label index,
+            const scalarList & y,
+            const scalar uTau,
+            const scalar nu
+        ) const;
+
 };
 
 

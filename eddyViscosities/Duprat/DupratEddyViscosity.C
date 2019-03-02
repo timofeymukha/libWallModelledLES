@@ -35,23 +35,14 @@ namespace Foam
 
 Foam::DupratEddyViscosity::DupratEddyViscosity
 (
-    const dictionary & dict,
-    Sampler & sampler
+    const dictionary & dict
 )
 :
-    EddyViscosity(dict, sampler),
+    EddyViscosity(dict),
     APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
     beta_(dict.lookupOrDefault<scalar>("beta", 0.78))
 {
-    sampler_.addField
-    (
-        new SampledPGradField
-        (
-            sampler_.patch(), sampler_.indexList()
-        )
-    );
-     
     if (debug)
     {        
         printCoeffs();
@@ -62,28 +53,11 @@ Foam::DupratEddyViscosity::DupratEddyViscosity
 Foam::DupratEddyViscosity::DupratEddyViscosity
 (
     const word & modelName,
-    const dictionary & dict,
-    Sampler & sampler
+    const dictionary & dict
 )
 :
-    EddyViscosity(modelName, dict, sampler),
-    APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
-    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
-    beta_(dict.lookupOrDefault<scalar>("beta", 0.78))
+    DupratEddyViscosity(dict)
 {
-    
-    sampler_.addField
-    (
-        new SampledPGradField
-        (
-            sampler_.patch(), sampler_.indexList()
-        )
-    );
-    
-    if (debug)
-    {        
-        printCoeffs();
-    }
 }
 
 
@@ -101,14 +75,15 @@ void Foam::DupratEddyViscosity::printCoeffs() const
 
 Foam::scalarList Foam::DupratEddyViscosity::value
 (
-    label index,
+    const SingleCellSampler & sampler,
+    const label index,
     const scalarList & y,
-    scalar uTau,
-    scalar nu
+    const scalar uTau,
+    const scalar nu
 ) const
 {  
     const vectorField & pGrad =
-        sampler_.db().lookupObject<vectorField>("pGrad");
+        sampler.db().lookupObject<vectorField>("pGrad");
     
     scalar uP = pow(nu*mag(pGrad[index]), 1./3);
     scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
