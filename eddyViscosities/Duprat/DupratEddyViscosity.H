@@ -106,6 +106,9 @@ public:
         virtual ~DupratEddyViscosity() {};
 
     // Member Functions
+
+        //- Add necessary sampled fields to the sampler
+        virtual void addFieldsToSampler(Sampler & sampler);
         
         scalar APlus() const
         {

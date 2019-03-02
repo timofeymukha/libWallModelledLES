@@ -93,6 +93,9 @@ public:
         );
         
     // Member Functions
+
+        //- Add necessary sampled fields to the sampler
+        virtual void addFieldsToSampler(Sampler & sampler){}
     
         //- Print info
         virtual void printCoeffs() const = 0; 

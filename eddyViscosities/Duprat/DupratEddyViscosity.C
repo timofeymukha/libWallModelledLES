@@ -63,6 +63,11 @@ Foam::DupratEddyViscosity::DupratEddyViscosity
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void Foam::DupratEddyViscosity::addFieldsToSampler(Sampler & sampler)
+{
+    sampler.addField(new SampledPGradField(sampler.patch()));
+}
+
 void Foam::DupratEddyViscosity::printCoeffs() const
 {
     Info<< nl << "Duprat eddy viscosity model" << nl;
