@@ -42,7 +42,7 @@ source
 ) const
 {
     // source term = pressure gradient vector projected on the patch face
-    source = sampler_.db().lookupObject<vectorField>("pGrad");
+    source = sampler_().db().lookupObject<vectorField>("pGrad");
 }
 
 
@@ -64,7 +64,7 @@ PGradODEWallModelFvPatchScalarField
             <<  nl;
     }
     
-    sampler_.addField(new SampledPGradField(patch(), sampler_.indexList()));
+    sampler_().addField(new SampledPGradField(patch()));
 }
 
 
@@ -105,7 +105,7 @@ PGradODEWallModelFvPatchScalarField
             <<  nl;
     }
     
-    sampler_.addField(new SampledPGradField(patch(), sampler_.indexList()));
+    sampler_().addField(new SampledPGradField(patch()));
 }
 
 

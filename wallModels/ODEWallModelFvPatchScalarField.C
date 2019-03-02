@@ -205,10 +205,13 @@ calcUTau(const scalarField & magGradU) const
                 
                 if ((debug > 1) && (iterI == maxIter_-1))
                 {
-                    WarningIn("Foam::ODEWallModelFvPatchScalarField::calcUTau()")
+                    WarningIn
+                    (
+                        "Foam::ODEWallModelFvPatchScalarField::calcUTau()"
+                    )
                         << "tau_w did not converge to desired tolerance "
                         << eps_ << ". Error value: " << error << nl;
-                }    
+                }
             }
             
             uTau[faceI] = max(0.0, sqrt(tau));
