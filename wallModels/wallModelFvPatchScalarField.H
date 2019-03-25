@@ -63,6 +63,10 @@ class wallModelFvPatchScalarField
 :
     public fixedValueFvPatchScalarField
 {
+private:
+    //- Fraction of CPU time spent on wall modelling
+    scalar cpuTimeFraction_;
+    
 protected:
 
     // Protected data
@@ -134,16 +138,14 @@ public:
 
     // Member functions
       
-        //- Return the list of cell-indices that are used to sample data
-        //labelList cellIndexList() const
-        //{
-            //return sampler_.indexList();
-        //}
-        
-                
         scalar averagingTime() const
         {
             return averagingTime_;
+        }
+
+        scalar cpuTimeFraction() const
+        {
+            return cpuTimeFraction_;
         }
         
         

@@ -135,6 +135,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF),
+    cpuTimeFraction_(0),
     averagingTime_(0)
 {
     if (debug)
@@ -158,6 +159,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
+    cpuTimeFraction_(0),
     averagingTime_(ptf.averagingTime_) 
 {
     if (debug)
@@ -180,6 +182,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF, dict),
+    cpuTimeFraction_(0),
     averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0))
 {
     if (debug)
@@ -200,6 +203,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf),  
+    cpuTimeFraction_(wmpsf.cpuTimeFraction_),
     averagingTime_(wmpsf.averagingTime_)
 {
     if (debug)
@@ -219,6 +223,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf, iF),       
+    cpuTimeFraction_(wmpsf.cpuTimeFraction_),
     averagingTime_(wmpsf.averagingTime_)
 {
     if (debug)
@@ -239,13 +244,12 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     {
         return;
     }
+
+
+    scalar startCPUTime = db().time().elapsedCpuTime();
     
     label pI = patch().index();
     
-    // Sample fields
-    //sampler().recomputeFields();
-    //sampler().sample();
-            
     // Compute nut and assign
     operator==(calcNut());
     
@@ -271,6 +275,11 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
 #endif
     ==
         (nut + nu.boundaryField()[pI])*wallGradU;
+
+    cpuTimeFraction_ += (db().time().elapsedCpuTime() - startCPUTime);
+    Info<< "Wall modelling time consumption = "
+        << label(100*cpuTimeFraction_/(db().time().elapsedCpuTime() + SMALL))
+        << "%" << nl;
 }
 
 
@@ -282,4 +291,3 @@ void Foam::wallModelFvPatchScalarField::write(Ostream& os) const
 }
 
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
