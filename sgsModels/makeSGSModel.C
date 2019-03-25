@@ -44,10 +44,6 @@ createBaseTurbulenceModel
     transportModel
 );
 
-#define makeRASModel(Type)                                                     \
-    makeTemplatedTurbulenceModel                                               \
-    (transportModelIncompressibleTurbulenceModel, RAS, Type)
-
 #define makeLESModel(Type)                                                     \
     makeTemplatedTurbulenceModel                                               \
     (transportModelIncompressibleTurbulenceModel, LES, Type)
