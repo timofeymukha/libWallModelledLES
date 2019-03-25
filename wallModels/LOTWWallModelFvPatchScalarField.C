@@ -218,9 +218,26 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf),
-    rootFinder_(wfpsf.rootFinder_),
-    law_(wfpsf.law_),
-    sampler_(wfpsf.sampler_)
+    rootFinder_
+    (
+        RootFinder::New 
+        (
+            wfpsf.rootFinder_->type(),
+            wfpsf.rootFinder_->f(),
+            wfpsf.rootFinder_->d(),
+            wfpsf.rootFinder_->eps(),
+            wfpsf.rootFinder_->maxIter()
+        )
+    ),
+    law_
+    (
+        LawOfTheWall::New 
+        (
+            wfpsf.law_->type(),
+            wfpsf.law_->constDict()
+        )
+    ),
+    sampler_(new SingleCellSampler(wfpsf.sampler_()))
 {
     if (debug)
     {
