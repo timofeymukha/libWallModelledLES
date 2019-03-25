@@ -21,6 +21,7 @@ License
 #include "ODEWallModelFvPatchScalarField.H"
 #include "addToRunTimeSelectionTable.H"
 #include "codeRules.H"
+#include "scalarListIOList.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -73,7 +74,7 @@ void Foam::ODEWallModelFvPatchScalarField::createMeshes()
            
     forAll(patch(), faceI)
     {
-        scalar dx = sampler_.h()[faceI]/(n -1);
+        scalar dx = sampler().h()[faceI]/(n -1);
 
         meshes_[faceI].resize(n, 0.0);
         forAll(meshes_[faceI], pointI)
@@ -107,7 +108,16 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
     
-    scalarField magGradU = mag(wallGradU_);
+    const scalarListIOList & wallGradU =
+        sampler_->db().lookupObject<scalarListIOList>("wallGradU");
+
+    scalarField magGradU(patch().size());
+
+    forAll(magGradU, i)
+    {
+        magGradU[i] = mag(vector(wallGradU[i][0], wallGradU[i][1], wallGradU[i][2]));
+    }
+
     return max
     (
         scalar(0),
@@ -134,7 +144,7 @@ calcUTau(const scalarField & magGradU) const
     // Compute the source term
     source(sourceField);
     
-    const vectorField & U = sampler_.db().lookupObject<vectorField>("U");
+    const vectorField & U = sampler().db().lookupObject<vectorField>("U");
     scalarField magU = mag(U);
  
     // Turbulent viscosity
@@ -164,7 +174,7 @@ calcUTau(const scalarField & magGradU) const
             for (int iterI=0; iterI<maxIter_; iterI++)
             {
                 scalarList nutValues = 
-                    eddyViscosity_->value(faceI, y, sqrt(tau), nuw[faceI]);
+                    eddyViscosity_->value(sampler(), faceI, y, sqrt(tau), nuw[faceI]);
 
                 scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
                 scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));
@@ -275,8 +285,14 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
-    eddyViscosity_(EddyViscosity::New(ptf.eddyViscosity_->type(),
-                   ptf.eddyViscosity_->constDict(), sampler_)),
+    eddyViscosity_
+    (
+        EddyViscosity::New
+        (
+            ptf.eddyViscosity_->type(),
+            ptf.eddyViscosity_->constDict()
+        )
+    ),
     sampler_(new SingleCellSampler(ptf.sampler())),
     meshes_(ptf.meshes_),
     maxIter_(ptf.maxIter_),
@@ -303,7 +319,7 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF, dict),
-    eddyViscosity_(EddyViscosity::New(dict.subDict("EddyViscosity"), sampler_)),
+    eddyViscosity_(EddyViscosity::New(dict.subDict("EddyViscosity"))),
     sampler_(new SingleCellSampler(p, averagingTime_)),
     meshes_(patch().size()),
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
@@ -330,8 +346,15 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf),
-    eddyViscosity_(wfpsf.eddyViscosity_),
-    sampler_(wfpsf.sampler_),
+    eddyViscosity_
+    (
+        EddyViscosity::New
+        (
+            wfpsf.eddyViscosity_->type(),
+            wfpsf.eddyViscosity_->constDict()
+        )
+    ),
+    sampler_(new SingleCellSampler(wfpsf.sampler_())),
     meshes_(wfpsf.meshes_),
     maxIter_(wfpsf.maxIter_),
     eps_(wfpsf.eps_),
@@ -357,8 +380,15 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf, iF),
-    eddyViscosity_(wfpsf.eddyViscosity_),
-    sampler_(wfpsf.sampler_),
+    eddyViscosity_
+    (
+        EddyViscosity::New
+        (
+            wfpsf.eddyViscosity_->type(),
+            wfpsf.eddyViscosity_->constDict()
+        )
+    ),
+    sampler_(new SingleCellSampler(wfpsf.sampler_())),
     meshes_(wfpsf.meshes_),
     maxIter_(wfpsf.maxIter_),
     eps_(wfpsf.eps_),

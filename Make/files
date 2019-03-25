@@ -22,6 +22,7 @@ wallModels/wallModelFvPatchScalarField.C
 wallModels/LOTWWallModelFvPatchScalarField.C
 wallModels/LSQRWallModelFvPatchScalarField.C
 wallModels/EquilibriumODEWallModelFvPatchScalarField.C
+wallModels/ODEWallModelFvPatchScalarField.C
 wallModels/PGradODEWallModelFvPatchScalarField.C
 sgsModels/makeSGSModel.C
 
