@@ -112,8 +112,8 @@ public:
         :
         f_(rootFinderDummy),
         d_(rootFinderDummy),
-        eps_(dict.lookupOrDefault<scalar>("eps", 1e-2)),
-        maxIter_(dict.lookupOrDefault<label>("maxIter", 10))
+        eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
+        maxIter_(dict.lookupOrDefault<label>("maxIter", 30))
         {};
 
 
