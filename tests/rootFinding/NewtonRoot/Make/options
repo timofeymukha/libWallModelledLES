@@ -3,6 +3,10 @@ EXE_INC = -std=c++0x \
 -I$(LIB_SRC)/OpenFOAM/lnInclude \
 -I$(LIB_SRC)/meshTools/lnInclude \
 -I$(LIB_SRC)/sampling/lnInclude \
+-I$(FOAM_RUN)/../googletest/googletest/include/gtest \
+-I$(FOAM_RUN)/../googletest/googletest/include \
+-I$(FOAM_RUN)/../googletest/googlemock/include/gmock \
+-I$(FOAM_RUN)/../googletest/googlemock/include \
 -I../../../lnInclude
 
 
@@ -12,4 +16,6 @@ EXE_LIBS = \
 -lfiniteVolume \
 -lOpenFOAM \
 -lmeshTools \
+-lgtest \
+-lgmock \
 -lsampling

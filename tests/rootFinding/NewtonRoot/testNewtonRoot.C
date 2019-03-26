@@ -1,6 +1,9 @@
 #include "fvCFD.H"
 #include "NewtonRootFinder.H"
 #include <functional>
+#include "gtest.h"
+#undef Log
+#include "gmock/gmock.h"
 
 using std::placeholders::_1;
 
@@ -17,27 +20,93 @@ struct Foo
     }
 };
 
-int main(int argc, char *argv[])
+TEST(NetwonRootFinder, full_constructor)
 {
-    argList args(argc, argv);
+    Foo foo;
+    label maxIter = 100;
+    scalar eps = 1e-5;
+    std::function<scalar(scalar)> f = std::bind(&Foo::val, &foo, _1, 3);
+    std::function<scalar(scalar)> d = std::bind(&Foo::deriv, &foo, _1);
+
+    NewtonRootFinder newton = NewtonRootFinder("Newton", f, d, eps, maxIter);
+    ASSERT_EQ(newton.maxIter(), maxIter);
+    ASSERT_DOUBLE_EQ(newton.eps(), eps);
+    ASSERT_DOUBLE_EQ(newton.f(1), -2.);
+    ASSERT_DOUBLE_EQ(newton.d(1), 3.);
+}
+
+TEST(NetwonRootFinder, f_d_dict_constructor)
+{
+    Foo foo;
+    std::function<scalar(scalar)> f = std::bind(&Foo::val, &foo, _1, 3);
+    std::function<scalar(scalar)> d = std::bind(&Foo::deriv, &foo, _1);
+    dictionary dict = dictionary();
+    dict.add("eps", 1e-5);
+    dict.add("maxIter", 100);
+
+    NewtonRootFinder newton = NewtonRootFinder(f, d, dict);
+    ASSERT_EQ(newton.maxIter(), 100);
+    ASSERT_DOUBLE_EQ(newton.eps(), 1e-5);
+    ASSERT_DOUBLE_EQ(newton.f(1), -2.);
+    ASSERT_DOUBLE_EQ(newton.d(1), 3.);
+}
+
+TEST(NetwonRootFinder, dict_constructor)
+{
+    dictionary dict = dictionary();
+    dict.add("eps", 1e-5);
+    dict.add("maxIter", 100);
+
+    NewtonRootFinder newton = NewtonRootFinder(dict);
+    ASSERT_EQ(newton.maxIter(), 100);
+    ASSERT_DOUBLE_EQ(newton.eps(), 1e-5);
+    ASSERT_DOUBLE_EQ(newton.f(10), 0);
+    ASSERT_DOUBLE_EQ(newton.d(10), 0);
+}
+
+TEST(NetwonRootFinder, dict_default_values)
+{
+    dictionary dict = dictionary();
+
+    NewtonRootFinder newton = NewtonRootFinder(dict);
+    ASSERT_EQ(newton.maxIter(), 30);
+    ASSERT_DOUBLE_EQ(newton.eps(), 1e-3);
+}
+
+
+TEST(NewtonRootFinder, root)
+{
 
     Foo foo;
-    label maxIter = 20;
+    label maxIter = 100;
 
-    std::function<scalar(scalar)> value = std::bind(&Foo::val, &foo, _1, 4);
+    std::function<scalar(scalar)> value = std::bind(&Foo::val, &foo, _1, 0);
     std::function<scalar(scalar)> deriv = std::bind(&Foo::deriv, &foo, _1);
 
     // Construct normally
     NewtonRootFinder rootFinder = 
-        NewtonRootFinder("Newton", value, deriv, 1e-10, maxIter);
+        NewtonRootFinder("Newton", value, deriv, 1e-14, maxIter);
 
-    Info<< rootFinder.root(2.) << endl;;
+    ASSERT_NEAR(rootFinder.root(2.), 0.0, 1e-10);
+
 
     // Now through the RTS
     Foam::autoPtr<RootFinder> rootFinder2 =
         RootFinder::New("Newton", value, deriv, 1e-10, maxIter);
 
-    Info<< rootFinder2->root(2.);
+    ASSERT_NEAR(rootFinder.root(2.), 0.0, 1e-10);
+}
 
-    return 0;
+int mainArgc;
+char** mainArgv;
+
+int main(int argc, char **argv)
+{
+    ::testing::InitGoogleMock(&argc, argv);
+    ::testing::InitGoogleTest(&argc, argv);
+
+    mainArgc = argc;
+    mainArgv = argv;
+
+    return RUN_ALL_TESTS();
 }
