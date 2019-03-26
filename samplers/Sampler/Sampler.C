@@ -113,7 +113,7 @@ void Foam::Sampler::createFields()
                     IOobject::AUTO_WRITE
                 ),
                 patch().boundaryMesh().mesh(),
-                dimensionedScalar("samplingCells", dimless,0),
+                dimensionedScalar("samplingCells", dimless, -1),
                 h.boundaryField().types()
             )
         );
