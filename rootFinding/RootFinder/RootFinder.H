@@ -182,6 +182,18 @@ public:
         {
             return d_;
         }
+
+        //- Compute the value of f
+        scalar f(scalar v) const
+        {
+            return f_(v);
+        }
+
+        //- Compute the value of d
+        scalar d(scalar v) const
+        {
+            return d_(v);
+        }
         
         virtual void write(Foam::Ostream& os) const;
 
