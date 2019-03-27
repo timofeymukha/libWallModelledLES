@@ -36,6 +36,64 @@ void Foam::LSQRWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
     rootFinder_->write(os);
     law_->write(os);
 }    
+
+void Foam::LSQRWallModelFvPatchScalarField::createFields() const
+{
+    const volScalarField & h = db().lookupObject<volScalarField>("h");
+    
+    if (!db().found("kappa"))
+    {
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "kappa",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                dimensionedScalar
+                (
+                    "kappa",
+                    dimless,
+                    0
+                ),
+                h.boundaryField().types()
+            )
+        );
+    }
+
+    if (!db().found("B"))
+    {
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "B",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                dimensionedScalar
+                (
+                    "B",
+                    dimless,
+                    0
+                ),
+                h.boundaryField().types()
+            )
+        );
+    }
+
+}
     
 Foam::tmp<Foam::scalarField> 
 Foam::LSQRWallModelFvPatchScalarField::calcNut() const
@@ -92,6 +150,10 @@ calcUTau(const scalarField & magGradU) const
 #else        
         tuTau();
 #endif
+
+    // the kappa and B fields to be computed
+    scalarField kappa(patchSize, 0.0);
+    scalarField B(patchSize, 0.0);
     
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
@@ -102,6 +164,18 @@ calcUTau(const scalarField & magGradU) const
         const_cast<volScalarField &>
         (
             db().lookupObject<volScalarField>("uTauPredicted")
+        );
+
+    volScalarField & kappaField = 
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("kappa")
+        );
+
+    volScalarField & BField = 
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("B")
         );
 
     const scalarListList & h = sampler().h();
@@ -128,8 +202,8 @@ calcUTau(const scalarField & magGradU) const
                 }
 
                 // Set default values
-                scalar kappa = 0.4;
-                scalar B = 5.5;
+                kappa[faceI] = 0.4;
+                B[faceI] = 5.5;
 
                 // Need at least 2 points for a linear fit
                 if (n != 1)
@@ -144,17 +218,17 @@ calcUTau(const scalarField & magGradU) const
                     const scalar kappaNom = n*sumLogYStar2 - sqr(sumLogYStar);
                     const scalar kappaDenom = n*sumULogYStar - sumUStar*sumLogYStar;
 
-                    kappa = kappaNom/(kappaDenom + VSMALL);
-                    kappa = max(0.05, min(10, kappa));
+                    kappa[faceI] = kappaNom/(kappaDenom + VSMALL);
+                    kappa[faceI]  = max(0.05, min(10, kappa[faceI]));
 
-                    B = (sumUStar - 1/(kappa + VSMALL)*sumLogYStar)/n;
+                    B[faceI]  = (sumUStar - 1/(kappa[faceI]  + VSMALL)*sumLogYStar)/n;
 
                     //Info<< "y* " << yStar << nl;
                     //Info<< "u* " << uStar << nl;
-                    Info<< "kappa " << kappa << " B " << B << nl;
+                    Info<< "kappa " << kappa[faceI]  << " B " << B[faceI]  << nl;
                 }
 
-                SpaldingLawOfTheWall law(kappa, B);
+                SpaldingLawOfTheWall law(kappa[faceI] , B[faceI] );
 
                 // Construct functions dependant on a single parameter (uTau)
                 // from functions given by the law of the wall
@@ -195,12 +269,14 @@ calcUTau(const scalarField & magGradU) const
     
     // Assign computed uTau to the boundary field of the global field
 #ifdef FOAM_NEW_GEOMFIELD_RULES
-    uTauField.boundaryFieldRef()[patchi]
+    uTauField.boundaryFieldRef()[patchi] == uTau;
+    kappaField.boundaryFieldRef()[patchi] == kappa;
+    BField.boundaryFieldRef()[patchi] == B;
 #else        
-    uTauField.boundaryField()[patchi]
+    uTauField.boundaryField()[patchi] == uTau;
+    kappaField.boundaryField()[patchi] == kappa;
+    BField.boundaryField()[patchi] == B;
 #endif
-    ==
-        uTau;
     return tuTau;
 }
 
@@ -215,7 +291,9 @@ LSQRWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF)
-{}
+{
+    createFields();
+}
 
 
 Foam::LSQRWallModelFvPatchScalarField::
@@ -239,6 +317,7 @@ LSQRWallModelFvPatchScalarField
     sampler_(new MultiCellSampler(ptf.sampler()))
 {
     law_->addFieldsToSampler(sampler());
+    createFields();
 }
 
 Foam::LSQRWallModelFvPatchScalarField::
@@ -255,6 +334,7 @@ LSQRWallModelFvPatchScalarField
     sampler_(new MultiCellSampler(p, averagingTime_))
 {
     law_->addFieldsToSampler(sampler());
+    createFields();
 }
 
 
@@ -265,9 +345,26 @@ LSQRWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf),
-    rootFinder_(wfpsf.rootFinder_),
-    law_(wfpsf.law_),
-    sampler_(wfpsf.sampler_)
+    rootFinder_
+    (
+        RootFinder::New 
+        (
+            wfpsf.rootFinder_->type(),
+            wfpsf.rootFinder_->f(),
+            wfpsf.rootFinder_->d(),
+            wfpsf.rootFinder_->eps(),
+            wfpsf.rootFinder_->maxIter()
+        )
+    ),
+    law_
+    (
+        LawOfTheWall::New 
+        (
+            wfpsf.law_->type(),
+            wfpsf.law_->constDict()
+        )
+    ),
+    sampler_(new MultiCellSampler(wfpsf.sampler_()))
 {}
 
 
@@ -279,9 +376,26 @@ LSQRWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf, iF),
-    rootFinder_(wfpsf.rootFinder_),
-    law_(wfpsf.law_),
-    sampler_(wfpsf.sampler_)
+    rootFinder_
+    (
+        RootFinder::New 
+        (
+            wfpsf.rootFinder_->type(),
+            wfpsf.rootFinder_->f(),
+            wfpsf.rootFinder_->d(),
+            wfpsf.rootFinder_->eps(),
+            wfpsf.rootFinder_->maxIter()
+        )
+    ),
+    law_
+    (
+        LawOfTheWall::New 
+        (
+            wfpsf.law_->type(),
+            wfpsf.law_->constDict()
+        )
+    ),
+    sampler_(new MultiCellSampler(wfpsf.sampler_()))
 {}
 
 

@@ -66,6 +66,8 @@ protected:
     // Protected Member Functions
         //- Write root finder and LSQR properties to stream
         virtual void writeLocalEntries(Ostream &) const;
+        //- Create fields and add to registry
+        virtual void createFields() const;
         
         //- Calculate the turbulence viscosity
         virtual tmp<scalarField> calcNut() const;
