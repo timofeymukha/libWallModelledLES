@@ -65,7 +65,7 @@ class wallModelFvPatchScalarField
 {
 private:
     //- Fraction of CPU time spent on wall modelling
-    scalar cpuTimeFraction_;
+    scalar consumedTime_;
     
 protected:
 
@@ -143,9 +143,9 @@ public:
             return averagingTime_;
         }
 
-        scalar cpuTimeFraction() const
+        scalar consumedTime() const
         {
-            return cpuTimeFraction_;
+            return consumedTime_;
         }
         
         

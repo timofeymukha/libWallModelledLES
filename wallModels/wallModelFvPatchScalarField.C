@@ -135,7 +135,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    cpuTimeFraction_(0),
+    consumedTime_(0),
     averagingTime_(0)
 {
     if (debug)
@@ -159,7 +159,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
-    cpuTimeFraction_(0),
+    consumedTime_(0),
     averagingTime_(ptf.averagingTime_) 
 {
     if (debug)
@@ -182,7 +182,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF, dict),
-    cpuTimeFraction_(0),
+    consumedTime_(0),
     averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0))
 {
     if (debug)
@@ -203,7 +203,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf),  
-    cpuTimeFraction_(wmpsf.cpuTimeFraction_),
+    consumedTime_(wmpsf.consumedTime_),
     averagingTime_(wmpsf.averagingTime_)
 {
     if (debug)
@@ -223,7 +223,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(wmpsf, iF),       
-    cpuTimeFraction_(wmpsf.cpuTimeFraction_),
+    consumedTime_(wmpsf.consumedTime_),
     averagingTime_(wmpsf.averagingTime_)
 {
     if (debug)
@@ -276,10 +276,10 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     ==
         (nut + nu.boundaryField()[pI])*wallGradU;
 
-    cpuTimeFraction_ += (db().time().elapsedCpuTime() - startCPUTime);
-    Info<< "Wall modelling time consumption = "
-        << label(100*cpuTimeFraction_/(db().time().elapsedCpuTime() + SMALL))
-        << "%" << nl;
+    consumedTime_ += (db().time().elapsedCpuTime() - startCPUTime);
+    Info<< "Wall modelling time consumption = " << consumedTime_ 
+        << "s "  << 100*consumedTime_/(db().time().elapsedCpuTime() + SMALL)
+        << "% of total " << nl;
 }
 
 
