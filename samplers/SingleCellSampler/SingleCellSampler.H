@@ -66,10 +66,10 @@ protected:
     // Protected Member Functions
                     
         //- Create list of cell-indices from where data is sampled
-        virtual void createIndexList();
+        void createIndexList() override;
         
         //- Compute the length-scales
-        virtual void createLengthList();
+        void createLengthList() override;
         
 public:
 
@@ -100,7 +100,7 @@ public:
 
     // Member functions
         //- Add field for sampling
-        virtual void addField(SampledField *);
+        void addField(SampledField *) override;
 
         //- Return the list of cell-indices that are used to sample data
         const labelList & indexList() const
@@ -127,7 +127,7 @@ public:
         }
         
         //- Sample the fields
-        virtual void sample() const; 
+        void sample() const override; 
 };
 
 
