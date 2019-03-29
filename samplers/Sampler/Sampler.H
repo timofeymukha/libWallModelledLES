@@ -164,6 +164,12 @@ public:
             return mesh_;
         }
 
+        //- Get averaging time
+        scalar averagingTime() const
+        {
+            return averagingTime_;
+        }
+
         //- Recompute fields to be sampled
         void recomputeFields() const;
         
