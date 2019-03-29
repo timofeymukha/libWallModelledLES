@@ -187,7 +187,7 @@ void Foam::MultiCellSampler::createIndexList()
 
             while (true)
             {
-                Info << "Start: " << startP << " End: " << endP << nl;
+                //Info << "Start: " << startP << " End: " << endP << nl;
                 pih = treePtr->findLine(startP, endP);
 
                 if (pih.hit())
@@ -199,8 +199,8 @@ void Foam::MultiCellSampler::createIndexList()
                     indexList_[i][n] = searchCellLabels[cellI];
                     h_[i][n] = mag(C[searchCellLabels[cellI]] - faceCentres[i]);
 
-                    Info<< "Hit face: " << hitP << nl;
-                    Info<< "CC: " << C[searchCellLabels[cellI]] << nl;
+                    //Info<< "Hit face: " << hitP << nl;
+                    //Info<< "CC: " << C[searchCellLabels[cellI]] << nl;
                     
 
                     n++;
@@ -233,7 +233,7 @@ void Foam::MultiCellSampler::createIndexList()
                     h_[i].setSize(n);
                     break;
                 }
-            }
+           }
 
         }
         hPatch[i] = h_[i][h_[i].size() -1];
