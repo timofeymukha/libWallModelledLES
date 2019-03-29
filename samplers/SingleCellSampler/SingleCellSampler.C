@@ -235,13 +235,11 @@ Foam::SingleCellSampler::SingleCellSampler
     
     addField
     (
-            //new SampledVelocityField(patch_, indexList_)     
             new SampledVelocityField(patch_)     
     );
     
     addField
     (
-            //new SampledWallGradUField(patch_, indexList_)     
             new SampledWallGradUField(patch_)     
     );
 }
