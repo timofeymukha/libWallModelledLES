@@ -6,49 +6,17 @@
 #include "gmock/gmock.h"
 
 
-class SingleCellSamplerTest : public ::testing::Test
+class SamplerTest : public ::testing::Test
 {
     public:
-
-        //argList * argsPtr;
-        //autoPtr<Time> runTimePtr;
-        //autoPtr<fvMesh> meshPtr;
-
-        SingleCellSamplerTest()
-        //:
-            //argsPtr(nullptr),
-            //runTimePtr(nullptr),
-            //meshPtr(nullptr)
+        SamplerTest()
         {
-            //extern int mainArgc;
-            //extern char** mainArgv;
-
             system("cp -r ../../testCases/channel_flow/system .");
             system("cp -r ../../testCases/channel_flow/constant .");
             system("cp -r ../../testCases/channel_flow/0 .");
-
-            //argsPtr = new argList(mainArgc, mainArgv);
-            //runTimePtr.reset(new Time(Foam::Time::controlDictName, *argsPtr));
-            //Time & runTime = runTimePtr();
-
-            //meshPtr.reset
-            //(
-                //new fvMesh
-                //(
-                    //IOobject
-                    //(
-                        //Foam::fvMesh::defaultRegion,
-                        //runTime.timeName(),
-                        //runTime,
-                        //Foam::IOobject::MUST_READ
-                    //)
-                //)
-            //);
-
-
         }
 
-        ~SingleCellSamplerTest()
+        ~SamplerTest()
         {
             system("rm -r system");
             system("rm -r constant");
@@ -56,7 +24,51 @@ class SingleCellSamplerTest : public ::testing::Test
         }
 };
 
-TEST_F(SingleCellSamplerTest, FullConstructor)
+namespace Foam
+{
+    class DummySampler : public Sampler
+    {
+        public:
+            TypeName("DummySampler");
+
+            DummySampler
+            (
+                const fvPatch& p,
+                scalar averagingTime
+            )
+            :
+                Sampler(p, averagingTime)
+            {}
+
+            DummySampler
+            (
+                const word & samplerName,
+                const fvPatch & p,
+                scalar averagingTime
+            )
+            :
+                Sampler(samplerName, p, averagingTime)
+            {}
+            
+            DummySampler(const DummySampler &) = default;
+
+            void sample() const override
+            {} 
+
+            void createIndexList() override
+            {}
+            
+        // Destructor
+            virtual ~DummySampler()
+            {}
+            
+    };
+
+    defineTypeNameAndDebug(DummySampler, 0);
+    addToRunTimeSelectionTable(Sampler, DummySampler, PatchAndAveragingTime);
+}
+
+TEST_F(SamplerTest, FullConstructor)
 {
     extern int mainArgc;
     extern char** mainArgv;
@@ -83,14 +95,11 @@ TEST_F(SingleCellSamplerTest, FullConstructor)
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    DummySampler sampler("SingleCellSampler", patch, 3.0);
 
-    ASSERT_EQ(&sampler.patch(), &patch);
-    ASSERT_EQ(sampler.averagingTime(), 3.0);
-    ASSERT_EQ(&sampler.mesh(), &mesh);
-    ASSERT_EQ(sampler.indexList().size(), patch.size());
-    ASSERT_EQ(sampler.lengthList().size(), patch.size());
-    ASSERT_EQ(sampler.h().size(), patch.size());
+    ASSERT_EQ(&sampler.Sampler::patch(), &patch);
+    ASSERT_EQ(sampler.Sampler::averagingTime(), 3.0);
+    ASSERT_EQ(&sampler.Sampler::mesh(), &mesh);
 
     EXPECT_EXIT(delete argsPtr, ::testing::ExitedWithCode(0), "");
 }
