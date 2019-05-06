@@ -49,6 +49,12 @@ namespace Foam
             {
                 return Sampler::project(field);
             }
+
+            tmp<volScalarField> wrapDistanceField() const
+            {
+                //Info << Sampler::distanceField();
+                return Sampler::distanceField();
+            }
             
     };
 
@@ -208,12 +214,8 @@ TEST_F(SamplerTest, Copy)
     ASSERT_EQ(sampler.averagingTime(), sampler2.averagingTime());
     ASSERT_EQ(&sampler.mesh(), &sampler2.mesh());
     ASSERT_EQ(sampler.nSampledFields(), sampler2.nSampledFields());
-    //ASSERT_TRUE(mesh.foundObject<objectRegistry>("wallModelSampling"));
-    //ASSERT_TRUE
-    //(
-        //mesh.subRegistry("wallModelSampling").foundObject<objectRegistry>(patch.name())
-    //);
 }
+
 
 TEST_F(SamplerTest, Project)
 {
@@ -234,6 +236,7 @@ TEST_F(SamplerTest, Project)
     }
 }
 
+
 TEST_F(SamplerTest, AddField)
 {
     extern argList * mainArgs;
@@ -247,7 +250,53 @@ TEST_F(SamplerTest, AddField)
     
     sampler.addField(new SampledVelocityField(patch));
     ASSERT_EQ(sampler.Sampler::nSampledFields(), 1);
+}
 
+
+TEST_F(SamplerTest, DistanceFieldBottom)
+{
+    extern argList * mainArgs;
+    argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+#include "createMesh.H"
+    createSamplingHeightField(mesh);
+
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    DummySampler sampler("SingleCellSampler", patch, 3.0);
+
+    tmp<volScalarField> tDist = sampler.wrapDistanceField();
+    const volScalarField & dist = tDist();
+
+    const vectorField C = mesh.C();
+    
+    forAll (C, i)
+    {
+        ASSERT_NEAR(dist[i], C[i][1], 1e-8);
+    }
+}
+
+TEST_F(SamplerTest, DistanceFieldTop)
+{
+    extern argList * mainArgs;
+    argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+#include "createMesh.H"
+    createSamplingHeightField(mesh);
+
+
+    const fvPatch & patch = mesh.boundary()["topWall"];
+    DummySampler sampler("SingleCellSampler", patch, 3.0);
+
+    tmp<volScalarField> tDist = sampler.wrapDistanceField();
+    const volScalarField & dist = tDist();
+
+    const vectorField C = mesh.C();
+    
+    forAll (C, i)
+    {
+        ASSERT_NEAR(dist[i], 2 - C[i][1], 1e-8);
+    }
 }
 
 Foam::argList * mainArgs;
