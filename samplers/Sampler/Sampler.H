@@ -74,24 +74,24 @@ protected:
         
         //- The patch to build the list for
         const fvPatch & patch_;    
-    
+
         //- Time-averaging scale of the sampled values
         scalar averagingTime_;
-        
+
         //- The global object registry
         const fvMesh & mesh_;
-        
+
         //- List of sampled fields
         List<SampledField *> sampledFields_;
-                      
+
     // Protected Member Functions
-                    
+
         //- Create list of cell-indices from where data is sampled
         virtual void createIndexList() = 0;
-        
+
         //- Compute the length-scales
         virtual void createLengthList(){}
-        
+
         //- Project a vector field
         void project(vectorField & field) const;
 
@@ -168,6 +168,11 @@ public:
         scalar averagingTime() const
         {
             return averagingTime_;
+        }
+
+        label nSampledFields() const
+        {
+            return sampledFields_.size();
         }
 
         //- Recompute fields to be sampled
