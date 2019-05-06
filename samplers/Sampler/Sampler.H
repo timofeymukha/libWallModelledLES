@@ -100,6 +100,9 @@ protected:
 
         //- Compute cell indices suitable for searching sampling cells
         tmp<labelField> findSearchCellLabels() const;
+
+        //- Compute distance field
+        tmp<volScalarField> distanceField() const;
         
 public:
 

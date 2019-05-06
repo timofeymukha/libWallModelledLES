@@ -88,11 +88,8 @@ void Foam::Sampler::createFields()
 {
       
 
-    volScalarField & h = 
-        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
-
-    
-   // Field that marks cells that are used for sampling
+    const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
+    // Field that marks cells that are used for sampling
     if (!mesh_.thisDb().found("samplingCells"))
     {
         if (debug)
@@ -122,34 +119,33 @@ void Foam::Sampler::createFields()
 }
 
 
-Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
+Foam::tmp<Foam::volScalarField> Foam::Sampler::distanceField() const
 {
-    const label patchIndex = patch().index();
     
     // Grab h for the current patch
-    volScalarField & h = 
-        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
-
+    const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
     if (debug)
     {
         Info<< "Sampler: Creating dist field" << nl;
     }
 
-    autoPtr<volScalarField> dist( 
-            new volScalarField
+    tmp<volScalarField> dist
+    ( 
+        new volScalarField
+        (
+            IOobject
             (
-                IOobject
-                (
-                    "dist",
-                    mesh_.time().timeName(),
-                    mesh_,
-                    IOobject::READ_IF_PRESENT,
-                    IOobject::NO_WRITE
-                ),
+                "dist",
+                mesh_.time().timeName(),
                 mesh_,
-                dimensionedScalar("dist", dimLength,0),
-                h.boundaryField().types()
-            ));
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE
+            ),
+            mesh_,
+            dimensionedScalar("dist", dimLength, 0),
+            h.boundaryField().types()
+        )
+    );
 
     bool precomputedDist = mag(max(dist().internalField()).value()) > VSMALL;
     
@@ -160,7 +156,6 @@ Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
 
     if (!precomputedDist)
     {
-
         labelHashSet patchIDs(1);
         patchIDs.insert(patch().index());
 
@@ -172,7 +167,7 @@ Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
             Info<< "Initializing patchDistanceMethod" << nl;
         }
 
-        autoPtr<patchDistMethod>  pdm_
+        autoPtr<patchDistMethod> pdm
         (
             patchDistMethod::New
             (
@@ -186,9 +181,18 @@ Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
         {
             Info<< "Sampler: Computing dist field" << nl;
         }
-        pdm_->correct(dist());
+        pdm->correct(dist.ref());
     }
-    
+
+    return dist;
+}
+
+
+Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
+{
+    label patchIndex = patch().index(); 
+    const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
+    tmp<volScalarField> dist = distanceField();
     
     scalar maxH = max(h.boundaryField()[patchIndex]);
     if (debug)
