@@ -5,6 +5,7 @@
 #undef Log
 #include "gtest.h"
 #include "gmock/gmock.h"
+#include "fixtures.H"
 
 
 namespace Foam
@@ -67,46 +68,8 @@ namespace Foam
     addToRunTimeSelectionTable(Sampler, DummySampler, PatchAndAveragingTime);
 }
 
-class SamplerTest : public ::testing::Test
-{
-
-
-    public:
-        SamplerTest()
-        {
-            system("cp -r testCases/channel_flow/system .");
-            system("cp -r testCases/channel_flow/constant .");
-            system("cp -r testCases/channel_flow/0 .");
-
-        }
-
-        ~SamplerTest()
-        {
-            system("rm -r system");
-            system("rm -r constant");
-            system("rm -r 0");
-        }
-};
-
-
-void createSamplingHeightField(const fvMesh & mesh)
-{
-    mesh.time().store
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "h",
-                mesh.time().timeName(),
-                mesh,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh
-        )
-    );
-}
+class SamplerTest : public ChannelFlow
+{};
 
 
 TEST_F(SamplerTest, FullConstructor)
@@ -114,7 +77,8 @@ TEST_F(SamplerTest, FullConstructor)
     extern argList * mainArgs;
     const argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
-#include "createMesh.H"
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -137,7 +101,8 @@ TEST_F(SamplerTest, NewNamePatchAveragingTime)
     extern argList * mainArgs;
     const argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
-#include "createMesh.H"
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
 
 
@@ -162,7 +127,8 @@ TEST_F(SamplerTest, NewDictionaryPatch)
     extern argList * mainArgs;
     const argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
-#include "createMesh.H"
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
 
     dictionary dict = dictionary();
@@ -190,7 +156,8 @@ TEST_F(SamplerTest, CreateFields)
     extern argList * mainArgs;
     const argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
-#include "createMesh.H"
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -205,7 +172,8 @@ TEST_F(SamplerTest, Copy)
     extern argList * mainArgs;
     const argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
-#include "createMesh.H"
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -227,7 +195,8 @@ TEST_F(SamplerTest, Project)
     extern argList * mainArgs;
     argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
-#include "createMesh.H"
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -247,7 +216,8 @@ TEST_F(SamplerTest, AddField)
     extern argList * mainArgs;
     argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
-#include "createMesh.H"
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -263,7 +233,8 @@ TEST_F(SamplerTest, DistanceFieldBottom)
     extern argList * mainArgs;
     argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
-#include "createMesh.H"
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
 
 
@@ -286,7 +257,8 @@ TEST_F(SamplerTest, DistanceFieldTop)
     extern argList * mainArgs;
     argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
-#include "createMesh.H"
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
 
 
@@ -310,11 +282,12 @@ TEST_F(SamplerTest, FindSearchCellLabels)
     extern argList * mainArgs;
     argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
-#include "createMesh.H"
-    //system("funkySetFields -field h -expression \"0.0\" -latestTime -valuePatches \"bottomWall topWall\"");
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
     volScalarField & h = 
         const_cast<volScalarField &>(mesh.lookupObject<volScalarField> ("h"));
+
     const fvPatch & patchBottom = mesh.boundary()["topWall"];
 
     h.boundaryFieldRef()[patchBottom.index()] == 0;
