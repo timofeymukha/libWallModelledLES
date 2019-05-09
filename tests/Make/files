@@ -1,6 +1,8 @@
-tests.C
+testRunner.C
+fixtures.C
 ./rootFinding/NewtonRoot/testNewtonRoot.C
 ./samplers/Sampler/testSampler.C
+./samplers/SampledField/testSampledVelocityField.C
 
-EXE=./tests
+EXE=./testRunner
 
