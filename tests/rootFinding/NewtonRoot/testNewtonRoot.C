@@ -96,17 +96,3 @@ TEST(NewtonRootFinder, root)
 
     ASSERT_NEAR(rootFinder.root(2.), 0.0, 1e-10);
 }
-
-int mainArgc;
-char** mainArgv;
-
-int main(int argc, char **argv)
-{
-    ::testing::InitGoogleMock(&argc, argv);
-    ::testing::InitGoogleTest(&argc, argv);
-
-    mainArgc = argc;
-    mainArgv = argv;
-
-    return RUN_ALL_TESTS();
-}

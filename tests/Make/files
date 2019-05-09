@@ -1,0 +1,6 @@
+tests.C
+./rootFinding/NewtonRoot/testNewtonRoot.C
+./samplers/Sampler/testSampler.C
+
+EXE=./tests
+

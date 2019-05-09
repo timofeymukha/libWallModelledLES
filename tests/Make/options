@@ -7,7 +7,7 @@ EXE_INC = -std=c++0x \
 -I$(GTEST_DIR)/googletest/include \
 -I$(GTEST_DIR)/googlemock/include/gmock \
 -I$(GTEST_DIR)/googlemock/include \
--I../../../lnInclude
+-I../lnInclude
 
 
 EXE_LIBS = \

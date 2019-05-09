@@ -1,3 +1,4 @@
+#include "codeRules.H"
 #include "fvCFD.H"
 #include "SingleCellSampler.H"
 #include "SampledVelocityField.H"
@@ -52,8 +53,12 @@ namespace Foam
 
             tmp<volScalarField> wrapDistanceField() const
             {
-                //Info << Sampler::distanceField();
                 return Sampler::distanceField();
+            }
+
+            tmp<labelField> wrapFindSearchCellLabels() const
+            {
+                return Sampler::findSearchCellLabels();
             }
             
     };
@@ -69,9 +74,9 @@ class SamplerTest : public ::testing::Test
     public:
         SamplerTest()
         {
-            system("cp -r ../../testCases/channel_flow/system .");
-            system("cp -r ../../testCases/channel_flow/constant .");
-            system("cp -r ../../testCases/channel_flow/0 .");
+            system("cp -r testCases/channel_flow/system .");
+            system("cp -r testCases/channel_flow/constant .");
+            system("cp -r testCases/channel_flow/0 .");
 
         }
 
@@ -299,17 +304,53 @@ TEST_F(SamplerTest, DistanceFieldTop)
     }
 }
 
-Foam::argList * mainArgs;
 
-int main(int argc, char **argv)
+TEST_F(SamplerTest, FindSearchCellLabels)
 {
-    Foam::argList::noBanner();
+    extern argList * mainArgs;
+    argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+#include "createMesh.H"
+    //system("funkySetFields -field h -expression \"0.0\" -latestTime -valuePatches \"bottomWall topWall\"");
+    createSamplingHeightField(mesh);
+    volScalarField & h = 
+        const_cast<volScalarField &>(mesh.lookupObject<volScalarField> ("h"));
+    const fvPatch & patchBottom = mesh.boundary()["topWall"];
 
-    ::testing::InitGoogleMock(&argc, argv);
-    ::testing::InitGoogleTest(&argc, argv);
+    h.boundaryFieldRef()[patchBottom.index()] == 0;
+    DummySampler samplerBottom("SingleCellSampler", patchBottom, 3.0);
+    tmp<labelField> tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
+    ASSERT_EQ(tCellLabelsBottom().size(), 0);
 
-    mainArgs = new Foam::argList(argc, argv);
+    h.boundaryFieldRef()[patchBottom.index()] == 0.1;
+    tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
+    ASSERT_EQ(tCellLabelsBottom().size(), 9);
 
-    return RUN_ALL_TESTS();
-    delete mainArgs;
+    h.boundaryFieldRef()[patchBottom.index()] == 0.21;
+    tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
+    ASSERT_EQ(tCellLabelsBottom().size(), 18);
+
+    h.boundaryFieldRef()[patchBottom.index()] == 1;
+    tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
+    ASSERT_EQ(tCellLabelsBottom().size(), 90);
+
+    const fvPatch & patchTop = mesh.boundary()["topWall"];
+
+    h.boundaryFieldRef()[patchTop.index()] == 0;
+    DummySampler samplerTop("SingleCellSampler", patchTop, 3.0);
+    tmp<labelField> tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
+    ASSERT_EQ(tCellLabelsTop().size(), 0) << "h = 0";
+
+    h.boundaryFieldRef()[patchTop.index()] == 0.1;
+    tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
+    ASSERT_EQ(tCellLabelsTop().size(), 9) << "h = 0.1";
+
+    h.boundaryFieldRef()[patchTop.index()] == 0.21;
+    tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
+    ASSERT_EQ(tCellLabelsTop().size(), 18) << "h = 0.21";
+
+    h.boundaryFieldRef()[patchTop.index()] == 1;
+    tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
+    ASSERT_EQ(tCellLabelsTop().size(), 90) << "h = 1";
+    
 }
