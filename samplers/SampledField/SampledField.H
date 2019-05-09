@@ -55,7 +55,7 @@ protected:
     // Protected data
         const fvPatch & patch_;
     
-        const fvMesh & db_;
+        const fvMesh & mesh_;
         
         //const labelList cellIndexList_;
 
@@ -76,7 +76,7 @@ public:
         )
         :
             patch_(patch),
-            db_(patch_.boundaryMesh().mesh())
+            mesh_(patch_.boundaryMesh().mesh())
         {}
 
         //- Construct from patch and cell multiindex list
@@ -100,9 +100,15 @@ public:
     // Member functions
         
         //- Get the mesh
-        const fvMesh & db() const
+        const fvMesh & mesh() const
         {
-            return db_;
+            return mesh_;
+        }
+
+        //- Subregistry for sampled fields
+        const objectRegistry & db() const
+        {
+            return mesh().subRegistry("wallModelSampling").subRegistry(patch().name());
         }
         
         //- Get the cell index list

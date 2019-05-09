@@ -37,7 +37,7 @@ Foam::SampledWallGradUField::sample
     label pI = patch().index();
    
     const volVectorField & wallGradU =
-        db().lookupObject<volVectorField>("wallGradU");
+        mesh().lookupObject<volVectorField>("wallGradU");
     
     const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
     
@@ -67,7 +67,7 @@ Foam::SampledWallGradUField::sample
     label pI = patch().index();
    
     const volVectorField & wallGradU =
-        db().lookupObject<volVectorField>("wallGradU");
+        mesh().lookupObject<volVectorField>("wallGradU");
     
     const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
     
@@ -90,23 +90,23 @@ Foam::SampledWallGradUField::sample
 void Foam::SampledWallGradUField::registerFields() const
 {
     // Grab h to copy bcs from it.
-    const volScalarField & h = db().lookupObject<volScalarField>("h");
+    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
     
-    if (!db().thisDb().foundObject<volVectorField>("wallGradU"))
+    if (!mesh().foundObject<volVectorField>("wallGradU"))
     {
-        db().thisDb().store
+        mesh().time().store
         (     
             new volVectorField
             (
                 IOobject
                 (
                     "wallGradU",
-                    db().time().timeName(),
-                    db(),
+                    mesh().time().timeName(),
+                    mesh(),
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
                 ),
-                db(),
+                mesh(),
                 dimensionedVector
                 (
                     "wallGradU",
@@ -119,16 +119,16 @@ void Foam::SampledWallGradUField::registerFields() const
     }
     
     const objectRegistry & registry =
-        db().subRegistry("wallModelSampling").subRegistry(patch_.name());
+        mesh().subRegistry("wallModelSampling").subRegistry(patch_.name());
 
     scalarListList sampledWallGradU(patch_.size());
 
-    if (db().thisDb().foundObject<volVectorField>("U"))
+    if (mesh().foundObject<volVectorField>("U"))
     {
         recompute();
         
         const volVectorField & wallGradU = 
-            db().lookupObject<volVectorField>("wallGradU");
+            mesh().lookupObject<volVectorField>("wallGradU");
         
         label pI = patch().index();
         const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
@@ -146,14 +146,14 @@ void Foam::SampledWallGradUField::registerFields() const
     }
 
     
-    db().thisDb().store
+    mesh().time().store
     (        
         new IOList<scalarList>
         (
             IOobject
             (
                 "wallGradU",
-                db().time().timeName(),
+                mesh().time().timeName(),
                 registry,
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
@@ -170,23 +170,23 @@ void Foam::SampledWallGradUField::registerFields
 ) const
 {
     // Grab h to copy bcs from it.
-    const volScalarField & h = db().lookupObject<volScalarField>("h");
+    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
     
-    if (!db().thisDb().foundObject<volVectorField>("wallGradU"))
+    if (!mesh().foundObject<volVectorField>("wallGradU"))
     {
-        db().thisDb().store
+        mesh().time().store
         (     
             new volVectorField
             (
                 IOobject
                 (
                     "wallGradU",
-                    db().time().timeName(),
-                    db(),
+                    mesh().time().timeName(),
+                    mesh(),
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
                 ),
-                db(),
+                mesh(),
                 dimensionedVector
                 (
                     "wallGradU",
@@ -199,11 +199,11 @@ void Foam::SampledWallGradUField::registerFields
     }
     
     const objectRegistry & registry =
-        db().subRegistry("wallModelSampling").subRegistry(patch().name());
+        mesh().subRegistry("wallModelSampling").subRegistry(patch().name());
 
     scalarListListList sampledWallGradU(patch().size());
 
-    if (db().thisDb().foundObject<volVectorField>("U"))
+    if (mesh().foundObject<volVectorField>("U"))
     {
         
         forAll(sampledWallGradU, i)
@@ -214,14 +214,14 @@ void Foam::SampledWallGradUField::registerFields
     }
 
     
-    db().thisDb().store
+    mesh().time().store
     (        
         new scalarListListIOList
         (
             IOobject
             (
                 "wallGradU",
-                db().time().timeName(),
+                mesh().time().timeName(),
                 registry,
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
@@ -239,10 +239,10 @@ void Foam::SampledWallGradUField::recompute() const
     
     volVectorField & wallGradU = const_cast<volVectorField &>
     (
-            db().lookupObject<volVectorField>("wallGradU")
+            mesh().lookupObject<volVectorField>("wallGradU")
     );
     
-    const volVectorField & U = db().lookupObject<volVectorField>("U");
+    const volVectorField & U = mesh().lookupObject<volVectorField>("U");
     const fvPatchVectorField & Uwall = U.boundaryField()[pI];
       
     vectorField Udiff = Uwall.patchInternalField() - Uwall;

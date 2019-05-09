@@ -87,11 +87,11 @@ Foam::SampledVelocityField::sample
 void Foam::SampledVelocityField::registerFields() const
 {
     const objectRegistry & registry =
-        db().subRegistry("wallModelSampling").subRegistry(patch_.name());
+        mesh().subRegistry("wallModelSampling").subRegistry(patch_.name());
 
     scalarListList sampledU(patch().size());
         
-    if (db().thisDb().foundObject<volVectorField>("U"))
+    if (mesh().thisDb().foundObject<volVectorField>("U"))
     {
         forAll(sampledU, i)
         {
@@ -106,7 +106,7 @@ void Foam::SampledVelocityField::registerFields() const
     }
 
 
-    db().thisDb().store
+    mesh().thisDb().store
     (        
         new IOList<scalarList>
         (
