@@ -87,7 +87,10 @@ Foam::SampledWallGradUField::sample
 }
 
 
-void Foam::SampledWallGradUField::registerFields() const
+void Foam::SampledWallGradUField::registerFields
+(
+    const labelList &  indexList 
+) const
 {
     // Grab h to copy bcs from it.
     const volScalarField & h = mesh().lookupObject<volScalarField>("h");

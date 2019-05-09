@@ -94,7 +94,7 @@ public:
         }
         
         //- Register appropriate fields in the object registry
-        virtual void registerFields() const;
+        virtual void registerFields(const labelList &) const;
 
         virtual void registerFields(const labelListList &) const; 
         

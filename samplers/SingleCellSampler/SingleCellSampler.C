@@ -305,7 +305,7 @@ void Foam::SingleCellSampler::sample() const
 void Foam::SingleCellSampler::addField(SampledField * field)
 {
     Sampler::addField(field);
-    field->registerFields();
+    field->registerFields(indexList());
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -80,7 +80,10 @@ Foam::SampledPGradField::sample
 }
 
 
-void Foam::SampledPGradField::registerFields() const
+void Foam::SampledPGradField::registerFields
+(
+    const labelList &  indexList 
+) const
 {
     // Grab h to copy bcs from it.
     const volScalarField & h = mesh().lookupObject<volScalarField>("h");

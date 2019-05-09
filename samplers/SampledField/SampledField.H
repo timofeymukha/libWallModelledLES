@@ -143,7 +143,7 @@ public:
         void projectVectors(vectorField &) const;
         
         //- Register appropriate fields in the object registry
-        virtual void registerFields() const = 0; 
+        virtual void registerFields(const labelList &) const = 0; 
 
         virtual void registerFields(const labelListList &) const = 0; 
         

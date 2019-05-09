@@ -33,7 +33,7 @@ Foam::SampledVelocityField::sample
 {
     Info<< "Sampling velocity for patch " << patch_.name() << nl;
     
-    const volVectorField & UField = db().lookupObject<volVectorField>("U");
+    const volVectorField & UField = mesh().lookupObject<volVectorField>("U");
     const vectorField & Uwall = UField.boundaryField()[patch().index()];
     
     vectorField sampledU(indexList.size());
@@ -61,7 +61,7 @@ Foam::SampledVelocityField::sample
 {
     Info<< "Sampling velocity for patch " << patch().name() << nl;
     
-    const volVectorField & UField = db().lookupObject<volVectorField>("U");
+    const volVectorField & UField = mesh().lookupObject<volVectorField>("U");
     const vectorField & Uwall = UField.boundaryField()[patch().index()];
     
     forAll(indexList, i)
@@ -84,37 +84,41 @@ Foam::SampledVelocityField::sample
 }
 
 
-void Foam::SampledVelocityField::registerFields() const
+void Foam::SampledVelocityField::registerFields
+(
+    const labelList &  indexList 
+) const
 {
-    const objectRegistry & registry =
-        mesh().subRegistry("wallModelSampling").subRegistry(patch_.name());
-
+    // Initialize to 0
     scalarListList sampledU(patch().size());
-        
-    if (mesh().thisDb().foundObject<volVectorField>("U"))
+    forAll(sampledU, i)
     {
+        sampledU[i] = scalarList(3, 0.0);
+    }
+        
+    if (mesh().foundObject<volVectorField>("U"))
+    {
+        const volVectorField & U = mesh().lookupObject<volVectorField>("U");
         forAll(sampledU, i)
         {
-            sampledU[i] = scalarList(3, 0.0);
-            //forAll(sampledU[i], j)
-            //{
-                //sampledU[i][j] = 0;
-            //}
+            forAll(sampledU[i], j)
+            {
+                sampledU[i][j] = U[indexList[i]][j];
+            }
         }
 
-        //projectVectors(sampledU);
+        projectVectors(sampledU);
     }
 
-
-    mesh().thisDb().store
+    mesh().time().store
     (        
         new IOList<scalarList>
         (
             IOobject
             (
                 "U",
-                db().time().timeName(),
-                registry, 
+                mesh().time().timeName(),
+                db(), 
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),
@@ -129,12 +133,9 @@ void Foam::SampledVelocityField::registerFields
     const labelListList & indexListList
 ) const
 {
-    const objectRegistry & registry =
-        db().subRegistry("wallModelSampling").subRegistry(patch_.name());
-
     scalarListListList sampledU(patch().size());
         
-    if (db().thisDb().foundObject<volVectorField>("U"))
+    if (mesh().foundObject<volVectorField>("U"))
     {
         forAll(sampledU, i)
         {
@@ -146,19 +147,19 @@ void Foam::SampledVelocityField::registerFields
             }
         }
 
-        //projectVectors(sampledU);
+        projectVectors(sampledU);
     }
 
 
-    db().thisDb().store
+    mesh().time().store
     (        
         new scalarListListIOList
         (
             IOobject
             (
                 "U",
-                db().time().timeName(),
-                registry, 
+                mesh().time().timeName(),
+                db(), 
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),
