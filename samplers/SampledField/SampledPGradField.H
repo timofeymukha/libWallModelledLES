@@ -64,9 +64,12 @@ public:
         }
         
         //- Clone the object
-        virtual SampledPGradField* clone() const
+        virtual tmp<SampledField> clone() const
         {
-            return new SampledPGradField(*this);
+            return tmp<SampledField>
+            (
+                new SampledPGradField(*this)
+            );
         }
         
         //- Destructor

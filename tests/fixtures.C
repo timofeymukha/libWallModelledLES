@@ -39,25 +39,6 @@ void createVelocityField(const Foam::fvMesh & mesh)
     );
 }
 
-void createVelocityGradientField(const Foam::fvMesh & mesh)
-{
-    mesh.time().store
-    (
-        new volVectorField
-        (
-            IOobject
-            (
-                "wallGradU",
-                mesh.time().timeName(),
-                mesh,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh
-        )
-    );
-}
-
 
 Foam::autoPtr<Foam::fvMesh> createMesh(const Foam::Time & runTime)
 {

@@ -37,7 +37,7 @@ TEST_F(SampledWallGradUTest, Clone)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     SampledWallGradUField sampledField(patch);
 
-    autoPtr<SampledWallGradUField> clone(sampledField.clone());
+    tmp<SampledField> clone(sampledField.clone());
 }
 
 

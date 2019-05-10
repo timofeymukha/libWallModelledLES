@@ -282,11 +282,11 @@ void Foam::SingleCellSampler::sample() const
     {
 
         scalarListList sampledList(patch().size());
-        sampledFields_[fieldI]->sample(sampledList, indexList());
+        sampledFields_[fieldI].sample(sampledList, indexList());
         
         scalarListIOList & storedValues = const_cast<scalarListIOList & >
         (
-            db().lookupObject<scalarListIOList>(sampledFields_[fieldI]->name())
+            db().lookupObject<scalarListIOList>(sampledFields_[fieldI].name())
         );
 
         forAll(storedValues, i)

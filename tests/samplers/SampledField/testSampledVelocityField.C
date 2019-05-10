@@ -37,7 +37,7 @@ TEST_F(SampledVelocityTest, Clone)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     SampledVelocityField sampledField(patch);
 
-    autoPtr<SampledVelocityField> clone(sampledField.clone());
+    tmp<SampledField> clone(sampledField.clone());
 }
 
 

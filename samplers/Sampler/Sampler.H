@@ -82,7 +82,7 @@ protected:
         const fvMesh & mesh_;
 
         //- List of sampled fields
-        List<SampledField *> sampledFields_;
+        PtrList<SampledField> sampledFields_;
 
     // Protected Member Functions
 

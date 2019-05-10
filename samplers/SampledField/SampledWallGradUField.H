@@ -65,9 +65,12 @@ public:
         }
             
         //- Clone the object    
-        virtual SampledWallGradUField* clone() const
+        virtual tmp<SampledField> clone() const
         {
-            return new SampledWallGradUField(*this);
+            return tmp<SampledField>
+            (
+                new SampledWallGradUField(*this)
+            );
         }
         
         //- Destructor

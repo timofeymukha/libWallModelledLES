@@ -67,9 +67,12 @@ public:
         }
             
         //- Clone the object
-        virtual SampledVelocityField* clone() const
+        virtual tmp<SampledField> clone() const
         {
-            return new SampledVelocityField(*this);
+            return tmp<SampledField>
+            (
+                new SampledVelocityField(*this)
+            );
         }
         
         //- Destructor

@@ -36,6 +36,7 @@ SourceFiles
 #ifndef SampledField_H
 #define SampledField_H
 
+#include "refCount.H"
 #include "fixedValueFvPatchFields.H"
 #include "scalarListListIOList.H"
 
@@ -48,7 +49,7 @@ namespace Foam
                         Class SampledField Declaration
 \*---------------------------------------------------------------------------*/
 
-class SampledField
+class SampledField : public refCount
 {
 protected:
     
@@ -92,7 +93,7 @@ public:
         //{}
         
         //- Clone the object
-        virtual SampledField* clone() const = 0;
+        virtual tmp<SampledField> clone() const = 0;
 
         //- Destructor
         virtual ~SampledField() {};        

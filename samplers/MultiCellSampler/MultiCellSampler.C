@@ -366,11 +366,11 @@ void Foam::MultiCellSampler::sample() const
     {
 
         scalarListListList sampledList(patch().size());
-        sampledFields_[fieldI]->sample(sampledList, indexList());
+        sampledFields_[fieldI].sample(sampledList, indexList());
         
         scalarListListIOList & storedValues = const_cast<scalarListListIOList & >
         (
-            db().lookupObject<scalarListListIOList>(sampledFields_[fieldI]->name())
+            db().lookupObject<scalarListListIOList>(sampledFields_[fieldI].name())
         );
 
         forAll(storedValues, i)
