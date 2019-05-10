@@ -37,6 +37,7 @@ SourceFiles
 #ifndef EddyViscosity_H
 #define EddyViscosity_H
 
+#include "refCount.H"
 #include "Field.H"
 #include "SingleCellSampler.H"
 
@@ -49,7 +50,7 @@ namespace Foam
                       Class EddyViscosity Declaration
 \*---------------------------------------------------------------------------*/
 
-class EddyViscosity
+class EddyViscosity : public refCount
 {
 protected:
     
@@ -75,6 +76,12 @@ public:
         :
         constDict_(dict)
         {}
+
+        //- Copy constructor
+        EddyViscosity(const EddyViscosity &) = default;
+
+        //- Clone
+        virtual tmp<EddyViscosity> clone() = 0;
 
     // Destructor
         virtual ~EddyViscosity() {}

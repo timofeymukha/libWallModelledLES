@@ -94,6 +94,18 @@ public:
         //- Construct provided name, dictionary and sampler
         VanDriestEddyViscosity(const word &, const dictionary &);
 
+        //- Copy constructor
+        VanDriestEddyViscosity(const VanDriestEddyViscosity &) = default;
+
+        //- Clone
+        virtual tmp<EddyViscosity> clone()
+        {
+            return tmp<EddyViscosity>
+            (
+                new VanDriestEddyViscosity(*this)
+            );
+        }
+
     // Destructor
         virtual ~VanDriestEddyViscosity() {};
 

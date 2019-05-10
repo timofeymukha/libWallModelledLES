@@ -102,6 +102,18 @@ public:
         //- Construct provided name, dictionary and sampler
         DupratEddyViscosity(const word &, const dictionary &);
 
+        //- Copy constructor
+        DupratEddyViscosity(const DupratEddyViscosity &) = default;
+
+        //- Clone
+        virtual tmp<EddyViscosity> clone()
+        {
+            return tmp<EddyViscosity>
+            (
+                new DupratEddyViscosity(*this)
+            );
+        }
+
     // Destructor
         virtual ~DupratEddyViscosity() {};
 
