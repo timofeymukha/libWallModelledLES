@@ -37,6 +37,7 @@ Contributors/Copyright:
 #define RootFinder_H
 
 #include "dictionary.H"
+#include "refCount.H"
 #include <functional>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -52,7 +53,7 @@ scalar rootFinderDummy(scalar);
                           Class RootFinder Declaration
 \*---------------------------------------------------------------------------*/
    
-class RootFinder
+class RootFinder : public refCount
 {
 
 protected:     
@@ -115,6 +116,8 @@ public:
         eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
         maxIter_(dict.lookupOrDefault<label>("maxIter", 30))
         {};
+
+        RootFinder(const RootFinder &) = default;
 
 
     //- Destructor

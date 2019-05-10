@@ -103,7 +103,9 @@ public:
         (
             const dictionary & dict
         );
-        
+
+        BisectionRootFinder(const BisectionRootFinder &) = default;
+
     // Destructor - default
         virtual ~BisectionRootFinder(){};
 

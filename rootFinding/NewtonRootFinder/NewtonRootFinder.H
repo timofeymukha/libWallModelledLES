@@ -101,7 +101,8 @@ public:
         :
         RootFinder(dict)
         {}         
-       
+
+        NewtonRootFinder(const NewtonRootFinder &) = default;
         
     //- Destructor
         virtual ~NewtonRootFinder(){};
