@@ -41,6 +41,7 @@ Contributors/Copyright:
 #define LawOfTheWall_H
 
 #include "dictionary.H"
+#include "refCount.H"
 #include "word.H"
 #include "typeInfo.H"
 #include "runTimeSelectionTables.H"
@@ -56,7 +57,7 @@ namespace Foam
                       Class LawOfTheWall Declaration
 \*---------------------------------------------------------------------------*/
 
-class LawOfTheWall
+class LawOfTheWall : public refCount
 {
 protected:
     
@@ -85,11 +86,17 @@ public:
         constDict_(dict)
         {}
 
-        LawOfTheWall()
-        {}
+        //- Copy constructor
+        LawOfTheWall() = default;
 
-    //- Destructor
+        //- Clone
+        LawOfTheWall(const LawOfTheWall &) = default;
+
+        //- Destructor
         virtual ~LawOfTheWall() {}
+
+        //- Clone
+        virtual tmp<LawOfTheWall> clone() = 0;
 
     // Selectors
         static autoPtr<LawOfTheWall> New 

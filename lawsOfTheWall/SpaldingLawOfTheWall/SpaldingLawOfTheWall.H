@@ -99,11 +99,24 @@ public:
             const dictionary &
         );
 
+        //- Construct from model constants
         SpaldingLawOfTheWall
         (
             scalar kappa,
             scalar B
         );
+
+        //- Copy constructor
+        SpaldingLawOfTheWall(const SpaldingLawOfTheWall &) = default;
+
+        //- Clone
+        virtual tmp<LawOfTheWall> clone()
+        {
+            return tmp<LawOfTheWall>
+            (
+                new SpaldingLawOfTheWall(*this) 
+            );
+        }
 
     //- Destructor
         virtual ~SpaldingLawOfTheWall() {};

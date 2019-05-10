@@ -107,6 +107,21 @@ public:
             const dictionary &
         );
 
+        //- Copy constructor
+        ReichardtLawOfTheWall
+        (
+            const ReichardtLawOfTheWall &
+        ) = default;
+
+        //- Clone
+        virtual tmp<LawOfTheWall> clone()
+        {
+            return tmp<LawOfTheWall>
+            (
+                new ReichardtLawOfTheWall(*this) 
+            );
+        }
+
     // Destructor
         virtual ~ReichardtLawOfTheWall() {};
 

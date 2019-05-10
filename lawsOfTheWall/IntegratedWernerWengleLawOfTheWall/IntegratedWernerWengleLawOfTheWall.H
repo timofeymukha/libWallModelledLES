@@ -106,7 +106,22 @@ public:
             const dictionary &
         );
 
-    // Destructor
+        //- Copy constructor
+        IntegratedWernerWengleLawOfTheWall
+        (
+            const IntegratedWernerWengleLawOfTheWall &
+        ) = default;
+
+        //- Clone
+        virtual tmp<LawOfTheWall> clone()
+        {
+            return tmp<LawOfTheWall>
+            (
+                new IntegratedWernerWengleLawOfTheWall(*this) 
+            );
+        }
+
+        //- Destructor
         virtual ~IntegratedWernerWengleLawOfTheWall() {};
 
     // Member Functions

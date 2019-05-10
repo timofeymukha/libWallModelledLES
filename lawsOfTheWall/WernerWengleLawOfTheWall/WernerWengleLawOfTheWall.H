@@ -98,6 +98,21 @@ public:
             const dictionary &
         );
 
+        //- Copy constructor
+        WernerWengleLawOfTheWall
+        (
+            const WernerWengleLawOfTheWall &
+        ) = default;
+
+        //- Clone
+        virtual tmp<LawOfTheWall> clone()
+        {
+            return tmp<LawOfTheWall>
+            (
+                new WernerWengleLawOfTheWall(*this) 
+            );
+        }
+
     // Destructor
         virtual ~WernerWengleLawOfTheWall() {};
 

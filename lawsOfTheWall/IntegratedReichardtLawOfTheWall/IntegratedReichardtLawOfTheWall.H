@@ -108,8 +108,23 @@ public:
             const dictionary &
         );
 
-    // Destructor
+        // Destructor
         virtual ~IntegratedReichardtLawOfTheWall() {};
+        
+        //- Copy constructor
+        IntegratedReichardtLawOfTheWall
+        (
+            const IntegratedReichardtLawOfTheWall &
+        ) = default;
+
+        //- Clone
+        virtual tmp<LawOfTheWall> clone()
+        {
+            return tmp<LawOfTheWall>
+            (
+                new IntegratedReichardtLawOfTheWall(*this) 
+            );
+        }
 
     // Member Functions
         
