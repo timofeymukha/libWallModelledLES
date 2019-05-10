@@ -3,6 +3,7 @@ fixtures.C
 ./rootFinding/NewtonRoot/testNewtonRoot.C
 ./samplers/Sampler/testSampler.C
 ./samplers/SampledField/testSampledVelocityField.C
+./samplers/SampledField/testSampledWallGradUField.C
 
 EXE=./testRunner
 
