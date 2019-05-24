@@ -24,7 +24,6 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "dictionary.H"
 #include "codeRules.H"
-#include "scalarListIOList.H"
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
@@ -44,20 +43,13 @@ Foam::KnownWallShearStressWallModelFvPatchScalarField::calcNut() const
 
     
     const label patchi = patch().index();
-    tmp<scalarField> deltas = patch().deltaCoeffs(); 
-    const labelList & faceCells = patch().faceCells(); 
-
 
     // Velocity at the boundary
     const volVectorField & UField = db().lookupObject<volVectorField>("U");
     const fvPatchVectorField& Uw = UField.boundaryField()[patchi];
     
     // Magnitude of wall-normal velocity gradient
-    scalarField magGradU(patch().size());
-    forAll(magGradU, i)
-    {
-        magGradU[i] = mag((UField[faceCells[i]] - Uw[i])*deltas()[i]);
-    }
+    const scalarField magGradU(mag(Uw.snGrad()));
     
     // Viscosity
     const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
@@ -92,6 +84,42 @@ KnownWallShearStressWallModelFvPatchScalarField
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
+
+    if (!db().found("tauWall"))
+    {
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "tauWall",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh()
+            )
+        );
+    }
+    
+    label patchI = patch().index();
+    
+    const volScalarField & tauWall = db().lookupObject<volScalarField>("tauWall");
+    volScalarField & uTauField = 
+    const_cast<volScalarField &>
+    (
+        db().lookupObject<volScalarField>("uTau")
+    );
+   
+#ifdef FOAM_NEW_GEOMFIELD_RULES
+    uTauField.boundaryFieldRef()[patchI]
+#else        
+    uTauField.boundaryField()[patchI]
+#endif
+    ==
+        sqrt(tauWall.boundaryField()[patchI]);
 
 }
 
@@ -162,7 +190,7 @@ KnownWallShearStressWallModelFvPatchScalarField
     volScalarField & uTauField = 
     const_cast<volScalarField &>
     (
-        db().lookupObject<volScalarField>("uTauPredicted")
+        db().lookupObject<volScalarField>("uTau")
     );
    
 #ifdef FOAM_NEW_GEOMFIELD_RULES
