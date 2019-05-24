@@ -89,7 +89,7 @@ public:
         //- Copy constructor
         LawOfTheWall() = default;
 
-        //- Clone
+        //- Copy constructor
         LawOfTheWall(const LawOfTheWall &) = default;
 
         //- Destructor
