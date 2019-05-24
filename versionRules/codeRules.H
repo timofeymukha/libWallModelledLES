@@ -589,6 +589,10 @@ Contributors/Copyright:
 #define FOAM_WALLDIST_CONSTRUCTOR_ACCEPTS_METHOD
 #endif
 
+#if (defined(FOAM_VERSION4WMLES_IS_COM) && OPENFOAM_COM >=1806)
+#define AUTOPTR_HAS_CLONE_METHOD
+#endif
+
 
 #endif
 

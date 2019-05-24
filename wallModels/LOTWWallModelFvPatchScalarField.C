@@ -173,7 +173,11 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
+#ifdef AUTOPTR_HAS_CLONE_METHOD
+    rootFinder_(ptf.rootFinder_.clone()),
+#else
     rootFinder_(ptf.rootFinder_, false),
+#endif
     law_(LawOfTheWall::New(ptf.law_->type(),
                            ptf.law_->constDict())),
     sampler_(new SingleCellSampler(ptf.sampler()))
@@ -217,7 +221,11 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf),
+#ifdef AUTOPTR_HAS_CLONE_METHOD
+    rootFinder_(wfpsf.rootFinder_.clone()),
+#else
     rootFinder_(wfpsf.rootFinder_, false),
+#endif
     law_
     (
         LawOfTheWall::New 
@@ -244,7 +252,11 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf, iF),
+#ifdef AUTOPTR_HAS_CLONE_METHOD
+    rootFinder_(wfpsf.rootFinder_.clone()),
+#else
     rootFinder_(wfpsf.rootFinder_, false),
+#endif
     law_
     (
         LawOfTheWall::New 
