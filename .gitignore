@@ -38,8 +38,10 @@ lnInclude/
 
 **.dep
 **.swp
+**.swo
 
 **/Make/*
+/Make/linux64IccDPInt32Opt
 **/processor*
 /docs/html
 /docs/DTAGS
