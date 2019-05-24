@@ -145,11 +145,14 @@ calcUTau(const scalarField & magGradU) const
 Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF
+    const fvPatch & p,
+    const DimensionedField<scalar, volMesh> & iF
 )
 :
-    wallModelFvPatchScalarField(p, iF)
+    wallModelFvPatchScalarField(p, iF),
+    rootFinder_(),
+    law_(),
+    sampler_()
 {
     if (debug)
     {
@@ -163,18 +166,14 @@ LOTWWallModelFvPatchScalarField
 Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
-    const LOTWWallModelFvPatchScalarField& ptf,
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
-    const fvPatchFieldMapper& mapper
+    const LOTWWallModelFvPatchScalarField & ptf,
+    const fvPatch & p,
+    const DimensionedField<scalar, volMesh> & iF,
+    const fvPatchFieldMapper & mapper
 )
 :
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
-    rootFinder_(RootFinder::New(ptf.rootFinder_->type(),
-                                ptf.rootFinder_->f(),
-                                ptf.rootFinder_->d(),
-                                ptf.rootFinder_->eps(),
-                                ptf.rootFinder_->maxIter())),
+    rootFinder_(ptf.rootFinder_.clone()),
     law_(LawOfTheWall::New(ptf.law_->type(),
                            ptf.law_->constDict())),
     sampler_(new SingleCellSampler(ptf.sampler()))
@@ -191,9 +190,9 @@ LOTWWallModelFvPatchScalarField
 Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
-    const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
-    const dictionary& dict
+    const fvPatch & p,
+    const DimensionedField<scalar, volMesh> & iF,
+    const dictionary & dict
 )
 :
     wallModelFvPatchScalarField(p, iF, dict),
@@ -214,21 +213,11 @@ LOTWWallModelFvPatchScalarField
 Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
-    const LOTWWallModelFvPatchScalarField& wfpsf
+    const LOTWWallModelFvPatchScalarField & wfpsf
 )
 :
     wallModelFvPatchScalarField(wfpsf),
-    rootFinder_
-    (
-        RootFinder::New 
-        (
-            wfpsf.rootFinder_->type(),
-            wfpsf.rootFinder_->f(),
-            wfpsf.rootFinder_->d(),
-            wfpsf.rootFinder_->eps(),
-            wfpsf.rootFinder_->maxIter()
-        )
-    ),
+    rootFinder_(wfpsf.rootFinder_.clone()),
     law_
     (
         LawOfTheWall::New 
@@ -250,22 +239,12 @@ LOTWWallModelFvPatchScalarField
 Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
-    const LOTWWallModelFvPatchScalarField& wfpsf,
-    const DimensionedField<scalar, volMesh>& iF
+    const LOTWWallModelFvPatchScalarField & wfpsf,
+    const DimensionedField<scalar, volMesh> & iF
 )
 :
     wallModelFvPatchScalarField(wfpsf, iF),
-    rootFinder_
-    (
-        RootFinder::New 
-        (
-            wfpsf.rootFinder_->type(),
-            wfpsf.rootFinder_->f(),
-            wfpsf.rootFinder_->d(),
-            wfpsf.rootFinder_->eps(),
-            wfpsf.rootFinder_->maxIter()
-        )
-    ),
+    rootFinder_(wfpsf.rootFinder_.clone()),
     law_
     (
         LawOfTheWall::New 
