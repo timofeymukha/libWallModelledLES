@@ -124,6 +124,33 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             )
         );
     }    
+
+    // wall-normal gradient field
+    if (!db().foundObject<volVectorField>("wallGradU"))
+    {
+        db().store
+        (     
+            new volVectorField
+            (
+                IOobject
+                (
+                    "wallGradU",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                dimensionedVector
+                (
+                    "wallGradU",
+                    dimVelocity/dimLength,
+                    pTraits<vector>::zero
+                ),
+                h.boundaryField().types()
+            )
+        );  
+    }
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
