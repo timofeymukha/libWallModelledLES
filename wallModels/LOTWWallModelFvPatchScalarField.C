@@ -173,7 +173,7 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(ptf, p, iF, mapper),
-    rootFinder_(ptf.rootFinder_.clone()),
+    rootFinder_(ptf.rootFinder_, false),
     law_(LawOfTheWall::New(ptf.law_->type(),
                            ptf.law_->constDict())),
     sampler_(new SingleCellSampler(ptf.sampler()))
@@ -217,7 +217,7 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf),
-    rootFinder_(wfpsf.rootFinder_.clone()),
+    rootFinder_(wfpsf.rootFinder_, false),
     law_
     (
         LawOfTheWall::New 
@@ -244,7 +244,7 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(wfpsf, iF),
-    rootFinder_(wfpsf.rootFinder_.clone()),
+    rootFinder_(wfpsf.rootFinder_, false),
     law_
     (
         LawOfTheWall::New 
