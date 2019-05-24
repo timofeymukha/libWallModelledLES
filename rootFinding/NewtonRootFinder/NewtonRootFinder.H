@@ -30,8 +30,8 @@ Description
     RootFinder
     {
         type       Newton;
-        maxIter    value; (default 10)
-        eps        value; (default 0.01)
+        maxIter    value; (default 30)
+        eps        value; (default 0.001)
     }
     \endverbatim
 
