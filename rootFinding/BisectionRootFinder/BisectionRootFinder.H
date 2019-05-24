@@ -106,6 +106,15 @@ public:
 
         BisectionRootFinder(const BisectionRootFinder &) = default;
 
+        //- Clone the object
+        virtual tmp<RootFinder> clone() const
+        {
+            return tmp<RootFinder>
+            (
+                new BisectionRootFinder(*this)
+            );
+        }
+
     // Destructor - default
         virtual ~BisectionRootFinder(){};
 

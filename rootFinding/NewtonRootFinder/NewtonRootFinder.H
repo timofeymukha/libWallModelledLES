@@ -64,7 +64,7 @@ class NewtonRootFinder : public RootFinder
 public:
 
     TypeName("Newton");
-    
+
     // Constructors
 
         //- Construct given name, function, its derivative, tolerance and 
@@ -91,8 +91,8 @@ public:
         :
         RootFinder(f, d, dict)
         {}         
-        
-        
+
+
         //- Construct given  dictionary
         NewtonRootFinder
         (
@@ -102,7 +102,18 @@ public:
         RootFinder(dict)
         {}         
 
+        //- Copy constructor
         NewtonRootFinder(const NewtonRootFinder &) = default;
+
+        //- Clone the object
+        virtual tmp<RootFinder> clone() const
+        {
+            return tmp<RootFinder>
+            (
+                new NewtonRootFinder(*this)
+            );
+        }
+
         
     //- Destructor
         virtual ~NewtonRootFinder(){};
