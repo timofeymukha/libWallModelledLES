@@ -50,4 +50,5 @@ lnInclude/
 versionRules/foamVersion4wmles.H
 versionRules/foamVersion
 foamVersionThisIsCompiledFor
+.vscode/
 
