@@ -40,12 +40,13 @@ void Foam::SampledPGradField::sample
     for (int i=0; i<indexList.size(); i++)
     {
         sampledPGrad[i] = pGradField[indexList[i]];
-        sampledValues[i] = List<scalar>(3);
+        scalarList temp(3, 0.0);
         
         for (int j=0; j<3; j++)
         {
-            sampledValues[i][j] = sampledPGrad[i][j]; 
+            temp[j] = sampledPGrad[i][j]; 
         }
+        sampledValues[i] = temp;
     }
     projectVectors(sampledValues);
 }
