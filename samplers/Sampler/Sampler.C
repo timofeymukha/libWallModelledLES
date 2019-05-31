@@ -147,7 +147,12 @@ Foam::tmp<Foam::volScalarField> Foam::Sampler::distanceField() const
         )
     );
 
-    bool precomputedDist = mag(max(dist().internalField()).value()) > VSMALL;
+    bool precomputedDist = 
+    #ifdef FOAM_NEW_GEOMFIELD_RULES
+        mag(max(dist().primitiveField())) > VSMALL;
+    #else
+        mag(max(dist().internalField())) > VSMALL;
+    #endif
     
     if (debug)
     {
