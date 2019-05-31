@@ -145,7 +145,7 @@ calcUTau(const scalarField & magGradU) const
     source(sourceField);
     
     const vectorField & U = sampler().db().lookupObject<vectorField>("U");
-    scalarField magU = mag(U);
+    scalarField magU(mag(U));
  
     // Turbulent viscosity
     const scalarField & nutw = *this;

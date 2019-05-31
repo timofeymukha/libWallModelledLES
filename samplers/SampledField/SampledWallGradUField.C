@@ -247,7 +247,7 @@ void Foam::SampledWallGradUField::recompute() const
     const volVectorField & U = mesh().lookupObject<volVectorField>("U");
     const fvPatchVectorField & Uwall = U.boundaryField()[pI];
       
-    vectorField Udiff = Uwall.patchInternalField() - Uwall;
+    vectorField Udiff(Uwall.patchInternalField() - Uwall);
 #ifdef FOAM_NEW_GEOMFIELD_RULES
     wallGradU.boundaryFieldRef()[pI]
 #else        
