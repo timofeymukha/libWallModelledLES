@@ -76,9 +76,9 @@ public:
         {}
             
         //- Clone the object    
-        virtual tmp<SampledField> clone() const
+        virtual autoPtr<SampledField> clone() const
         {
-            return tmp<SampledField>
+            return autoPtr<SampledField>
             (
                 new SampledWallGradUField(*this)
             );

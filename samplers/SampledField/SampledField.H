@@ -96,7 +96,7 @@ public:
         {}
 
         //- Clone the object
-        virtual tmp<SampledField> clone() const = 0;
+        virtual autoPtr<SampledField> clone() const = 0;
 
         //- Destructor
         virtual ~SampledField() {};        
