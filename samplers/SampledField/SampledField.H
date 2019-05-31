@@ -57,14 +57,7 @@ protected:
         const fvPatch & patch_;
     
         const fvMesh & mesh_;
-        
-        //const labelList cellIndexList_;
-
-        //const labelListList cellMultiIndexList_;
-        
-        //- The sampler
-        //const Sampler & sampler_;
-                    
+                            
 public:
 
     // Constructors
@@ -73,25 +66,12 @@ public:
         SampledField
         (
             const fvPatch & patch
-            //const labelList &  cil
         )
         :
             patch_(patch),
             mesh_(patch_.boundaryMesh().mesh())
         {}
-
-        //- Construct from patch and cell multiindex list
-        //SampledField
-        //(
-            //const fvPatch & patch,
-            //const labelListList &  cil
-        //)
-        //:
-            //patch_(patch),
-            //db_(patch_.boundaryMesh().mesh()),
-            //cellMultiIndexList_(cil)
-        //{}
-        
+      
         //- Clone the object
         virtual tmp<SampledField> clone() const = 0;
 
@@ -111,13 +91,7 @@ public:
         {
             return mesh().subRegistry("wallModelSampling").subRegistry(patch().name());
         }
-        
-        //- Get the cell index list
-        //const labelList & cellIndexList() const
-        //{
-            //return cellIndexList_;
-        //}
-    
+            
         //- Get the patch
         const fvPatch & patch() const
         {
