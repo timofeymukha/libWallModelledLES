@@ -51,18 +51,29 @@ class SampledWallGradUField
 {
    
 public:
+    //- Runtime type information
+        TypeName("SampledWallGradUField");
     
     // Constructors
 
-        //- Construct from patch and cell index list
+        //- Construct from patch
         SampledWallGradUField
         (
             const fvPatch & patch
         )
         :
             SampledField(patch)
-        {
-        }
+        {}
+
+       //- Construct from field name and patch
+        SampledWallGradUField
+        (
+            const word & fieldName,
+            const fvPatch & patch
+        )
+        :
+            SampledWallGradUField(patch)
+        {}
             
         //- Clone the object    
         virtual tmp<SampledField> clone() const

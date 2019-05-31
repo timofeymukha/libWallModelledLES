@@ -21,6 +21,13 @@ License
 #include "SampledVelocityField.H"
 #include "volFields.H"
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(SampledVelocityField, 0);
+    addToRunTimeSelectionTable(SampledField, SampledVelocityField, FvPatch);
+}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

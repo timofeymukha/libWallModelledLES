@@ -23,6 +23,15 @@ License
 #include "fvcGrad.H"
 #include "List.H"
 
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(SampledPGradField, 0);
+    addToRunTimeSelectionTable(SampledField, SampledPGradField, FvPatch);
+}
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::SampledPGradField::sample

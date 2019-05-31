@@ -20,6 +20,41 @@ License
 
 #include "SampledField.H"
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(SampledField, 0);
+    defineRunTimeSelectionTable(SampledField, FvPatch);
+}
+
+// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
+
+Foam::autoPtr<Foam::SampledField> Foam::SampledField::New 
+(
+    const word & fieldName,
+    const fvPatch & p
+)
+{
+    FvPatchConstructorTable::iterator cstrIter =
+        FvPatchConstructorTablePtr_->find(fieldName);
+
+    if (cstrIter == FvPatchConstructorTablePtr_->end())
+    {
+        FatalErrorIn
+        (
+            "SampleDField::New(const word&, const fvPatch & p"
+            
+        )   << "Unknown SampledField type "
+            << fieldName << nl << nl
+            << "Valid SampledField types are :" << nl
+            << FvPatchConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
+    }
+
+    return cstrIter()(fieldName, p);
+}  
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::SampledField::projectVectors(scalarListList & field) const

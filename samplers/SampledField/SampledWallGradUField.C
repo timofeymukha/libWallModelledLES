@@ -22,6 +22,14 @@ License
 #include "volFields.H"
 #include "codeRules.H"
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(SampledWallGradUField, 0);
+    addToRunTimeSelectionTable(SampledField, SampledWallGradUField, FvPatch);
+}
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void

@@ -50,6 +50,8 @@ class SampledPGradField
 {
               
 public:
+    //- Runtime type information
+        TypeName("SampledPGradField");
 
     // Constructors
 
@@ -60,8 +62,16 @@ public:
         )
         :
             SampledField(patch)
-        { 
-        }
+        {}
+
+        SampledPGradField
+        (
+            const word & fieldName,
+            const fvPatch & patch
+        )
+        :
+            SampledField(fieldName, patch)
+        {}
         
         //- Clone the object
         virtual tmp<SampledField> clone() const

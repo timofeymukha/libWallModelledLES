@@ -39,6 +39,8 @@ SourceFiles
 #include "refCount.H"
 #include "fixedValueFvPatchFields.H"
 #include "scalarListListIOList.H"
+#include "runTimeSelectionTables.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -59,6 +61,8 @@ protected:
         const fvMesh & mesh_;
                             
 public:
+    //- Runtime type information
+        TypeName("SampledField");
 
     // Constructors
 
@@ -72,12 +76,37 @@ public:
             mesh_(patch_.boundaryMesh().mesh())
         {}
       
+        SampledField
+        (
+            const word & fieldName,
+            const fvPatch & patch
+        )
+        :
+            SampledField(patch)
+        {}
+
+        SampledField
+        (
+            const SampledField & copy
+        )
+        :
+            refCount(),
+            patch_(copy.patch()),
+            mesh_(copy.mesh())
+        {}
+
         //- Clone the object
         virtual tmp<SampledField> clone() const = 0;
 
         //- Destructor
         virtual ~SampledField() {};        
             
+        //- Selectors
+        static autoPtr<SampledField> New
+        (
+            const word &,
+            const fvPatch &
+        );           
     // Member functions
         
         //- Get the mesh
@@ -124,6 +153,22 @@ public:
         
         //- Recompute the field
         virtual void recompute() const = 0;       
+
+
+    // RTS tables
+        
+        // RTS table "Patch"
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            SampledField,
+            FvPatch,
+            (
+                const word& fieldName,
+                const fvPatch& p
+            ),
+            (fieldName, p)
+        );       
 };
 
 

@@ -52,10 +52,12 @@ class SampledVelocityField
 {
    
 public:
+    //- Runtime type information
+        TypeName("SampledVelocityField");   
     
     // Constructors
 
-        //- Construct from patch and cell index list
+        //- Construct from patch
         SampledVelocityField
         (
             const fvPatch & patch
@@ -66,6 +68,18 @@ public:
             //registerFields();
         }
             
+        //- Construct from field name  and patch
+        SampledVelocityField
+        (
+            const word & fieldName,
+            const fvPatch & patch
+        )
+        :
+            SampledVelocityField(patch)
+        {
+            //registerFields();
+        }
+
         //- Clone the object
         virtual tmp<SampledField> clone() const
         {
