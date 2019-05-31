@@ -335,10 +335,6 @@ Foam::Sampler::Sampler(const Sampler & copy)
     {
         Info << "Sampler: Running copy constructor" << nl;
     }
-    //forAll(copy.sampledFields_, i)
-    //{
-        //sampledFields_[i] = copy.sampledFields_[i]->clone();
-    //}
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -349,17 +345,12 @@ Foam::Sampler::~Sampler()
     {
         Info << "Sampler: Running destructor" << nl;
     }
-
-    //forAll(sampledFields_, i)
-    //{
-        //delete sampledFields_[i];
-    //}
 }
 
 void Foam::Sampler::addField(SampledField * field)
 {
     sampledFields_.setSize(sampledFields_.size() + 1);
-    sampledFields_.set(sampledFields_.size() - 1, field);
+    sampledFields_.set(sampledFields_.size() -1, field);
 }
 
 
