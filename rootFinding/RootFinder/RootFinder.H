@@ -120,7 +120,7 @@ public:
         RootFinder(const RootFinder &) = default;
 
         //- Clone the object
-        virtual tmp<RootFinder> clone() const = 0;
+        virtual autoPtr<RootFinder> clone() const = 0;
 
 
 

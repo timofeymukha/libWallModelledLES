@@ -106,9 +106,9 @@ public:
         NewtonRootFinder(const NewtonRootFinder &) = default;
 
         //- Clone the object
-        virtual tmp<RootFinder> clone() const
+        virtual autoPtr<RootFinder> clone() const
         {
-            return tmp<RootFinder>
+            return autoPtr<RootFinder>
             (
                 new NewtonRootFinder(*this)
             );

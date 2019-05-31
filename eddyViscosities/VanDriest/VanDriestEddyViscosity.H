@@ -98,9 +98,9 @@ public:
         VanDriestEddyViscosity(const VanDriestEddyViscosity &) = default;
 
         //- Clone
-        virtual tmp<EddyViscosity> clone()
+        virtual autoPtr<EddyViscosity> clone() const
         {
-            return tmp<EddyViscosity>
+            return autoPtr<EddyViscosity>
             (
                 new VanDriestEddyViscosity(*this)
             );

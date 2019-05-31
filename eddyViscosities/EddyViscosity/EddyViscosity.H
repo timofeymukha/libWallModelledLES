@@ -81,7 +81,7 @@ public:
         EddyViscosity(const EddyViscosity &) = default;
 
         //- Clone
-        virtual tmp<EddyViscosity> clone() = 0;
+        virtual autoPtr<EddyViscosity> clone() const = 0;
 
     // Destructor
         virtual ~EddyViscosity() {}

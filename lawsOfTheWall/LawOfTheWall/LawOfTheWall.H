@@ -96,7 +96,7 @@ public:
         virtual ~LawOfTheWall() {}
 
         //- Clone
-        virtual tmp<LawOfTheWall> clone() = 0;
+        virtual autoPtr<LawOfTheWall> clone() const = 0;
 
     // Selectors
         static autoPtr<LawOfTheWall> New 

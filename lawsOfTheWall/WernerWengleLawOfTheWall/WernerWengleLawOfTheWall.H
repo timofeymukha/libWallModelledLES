@@ -105,9 +105,9 @@ public:
         ) = default;
 
         //- Clone
-        virtual tmp<LawOfTheWall> clone()
+        virtual autoPtr<LawOfTheWall> clone() const
         {
-            return tmp<LawOfTheWall>
+            return autoPtr<LawOfTheWall>
             (
                 new WernerWengleLawOfTheWall(*this) 
             );

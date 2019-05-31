@@ -106,9 +106,9 @@ public:
         DupratEddyViscosity(const DupratEddyViscosity &) = default;
 
         //- Clone
-        virtual tmp<EddyViscosity> clone()
+        virtual autoPtr<EddyViscosity> clone() const
         {
-            return tmp<EddyViscosity>
+            return autoPtr<EddyViscosity>
             (
                 new DupratEddyViscosity(*this)
             );

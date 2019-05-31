@@ -107,9 +107,9 @@ public:
         BisectionRootFinder(const BisectionRootFinder &) = default;
 
         //- Clone the object
-        virtual tmp<RootFinder> clone() const
+        virtual autoPtr<RootFinder> clone() const
         {
-            return tmp<RootFinder>
+            return autoPtr<RootFinder>
             (
                 new BisectionRootFinder(*this)
             );
