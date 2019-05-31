@@ -41,14 +41,15 @@ Foam::SampledWallGradUField::sample
     
     const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
     
-    for (int i=0; i<indexList.size(); i++)
+    for (int i=0; i<sampledValues.size(); i++)
     {
-        sampledValues[i] = scalarList(3, 0.0);
+        scalarList temp(3, 0.0);
         
         for (int j=0; j<3; j++)
         {
-            sampledValues[i][j] = boundaryValues[i][j]; 
+            temp[j] = boundaryValues[i][j]; 
         }
+        sampledValues[i] = temp;
     }
     projectVectors(sampledValues);
 }

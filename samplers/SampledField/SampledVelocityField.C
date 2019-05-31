@@ -37,17 +37,21 @@ Foam::SampledVelocityField::sample
     const vectorField & Uwall = UField.boundaryField()[patch().index()];
     
     vectorField sampledU(indexList.size());
+
+    Info << "entering loop" << endl;
     
     for (int i=0; i<indexList.size(); i++)
     {
         sampledU[i] = UField[indexList[i]] - Uwall[i]; 
-        sampledValues[i] = List<scalar>(3);
+        scalarList temp(3, 0.0);
         
         for (int j=0; j<3; j++)
         {
-            sampledValues[i][j] = sampledU[i][j]; 
+            temp[j] = sampledU[i][j]; 
         }
+        sampledValues[i] = temp;
     }
+    Info << "entering projectVectors" << endl;
     projectVectors(sampledValues);
 }
 
