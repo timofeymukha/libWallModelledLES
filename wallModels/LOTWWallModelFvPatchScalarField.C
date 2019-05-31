@@ -166,21 +166,21 @@ LOTWWallModelFvPatchScalarField
 Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
-    const LOTWWallModelFvPatchScalarField & ptf,
+    const LOTWWallModelFvPatchScalarField & orig,
     const fvPatch & p,
     const DimensionedField<scalar, volMesh> & iF,
     const fvPatchFieldMapper & mapper
 )
 :
-    wallModelFvPatchScalarField(ptf, p, iF, mapper),
+    wallModelFvPatchScalarField(orig, p, iF, mapper),
 #ifdef AUTOPTR_HAS_CLONE_METHOD
-    rootFinder_(ptf.rootFinder_.clone()),
+    rootFinder_(orig.rootFinder_.clone()),
+    law_(orig.law_.clone()),
 #else
-    rootFinder_(ptf.rootFinder_, false),
+    rootFinder_(orig.rootFinder_, false),
+    law_(orig.law_, false),
 #endif
-    law_(LawOfTheWall::New(ptf.law_->type(),
-                           ptf.law_->constDict())),
-    sampler_(new SingleCellSampler(ptf.sampler()))
+    sampler_(new SingleCellSampler(orig.sampler()))
 {
     if (debug)
     {
@@ -217,24 +217,18 @@ LOTWWallModelFvPatchScalarField
 Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
-    const LOTWWallModelFvPatchScalarField & wfpsf
+    const LOTWWallModelFvPatchScalarField & orig
 )
 :
-    wallModelFvPatchScalarField(wfpsf),
+    wallModelFvPatchScalarField(orig),
 #ifdef AUTOPTR_HAS_CLONE_METHOD
-    rootFinder_(wfpsf.rootFinder_.clone()),
+    rootFinder_(orig.rootFinder_.clone()),
+    law_(orig.law_.clone()),
 #else
-    rootFinder_(wfpsf.rootFinder_, false),
+    rootFinder_(orig.rootFinder_, false),
+    law_(orig.law_, false),
 #endif
-    law_
-    (
-        LawOfTheWall::New 
-        (
-            wfpsf.law_->type(),
-            wfpsf.law_->constDict()
-        )
-    ),
-    sampler_(new SingleCellSampler(wfpsf.sampler_()))
+    sampler_(new SingleCellSampler(orig.sampler_()))
 {
     if (debug)
     {
@@ -247,25 +241,19 @@ LOTWWallModelFvPatchScalarField
 Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
-    const LOTWWallModelFvPatchScalarField & wfpsf,
+    const LOTWWallModelFvPatchScalarField & orig,
     const DimensionedField<scalar, volMesh> & iF
 )
 :
-    wallModelFvPatchScalarField(wfpsf, iF),
+    wallModelFvPatchScalarField(orig, iF),
 #ifdef AUTOPTR_HAS_CLONE_METHOD
-    rootFinder_(wfpsf.rootFinder_.clone()),
+    rootFinder_(orig.rootFinder_.clone()),
+    law_(orig.law_.clone()),
 #else
-    rootFinder_(wfpsf.rootFinder_, false),
+    rootFinder_(orig.rootFinder_, false),
+    law_(orig.law_, false),
 #endif
-    law_
-    (
-        LawOfTheWall::New 
-        (
-            wfpsf.law_->type(),
-            wfpsf.law_->constDict()
-        )
-    ),
-    sampler_(new SingleCellSampler(wfpsf.sampler_()))
+    sampler_(new SingleCellSampler(orig.sampler_()))
 {
 
     if (debug)
