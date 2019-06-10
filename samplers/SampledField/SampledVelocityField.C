@@ -39,14 +39,12 @@ Foam::SampledVelocityField::sample
 ) const
 {
     Info<< "Sampling velocity for patch " << patch_.name() << nl;
-    
+
     const volVectorField & UField = mesh().lookupObject<volVectorField>("U");
     const vectorField & Uwall = UField.boundaryField()[patch().index()];
-    
+
     vectorField sampledU(indexList.size());
 
-    Info << "entering loop" << endl;
-    
     for (int i=0; i<indexList.size(); i++)
     {
         sampledU[i] = UField[indexList[i]] - Uwall[i]; 
@@ -58,7 +56,7 @@ Foam::SampledVelocityField::sample
         }
         sampledValues[i] = temp;
     }
-    Info << "entering projectVectors" << endl;
+
     projectVectors(sampledValues);
 }
 
@@ -80,18 +78,18 @@ Foam::SampledVelocityField::sample
         sampledValues[i] = scalarListList(indexList[i].size());
         forAll(indexList[i], j)
         {
-            sampledValues[i][j] = scalarList(3);
+            scalarList temp(3, 0.0);
 
             //Info << i << " " << j << " " << UField[indexList[i][j]] - Uwall[i] << nl;
-            forAll(sampledValues[i][j], k)
+            for (int k=0; k<3; k++)
             {
-                sampledValues[i][j][k] = 
+                temp[k] = 
                     (UField[indexList[i][j]] - Uwall[i])[k]; 
             }
+            sampledValues[i][j] = temp;
         }
     }
     projectVectors(sampledValues);
-    //Info << sampledValues << nl;
 }
 
 
