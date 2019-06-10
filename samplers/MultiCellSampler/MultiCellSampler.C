@@ -147,6 +147,7 @@ void Foam::MultiCellSampler::createIndexList()
     // Grab the global indices of adjacent cells 
     const UList<label> & faceCells = patch().faceCells();
 
+    // Point 2h away from the face
     vector p;
     pointIndexHit pih;
 
@@ -154,11 +155,11 @@ void Foam::MultiCellSampler::createIndexList()
     {
         Info << "MultiCellSampler: Starting search for sampling cells" << nl;
     }
-    
+
     forAll(faceCentres, i)
     {
-        // Grab the point h away along the face normal
-        p = faceCentres[i] - faceNormals[i]*hPatch[i];
+        // Grab the point 2h away along the face normal
+        p = faceCentres[i] - 2*faceNormals[i]*hPatch[i];
 
         vector tolVector = (p - faceCentres[i])*1e-6;
         point startP = faceCentres[i] + tolVector;
@@ -167,14 +168,12 @@ void Foam::MultiCellSampler::createIndexList()
         // If h is zero, or the point is outside the domain,
         // set it to distance to adjacent cell's centre
         // Set the cellIndexList component accordingly
-        bool inside = boundaryTreePtr->getVolumeType(p) == volumeType::INSIDE;
+        bool inside = (boundaryTreePtr->getVolumeType(p) == volumeType::INSIDE);
+
         if ((hPatch[i] == 0) || (!inside) || (treePtr->nodes().empty()))
         {
-            indexList_[i] = labelList(1);
-            indexList_[i][0] = faceCells[i];
-
-            h_[i] = scalarList(1);
-            h_[i] = mag(cellCentres[i] - faceCentres[i]);
+            indexList_[i] = labelList(1, faceCells[i]);
+            h_[i] = scalarList(1, mag(cellCentres[i] - faceCentres[i]));
         }
         else
         {
@@ -187,7 +186,10 @@ void Foam::MultiCellSampler::createIndexList()
 
             while (true)
             {
-                //Info << "Start: " << startP << " End: " << endP << nl;
+                if (debug > 1)
+                {
+                    Info << "Searching faces along line from: " << startP << " to " << endP << nl;
+                }
                 pih = treePtr->findLine(startP, endP);
 
                 if (pih.hit())
@@ -197,16 +199,26 @@ void Foam::MultiCellSampler::createIndexList()
                         treePtr->findNearest(hitP - tolVector, treePtr->bb().mag()).index();
 
                     indexList_[i][n] = searchCellLabels[cellI];
+
+                    // No projection currently
                     h_[i][n] = mag(C[searchCellLabels[cellI]] - faceCentres[i]);
 
-                    //Info<< "Hit face: " << hitP << nl;
-                    //Info<< "CC: " << C[searchCellLabels[cellI]] << nl;
-                    
+                    if (debug > 1)
+                    {
+                        Info<< "Hit face: " << hitP << nl;
+                        Info<< "CC: " << C[searchCellLabels[cellI]] << nl;
+                    }
+                   
 
                     n++;
 
+                    // If we are now inside the last cell
                     if (mag(hitP - faceCentres[i]) >= hPatch[i])
                     {
+                        if (debug > 1)
+                        {
+                            Info<< "This is the last cell, n = " << n << nl;
+                        }
                         indexList_[i].setSize(n);
                         h_[i].setSize(n);
                         break;
@@ -220,18 +232,11 @@ void Foam::MultiCellSampler::createIndexList()
                     if (n == 0)
                     {
                         Info << "No faces were intersected, reverting to wall-adjacent cell" << nl;
-                        indexList_[i].setSize(1);
-                        indexList_[i][0] = faceCells[i];
-
-                        h_[i].setSize(1);
-                        h_[i] = mag(cellCentres[i] - faceCentres[i]);
+                        indexList_[i].setSize(1, faceCells[i]);
+                        h_[i].setSize(1, mag(cellCentres[i] - faceCentres[i]));
                         break;
                     
                     }
-                        Info << "No face intersected, done" << nl;
-                    indexList_[i].setSize(n);
-                    h_[i].setSize(n);
-                    break;
                 }
            }
 
