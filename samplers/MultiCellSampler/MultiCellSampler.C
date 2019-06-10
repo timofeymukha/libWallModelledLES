@@ -341,11 +341,6 @@ Foam::MultiCellSampler::MultiCellSampler
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::MultiCellSampler::~MultiCellSampler()
-{
-}
-
-
 void Foam::MultiCellSampler::sample() const
 {
     // Ensure this processor has part of the patch
