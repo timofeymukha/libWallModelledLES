@@ -219,8 +219,8 @@ void Foam::MultiCellSampler::createIndexList()
                         {
                             Info<< "This is the last cell, n = " << n << nl;
                         }
-                        indexList_[i].setSize(n - 1);
-                        h_[i].setSize(n - 1);
+                        indexList_[i].setSize(n);
+                        h_[i].setSize(n);
                         break;
                     }
 
