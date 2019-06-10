@@ -95,10 +95,15 @@ public:
         );
         
         //- Copy constructor
-        MultiCellSampler(const MultiCellSampler &) = default;
-        
+        MultiCellSampler(const MultiCellSampler & orig)
+        :
+        Sampler(orig)
+        {}
+
+
     // Destructor
-        virtual ~MultiCellSampler();
+        virtual ~MultiCellSampler()
+        {}
 
     // Member functions
 
