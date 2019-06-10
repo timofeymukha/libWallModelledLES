@@ -25,6 +25,7 @@ License
 #include "scalarListListIOList.H"
 #include "MultiCellSampler.H"
 #include "SpaldingLawOfTheWall.H"
+#include "OFstream.H"
 
 using namespace std::placeholders;
 
@@ -123,6 +124,7 @@ Foam::LSQRWallModelFvPatchScalarField::calcNut() const
     return max
     (
         scalar(0),
+        //-nuw
         sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw
     );
 }
@@ -181,11 +183,16 @@ calcUTau(const scalarField & magGradU) const
     const scalarListList & h = sampler().h();
     const scalarListListList & U = sampler().db().lookupObject<scalarListListIOList>("U");
 
+    fileName outputFile(db().time().path()/db().time().timeName()/"lsqr");
+    OFstream os(outputFile);
+    os << "# n u y kappa B utau" << nl;
+ 
     // Compute uTau for each face
     forAll(uTau, faceI)
     {
         // Starting guess using old values
         scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
+        
         ut = 0.0414872;
         const label n = h[faceI].size();
         
@@ -205,11 +212,13 @@ calcUTau(const scalarField & magGradU) const
                 //if (n > 1)
                 //{
 
+
+                // HARDCODED THAT 1st CELL IS UNUSED!
                 scalarList yStarNew(n-1);
                 scalarList uStarNew(n-1);
 
 
-                    scalarList uStar = u/ut; 
+                scalarList uStar = u/ut; 
                 for (int j=0; j<n-1; j++)
                 {
                     yStarNew[j] = yStar[j+1];
@@ -221,13 +230,14 @@ calcUTau(const scalarField & magGradU) const
                     scalar sumULogYStar = sum(uStarNew*log(yStarNew));
                     scalar sumLogYStar2 = sum(sqr(log(yStarNew)));
 
-                    const scalar kappaNom = n*sumLogYStar2 - sqr(sumLogYStar);
-                    const scalar kappaDenom = n*sumULogYStar - sumUStar*sumLogYStar;
+                // HARDCODED THAT 1st CELL IS UNUSED!
+                    const scalar kappaNom = (n -1)*sumLogYStar2 - sqr(sumLogYStar);
+                    const scalar kappaDenom = (n -1)*sumULogYStar - sumUStar*sumLogYStar;
 
                     kappa[faceI] = kappaNom/(kappaDenom + VSMALL);
-                    kappa[faceI]  = max(0.05, min(10, kappa[faceI]));
+                    //kappa[faceI]  = max(0.05, min(10, kappa[faceI]));
 
-                    B[faceI]  = (sumUStar - 1/(kappa[faceI]  + SMALL)*sumLogYStar)/n;
+                    B[faceI]  = (sumUStar - 1/(kappa[faceI]  + SMALL)*sumLogYStar)/(n-1);
 
                     //Info<< "y* " << yStar << nl;
                     //Info<< "u* " << uStar << nl;
@@ -235,17 +245,29 @@ calcUTau(const scalarField & magGradU) const
 
                 if (faceI == 50)
                 {
-                    //Info<< "kappa " << kappa[faceI]  << " B " << B[faceI]  << nl;
+                    Info<< "ut" << ut << nl;
+                    Info<< "kappa " << kappa[faceI]  << " B " << B[faceI]  << nl;
                     //Info<< "n" << n << nl;
                     //Info<< "h" << h[faceI] << nl;
-                    Info<< "ut" << ut << nl;
                     //Info<< "yStar" << yStar << nl;
                     //Info<< "uStar" << uStar << nl;
                     //Info<< "yStarNew" << yStarNew << nl;
                     //Info<< "uStarNew" << uStarNew << nl;
+                    os << n  << " ";
+                    forAll (u, uI)
+                    {
+                        os << u[uI] << " ";
+                    }
+                    forAll (u, uI)
+                    {
+                        os << h[faceI][uI] << " ";
+                    }
+                    os << kappa[faceI] << " ";
+                    os << B[faceI] << " ";
+                    os << ut << nl;
                 }
 
-                SpaldingLawOfTheWall law(kappa[faceI] , B[faceI] );
+                SpaldingLawOfTheWall law(kappa[faceI] , B[faceI]);
 
                 // Construct functions dependant on a single parameter (uTau)
                 // from functions given by the law of the wall
@@ -255,8 +277,8 @@ calcUTau(const scalarField & magGradU) const
                     &law,
                     //u[n-1],
                     //h[faceI][n-1],
-                    u[2],
-                    h[faceI][2],
+                    u[1],
+                    h[faceI][1],
                     _1, 
                     nuw[faceI]
                 );
@@ -267,8 +289,8 @@ calcUTau(const scalarField & magGradU) const
                     &law,
                     //u[n-1],
                     //h[faceI][n-1],
-                    u[2],
-                    h[faceI][2],
+                    u[1],
+                    h[faceI][1],
                     _1, 
                     nuw[faceI]
                 );
@@ -281,6 +303,7 @@ calcUTau(const scalarField & magGradU) const
 
                 // Compute root to get uTau
                 scalar eps = 0.1;
+                eps = 1;
                 ut = eps*max(0.0, rootFinder_->root(ut)) + (1-eps)*ut;
             }
 
