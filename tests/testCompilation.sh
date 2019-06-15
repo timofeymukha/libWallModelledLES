@@ -1,7 +1,22 @@
+if [ $1 == "4.1" ]
+then
+    docker start of_4
+    docker exec -w $PWD/.. of_4 /bin/bash -c ". /opt/openfoam4/etc/bashrc && export FOAM_USER_LIBBIN=/home/timofey/OpenFOAM/timofey-4.1/platforms/linux64GccDPInt32Opt/lib && ./Allwclean && ./Allwmake"
+fi
+if [ $1 == "5.0" ]
+then
+    docker start of_5
+    docker exec -w $PWD/.. of_5 /bin/bash -c ". /opt/openfoam5/etc/bashrc && export FOAM_USER_LIBBIN=/home/timofey/OpenFOAM/timofey-5/platforms/linux64GccDPInt32Opt/lib && ./Allwclean && ./Allwmake"
+fi
+if [ $1 == "6.0" ]
+then
+    docker start of_6
+    docker exec -w $PWD/.. of_6 /bin/bash -c ". /opt/openfoam6/etc/bashrc && export FOAM_USER_LIBBIN=/home/timofey/OpenFOAM/timofey-6/platforms/linux64GccDPInt32Opt/lib && ./Allwclean && ./Allwmake"
+fi
 if [ $1 == "v30plus" ]
 then
     docker start of_v30plus
-    docker exec -w $PWD/.. of_30plus /bin/bash -c "source /opt/OpenFOAM/setImage_v1706.sh && ./Allwclean && ./Allwmake"
+    docker exec -w $PWD/.. of_v30plus /bin/bash -c "source /opt/OpenFOAM/OpenFOAM-v3.0+/etc/bashrc && ./Allwclean && ./Allwmake"
 fi
 if [ $1 == "v1606" ]
 then
