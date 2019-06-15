@@ -90,6 +90,7 @@ except (KeyError, IOError):
     pass
 
 if not foamFork:
+
     foamFork = "org"  # Fallback value is <openfoam.org>
 
     if "FOAM_DEV" in environ:
@@ -101,9 +102,13 @@ if not foamFork:
         # Additional check for openfoam.com (v1606+, v1612, 1706)
         # - only needed for 3.0+ and 1606
         m = re.match(r'v?(\d{4})\+?', verString)
+        n = re.match(r'v(3.0)\+', verString)
         if m:
             foamFork  = "com"
             verString = m.group(1)
+        if n:
+            foamFork  = "com"
+            verString = n.group(1)
 
 vParts=verString.split(".")
 
