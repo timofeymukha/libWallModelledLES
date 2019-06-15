@@ -186,7 +186,11 @@ Foam::tmp<Foam::volScalarField> Foam::Sampler::distanceField() const
         {
             Info<< "Sampler: Computing dist field" << nl;
         }
+#ifdef FOAM_NEW_TMP_RULES
         pdm->correct(dist.ref());
+#else
+        pdm->correct(dist());
+#endif
     }
 
     return dist;
