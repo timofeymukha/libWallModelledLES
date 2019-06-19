@@ -20,7 +20,7 @@ struct Foo
     }
 };
 
-TEST(NetwonRootFinder, full_constructor)
+TEST(NetwonRootFinder, FullConstructor)
 {
     Foo foo;
     label maxIter = 100;
@@ -35,7 +35,7 @@ TEST(NetwonRootFinder, full_constructor)
     ASSERT_DOUBLE_EQ(newton.d(1), 3.);
 }
 
-TEST(NetwonRootFinder, f_d_dict_constructor)
+TEST(NetwonRootFinder, FuncDerivDictConstructor)
 {
     Foo foo;
     std::function<scalar(scalar)> f = std::bind(&Foo::val, &foo, _1, 3);
@@ -51,7 +51,7 @@ TEST(NetwonRootFinder, f_d_dict_constructor)
     ASSERT_DOUBLE_EQ(newton.d(1), 3.);
 }
 
-TEST(NetwonRootFinder, dict_constructor)
+TEST(NetwonRootFinder, DictConstructor)
 {
     dictionary dict = dictionary();
     dict.add("eps", 1e-5);
@@ -64,7 +64,7 @@ TEST(NetwonRootFinder, dict_constructor)
     ASSERT_DOUBLE_EQ(newton.d(10), 0);
 }
 
-TEST(NetwonRootFinder, dict_default_values)
+TEST(NetwonRootFinder, DictDefaultValues)
 {
     dictionary dict = dictionary();
 
@@ -74,7 +74,7 @@ TEST(NetwonRootFinder, dict_default_values)
 }
 
 
-TEST(NewtonRootFinder, root)
+TEST(NewtonRootFinder, Root)
 {
 
     Foo foo;
