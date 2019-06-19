@@ -23,7 +23,7 @@ Description
     Class for the sampled velocity field.
 
 Contributors/Copyright:
-    2018 Timofey Mukha
+    2019 Timofey Mukha
 
 SourceFiles
     SampledWallGradUField.C
@@ -53,7 +53,7 @@ class SampledWallGradUField
 public:
     //- Runtime type information
         TypeName("SampledWallGradUField");
-    
+
     // Constructors
 
         //- Construct from patch
@@ -74,7 +74,7 @@ public:
         :
             SampledWallGradUField(patch)
         {}
-            
+
         //- Clone the object    
         virtual autoPtr<SampledField> clone() const
         {

@@ -23,7 +23,7 @@ Description
     Class for the sampled velocity field.
 
 Contributors/Copyright:
-    2018 Timofey Mukha
+    2019 Timofey Mukha
 
 SourceFiles
     SampledVelocityField.C
@@ -54,7 +54,7 @@ class SampledVelocityField
 public:
     //- Runtime type information
         TypeName("SampledVelocityField");   
-    
+
     // Constructors
 
         //- Construct from patch
@@ -67,7 +67,7 @@ public:
         {
             //registerFields();
         }
-            
+
         //- Construct from field name  and patch
         SampledVelocityField
         (
