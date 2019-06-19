@@ -49,7 +49,7 @@ Description
     \endverbatim
 
 Contributors/Copyright:
-    2016-2018 Timofey Mukha
+    2016-2019 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 
