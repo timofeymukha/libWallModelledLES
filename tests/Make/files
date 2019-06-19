@@ -5,6 +5,7 @@ fixtures.C
 ./samplers/SingleCellSampler/testSingleCellSampler.C
 ./samplers/SampledField/testSampledVelocityField.C
 ./samplers/SampledField/testSampledWallGradUField.C
+./lawsOfTheWall/SpaldingLawOfTheWall/testSpaldingLawOfTheWall.C
 
 EXE=./testRunner
 
