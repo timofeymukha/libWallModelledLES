@@ -133,7 +133,7 @@ public:
         ) = default;
 
         //- Clone
-        virtual autoPtr<LawOfTheWall> clone() const
+        virtual autoPtr<LawOfTheWall> clone() const override
         {
             return autoPtr<LawOfTheWall>
             (
@@ -168,7 +168,7 @@ public:
         }
         
         //- Print info to terminal
-        virtual void printCoeffs() const;
+        virtual void printCoeffs() const override;
 
         //- Return the value of the implicit function defining the law
         virtual scalar value
@@ -177,9 +177,9 @@ public:
             scalar index,
             scalar uTau,
             scalar nu
-        ) const;
+        ) const override;
 
-        virtual scalar value
+        scalar value
         (
             scalar u,
             scalar h1,
@@ -197,9 +197,9 @@ public:
             scalar index,
             scalar uTau,
             scalar nu
-        ) const;
+        ) const override;
 
-        virtual scalar
+        scalar
         derivative
         (
             scalar h1,

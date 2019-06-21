@@ -113,7 +113,7 @@ public:
         SpaldingLawOfTheWall & operator=(const SpaldingLawOfTheWall &) = default;
 
         //- Clone
-        virtual autoPtr<LawOfTheWall> clone() const
+        virtual autoPtr<LawOfTheWall> clone() const override
         {
             return autoPtr<LawOfTheWall>
             (
@@ -137,7 +137,7 @@ public:
         }
         
         //- Print the model coefficients to terminal
-        virtual void printCoeffs() const;
+        virtual void printCoeffs() const override;
 
         //- Return the value of the implicit function defining the law
         virtual scalar value
@@ -146,7 +146,7 @@ public:
             scalar index,
             scalar uTau,
             scalar nu
-        ) const;
+        ) const override;
 
         scalar value(scalar u, scalar y, scalar uTau, scalar nu) const;
 
@@ -159,7 +159,7 @@ public:
             scalar index,
             scalar uTau,
             scalar nu
-        ) const;
+        ) const override;
 
         scalar derivative(scalar u, scalar y, scalar uTau, scalar nu) const;
 };
