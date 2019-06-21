@@ -86,8 +86,11 @@ public:
         constDict_(dict)
         {}
 
-        //- Copy constructor
+        //- Default constructor
         LawOfTheWall() = default;
+
+        //- Assignment
+        LawOfTheWall & operator=(const LawOfTheWall &) = default;
 
         //- Copy constructor
         LawOfTheWall(const LawOfTheWall &) = default;

@@ -123,6 +123,12 @@ public:
             const ReichardtLawOfTheWall &
         ) = default;
 
+        //- Assignment
+        ReichardtLawOfTheWall & operator=
+        (
+            const ReichardtLawOfTheWall &
+        ) = default;
+
         //- Clone
         virtual autoPtr<LawOfTheWall> clone() const
         {

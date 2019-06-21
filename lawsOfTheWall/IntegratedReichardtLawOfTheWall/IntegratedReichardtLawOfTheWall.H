@@ -126,6 +126,12 @@ public:
             const IntegratedReichardtLawOfTheWall &
         ) = default;
 
+        //- Assignment
+        IntegratedReichardtLawOfTheWall & operator=
+        (
+            const IntegratedReichardtLawOfTheWall &
+        ) = default;
+
         //- Clone
         virtual autoPtr<LawOfTheWall> clone() const
         {

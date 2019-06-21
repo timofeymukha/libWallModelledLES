@@ -119,6 +119,12 @@ public:
             const IntegratedWernerWengleLawOfTheWall &
         ) = default;
 
+        //- Assignment
+        IntegratedWernerWengleLawOfTheWall & operator=
+        (
+            const IntegratedWernerWengleLawOfTheWall &
+        ) = default;
+
         //- Clone
         virtual autoPtr<LawOfTheWall> clone() const
         {

@@ -109,6 +109,9 @@ public:
         //- Copy constructor
         SpaldingLawOfTheWall(const SpaldingLawOfTheWall &) = default;
 
+        //- Assignment
+        SpaldingLawOfTheWall & operator=(const SpaldingLawOfTheWall &) = default;
+
         //- Clone
         virtual autoPtr<LawOfTheWall> clone() const
         {
