@@ -89,10 +89,10 @@ public:
 
     // Constructors
       
-        //- Construct provided dictionary and cell index list
+        //- Construct provided dictionary
         SpaldingLawOfTheWall(const dictionary &);
         
-        //- Construct provided TypeName and dictionary and cell index list
+        //- Construct provided TypeName and dictionary
         SpaldingLawOfTheWall
         (
             const word & lawname,

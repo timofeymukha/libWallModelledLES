@@ -88,10 +88,10 @@ public:
 
     // Constructors
 
-        //- Construct provided dictionary and cell index list
+        //- Construct provided dictionary
         WernerWengleLawOfTheWall(const dictionary &);
         
-        //- Construct provided TypeName and dictionary and cell index list
+        //- Construct provided TypeName and dictionary
         WernerWengleLawOfTheWall
         ( 
             const word & lawname,
