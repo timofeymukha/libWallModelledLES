@@ -68,8 +68,8 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 
 Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 (
-    scalar kappa,
-    scalar B
+    const scalar kappa,
+    const scalar B
 )
 :
     LawOfTheWall(),
