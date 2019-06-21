@@ -102,8 +102,8 @@ public:
         //- Construct from model constants
         SpaldingLawOfTheWall
         (
-            scalar kappa,
-            scalar B
+            const scalar kappa,
+            const scalar B
         );
 
         //- Copy constructor
