@@ -64,6 +64,26 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 }
 
 
+Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
+(
+    const scalar A,
+    const scalar B
+)
+:
+    LawOfTheWall(),
+    A_(A),
+    B_(B)
+{
+
+    constDict_.add("A", A);
+    constDict_.add("B", B);
+    
+    if (debug)
+    {        
+        printCoeffs();
+    }
+}
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::WernerWengleLawOfTheWall::printCoeffs() const
@@ -88,6 +108,18 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::value
 
     scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
     scalar y = sampler.h()[index];
+    return value(u, y, uTau, nu);
+}
+
+
+Foam::scalar Foam::WernerWengleLawOfTheWall::value
+(
+    scalar u,
+    scalar y,
+    scalar uTau,
+    scalar nu
+) const
+{  
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
     scalar yPlusM = pow(A_, 1/(1-B_));
@@ -115,6 +147,18 @@ Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
 
     scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
     scalar y = sampler.h()[index];
+    return derivative(u, y, uTau, nu);
+}
+
+
+Foam::scalar Foam::WernerWengleLawOfTheWall::derivative
+(
+    scalar u,
+    scalar y,
+    scalar uTau,
+    scalar nu        
+) const
+{
     scalar yPlus = y*uTau/nu;
     scalar yPlusM = pow(A_, 1/(1-B_));
 
