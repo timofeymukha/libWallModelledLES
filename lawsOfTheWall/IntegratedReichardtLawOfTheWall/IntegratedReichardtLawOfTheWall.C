@@ -80,6 +80,32 @@ Foam::IntegratedReichardtLawOfTheWall::IntegratedReichardtLawOfTheWall
 }
 
 
+Foam::IntegratedReichardtLawOfTheWall::IntegratedReichardtLawOfTheWall
+(
+    const scalar kappa,
+    const scalar B1,
+    const scalar B2,
+    const scalar C
+)
+:
+    LawOfTheWall(),
+    kappa_(kappa),
+    B1_(B1),
+    B2_(B2),
+    C_(C)
+{
+    constDict_.add("kappa", kappa);
+    constDict_.add("B1", B1);
+    constDict_.add("B2", B2);
+    constDict_.add("C", C);
+
+    if (debug)
+    {        
+        printCoeffs();
+    }
+
+}
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::IntegratedReichardtLawOfTheWall::printCoeffs() const
@@ -107,9 +133,24 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
     scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
     
     scalar h = sampler.h()[index];
-    
+    // !!!!!
     scalar h1 = mag(h - sampler.lengthList()[index]/2);
     scalar h2 = h + sampler.lengthList()[index]/2;
+
+    return value(u, h1, h2, uTau, nu);
+}
+
+
+Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
+(
+    scalar u,
+    scalar h1,
+    scalar h2,
+    scalar uTau,
+    scalar nu
+) const
+{   
+
     
     return u*(h2 - h1) - (logTerm(h2, uTau, nu) - logTerm(h1, uTau, nu) +
                           expTerm(h2, uTau, nu) - expTerm(h1, uTau, nu));
@@ -129,9 +170,22 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::derivative
     scalar h1 = mag(h - sampler.lengthList()[index]/2);
     scalar h2 = h + sampler.lengthList()[index]/2;
         
-    return -(logTermDerivative(h2, uTau, nu) - logTermDerivative(h1, uTau, nu) +
-             expTermDerivative(h2, uTau, nu) - logTermDerivative(h1, uTau, nu));
+    return derivative(h1, h2, uTau, nu);
 }
+
+
+Foam::scalar Foam::IntegratedReichardtLawOfTheWall::derivative
+(
+    scalar h1,
+    scalar h2,
+    scalar uTau,
+    scalar nu        
+) const
+{ 
+    return -(logTermDerivative(h2, uTau, nu) - logTermDerivative(h1, uTau, nu) +
+             expTermDerivative(h2, uTau, nu) - expTermDerivative(h1, uTau, nu));
+}
+
 
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::logTerm
 (

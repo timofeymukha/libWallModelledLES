@@ -108,6 +108,15 @@ public:
             const dictionary &
         );
 
+        //- Construct from model constants
+        IntegratedReichardtLawOfTheWall
+        (
+            const scalar kappa,
+            const scalar B1,
+            const scalar B2,
+            const scalar C
+        );
+
         // Destructor
         virtual ~IntegratedReichardtLawOfTheWall() {};
         
@@ -156,14 +165,42 @@ public:
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(const SingleCellSampler & sampler, scalar index,
-                             scalar uTau, scalar nu) const;
+        virtual scalar value
+        (
+            const SingleCellSampler & sampler,
+            scalar index,
+            scalar uTau,
+            scalar nu
+        ) const;
+
+        virtual scalar value
+        (
+            scalar u,
+            scalar h1,
+            scalar h2,
+            scalar uTau,
+            scalar nu
+        ) const;
 
         //- Return the value of the  derivative of the implicit function
         //  defining the law.
         virtual scalar
-        derivative(const SingleCellSampler & sampler, scalar index,
-                   scalar uTau, scalar nu) const;
+        derivative
+        (
+            const SingleCellSampler & sampler,
+            scalar index,
+            scalar uTau,
+            scalar nu
+        ) const;
+
+        virtual scalar
+        derivative
+        (
+            scalar h1,
+            scalar h2,
+            scalar uTau,
+            scalar nu
+        ) const;
 
         //- The log-term in the integrated law
         scalar logTerm(scalar y, scalar uTau, scalar nu) const;
