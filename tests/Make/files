@@ -6,6 +6,6 @@ fixtures.C
 ./samplers/SampledField/testSampledVelocityField.C
 ./samplers/SampledField/testSampledWallGradUField.C
 ./lawsOfTheWall/SpaldingLawOfTheWall/testSpaldingLawOfTheWall.C
-
+./lawsOfTheWall/ReichardtLawOfTheWall/testReichardtLawOfTheWall.C
 EXE=./testRunner
 
