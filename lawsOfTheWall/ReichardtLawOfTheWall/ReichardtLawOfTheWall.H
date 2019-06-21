@@ -107,6 +107,16 @@ public:
             const dictionary &
         );
 
+        //- Construct from model constants
+        ReichardtLawOfTheWall
+        (
+            const scalar kappa,
+            const scalar B1,
+            const scalar B2,
+            const scalar C
+        );
+
+
         //- Copy constructor
         ReichardtLawOfTheWall
         (
@@ -155,13 +165,39 @@ public:
         virtual void printCoeffs() const;
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(const SingleCellSampler & sampler, scalar index,
-                             scalar uTau, scalar nu) const;
+        virtual scalar value
+        (
+            const SingleCellSampler & sampler,
+            scalar index,
+            scalar uTau,
+            scalar nu
+        ) const;
+
+        virtual scalar value
+        (
+            scalar u,
+            scalar y,
+            scalar uTau,
+            scalar nu
+        ) const;
         
         //- Return the value of the derivative of the implicit function
         //  defining the law
-        virtual scalar derivative(const SingleCellSampler & sampler,
-                                  scalar index, scalar uTau, scalar nu) const;
+        virtual scalar derivative
+        (
+            const SingleCellSampler & sampler,
+            scalar index,
+            scalar uTau,
+            scalar nu
+        ) const;
+
+        virtual scalar derivative
+        (
+            scalar u,
+            scalar y,
+            scalar uTau,
+            scalar nu
+        ) const;
 };
 
 

@@ -35,6 +35,32 @@ namespace Foam
 
 Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
 (
+    const scalar kappa,
+    const scalar B1,
+    const scalar B2,
+    const scalar C
+)
+:
+    LawOfTheWall(),
+    kappa_(kappa),
+    B1_(B1),
+    B2_(B2),
+    C_(C)
+{
+    constDict_.add("kappa", kappa);
+    constDict_.add("B1", B1);
+    constDict_.add("B2", B2);
+    constDict_.add("C", C);
+
+    if (debug)
+    {        
+        printCoeffs();
+    }
+
+}
+
+Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
+(
     const dictionary & dict
 )
 :
@@ -93,9 +119,20 @@ Foam::scalar Foam::ReichardtLawOfTheWall::value
 ) const
 {
     const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
-    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
-    
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));   
     scalar y = sampler.h()[index];
+ 
+    return value(u, y, uTau, nu);
+}
+
+Foam::scalar Foam::ReichardtLawOfTheWall::value
+(
+    scalar u,
+    scalar y,
+    scalar uTau,
+    scalar nu
+) const
+{
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
 
@@ -114,9 +151,21 @@ Foam::scalar Foam::ReichardtLawOfTheWall::derivative
 ) const
 {
     const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
-    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
-    
+    scalar u = mag(vector(U[index][0], U[index][1], U[index][2])); 
     scalar y = sampler.h()[index];
+    
+    return derivative(u, y, uTau, nu);
+}
+
+
+Foam::scalar Foam::ReichardtLawOfTheWall::derivative
+(
+    scalar u,
+    scalar y,
+    scalar uTau,
+    scalar nu
+) const
+{
     scalar uPlus = u/uTau;
     scalar yPlus = y*uTau/nu;
     
