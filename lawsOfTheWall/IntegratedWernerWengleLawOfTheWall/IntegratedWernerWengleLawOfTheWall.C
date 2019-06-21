@@ -75,6 +75,26 @@ Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
 }
 
 
+Foam::IntegratedWernerWengleLawOfTheWall::IntegratedWernerWengleLawOfTheWall
+(
+    const scalar A,
+    const scalar B
+)
+:
+    LawOfTheWall(),
+    A_(A),
+    B_(B)
+{
+
+    constDict_.add("A", A);
+    constDict_.add("B", B);
+    
+    if (debug)
+    {        
+        printCoeffs();
+    }
+}
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::IntegratedWernerWengleLawOfTheWall::printCoeffs() const
@@ -102,12 +122,19 @@ Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::value
     scalar h = sampler.h()[index]; 
     //scalar h1 = h - sampler.lengthList()[index]/2;
     scalar h2 = h + sampler.lengthList()[index]/2;
+    return value(u, h2, uTau, nu);
+}
 
-    //scalar yPlusM = pow(A_, 1/(1-B_));            
-    
-
-    return uTau - pow((1+B_)/A_*pow(nu/h2, B_)*u + 
-                      (1-B_)/2*pow(A_, (1+B_)/(1-B_))*pow(nu/h2, B_+1),
+Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::value
+(
+    scalar u,
+    scalar h,
+    scalar uTau,
+    scalar nu
+) const
+{
+    return uTau - pow((1+B_)/A_*pow(nu/h, B_)*u + 
+                      (1-B_)/2*pow(A_, (1+B_)/(1-B_))*pow(nu/h, B_+1),
                       1.0/(1+B_));
 }
 
@@ -119,6 +146,11 @@ Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::derivative
     scalar uTau,
     scalar nu        
 ) const
+{
+    return derivative();
+}
+
+Foam::scalar Foam::IntegratedWernerWengleLawOfTheWall::derivative() const
 {
     return 1;
 }
