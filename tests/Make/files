@@ -10,5 +10,6 @@ fixtures.C
 ./lawsOfTheWall/WernerWengleLawOfTheWall/testWernerWengleLawOfTheWall.C
 ./lawsOfTheWall/IntegratedWernerWengleLawOfTheWall/testIntegratedWernerWengleLawOfTheWall.C
 ./lawsOfTheWall/IntegratedReichardtLawOfTheWall/testIntegratedReichardtLawOfTheWall.C
+./lawsOfTheWall/LawOfTheWall/testLawOfTheWall.C
 EXE=./testRunner
 
