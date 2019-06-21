@@ -93,7 +93,11 @@ public:
         LawOfTheWall & operator=(const LawOfTheWall &) = default;
 
         //- Copy constructor
-        LawOfTheWall(const LawOfTheWall &) = default;
+        LawOfTheWall(const LawOfTheWall & orig)
+        :
+        refCount(),
+        constDict_(orig.constDict_)
+        {}
 
         //- Destructor
         virtual ~LawOfTheWall() {}
@@ -122,15 +126,24 @@ public:
         virtual void printCoeffs() const = 0; 
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value(const SingleCellSampler & sampler, scalar index,
-                             scalar uTau, scalar nu) const = 0;
+        virtual scalar value
+        (
+            const SingleCellSampler & sampler,
+            scalar index,
+            scalar uTau,
+            scalar nu
+        ) const = 0;
 
         //- Return the value of the  derivative of the implicit function
         //  defining the law. Should throw an error if derivative does not 
         //  exist.
-        virtual scalar 
-        derivative(const SingleCellSampler & sampler, scalar index,
-                  scalar uTau, scalar nu) const = 0;
+        virtual scalar derivative
+        (
+            const SingleCellSampler & sampler,
+            scalar index,
+            scalar uTau,
+            scalar nu
+        ) const = 0;
         
         //- Write information about the law to stream
         virtual void write(Ostream & os) const; 

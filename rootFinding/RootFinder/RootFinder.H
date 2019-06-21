@@ -87,6 +87,7 @@ public:
             const label maxIter
         )
         :
+        refCount(),
         f_(f),
         d_(d),
         eps_(eps),
@@ -100,6 +101,7 @@ public:
             const dictionary& dict
         )
         :
+        refCount(),
         f_(f),
         d_(d),
         eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
@@ -111,13 +113,21 @@ public:
             const dictionary& dict
         )
         :
+        refCount(),
         f_(rootFinderDummy),
         d_(rootFinderDummy),
         eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
         maxIter_(dict.lookupOrDefault<label>("maxIter", 30))
         {};
 
-        RootFinder(const RootFinder &) = default;
+        RootFinder(const RootFinder & orig)
+        :
+        refCount(),
+        f_(orig.f_),
+        d_(orig.d_),
+        eps_(orig.eps_),
+        maxIter_(orig.maxIter_)
+        {}
 
         //- Clone the object
         virtual autoPtr<RootFinder> clone() const = 0;

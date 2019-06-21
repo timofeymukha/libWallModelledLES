@@ -78,7 +78,12 @@ public:
         {}
 
         //- Copy constructor
-        EddyViscosity(const EddyViscosity &) = default;
+        EddyViscosity(const EddyViscosity & orig)
+        :
+        refCount(),
+        constDict_(orig.constDict_)
+        {}
+
 
         //- Clone
         virtual autoPtr<EddyViscosity> clone() const = 0;
