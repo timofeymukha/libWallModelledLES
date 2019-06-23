@@ -86,7 +86,7 @@ class DupratEddyViscosity: public EddyViscosity
 
         //- The A+ model constant
         scalar APlus_;
-        
+               
         //- The beta model cosntant
         scalar beta_;
         
@@ -164,8 +164,8 @@ public:
 
         scalarList value
         (
-            const vector pGrad,
             const scalarList & y,
+            const scalar magPGrad,
             const scalar uTau,
             const scalar nu
         ) const;

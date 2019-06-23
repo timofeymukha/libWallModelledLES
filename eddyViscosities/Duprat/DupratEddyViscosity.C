@@ -23,6 +23,7 @@ License
 #include "error.H"
 #include "addToRunTimeSelectionTable.H"
 #include "SampledPGradField.H"
+#include "scalarListIOList.H"
 
 namespace Foam
 {
@@ -109,23 +110,25 @@ Foam::scalarList Foam::DupratEddyViscosity::value
     const scalar nu
 ) const
 {  
-    const vector pGrad =
-        sampler.db().lookupObject<vectorField>("pGrad")[index];
-    
+    const scalarListList pGrad =
+        sampler.db().lookupObject<scalarListIOList>("pGrad");
 
-    return value(pGrad, y, uTau, nu);
+    scalarList pGradI = pGrad[index];
+    scalar magPGrad = mag(vector(pGradI[0], pGradI[1], pGradI[2]));
+
+    return value(y, magPGrad, uTau, nu);
 }
 
 Foam::scalarList Foam::DupratEddyViscosity::value
 (
-    const vector pGrad,
     const scalarList & y,
+    const scalar magPGrad,
     const scalar uTau,
     const scalar nu
 ) const
 {  
 
-    const scalar uP = pow(nu*mag(pGrad), 1./3);
+    const scalar uP = pow(nu*magPGrad, 1./3);
     const scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
     const scalar alpha = sqr(uTau)/sqr(uTauP);
         
