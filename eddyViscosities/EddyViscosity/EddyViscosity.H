@@ -77,6 +77,8 @@ public:
         constDict_(dict)
         {}
 
+        EddyViscosity() = default;
+
         //- Copy constructor
         EddyViscosity(const EddyViscosity & orig) = default;
 

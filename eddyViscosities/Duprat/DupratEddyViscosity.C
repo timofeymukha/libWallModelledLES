@@ -60,6 +60,28 @@ Foam::DupratEddyViscosity::DupratEddyViscosity
 {
 }
 
+Foam::DupratEddyViscosity::DupratEddyViscosity
+(
+    const scalar kappa,
+    const scalar APlus,
+    const scalar beta
+)
+:
+    EddyViscosity(),
+    kappa_(kappa),
+    APlus_(APlus),
+    beta_(beta)
+{
+    constDict_.add("kappa", kappa);
+    constDict_.add("APlus", APlus);
+    constDict_.add("beta", beta);
+
+    if (debug)
+    {        
+        printCoeffs();
+    }
+
+}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

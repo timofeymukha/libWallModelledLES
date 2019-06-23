@@ -102,6 +102,14 @@ public:
         //- Construct provided name, dictionary and sampler
         DupratEddyViscosity(const word &, const dictionary &);
 
+        //- Construct from model constants
+        DupratEddyViscosity
+        (
+            const scalar kappa,
+            const scalar APlus,
+            const scalar beta
+        );
+
         //- Copy constructor
         DupratEddyViscosity(const DupratEddyViscosity &) = default;
 

@@ -94,6 +94,9 @@ public:
         //- Construct provided name, dictionary and sampler
         VanDriestEddyViscosity(const word &, const dictionary &);
 
+        //- Construct from model cosntants
+        VanDriestEddyViscosity(const scalar kappa, const scalar APlus);
+
         //- Copy constructor
         VanDriestEddyViscosity(const VanDriestEddyViscosity &) = default;
 

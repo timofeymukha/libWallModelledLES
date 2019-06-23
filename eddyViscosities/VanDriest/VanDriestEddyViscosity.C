@@ -56,6 +56,25 @@ Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
 {
 }
 
+Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
+(
+    const scalar kappa,
+    const scalar APlus
+)
+:
+    EddyViscosity(),
+    kappa_(kappa),
+    APlus_(APlus)
+{
+    constDict_.add("kappa", kappa);
+    constDict_.add("APlus", APlus);
+
+    if (debug)
+    {        
+        printCoeffs();
+    }
+
+}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
