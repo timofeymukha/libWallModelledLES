@@ -52,6 +52,20 @@ TEST_F(SpaldingLawOfTheWallTest, ConstructFromTypeDictionary)
     ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("B", 0.0), 4);     
 }
 
+TEST_F(SpaldingLawOfTheWallTest, ConstructFromTypeDictionaryDefaultValues)
+{
+    dictionary dict = dictionary();
+    SpaldingLawOfTheWall law =
+        SpaldingLawOfTheWall("SpaldingLawOfTheWall", dict);
+
+    ASSERT_DOUBLE_EQ(law.kappa(), 0.4);
+    ASSERT_DOUBLE_EQ(law.B(), 5.5);
+
+    dict = law.constDict();
+    ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("kappa", 0.0), 0.4);
+    ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("B", 0.0), 5.5);     
+}
+
 TEST_F(SpaldingLawOfTheWallTest, CopyConstructor)
 {
     SpaldingLawOfTheWall law = SpaldingLawOfTheWall(0.395, 4);

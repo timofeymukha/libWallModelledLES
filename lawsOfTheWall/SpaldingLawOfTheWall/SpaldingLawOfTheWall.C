@@ -39,8 +39,8 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 )
 :
     LawOfTheWall(dict),
-    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
-    B_(dict.lookupOrDefault<scalar>("B", 5.5))
+    kappa_(constDict_.lookupOrAddDefault<scalar>("kappa", 0.4)),
+    B_(constDict_.lookupOrAddDefault<scalar>("B", 5.5))
 {
     if (debug)
     {        
@@ -55,14 +55,8 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
     const dictionary & dict
 )
 :
-    LawOfTheWall(lawName, dict),
-    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
-    B_(dict.lookupOrDefault<scalar>("B", 5.5))
+    SpaldingLawOfTheWall(dict)
 {
-    if (debug)
-    {        
-        printCoeffs();
-    }
 }
 
 

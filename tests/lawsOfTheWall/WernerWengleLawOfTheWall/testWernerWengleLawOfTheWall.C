@@ -36,6 +36,19 @@ TEST_F(WernerWengleLawOfTheWallTest, ConstructFromDictionary)
     ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("B", 0.0), 4);    
 }
 
+TEST_F(WernerWengleLawOfTheWallTest, ConstructFromDictionaryDefaultValues)
+{
+    dictionary dict = dictionary();
+    WernerWengleLawOfTheWall law = WernerWengleLawOfTheWall(dict);
+
+    ASSERT_DOUBLE_EQ(law.A(), 8.3);
+    ASSERT_FLOAT_EQ(law.B(), 0.14285714285714285);
+
+    dict = law.constDict();
+    ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("A", 0.0), 8.3);
+    ASSERT_FLOAT_EQ(dict.lookupOrDefault<scalar>("B", 0.0), 0.142857);    
+}
+
 TEST_F(WernerWengleLawOfTheWallTest, ConstructFromTypeDictionary)
 {
     dictionary dict = dictionary();

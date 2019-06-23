@@ -48,6 +48,23 @@ TEST_F(ReichardtLawOfTheWallTest, ConstructFromDictionary)
     ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("C", 0.0), 7.8);
 }  
 
+TEST_F(ReichardtLawOfTheWallTest, ConstructFromDictionaryDefaultValues)
+{
+    dictionary dict = dictionary();
+    ReichardtLawOfTheWall law = ReichardtLawOfTheWall(dict);
+
+    ASSERT_DOUBLE_EQ(law.kappa(), 0.4);
+    ASSERT_DOUBLE_EQ(law.B1(), 11);
+    ASSERT_DOUBLE_EQ(law.B2(), 3);
+    ASSERT_DOUBLE_EQ(law.C(), 7.8);
+
+    dict = law.constDict();
+    ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("kappa", 0.0), 0.4);
+    ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("B1", 0.0), 11);
+    ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("B2", 0.0), 3);
+    ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("C", 0.0), 7.8);
+}  
+
 TEST_F(ReichardtLawOfTheWallTest, ConstructFromTypeDictionary)
 {
     dictionary dict = dictionary();

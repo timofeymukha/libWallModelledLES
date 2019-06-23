@@ -37,8 +37,8 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
 )
 :
     LawOfTheWall(dict),
-    A_(dict.lookupOrDefault<scalar>("A", 8.3)),
-    B_(dict.lookupOrDefault<scalar>("B", 1./7))
+    A_(constDict_.lookupOrAddDefault<scalar>("A", 8.3)),
+    B_(constDict_.lookupOrAddDefault<scalar>("B", 0.14285714285714285))
 {
     if (debug)
     {        
@@ -53,14 +53,8 @@ Foam::WernerWengleLawOfTheWall::WernerWengleLawOfTheWall
     const dictionary & dict
 )
 :
-    LawOfTheWall(lawName, dict),
-    A_(dict.lookupOrDefault<scalar>("A", 8.3)),
-    B_(dict.lookupOrDefault<scalar>("B", 1./7))
+    WernerWengleLawOfTheWall(dict)
 {
-    if (debug)
-    {        
-        printCoeffs();
-    }
 }
 
 

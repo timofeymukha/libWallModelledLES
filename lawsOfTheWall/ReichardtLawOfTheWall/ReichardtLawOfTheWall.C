@@ -65,10 +65,10 @@ Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
 )
 :
     LawOfTheWall(dict),
-    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
-    B1_(dict.lookupOrDefault<scalar>("B1", 11)),
-    B2_(dict.lookupOrDefault<scalar>("B2", 3)),
-    C_(dict.lookupOrDefault<scalar>("C", 7.8))
+    kappa_(constDict_.lookupOrAddDefault<scalar>("kappa", 0.4)),
+    B1_(constDict_.lookupOrAddDefault<scalar>("B1", 11)),
+    B2_(constDict_.lookupOrAddDefault<scalar>("B2", 3)),
+    C_(constDict_.lookupOrAddDefault<scalar>("C", 7.8))
 {
     if (debug)
     {        
@@ -83,16 +83,8 @@ Foam::ReichardtLawOfTheWall::ReichardtLawOfTheWall
     const dictionary & dict
 )
 :
-    LawOfTheWall(lawName, dict),
-    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4)),
-    B1_(dict.lookupOrDefault<scalar>("B1", 11)),
-    B2_(dict.lookupOrDefault<scalar>("B2", 3)),
-    C_(dict.lookupOrDefault<scalar>("C", 7.8))
+    ReichardtLawOfTheWall(dict)
 {
-    if (debug)
-    {        
-        printCoeffs();
-    }
 }
 
 
