@@ -124,7 +124,7 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
 (
  
     const SingleCellSampler & sampler,
-    scalar index,
+    label index,
     scalar uTau,
     scalar nu
 ) const
@@ -160,7 +160,7 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::derivative
 (
     const SingleCellSampler & sampler,
-    scalar index,
+    label index,
     scalar uTau,
     scalar nu        
 ) const

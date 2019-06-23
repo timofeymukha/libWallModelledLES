@@ -69,7 +69,7 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class WernerWengleLawOfTheWall Declaration
+                    Class IntegratedReichardtLawOfTheWall Declaration
 \*---------------------------------------------------------------------------*/
 
 class IntegratedReichardtLawOfTheWall: public LawOfTheWall
@@ -174,7 +174,7 @@ public:
         virtual scalar value
         (
             const SingleCellSampler & sampler,
-            scalar index,
+            label index,
             scalar uTau,
             scalar nu
         ) const override;
@@ -194,7 +194,7 @@ public:
         derivative
         (
             const SingleCellSampler & sampler,
-            scalar index,
+            label index,
             scalar uTau,
             scalar nu
         ) const override;

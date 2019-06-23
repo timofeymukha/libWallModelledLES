@@ -101,7 +101,7 @@ void Foam::SpaldingLawOfTheWall::printCoeffs() const
 Foam::scalar Foam::SpaldingLawOfTheWall::value
 (
     const SingleCellSampler & sampler,
-    scalar index,
+    label index,
     scalar uTau,
     scalar nu
 ) const
@@ -132,7 +132,7 @@ Foam::scalar Foam::SpaldingLawOfTheWall::value
 Foam::scalar Foam::SpaldingLawOfTheWall::derivative
 (
     const SingleCellSampler & sampler,
-    scalar index,
+    label index,
     scalar uTau,
     scalar nu        
 ) const

@@ -129,7 +129,7 @@ public:
         virtual scalar value
         (
             const SingleCellSampler & sampler,
-            scalar index,
+            label index,
             scalar uTau,
             scalar nu
         ) const = 0;
@@ -140,7 +140,7 @@ public:
         virtual scalar derivative
         (
             const SingleCellSampler & sampler,
-            scalar index,
+            label index,
             scalar uTau,
             scalar nu
         ) const = 0;

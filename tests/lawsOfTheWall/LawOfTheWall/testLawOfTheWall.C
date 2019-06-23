@@ -42,14 +42,14 @@ public:
     {}
 
     //- Return the value of the implicit function defining the law
-    virtual scalar value(const SingleCellSampler & sampler, scalar index,
+    virtual scalar value(const SingleCellSampler & sampler, label index,
                             scalar uTau, scalar nu) const override
     {
         return 0;
     }
     
     virtual scalar 
-    derivative(const SingleCellSampler & sampler, scalar index,
+    derivative(const SingleCellSampler & sampler, label index,
                 scalar uTau, scalar nu) const override
     {
         return 0;
