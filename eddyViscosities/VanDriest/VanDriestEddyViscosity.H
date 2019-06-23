@@ -133,6 +133,11 @@ public:
             const scalarList & y,
             const scalar uTau,
             const scalar nu
+        scalarList value
+        (
+            const scalarList & y,
+            const scalar uTau,
+            const scalar nu
         ) const;
 
 };

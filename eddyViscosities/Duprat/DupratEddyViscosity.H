@@ -149,6 +149,12 @@ public:
             const scalarList & y,
             const scalar uTau,
             const scalar nu
+        scalarList value
+        (
+            const vector pGrad,
+            const scalarList & y,
+            const scalar uTau,
+            const scalar nu
         ) const;
         
 };

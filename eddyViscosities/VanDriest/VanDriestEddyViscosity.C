@@ -77,6 +77,17 @@ Foam::scalarList Foam::VanDriestEddyViscosity::value
     const scalar nu
 ) const
 {  
+    return value(y, uTau, nu);
+}
+
+
+Foam::scalarList Foam::VanDriestEddyViscosity::value
+(
+    const scalarList & y,
+    const scalar uTau,
+    const scalar nu
+) const
+{  
     const scalarList yPlus = y*uTau/nu;
     
     scalarList values(y.size(), 0.0);

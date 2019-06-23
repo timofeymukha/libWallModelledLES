@@ -87,12 +87,25 @@ Foam::scalarList Foam::DupratEddyViscosity::value
     const scalar nu
 ) const
 {  
-    const vectorField & pGrad =
-        sampler.db().lookupObject<vectorField>("pGrad");
+    const vector pGrad =
+        sampler.db().lookupObject<vectorField>("pGrad")[index];
     
-    scalar uP = pow(nu*mag(pGrad[index]), 1./3);
-    scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
-    scalar alpha = sqr(uTau)/sqr(uTauP);
+
+    return value(pGrad, y, uTau, nu);
+}
+
+Foam::scalarList Foam::DupratEddyViscosity::value
+(
+    const vector pGrad,
+    const scalarList & y,
+    const scalar uTau,
+    const scalar nu
+) const
+{  
+    
+    const scalar uP = pow(nu*mag(pGrad), 1./3);
+    const scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
+    const scalar alpha = sqr(uTau)/sqr(uTauP);
         
     const scalarList yStar = y*uTauP/nu;
     
