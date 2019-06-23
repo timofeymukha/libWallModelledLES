@@ -98,6 +98,7 @@ void Foam::SampledPGradField::registerFields
     // Grab h to copy bcs from it.
     const volScalarField & h = mesh().lookupObject<volScalarField>("h");
     
+    // Init pGrad as (0 0 0)
     if (!mesh().foundObject<volVectorField>("pGrad"))
     {
         mesh().thisDb().store
@@ -123,28 +124,30 @@ void Foam::SampledPGradField::registerFields
             )
         );
     }
-    
-    const objectRegistry & registry =
-        mesh().subRegistry("wallModelSampling").subRegistry(patch_.name());
 
-    scalarListList sampledPGrad(patch().size());
-
-    if (mesh().thisDb().foundObject<volScalarField>("p"))
+    // If we have p, compute the actual grad(p)
+    if (mesh().foundObject<volScalarField>("p"))
     {
-        //recompute();
-        
-        forAll(sampledPGrad, i)
-        {
-            sampledPGrad[i] = scalarList(3, 0.0);
-            //forAll(sampledPGrad[i], j)
-            //{
-                //sampledPGrad[i][j] = 0; //pGrad[cellIndexList_[i]][j];
-            //}
-        }
-        
-        //projectVectors(sampledPGrad);
+        recompute();
     }
+
+    const volVectorField & pGrad =
+        mesh().lookupObject<volVectorField>("pGrad");
     
+    // Init sampled p grad to (0 0 0)
+    scalarListList sampledPGrad(patch().size(), scalarList(3, 0.0));
+
+    // Copy values from the pGrad field
+    forAll(sampledPGrad, i)
+    {
+        forAll(sampledPGrad[i], j)
+        {
+            sampledPGrad[i][j] = pGrad[indexList[i]][j];
+        }
+    }
+        
+    projectVectors(sampledPGrad);
+        
     mesh().thisDb().store
     (          
         new IOList<scalarList>
@@ -153,7 +156,7 @@ void Foam::SampledPGradField::registerFields
             (
                 "pGrad",
                 mesh().time().timeName(),
-                registry,
+                db(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::AUTO_WRITE
             ),
