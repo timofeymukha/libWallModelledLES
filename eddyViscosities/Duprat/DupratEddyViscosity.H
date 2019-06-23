@@ -81,11 +81,11 @@ class DupratEddyViscosity: public EddyViscosity
     
     // Private data
         
-        //- The A+ model constant
-        scalar APlus_;
-        
         //- The kappa model constant
         scalar kappa_;
+
+        //- The A+ model constant
+        scalar APlus_;
         
         //- The beta model cosntant
         scalar beta_;

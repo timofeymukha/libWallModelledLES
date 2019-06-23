@@ -36,9 +36,10 @@ Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
 )
 :
     EddyViscosity(dict),
-    APlus_(dict.lookupOrDefault<scalar>("APlus", 18)),
-    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.4))
+    kappa_(constDict_.lookupOrAddDefault<scalar>("kappa", 0.4)),
+    APlus_(constDict_.lookupOrAddDefault<scalar>("APlus", 18))
 {
+
     if (debug)
     {        
         printCoeffs();
