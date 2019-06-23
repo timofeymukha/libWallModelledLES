@@ -40,7 +40,7 @@ SourceFiles
 #define KnownWallShearStressWallModelFvPatchScalarField_H
 
 #include "wallModelFvPatchScalarField.H"
-#include "EddyViscosity.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
