@@ -11,5 +11,7 @@ fixtures.C
 ./lawsOfTheWall/IntegratedWernerWengleLawOfTheWall/testIntegratedWernerWengleLawOfTheWall.C
 ./lawsOfTheWall/IntegratedReichardtLawOfTheWall/testIntegratedReichardtLawOfTheWall.C
 ./lawsOfTheWall/LawOfTheWall/testLawOfTheWall.C
+./eddyViscosities/VanDriestEddyViscosity/testVanDriestEddyViscosity.C
+./eddyViscosities/DupratEddyViscosity/testDupratEddyViscosity.C
 EXE=./testRunner
 
