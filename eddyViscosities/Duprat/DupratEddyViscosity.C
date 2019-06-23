@@ -63,7 +63,7 @@ Foam::DupratEddyViscosity::DupratEddyViscosity
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::DupratEddyViscosity::addFieldsToSampler(Sampler & sampler)
+void Foam::DupratEddyViscosity::addFieldsToSampler(Sampler & sampler) const
 {
     sampler.addField(new SampledPGradField(sampler.patch()));
 }
@@ -102,7 +102,7 @@ Foam::scalarList Foam::DupratEddyViscosity::value
     const scalar nu
 ) const
 {  
-    
+
     const scalar uP = pow(nu*mag(pGrad), 1./3);
     const scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
     const scalar alpha = sqr(uTau)/sqr(uTauP);

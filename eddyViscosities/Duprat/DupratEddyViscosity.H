@@ -109,7 +109,7 @@ public:
         DupratEddyViscosity & operator=(const DupratEddyViscosity &) = default;
 
         //- Clone
-        virtual autoPtr<EddyViscosity> clone() const
+        virtual autoPtr<EddyViscosity> clone() const override
         {
             return autoPtr<EddyViscosity>
             (
@@ -141,7 +141,7 @@ public:
         }
         
         //- Print info
-        virtual void printCoeffs() const;
+        virtual void printCoeffs() const override;
 
         //- Return the value of nut
         virtual scalarList
@@ -152,6 +152,8 @@ public:
             const scalarList & y,
             const scalar uTau,
             const scalar nu
+        ) const override;
+
         scalarList value
         (
             const vector pGrad,
@@ -159,7 +161,7 @@ public:
             const scalar uTau,
             const scalar nu
         ) const;
-        
+
 };
 
 
