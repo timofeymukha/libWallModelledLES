@@ -123,7 +123,7 @@ public:
     // Member Functions
 
         //- Add necessary sampled fields to the sampler
-        virtual void addFieldsToSampler(Sampler & sampler);
+        virtual void addFieldsToSampler(Sampler & sampler) const override;
         
         scalar APlus() const
         {
