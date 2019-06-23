@@ -84,6 +84,8 @@ public:
         constDict_(orig.constDict_)
         {}
 
+        //- Assignemnt
+        EddyViscosity & operator=(const EddyViscosity &) = default;
 
         //- Clone
         virtual autoPtr<EddyViscosity> clone() const = 0;

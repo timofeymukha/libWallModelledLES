@@ -105,6 +105,9 @@ public:
         //- Copy constructor
         DupratEddyViscosity(const DupratEddyViscosity &) = default;
 
+        //- Assignment
+        DupratEddyViscosity & operator=(const DupratEddyViscosity &) = default;
+
         //- Clone
         virtual autoPtr<EddyViscosity> clone() const
         {

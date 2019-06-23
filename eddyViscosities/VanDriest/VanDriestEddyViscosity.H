@@ -97,6 +97,12 @@ public:
         //- Copy constructor
         VanDriestEddyViscosity(const VanDriestEddyViscosity &) = default;
 
+        //- Assignment
+        VanDriestEddyViscosity & operator=
+        (
+            const VanDriestEddyViscosity &
+        ) = default;
+
         //- Clone
         virtual autoPtr<EddyViscosity> clone() const
         {
