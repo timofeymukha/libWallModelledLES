@@ -50,7 +50,7 @@ namespace Foam
                       Class EddyViscosity Declaration
 \*---------------------------------------------------------------------------*/
 
-class EddyViscosity : public refCount
+class EddyViscosity
 {
 protected:
     
@@ -78,11 +78,7 @@ public:
         {}
 
         //- Copy constructor
-        EddyViscosity(const EddyViscosity & orig)
-        :
-        refCount(),
-        constDict_(orig.constDict_)
-        {}
+        EddyViscosity(const EddyViscosity & orig) = default;
 
         //- Assignemnt
         EddyViscosity & operator=(const EddyViscosity &) = default;
