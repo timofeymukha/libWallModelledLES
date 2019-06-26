@@ -276,8 +276,6 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     
     label pI = patch().index();
     
-    // Compute nut and assign
-    operator==(calcNut());
     
     // Compute uTau
     volVectorField & wss = 
@@ -292,7 +290,27 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     const vectorField & wallGradU = wallGradUField.boundaryField()[pI];
     
     const volScalarField & nu = db().lookupObject<volScalarField>("nu");
-    const scalarField & nut = *this;
+    scalar maxNu = max(nu.boundaryField()[pI]);
+
+    // Compute nut and assign
+    scalarField nut = calcNut();
+
+    operator==(nut);
+
+    // Assign to the near-wall cells
+    volScalarField & nutField = 
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("nut")
+        );
+    const labelUList fC = patch().faceCells();
+
+
+    forAll (nut, i)
+    {
+        nutField[fC[i]] = nut[i];
+    }
+    //Info << this->patchInternalField() << nl;
 
 #ifdef FOAM_NEW_GEOMFIELD_RULES
     wss.boundaryFieldRef()[pI]
