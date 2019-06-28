@@ -48,6 +48,11 @@ then
     docker start of_v1812
     docker exec -w $PWD/.. of_v1812 /bin/bash -c "source /opt/OpenFOAM/setImage_v1812.sh && ./Allwclean && ./Allwmake"
 fi
+if [ $1 == "v1906" ]
+then
+    docker start of_v1906
+    docker exec -w $PWD/.. of_v1906 /bin/bash -c "source /opt/OpenFOAM/setImage_v1906.sh && ./Allwclean && ./Allwmake"
+fi
 
 #docker exec -w $PWD/.. of_v1706 /bin/bash -c "source /opt/OpenFOAM/setImage_v1706.sh && ./Allwclean && ./Allwmake"
 #docker exec -w $PWD/.. of_v1712 /bin/bash -c "source /opt/OpenFOAM/setImage_v1712.sh && ./Allwclean && ./Allwmake"
