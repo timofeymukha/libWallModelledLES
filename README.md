@@ -1,6 +1,6 @@
 # README #
 
-libWallModelledLES is a library based on OpenFOAM® technology, extending the capabilities of OpenFOAM in the area of wall-modelled LES (WMLES).
+libWallModelledLES is a library based on OpenFOAMï¿½ technology, extending the capabilities of OpenFOAM in the area of wall-modelled LES (WMLES).
 In particular, so-called wall-stress models are considered. These aim at correctly predicting the wall shear stress at the wall without the need for the LES mesh to resolve the inner part of the turbulent boundary layers.
 Note, that, unlike some other approaches (e.g. hybrid LES/RANS), the LES domain here extends all the way to the wall and **only the inner layer is modelled**, whereas the outer layer of TBLs is fully-resolved.
 Chapter 5 of the following thesis may be of interest for getting further acquainted with the methodology of WMLES, see also the publication list in the end of the README.
@@ -19,18 +19,17 @@ If you use the library, please cite the following publication, which fully descr
 
 https://doi.org/10.1016/j.cpc.2019.01.016
 
-**This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM® and OpenCFD® trademarks.**
+**This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAMï¿½ and OpenCFDï¿½ trademarks.**
 
 ## News ##
 
-- **2019-02-23** Version 0.4.1 released, conatining a small bugfix.
+- **2019-02-23** Version 0.4.1 released, containing a small bugfix.
 - **2018-11-17** Version 0.4 released, see CHANGELOG.md for list of changes.
 
 ## Compatibility ##
 
 The library has been developed and tested using OpenFOAM version 3.0.1.
-Currently, the library also compiles for versions 4.x, 5.x and 6.x of from the OpenFOAM Foundation, and versions 1606+ through 1812 from OpenCFD. 
-It is noted that pretty much no testing using these versions has been performed but since the changes to the code are minimal, things should in principle work properly.
+Currently, the library also compiles for versions 4.x, 5.x and 6.x of from the OpenFOAM Foundation, and versions 1606+ through 1906 from OpenCFD. 
 Reports on compilation and running on these versions is highly welcome.
 A special branch on the repository for version 2.3.1 is available but is now very outdated and will not be further supported.
 
@@ -119,10 +118,10 @@ Each such pair is treated as one item in the list below, without providing the f
     * JohnsonKing/JohnsonKingEddyViscosity Class for eddy viscosity based on the mixing length model with vanDriest damping (van Driest, Journal of the Aeronautical Sciences, 1956).
 
 - lawsOfTheWall
-    * IntegratedReichardtLawOfTheWall/IntegratedReichardtLawOfTheWall Class for the integrated formulation of Reichardt's law, (Reichardt, Zeit. für Ang. Math. und Mech., 1951).
+    * IntegratedReichardtLawOfTheWall/IntegratedReichardtLawOfTheWall Class for the integrated formulation of Reichardt's law, (Reichardt, Zeit. fï¿½r Ang. Math. und Mech., 1951).
     * IntegratedWernerWengleLawOfTheWall/IntegratedWernerWengleLawOfTheWall Class for the integrated formulation of the law of Werner and Wengle, (Werner & Wengle, Turb. Shear Flows 8, 1991).
     * LawOfTheWall/LawOfTheWall Base abstract class for laws of the wall.
-    * ReichardLawOfTheWall/ReichardLawOfTheWall Class for Reichardt's law of the wall, (Reichardt, Zeit. für Ang. Math. und Mech., 1951).
+    * ReichardLawOfTheWall/ReichardLawOfTheWall Class for Reichardt's law of the wall, (Reichardt, Zeit. fï¿½r Ang. Math. und Mech., 1951).
     * SpaldingLawOfTheWall/SpaldingLawOfTheWall Class for Spalding's law of the wall, (Spalding, J. of Applied Mechanics, 1961).
     * WernerWengleLawOfTheWall/WernerWengleLawOfTheWall Class for Werner and Wengle's law of the wall, (Werner & Wengle, Turb. Shear Flows 8, 1991).
 - Make
@@ -162,6 +161,6 @@ Each such pair is treated as one item in the list below, without providing the f
 - Mukha, T., Rezaeiravesh, S., & Liefvendahl, M. (2018). Wall-modelled large-eddy simulation of the flow over a backward-facing step. In proceedings of 13th OpenFOAM Workshop, Shanghai, China. Shanghai, China.
 - Liefvendahl, M., & Johansson, M. (2018). Wall-Modeled LES for Ship Hydrodynamics in Model Scale. In proceedings of the 32nd Symposium on Naval Hydrodynamics, Hamburg, Germany.
 - Bezinge, G. (2018) Wall-unresolved large eddy simulation of turbulent flow at high Reynolds number: Performance and computational cost investigation. Master thesis.
-  Department of Mathematics University of Wyoming (UW) Laramie Institute of Fluid Dynamics Swiss Federal Institute of Technology (ETH) Zürich.
+  Department of Mathematics University of Wyoming (UW) Laramie Institute of Fluid Dynamics Swiss Federal Institute of Technology (ETH) Zï¿½rich.
 - Rezaeiravesh, S., Mukha, T., & Liefvendahl, M. (2018). Systematic study of accuracy of wall-modeled large eddy simulation using uncertainty quantification techniques. Available: https://arxiv.org/abs/1810.05213
 - Mukha, T., Rezeeiravesh, S., & Liefvendahl, M. (2019). A library for wall-modelled large-eddy simulation based on OpenFOAM technology. Computer Physics Communications. DOI: 10.1016/j.cpc.2019.01.016. Preprint: https://arxiv.org/abs/1807.11786
