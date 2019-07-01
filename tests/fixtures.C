@@ -40,6 +40,26 @@ void createVelocityField(const Foam::fvMesh & mesh)
 }
 
 
+void createNutField(const Foam::fvMesh & mesh)
+{
+    mesh.time().store
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "nut",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh
+        )
+    );
+}
+
+
 Foam::autoPtr<Foam::fvMesh> createMesh(const Foam::Time & runTime)
 {
     Foam::autoPtr<Foam::fvMesh> meshPtr(nullptr);
