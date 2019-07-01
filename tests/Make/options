@@ -1,7 +1,6 @@
 ifeq ($(findstring clang, $(CC)), clang)
     FLAGS = -Wno-inconsistent-missing-override
 endif
-$(info    $(FLAGS))
 
 EXE_INC = -std=c++0x $(FLAGS) \
 -I$(LIB_SRC)/finiteVolume/lnInclude \

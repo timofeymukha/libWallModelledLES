@@ -14,5 +14,7 @@ fixtures.C
 ./eddyViscosities/VanDriestEddyViscosity/testVanDriestEddyViscosity.C
 ./eddyViscosities/DupratEddyViscosity/testDupratEddyViscosity.C
 ./eddyViscosities/EddyViscosity/testEddyViscosity.C
+./scalarListListIOList/testScalarListListIOList.C
+./wallModels/testWallModel.C
 EXE=./testRunner
 
