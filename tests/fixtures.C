@@ -60,6 +60,28 @@ void createNutField(const Foam::fvMesh & mesh)
 }
 
 
+void createNuField(const Foam::fvMesh & mesh, const Foam::volScalarField & nut)
+{
+    mesh.time().store
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "nu",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("nu", dimLength*dimLength/dimTime, 0.0),
+            nut.boundaryField().types()
+        )
+    );
+}
+
+
 Foam::autoPtr<Foam::fvMesh> createMesh(const Foam::Time & runTime)
 {
     Foam::autoPtr<Foam::fvMesh> meshPtr(nullptr);

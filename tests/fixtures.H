@@ -43,6 +43,13 @@ void createVelocityField(const Foam::fvMesh & mesh);
 // construct nut given mesh
 void createNutField(const Foam::fvMesh & mesh);
 
+// construct nu given mesh and nut (used for bcs)
+void createNuField
+(
+    const Foam::fvMesh & mesh,
+    const Foam::volScalarField & nut
+);
+
 // Create a fvMesh
 Foam::autoPtr<Foam::fvMesh> createMesh(const Foam::Time & runTime);
 
