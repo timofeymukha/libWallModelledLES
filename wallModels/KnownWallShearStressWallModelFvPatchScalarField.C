@@ -99,13 +99,13 @@ KnownWallShearStressWallModelFvPatchScalarField
 Foam::KnownWallShearStressWallModelFvPatchScalarField::
 KnownWallShearStressWallModelFvPatchScalarField
 (
-    const KnownWallShearStressWallModelFvPatchScalarField& ptf,
+    const KnownWallShearStressWallModelFvPatchScalarField& orig,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    wallModelFvPatchScalarField(ptf, p, iF, mapper)
+    wallModelFvPatchScalarField(orig, p, iF, mapper)
 {
 
     if (debug)
@@ -179,10 +179,10 @@ KnownWallShearStressWallModelFvPatchScalarField
 Foam::KnownWallShearStressWallModelFvPatchScalarField::
 KnownWallShearStressWallModelFvPatchScalarField
 (
-    const KnownWallShearStressWallModelFvPatchScalarField& wfpsf
+    const KnownWallShearStressWallModelFvPatchScalarField& orig
 )
 :
-    wallModelFvPatchScalarField(wfpsf)
+    wallModelFvPatchScalarField(orig)
 {
 
     if (debug)
@@ -198,11 +198,11 @@ KnownWallShearStressWallModelFvPatchScalarField
 Foam::KnownWallShearStressWallModelFvPatchScalarField::
 KnownWallShearStressWallModelFvPatchScalarField
 (
-    const KnownWallShearStressWallModelFvPatchScalarField& wfpsf,
+    const KnownWallShearStressWallModelFvPatchScalarField& orig,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    wallModelFvPatchScalarField(wfpsf, iF)
+    wallModelFvPatchScalarField(orig, iF)
 {
 
     if (debug)

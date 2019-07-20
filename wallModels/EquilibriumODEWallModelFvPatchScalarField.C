@@ -52,13 +52,13 @@ EquilibriumODEWallModelFvPatchScalarField
 Foam::EquilibriumODEWallModelFvPatchScalarField::
 EquilibriumODEWallModelFvPatchScalarField
 (
-    const EquilibriumODEWallModelFvPatchScalarField& ptf,
+    const EquilibriumODEWallModelFvPatchScalarField& orig,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    ODEWallModelFvPatchScalarField(ptf, p, iF, mapper)
+    ODEWallModelFvPatchScalarField(orig, p, iF, mapper)
 {}
 
 
@@ -77,21 +77,22 @@ EquilibriumODEWallModelFvPatchScalarField
 Foam::EquilibriumODEWallModelFvPatchScalarField::
 EquilibriumODEWallModelFvPatchScalarField
 (
-    const EquilibriumODEWallModelFvPatchScalarField & wfpsf
+    const EquilibriumODEWallModelFvPatchScalarField & orig
+
 )
 :
-    ODEWallModelFvPatchScalarField(wfpsf)
+    ODEWallModelFvPatchScalarField(orig)
 {}
 
 
 Foam::EquilibriumODEWallModelFvPatchScalarField::
 EquilibriumODEWallModelFvPatchScalarField
 (
-    const EquilibriumODEWallModelFvPatchScalarField & wfpsf,
+    const EquilibriumODEWallModelFvPatchScalarField & orig,
     const DimensionedField<scalar, volMesh> & iF
 )
 :
-    ODEWallModelFvPatchScalarField(wfpsf, iF)
+    ODEWallModelFvPatchScalarField(orig, iF)
 {}
 
 

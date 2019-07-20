@@ -225,17 +225,17 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
 Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
-    const wallModelFvPatchScalarField& wmpsf
+    const wallModelFvPatchScalarField& orig 
 )
 :
-    fixedValueFvPatchScalarField(wmpsf),  
-    consumedTime_(wmpsf.consumedTime_),
-    averagingTime_(wmpsf.averagingTime_)
+    fixedValueFvPatchScalarField(orig),
+    consumedTime_(orig.consumedTime_),
+    averagingTime_(orig.averagingTime_)
 {
     if (debug)
     {
         Info<< "Constructing wallModelFvPatchScalarField (w4)"
-            << "from copy for patch " << patch().name() << nl;           
+            << "using the copy constructor" << nl;           
     }
 
     checkType();
@@ -244,13 +244,13 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
 Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
-    const wallModelFvPatchScalarField& wmpsf,
+    const wallModelFvPatchScalarField& orig,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    fixedValueFvPatchScalarField(wmpsf, iF),       
-    consumedTime_(wmpsf.consumedTime_),
-    averagingTime_(wmpsf.averagingTime_)
+    fixedValueFvPatchScalarField(orig, iF),       
+    consumedTime_(orig.consumedTime_),
+    averagingTime_(orig.averagingTime_)
 {
     if (debug)
     {

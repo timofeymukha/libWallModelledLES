@@ -278,26 +278,26 @@ ODEWallModelFvPatchScalarField
 Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
-    const ODEWallModelFvPatchScalarField& ptf,
+    const ODEWallModelFvPatchScalarField& orig,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    wallModelFvPatchScalarField(ptf, p, iF, mapper),
+    wallModelFvPatchScalarField(orig, p, iF, mapper),
     eddyViscosity_
     (
         EddyViscosity::New
         (
-            ptf.eddyViscosity_->type(),
-            ptf.eddyViscosity_->constDict()
+            orig.eddyViscosity_->type(),
+            orig.eddyViscosity_->constDict()
         )
     ),
-    sampler_(new SingleCellSampler(ptf.sampler())),
-    meshes_(ptf.meshes_),
-    maxIter_(ptf.maxIter_),
-    eps_(ptf.eps_),
-    nMeshY_(ptf.nMeshY_)
+    sampler_(new SingleCellSampler(orig.sampler())),
+    meshes_(orig.meshes_),
+    maxIter_(orig.maxIter_),
+    eps_(orig.eps_),
+    nMeshY_(orig.nMeshY_)
 {
 
     if (debug)
@@ -342,23 +342,23 @@ ODEWallModelFvPatchScalarField
 Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
-    const ODEWallModelFvPatchScalarField& wfpsf
+    const ODEWallModelFvPatchScalarField& orig
 )
 :
-    wallModelFvPatchScalarField(wfpsf),
+    wallModelFvPatchScalarField(orig),
     eddyViscosity_
     (
         EddyViscosity::New
         (
-            wfpsf.eddyViscosity_->type(),
-            wfpsf.eddyViscosity_->constDict()
+            orig.eddyViscosity_->type(),
+            orig.eddyViscosity_->constDict()
         )
     ),
-    sampler_(new SingleCellSampler(wfpsf.sampler_())),
-    meshes_(wfpsf.meshes_),
-    maxIter_(wfpsf.maxIter_),
-    eps_(wfpsf.eps_),
-    nMeshY_(wfpsf.nMeshY_)
+    sampler_(new SingleCellSampler(orig.sampler_())),
+    meshes_(orig.meshes_),
+    maxIter_(orig.maxIter_),
+    eps_(orig.eps_),
+    nMeshY_(orig.nMeshY_)
     
 {
 
@@ -375,24 +375,24 @@ ODEWallModelFvPatchScalarField
 Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
-    const ODEWallModelFvPatchScalarField& wfpsf,
+    const ODEWallModelFvPatchScalarField& orig,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    wallModelFvPatchScalarField(wfpsf, iF),
+    wallModelFvPatchScalarField(orig, iF),
     eddyViscosity_
     (
         EddyViscosity::New
         (
-            wfpsf.eddyViscosity_->type(),
-            wfpsf.eddyViscosity_->constDict()
+            orig.eddyViscosity_->type(),
+            orig.eddyViscosity_->constDict()
         )
     ),
-    sampler_(new SingleCellSampler(wfpsf.sampler_())),
-    meshes_(wfpsf.meshes_),
-    maxIter_(wfpsf.maxIter_),
-    eps_(wfpsf.eps_),
-    nMeshY_(wfpsf.nMeshY_)
+    sampler_(new SingleCellSampler(orig.sampler_())),
+    meshes_(orig.meshes_),
+    maxIter_(orig.maxIter_),
+    eps_(orig.eps_),
+    nMeshY_(orig.nMeshY_)
 {
 
     if (debug)

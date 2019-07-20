@@ -71,13 +71,13 @@ PGradODEWallModelFvPatchScalarField
 Foam::PGradODEWallModelFvPatchScalarField::
 PGradODEWallModelFvPatchScalarField
 (
-    const PGradODEWallModelFvPatchScalarField& ptf,
+    const PGradODEWallModelFvPatchScalarField& orig,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    ODEWallModelFvPatchScalarField(ptf, p, iF, mapper)
+    ODEWallModelFvPatchScalarField(orig, p, iF, mapper)
 {
     if (debug)
     {
@@ -113,10 +113,10 @@ PGradODEWallModelFvPatchScalarField
 Foam::PGradODEWallModelFvPatchScalarField::
 PGradODEWallModelFvPatchScalarField
 (
-    const PGradODEWallModelFvPatchScalarField& wfpsf
+    const PGradODEWallModelFvPatchScalarField& orig
 )
 :
-    ODEWallModelFvPatchScalarField(wfpsf)
+    ODEWallModelFvPatchScalarField(orig)
 {
     if (debug)
     {
@@ -130,11 +130,11 @@ PGradODEWallModelFvPatchScalarField
 Foam::PGradODEWallModelFvPatchScalarField::
 PGradODEWallModelFvPatchScalarField
 (
-    const PGradODEWallModelFvPatchScalarField& wfpsf,
+    const PGradODEWallModelFvPatchScalarField& orig,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    ODEWallModelFvPatchScalarField(wfpsf, iF)
+    ODEWallModelFvPatchScalarField(orig, iF)
 {
     if (debug)
     {

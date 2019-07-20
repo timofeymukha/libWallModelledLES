@@ -344,22 +344,22 @@ LSQRWallModelFvPatchScalarField
 Foam::LSQRWallModelFvPatchScalarField::
 LSQRWallModelFvPatchScalarField
 (
-    const LSQRWallModelFvPatchScalarField& ptf,
+    const LSQRWallModelFvPatchScalarField& orig,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    wallModelFvPatchScalarField(ptf, p, iF, mapper),
-    rootFinder_(RootFinder::New(ptf.rootFinder_->type(),
-                                ptf.rootFinder_->f(),
-                                ptf.rootFinder_->d(),
-                                ptf.rootFinder_->eps(),
-                                ptf.rootFinder_->maxIter())),
-    law_(LawOfTheWall::New(ptf.law_->type(),
-                           ptf.law_->constDict())),
+    wallModelFvPatchScalarField(orig, p, iF, mapper),
+    rootFinder_(RootFinder::New(orig.rootFinder_->type(),
+                                orig.rootFinder_->f(),
+                                orig.rootFinder_->d(),
+                                orig.rootFinder_->eps(),
+                                orig.rootFinder_->maxIter())),
+    law_(LawOfTheWall::New(orig.law_->type(),
+                           orig.law_->constDict())),
     //sampler_(new MultiCellSampler(p, averagingTime_))
-    sampler_(new MultiCellSampler(ptf.sampler()))
+    sampler_(new MultiCellSampler(orig.sampler()))
 {
     law_->addFieldsToSampler(sampler());
     createFields();
@@ -386,61 +386,61 @@ LSQRWallModelFvPatchScalarField
 Foam::LSQRWallModelFvPatchScalarField::
 LSQRWallModelFvPatchScalarField
 (
-    const LSQRWallModelFvPatchScalarField& wfpsf
+    const LSQRWallModelFvPatchScalarField& orig 
 )
 :
-    wallModelFvPatchScalarField(wfpsf),
+    wallModelFvPatchScalarField(orig),
     rootFinder_
     (
         RootFinder::New 
         (
-            wfpsf.rootFinder_->type(),
-            wfpsf.rootFinder_->f(),
-            wfpsf.rootFinder_->d(),
-            wfpsf.rootFinder_->eps(),
-            wfpsf.rootFinder_->maxIter()
+            orig.rootFinder_->type(),
+            orig.rootFinder_->f(),
+            orig.rootFinder_->d(),
+            orig.rootFinder_->eps(),
+            orig.rootFinder_->maxIter()
         )
     ),
     law_
     (
         LawOfTheWall::New 
         (
-            wfpsf.law_->type(),
-            wfpsf.law_->constDict()
+            orig.law_->type(),
+            orig.law_->constDict()
         )
     ),
-    sampler_(new MultiCellSampler(wfpsf.sampler_()))
+    sampler_(new MultiCellSampler(orig.sampler_()))
 {}
 
 
 Foam::LSQRWallModelFvPatchScalarField::
 LSQRWallModelFvPatchScalarField
 (
-    const LSQRWallModelFvPatchScalarField& wfpsf,
+    const LSQRWallModelFvPatchScalarField& orig,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    wallModelFvPatchScalarField(wfpsf, iF),
+    wallModelFvPatchScalarField(orig, iF),
     rootFinder_
     (
         RootFinder::New 
         (
-            wfpsf.rootFinder_->type(),
-            wfpsf.rootFinder_->f(),
-            wfpsf.rootFinder_->d(),
-            wfpsf.rootFinder_->eps(),
-            wfpsf.rootFinder_->maxIter()
+            orig.rootFinder_->type(),
+            orig.rootFinder_->f(),
+            orig.rootFinder_->d(),
+            orig.rootFinder_->eps(),
+            orig.rootFinder_->maxIter()
         )
     ),
     law_
     (
         LawOfTheWall::New 
         (
-            wfpsf.law_->type(),
-            wfpsf.law_->constDict()
+            orig.law_->type(),
+            orig.law_->constDict()
         )
     ),
-    sampler_(new MultiCellSampler(wfpsf.sampler_()))
+    sampler_(new MultiCellSampler(orig.sampler_()))
 {}
 
 
