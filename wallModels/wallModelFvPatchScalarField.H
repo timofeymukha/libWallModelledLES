@@ -65,6 +65,7 @@ class wallModelFvPatchScalarField
     public fixedValueFvPatchScalarField
 {
 private:
+
     //- Fraction of CPU time spent on wall modelling
     scalar consumedTime_;
     
@@ -149,10 +150,8 @@ public:
             return consumedTime_;
         }
         
-        
         //- Update the boundary values
         virtual void updateCoeffs();
-
 
         //- Write to stream
         virtual void write(Ostream&) const;

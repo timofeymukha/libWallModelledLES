@@ -272,10 +272,10 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     }
 
 
-    scalar startCPUTime = db().time().elapsedCpuTime();
+    scalar startCPUTime = db().time().elapsedClockTime();
     
     label pI = patch().index();
-    
+
     // Compute nut and assign
     operator==(calcNut());
     
@@ -302,9 +302,12 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     ==
         (nut + nu.boundaryField()[pI])*wallGradU;
 
-    consumedTime_ += (db().time().elapsedCpuTime() - startCPUTime);
+    consumedTime_ += (db().time().elapsedClockTime() - startCPUTime);
+
+    // Take the max consumed time across all procs
+    reduce(consumedTime_, maxOp<scalar>());
     Info<< "Wall modelling time consumption = " << consumedTime_ 
-        << "s "  << 100*consumedTime_/(db().time().elapsedCpuTime() + SMALL)
+        << "s "  << 100*consumedTime_/(db().time().elapsedClockTime() + SMALL)
         << "% of total " << nl;
 }
 
