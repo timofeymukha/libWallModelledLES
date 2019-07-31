@@ -20,10 +20,10 @@ Class
     Foam::SingleCellSampler
 
 Description
-    Base class for sampling data to the wall models.
+    Class for sampling data to the wall models for a single cell per face.
 
 Contributors/Copyright:
-    2018 Timofey Mukha
+    2018-2019 Timofey Mukha
 
 SourceFiles
     SingleCellSampler.C
