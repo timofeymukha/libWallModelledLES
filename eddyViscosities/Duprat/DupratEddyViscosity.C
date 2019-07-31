@@ -88,6 +88,11 @@ Foam::DupratEddyViscosity::DupratEddyViscosity
 
 void Foam::DupratEddyViscosity::addFieldsToSampler(Sampler & sampler) const
 {
+    if (debug)
+    {
+        Info<< "Duprat eddy viscosity: Adding pressure gradient to sampler"
+            << nl;
+    }
     sampler.addField(new SampledPGradField(sampler.patch()));
 }
 
