@@ -124,9 +124,14 @@ void Foam::SampledPGradField::registerFields
             )
         );
     }
+    
+    const IOdictionary fvSchemes = 
+        mesh().thisDb().lookupObject<IOdictionary>("fvSchemes");
 
-    // If we have p, compute the actual grad(p)
-    if (mesh().foundObject<volScalarField>("p"))
+    // If we have p and scheme, compute the actual grad(p)
+    // The check for the scheme is due to fvSchemes not read by decomposePar
+    if ((mesh().foundObject<volScalarField>("p")) && 
+        (fvSchemes.isDict("gradSchemes")))
     {
         recompute();
     }
