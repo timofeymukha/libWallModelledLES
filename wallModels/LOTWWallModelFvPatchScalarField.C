@@ -235,6 +235,7 @@ LOTWWallModelFvPatchScalarField
         Info<< "Constructing LOTWWallModelFvPatchScalarField (lotw4)"
             << "from copy for patch " << patch().name() << nl;           
     }
+    law_->addFieldsToSampler(sampler());
 }
 
 
@@ -262,7 +263,7 @@ LOTWWallModelFvPatchScalarField
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
-
+    law_->addFieldsToSampler(sampler());
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
