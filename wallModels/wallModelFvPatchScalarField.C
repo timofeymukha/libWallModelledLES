@@ -316,7 +316,11 @@ void Foam::wallModelFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
     writeLocalEntries(os);
+#ifdef FOAM_NEW_WRITEENTRY
+    writeEntry(os, "value", *this);
+#else
     writeEntry("value", os);  
+#endif
 }
 
 
