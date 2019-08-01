@@ -168,7 +168,12 @@ void Foam::MultiCellSampler::createIndexList()
         // If h is zero, or the point is outside the domain,
         // set it to distance to adjacent cell's centre
         // Set the cellIndexList component accordingly
-        bool inside = (boundaryTreePtr->getVolumeType(p) == volumeType::INSIDE);
+        bool inside = 
+#ifdef FOAM_VOLUMETYPE_NOT_CAPITAL
+            boundaryTreePtr->getVolumeType(p) == volumeType::inside;
+#else
+            boundaryTreePtr->getVolumeType(p) == volumeType::INSIDE;
+#endif
 
         if ((hPatch[i] == 0) || (!inside) || (treePtr->nodes().empty()))
         {
