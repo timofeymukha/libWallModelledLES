@@ -56,6 +56,13 @@ These thus serve both as tutorials for case set-up and as validation cases.
 Further results obtained using the library can be found in the publications listed below.
 The cases considered in these publication can thus also be used for validation.
 
+## Running inlcuded  unit and integration tests
+To run the tests, Google Test and Google Mock should first be installed, see https://github.com/google/googletest.
+The environmental variable `GTEST_DIR` should point to the root directory containing both Google Test and Google Mock (i.e. the directory to which you've clone the `googletest` repo).
+
+The unit tests are located in the `tests` directory, are compiled with `wmake` producing the file `testRunner`, which could be executed to run the tests.
+The integration tests are located in `test/integrationTests`, are also compiled with `wmake`, and the produced executable is called `testIntegration`.
+
 ## Case set-up ##
 Assume that you've already set up a case for the classical wall-resolved LES. To convert it to WMLES you need to do the following:
 
