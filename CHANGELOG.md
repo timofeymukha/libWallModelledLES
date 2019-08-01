@@ -4,7 +4,6 @@
 
 This release contains multiple improvements to the code structure, adds a unit test suite and
 better handling of sampling cell search for large cases.
-Otherwise, there are not many improvements on the user side.
 
 ### For users
 
@@ -28,6 +27,9 @@ Otherwise, there are not many improvements on the user side.
 
 - Library now includes a Google Test unit test suite covering a significant part of the functionality.
   However, currently the tests cannot be run on all the OpenFOAM versions supported by the library.
+
+- Library now includes an integration test suite, that checks running in serial, running in parallel,
+  decomposing, and reconstructing the case for each wall model.
 
 - Classes `scalarListListList` and `scalarListListIOList` are introduced to hold sampled data from multiple cells.
 
