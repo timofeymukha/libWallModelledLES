@@ -4,6 +4,7 @@
 
 This release contains multiple improvements to the code structure, adds a unit test suite and
 better handling of sampling cell search for large cases.
+Stability of wall modelling is also improved.
 
 ### For users
 
@@ -11,6 +12,11 @@ better handling of sampling cell search for large cases.
   To run the same case with the new version delete the wallModelSampling directory for the
   time-step you want to start running from.
   This will not affect the simulation unless you've used time-averaging of sampled data.
+
+- Optionally, the values of `nut` predicted by the wall model can be copied to the wall-adjacent cells.
+  This improves the stability of wall modelling. The copying is controlled by the `copyToPatchInternalField`
+  switch in the input dictionary.
+  Default behaviour is not to copy, meaning that old cases will behave as before without modification.
 
 - The fill value in the samplingCells field is now -1 instead of 0, to allow for a wall-patch
   with index 0.
