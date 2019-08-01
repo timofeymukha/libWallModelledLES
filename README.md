@@ -64,6 +64,10 @@ The environmental variable `GTEST_DIR` should point to the root directory contai
 The unit tests are located in the `tests` directory, are compiled with `wmake` producing the file `testRunner`, which could be executed to run the tests.
 The integration tests are located in `test/integrationTests`, are also compiled with `wmake`, and the produced executable is called `testIntegration`.
 
+Unfortunately, the unit tests have been developed using OpenFOAMv1812 and may not run on all versions.
+The integration tests should run on all versions, but were only run on v1812 as well.
+Reports on regressions are welcome.
+
 ## Case set-up ##
 Assume that you've already set up a case for the classical wall-resolved LES. To convert it to WMLES you need to do the following:
 
