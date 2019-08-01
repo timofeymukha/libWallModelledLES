@@ -23,6 +23,7 @@ https://doi.org/10.1016/j.cpc.2019.01.016
 
 ## News ##
 
+- **2019-08-01** Version 0.5 released.
 - **2019-02-23** Version 0.4.1 released, containing a small bugfix.
 - **2018-11-17** Version 0.4 released, see CHANGELOG.md for list of changes.
 
