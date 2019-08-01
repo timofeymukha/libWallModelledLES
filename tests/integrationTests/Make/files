@@ -1,5 +1,6 @@
 testIntegration.C
 testIntegrationLOTW.C
 testIntegrationODE.C
+testIntegrationKnownWallShearStress.C
 EXE=./testIntegration
 
