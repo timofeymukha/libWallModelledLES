@@ -24,10 +24,11 @@ boundaryField
     bottomWall
     {
 /* * * * * * * * * Law of the wall wall model * * * * * * */                  
-         //type           LOTWWallModel;
-         type           LSQRWallModel;
+         type           LOTWWallModel;
+         //type           LSQRWallModel;
   //       value            uniform 0;  //redundant
   //
+         copyToPatchInternalField 1;
          sampler     MultiCellSampler;
          RootFinder
          {
