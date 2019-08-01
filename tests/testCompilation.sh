@@ -13,6 +13,11 @@ then
     docker start of_6
     docker exec -w $PWD/.. of_6 /bin/bash -c ". /opt/openfoam6/etc/bashrc && export FOAM_USER_LIBBIN=/home/timofey/OpenFOAM/timofey-6/platforms/linux64GccDPInt32Opt/lib && ./Allwclean && ./Allwmake"
 fi
+if [ $1 == "7.0" ]
+then
+    docker start of_7
+    docker exec -w $PWD/.. of_7 /bin/bash -c ". /opt/openfoam7/etc/bashrc && export FOAM_USER_LIBBIN=/home/timofey/OpenFOAM/timofey-7/platforms/linux64GccDPInt32Opt/lib && ./Allwclean && ./Allwmake"
+fi
 if [ $1 == "v30plus" ]
 then
     docker start of_v30plus
@@ -47,6 +52,11 @@ if [ $1 == "v1812" ]
 then
     docker start of_v1812
     docker exec -w $PWD/.. of_v1812 /bin/bash -c "source /opt/OpenFOAM/setImage_v1812.sh && ./Allwclean && ./Allwmake"
+fi
+if [ $1 == "v1906" ]
+then
+    docker start of_v1906
+    docker exec -w $PWD/.. of_v1906 /bin/bash -c "source /opt/OpenFOAM/setImage_v1906.sh && ./Allwclean && ./Allwmake"
 fi
 
 #docker exec -w $PWD/.. of_v1706 /bin/bash -c "source /opt/OpenFOAM/setImage_v1706.sh && ./Allwclean && ./Allwmake"

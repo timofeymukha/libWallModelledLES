@@ -593,6 +593,13 @@ Contributors/Copyright:
 #define AUTOPTR_HAS_CLONE_METHOD
 #endif
 
+#if (defined(FOAM_VERSION4WMLES_IS_ORG) && FOAM_VERSION4WMLES>=VERSION_NR(7,0,0))
+#define FOAM_VOLUMETYPE_NOT_CAPITAL
+#endif
+
+#if (defined(FOAM_VERSION4WMLES_IS_ORG) && FOAM_VERSION4WMLES>=VERSION_NR(7,0,0))
+#define FOAM_NEW_WRITEENTRY
+#endif
 
 #endif
 

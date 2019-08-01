@@ -66,7 +66,7 @@ void Foam::ODEWallModelFvPatchScalarField::createMeshes()
 
     if (debug)
     {
-        Info<< "Creating 1D meshed for patch " << patch().name();
+        Info<< "Creating 1D mesh for patch " << patch().name();
     }
 
     // Number of points in the mesh normal to the wall
@@ -144,8 +144,13 @@ calcUTau(const scalarField & magGradU) const
     // Compute the source term
     source(sourceField);
     
-    const vectorField & U = sampler().db().lookupObject<vectorField>("U");
-    scalarField magU(mag(U));
+    const scalarListIOList & U = sampler().db().lookupObject<scalarListIOList>("U");
+    scalarField magU(patch().size());
+
+    forAll(magU, i)
+    {
+        magU[i] = mag(vector(U[i][0], U[i][1], U[i][2]));
+    }
  
     // Turbulent viscosity
     const scalarField & nutw = *this;
@@ -190,11 +195,11 @@ calcUTau(const scalarField & magGradU) const
                 };
                 
                 
-
+                vector UFaceI(U[faceI][0], U[faceI][1], U[faceI][2]);
                 
                 scalar newTau = 
                         sqr(magU[faceI]) + sqr(mag(sourceField[faceI])*integral2) -
-                        2*(U[faceI] & sourceField[faceI])*integral2;
+                        2*(UFaceI & sourceField[faceI])*integral2;
                 
                 newTau  = sqrt(newTau)/integral;
                 
@@ -274,42 +279,38 @@ ODEWallModelFvPatchScalarField
     createMeshes();
 }
 
-//constructor when running deomposePar/reconstructPar
 Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
-    const ODEWallModelFvPatchScalarField& ptf,
+    const ODEWallModelFvPatchScalarField& orig,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    wallModelFvPatchScalarField(ptf, p, iF, mapper),
-    eddyViscosity_
-    (
-        EddyViscosity::New
-        (
-            ptf.eddyViscosity_->type(),
-            ptf.eddyViscosity_->constDict()
-        )
-    ),
-    sampler_(new SingleCellSampler(ptf.sampler())),
-    meshes_(ptf.meshes_),
-    maxIter_(ptf.maxIter_),
-    eps_(ptf.eps_),
-    nMeshY_(ptf.nMeshY_)
+    wallModelFvPatchScalarField(orig, p, iF, mapper),
+#ifdef AUTOPTR_HAS_CLONE_METHOD
+    eddyViscosity_(orig.eddyViscosity_.clone()),
+#else
+    eddyViscosity_(orig.eddyViscosity_, false),
+#endif
+    sampler_(new SingleCellSampler(orig.sampler())),
+    meshes_(orig.meshes_),
+    maxIter_(orig.maxIter_),
+    eps_(orig.eps_),
+    nMeshY_(orig.nMeshY_)
 {
-
     if (debug)
     {
         Info<< "Constructing ODEWallModelfvPatchScalarField (o2) "
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
+
+    eddyViscosity_->addFieldsToSampler(sampler());
 }
 
 
-//s this is the constructor when running the code
 Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
@@ -335,30 +336,27 @@ ODEWallModelFvPatchScalarField
     }
 
     createMeshes();
+    eddyViscosity_->addFieldsToSampler(sampler());
 }
 
 
-//constructor when running deomposePar/reconstructPar
 Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
-    const ODEWallModelFvPatchScalarField& wfpsf
+    const ODEWallModelFvPatchScalarField& orig
 )
 :
-    wallModelFvPatchScalarField(wfpsf),
-    eddyViscosity_
-    (
-        EddyViscosity::New
-        (
-            wfpsf.eddyViscosity_->type(),
-            wfpsf.eddyViscosity_->constDict()
-        )
-    ),
-    sampler_(new SingleCellSampler(wfpsf.sampler_())),
-    meshes_(wfpsf.meshes_),
-    maxIter_(wfpsf.maxIter_),
-    eps_(wfpsf.eps_),
-    nMeshY_(wfpsf.nMeshY_)
+    wallModelFvPatchScalarField(orig),
+#ifdef AUTOPTR_HAS_CLONE_METHOD
+    eddyViscosity_(orig.eddyViscosity_.clone()),
+#else
+    eddyViscosity_(orig.eddyViscosity_, false),
+#endif
+    sampler_(new SingleCellSampler(orig.sampler())),
+    meshes_(orig.meshes_),
+    maxIter_(orig.maxIter_),
+    eps_(orig.eps_),
+    nMeshY_(orig.nMeshY_)
     
 {
 
@@ -368,31 +366,28 @@ ODEWallModelFvPatchScalarField
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
+    eddyViscosity_->addFieldsToSampler(sampler());
 }
 
 
-//constructor when running deomposePar/reconstructPar
 Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
-    const ODEWallModelFvPatchScalarField& wfpsf,
+    const ODEWallModelFvPatchScalarField& orig,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    wallModelFvPatchScalarField(wfpsf, iF),
-    eddyViscosity_
-    (
-        EddyViscosity::New
-        (
-            wfpsf.eddyViscosity_->type(),
-            wfpsf.eddyViscosity_->constDict()
-        )
-    ),
-    sampler_(new SingleCellSampler(wfpsf.sampler_())),
-    meshes_(wfpsf.meshes_),
-    maxIter_(wfpsf.maxIter_),
-    eps_(wfpsf.eps_),
-    nMeshY_(wfpsf.nMeshY_)
+    wallModelFvPatchScalarField(orig, iF),
+#ifdef AUTOPTR_HAS_CLONE_METHOD
+    eddyViscosity_(orig.eddyViscosity_.clone()),
+#else
+    eddyViscosity_(orig.eddyViscosity_, false),
+#endif
+    sampler_(new SingleCellSampler(orig.sampler_())),
+    meshes_(orig.meshes_),
+    maxIter_(orig.maxIter_),
+    eps_(orig.eps_),
+    nMeshY_(orig.nMeshY_)
 {
 
     if (debug)
@@ -401,6 +396,7 @@ ODEWallModelFvPatchScalarField
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
+    eddyViscosity_->addFieldsToSampler(sampler());
 }
 
 

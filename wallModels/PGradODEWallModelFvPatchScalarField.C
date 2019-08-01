@@ -22,6 +22,7 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "dictionary.H"
 #include "SampledPGradField.H"
+#include "scalarListIOList.H"
 
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
@@ -42,7 +43,14 @@ source
 ) const
 {
     // source term = pressure gradient vector projected on the patch face
-    source = sampler_().db().lookupObject<vectorField>("pGrad");
+    
+    const scalarListIOList & pGrad =
+        sampler_().db().lookupObject<scalarListIOList>("pGrad");
+
+    forAll(source, i)
+    {
+        source[i] = vector(pGrad[i][0], pGrad[i][1], pGrad[i][2]);
+    }
 }
 
 
@@ -71,13 +79,13 @@ PGradODEWallModelFvPatchScalarField
 Foam::PGradODEWallModelFvPatchScalarField::
 PGradODEWallModelFvPatchScalarField
 (
-    const PGradODEWallModelFvPatchScalarField& ptf,
+    const PGradODEWallModelFvPatchScalarField& orig,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    ODEWallModelFvPatchScalarField(ptf, p, iF, mapper)
+    ODEWallModelFvPatchScalarField(orig, p, iF, mapper)
 {
     if (debug)
     {
@@ -113,10 +121,10 @@ PGradODEWallModelFvPatchScalarField
 Foam::PGradODEWallModelFvPatchScalarField::
 PGradODEWallModelFvPatchScalarField
 (
-    const PGradODEWallModelFvPatchScalarField& wfpsf
+    const PGradODEWallModelFvPatchScalarField& orig
 )
 :
-    ODEWallModelFvPatchScalarField(wfpsf)
+    ODEWallModelFvPatchScalarField(orig)
 {
     if (debug)
     {
@@ -130,11 +138,11 @@ PGradODEWallModelFvPatchScalarField
 Foam::PGradODEWallModelFvPatchScalarField::
 PGradODEWallModelFvPatchScalarField
 (
-    const PGradODEWallModelFvPatchScalarField& wfpsf,
+    const PGradODEWallModelFvPatchScalarField& orig,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    ODEWallModelFvPatchScalarField(wfpsf, iF)
+    ODEWallModelFvPatchScalarField(orig, iF)
 {
     if (debug)
     {

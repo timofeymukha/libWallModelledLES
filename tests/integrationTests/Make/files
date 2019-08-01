@@ -1,0 +1,5 @@
+testIntegration.C
+testIntegrationLOTW.C
+testIntegrationODE.C
+EXE=./testIntegration
+

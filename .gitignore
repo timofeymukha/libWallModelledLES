@@ -52,3 +52,6 @@ versionRules/foamVersion
 foamVersionThisIsCompiledFor
 .vscode/
 
+tests/integrationTests/testIntegration
+tests/testCases/channel_flow/0.01
+

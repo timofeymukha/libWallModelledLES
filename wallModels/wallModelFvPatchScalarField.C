@@ -225,17 +225,17 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
 Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
-    const wallModelFvPatchScalarField& wmpsf
+    const wallModelFvPatchScalarField& orig 
 )
 :
-    fixedValueFvPatchScalarField(wmpsf),  
-    consumedTime_(wmpsf.consumedTime_),
-    averagingTime_(wmpsf.averagingTime_)
+    fixedValueFvPatchScalarField(orig),
+    consumedTime_(orig.consumedTime_),
+    averagingTime_(orig.averagingTime_)
 {
     if (debug)
     {
         Info<< "Constructing wallModelFvPatchScalarField (w4)"
-            << "from copy for patch " << patch().name() << nl;           
+            << "using the copy constructor" << nl;           
     }
 
     checkType();
@@ -244,13 +244,13 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
 Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
-    const wallModelFvPatchScalarField& wmpsf,
+    const wallModelFvPatchScalarField& orig,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    fixedValueFvPatchScalarField(wmpsf, iF),       
-    consumedTime_(wmpsf.consumedTime_),
-    averagingTime_(wmpsf.averagingTime_)
+    fixedValueFvPatchScalarField(orig, iF),       
+    consumedTime_(orig.consumedTime_),
+    averagingTime_(orig.averagingTime_)
 {
     if (debug)
     {
@@ -272,10 +272,9 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     }
 
 
-    scalar startCPUTime = db().time().elapsedCpuTime();
+    scalar startCPUTime = db().time().elapsedClockTime();
     
     label pI = patch().index();
-    
     
     // Compute uTau
     volVectorField & wss = 
@@ -320,9 +319,12 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     ==
         (nut + nu.boundaryField()[pI])*wallGradU;
 
-    consumedTime_ += (db().time().elapsedCpuTime() - startCPUTime);
+    consumedTime_ += (db().time().elapsedClockTime() - startCPUTime);
+
+    // Take the max consumed time across all procs
+    reduce(consumedTime_, maxOp<scalar>());
     Info<< "Wall modelling time consumption = " << consumedTime_ 
-        << "s "  << 100*consumedTime_/(db().time().elapsedCpuTime() + SMALL)
+        << "s "  << 100*consumedTime_/(db().time().elapsedClockTime() + SMALL)
         << "% of total " << nl;
 }
 
@@ -331,7 +333,11 @@ void Foam::wallModelFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
     writeLocalEntries(os);
+#ifdef FOAM_NEW_WRITEENTRY
+    writeEntry(os, "value", *this);
+#else
     writeEntry("value", os);  
+#endif
 }
 
 
