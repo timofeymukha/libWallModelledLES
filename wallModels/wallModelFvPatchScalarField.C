@@ -163,6 +163,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF),
     consumedTime_(0),
+    copyToPatchInternalField_(false),
     averagingTime_(0)
 {
     if (debug)
@@ -179,15 +180,16 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
 Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
-    const wallModelFvPatchScalarField& ptf,
+    const wallModelFvPatchScalarField& orig,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    fixedValueFvPatchScalarField(ptf, p, iF, mapper),
+    fixedValueFvPatchScalarField(orig, p, iF, mapper),
     consumedTime_(0),
-    averagingTime_(ptf.averagingTime_) 
+    copyToPatchInternalField_(orig.copyToPatchInternalField_),
+    averagingTime_(orig.averagingTime_)
 {
     if (debug)
     {
@@ -209,7 +211,11 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF, dict),
     consumedTime_(0),
-    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0))
+    copyToPatchInternalField_
+    (
+        dict.lookupOrDefault<bool>("copyToPatchInternalField", false)
+    ),
+    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 2))
 {
     if (debug)
     {
@@ -230,6 +236,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(orig),
     consumedTime_(orig.consumedTime_),
+    copyToPatchInternalField_(orig.copyToPatchInternalField_),
     averagingTime_(orig.averagingTime_)
 {
     if (debug)
@@ -250,6 +257,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 :
     fixedValueFvPatchScalarField(orig, iF),       
     consumedTime_(orig.consumedTime_),
+    copyToPatchInternalField_(orig.copyToPatchInternalField_),
     averagingTime_(orig.averagingTime_)
 {
     if (debug)
@@ -289,27 +297,28 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     const vectorField & wallGradU = wallGradUField.boundaryField()[pI];
     
     const volScalarField & nu = db().lookupObject<volScalarField>("nu");
-    scalar maxNu = max(nu.boundaryField()[pI]);
 
     // Compute nut and assign
-    scalarField nut = calcNut();
+    scalarField nut(calcNut());
 
     operator==(nut);
 
+
     // Assign to the near-wall cells
-    volScalarField & nutField = 
-        const_cast<volScalarField &>
-        (
-            db().lookupObject<volScalarField>("nut")
-        );
-    const labelUList fC = patch().faceCells();
-
-
-    forAll (nut, i)
+    if (copyToPatchInternalField())
     {
-        nutField[fC[i]] = nut[i];
+        volScalarField & nutField = 
+            const_cast<volScalarField &>
+            (
+                db().lookupObject<volScalarField>("nut")
+            );
+        const labelUList fC = patch().faceCells();
+
+        forAll (nut, i)
+        {
+            nutField[fC[i]] = nut[i];
+        }
     }
-    //Info << this->patchInternalField() << nl;
 
 #ifdef FOAM_NEW_GEOMFIELD_RULES
     wss.boundaryFieldRef()[pI]

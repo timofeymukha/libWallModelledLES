@@ -68,6 +68,9 @@ private:
 
     //- Fraction of CPU time spent on wall modelling
     scalar consumedTime_;
+
+    //- Switch to copy data to wall-adjacent cells
+    bool copyToPatchInternalField_;
     
 protected:
 
@@ -148,6 +151,11 @@ public:
         scalar consumedTime() const
         {
             return consumedTime_;
+        }
+
+        bool copyToPatchInternalField() const
+        {
+            return copyToPatchInternalField_;
         }
         
         //- Update the boundary values

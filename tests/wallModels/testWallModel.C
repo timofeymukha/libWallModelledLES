@@ -105,8 +105,9 @@ TEST_F(WallModelTest, ConstructorW1)
 
     ASSERT_EQ(&patch, &model.patch());
     ASSERT_EQ(&nutField, &model.internalField());
-    ASSERT_DOUBLE_EQ(model.averagingTime(), 0.0);
-    ASSERT_DOUBLE_EQ(model.consumedTime(), 0.0);
+    ASSERT_FLOAT_EQ(model.averagingTime(), 0.0);
+    ASSERT_FLOAT_EQ(model.consumedTime(), 0.0);
+    ASSERT_EQ(model.copyToPatchInternalField(), false);
     ASSERT_TRUE(mesh.foundObject<volScalarField>("h"));
     ASSERT_TRUE(mesh.foundObject<volVectorField>("wallShearStress"));
     ASSERT_TRUE(mesh.foundObject<volScalarField>("uTauPredicted"));
@@ -141,8 +142,9 @@ TEST_F(WallModelTest, ConstructorW2)
 
     ASSERT_EQ(&patch, &model.patch());
     ASSERT_EQ(&nutField, &model.internalField());
-    ASSERT_DOUBLE_EQ(model2.averagingTime(), 0.0);
-    ASSERT_DOUBLE_EQ(model2.consumedTime(), 0.0);
+    ASSERT_FLOAT_EQ(model2.averagingTime(), 0.0);
+    ASSERT_FLOAT_EQ(model2.consumedTime(), 0.0);
+    ASSERT_EQ(model2.copyToPatchInternalField(), false);
 }
 
 TEST_F(WallModelTest, ConstructorW3)
@@ -156,14 +158,17 @@ TEST_F(WallModelTest, ConstructorW3)
 
     dictionary dict;
     dict.add("averagingTime", 0.1);
+    dict.add("copyToPatchInternalField", true);
     dict.add("value", "uniform 0.0");
 
     const volScalarField nutField = mesh.lookupObject<volScalarField>("nut");
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     DummyWallModel model(patch, nutField, dict);
-    ASSERT_DOUBLE_EQ(model.averagingTime(), 0.1);
-    ASSERT_DOUBLE_EQ(model.consumedTime(), 0.0);
+    ASSERT_FLOAT_EQ(model.averagingTime(), 0.1);
+    ASSERT_FLOAT_EQ(model.consumedTime(), 0.0);
+    ASSERT_EQ(model.copyToPatchInternalField(), true);
+
     ASSERT_TRUE(mesh.foundObject<volScalarField>("h"));
     ASSERT_TRUE(mesh.foundObject<volVectorField>("wallShearStress"));
     ASSERT_TRUE(mesh.foundObject<volScalarField>("uTauPredicted"));
@@ -182,6 +187,7 @@ TEST_F(WallModelTest, CopyConstructorW4)
     dictionary dict;
     dict.add("averagingTime", 0.1);
     dict.add("value", "uniform 0.0");
+    dict.add("copyToPatchInternalField", true);
 
     const volScalarField nutField = mesh.lookupObject<volScalarField>("nut");
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -189,8 +195,10 @@ TEST_F(WallModelTest, CopyConstructorW4)
     DummyWallModel model(patch, nutField, dict);
     DummyWallModel model2(model);
 
+
     ASSERT_DOUBLE_EQ(model2.averagingTime(), 0.1);
     ASSERT_DOUBLE_EQ(model2.consumedTime(), 0.0);
+    ASSERT_EQ(model2.copyToPatchInternalField(), true);
 }
 
 TEST_F(WallModelTest, CopyConstructorW5)
@@ -214,7 +222,9 @@ TEST_F(WallModelTest, CopyConstructorW5)
 
     ASSERT_DOUBLE_EQ(model2.averagingTime(), 0.1);
     ASSERT_DOUBLE_EQ(model2.consumedTime(), 0.0);
+    ASSERT_EQ(model2.copyToPatchInternalField(), false);
 }
+
 TEST_F(WallModelTest, UpdateCoeffs)
 {
     extern argList * mainArgs;
@@ -262,5 +272,5 @@ TEST_F(WallModelTest, UpdateCoeffs)
         ASSERT_DOUBLE_EQ(wss[i][2], 6);
     }
     ASSERT_DOUBLE_EQ(model.averagingTime(), 0.1);
-
-    }      
+    ASSERT_DOUBLE_EQ(model.copyToPatchInternalField(), false);
+}      

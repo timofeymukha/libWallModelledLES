@@ -27,4 +27,4 @@ wallModels/ODEWallModelFvPatchScalarField.C
 wallModels/PGradODEWallModelFvPatchScalarField.C
 sgsModels/makeSGSModel.C
 
-LIB = $(FOAM_USER_LIBBIN)/libWallModelledLESzg-nut
+LIB = $(FOAM_USER_LIBBIN)/libWallModelledLES
