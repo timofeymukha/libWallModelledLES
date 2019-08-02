@@ -43,7 +43,11 @@ lnInclude/
 **/Make/*
 /Make/linux64IccDPInt32Opt
 **/processor*
-/docs/html
+/docs/source/html
+/docs/source/api
+/docs/source/xml
+/docs/source/DTAGS
+/docs/build
 /docs/DTAGS
 !**/Make/files
 !**/Make/options
