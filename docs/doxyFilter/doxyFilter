@@ -38,6 +38,7 @@
 
 if [ "$#" -gt 0 ]
 then
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
     realFilePath=$(echo "$1" | sed -e "s?^$WM_PROJECT_DIR?../../..?" )
     if [ -n "$FOAM_ONLINE_REPO" ]
@@ -50,17 +51,17 @@ then
     dirName=${filePath%/[^/]*}
     fileName=${filePath##*/}
 
-    awkScript=$LIBWMLES_DIR/docs/doxyFilter/doxyFilter.awk
+    awkScript=$DIR/doxyFilter.awk
 
     case "$1" in
     */applications/solvers/*.C | */applications/utilities/*.C )
-        awkScript=$LIBWMLES_DIR/docs/doxyFilter/doxyFilter-top.awk
+        awkScript=$DIR/doxyFilter-top.awk
         ;;
     esac
 
-    awk -f $LIBWMLES_DIR/docs/doxyFilter/doxyFilter-table.awk "$1" | \
+    awk -f $DIR/doxyFilter-table.awk "$1" | \
     awk -f $awkScript  | \
-    sed -f $LIBWMLES_DIR/docs/doxyFilter/doxyFilter.sed \
+    sed -f $DIR/doxyFilter.sed \
         -e s@%realFilePath%@$realFilePath@g \
         -e s@%filePath%@$filePath@g \
         -e s@%fileName%@$fileName@g \
