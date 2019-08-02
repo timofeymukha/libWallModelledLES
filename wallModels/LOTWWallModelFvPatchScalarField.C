@@ -173,7 +173,7 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig, p, iF, mapper),
-#ifdef AUTOPTR_HAS_CLONE_METHOD
+#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     rootFinder_(orig.rootFinder_.clone()),
     law_(orig.law_.clone()),
 #else
@@ -221,7 +221,7 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig),
-#ifdef AUTOPTR_HAS_CLONE_METHOD
+#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     rootFinder_(orig.rootFinder_.clone()),
     law_(orig.law_.clone()),
 #else
@@ -247,7 +247,7 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig, iF),
-#ifdef AUTOPTR_HAS_CLONE_METHOD
+#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     rootFinder_(orig.rootFinder_.clone()),
     law_(orig.law_.clone()),
 #else

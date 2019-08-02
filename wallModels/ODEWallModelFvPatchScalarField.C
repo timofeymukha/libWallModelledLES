@@ -289,7 +289,7 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig, p, iF, mapper),
-#ifdef AUTOPTR_HAS_CLONE_METHOD
+#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     eddyViscosity_(orig.eddyViscosity_.clone()),
 #else
     eddyViscosity_(orig.eddyViscosity_, false),
@@ -347,7 +347,7 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig),
-#ifdef AUTOPTR_HAS_CLONE_METHOD
+#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     eddyViscosity_(orig.eddyViscosity_.clone()),
 #else
     eddyViscosity_(orig.eddyViscosity_, false),
@@ -378,7 +378,7 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig, iF),
-#ifdef AUTOPTR_HAS_CLONE_METHOD
+#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     eddyViscosity_(orig.eddyViscosity_.clone()),
 #else
     eddyViscosity_(orig.eddyViscosity_, false),

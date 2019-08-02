@@ -149,7 +149,10 @@ Contributors/Copyright:
 #endif
 
 #if (defined(FOAM_VERSION4WMLES_IS_COM) && OPENFOAM_COM >=1806)
-#define AUTOPTR_HAS_CLONE_METHOD
+/*! \def FOAM_AUTOPTR_HAS_CLONE_METHOD
+    \brief Whether the autoPtr<> class has a clone() mehtod.
+*/
+#define FOAM_AUTOPTR_HAS_CLONE_METHOD
 #endif
 
 #if (defined(FOAM_VERSION4WMLES_IS_ORG) && FOAM_VERSION4WMLES>=VERSION_NR(7,0,0))
