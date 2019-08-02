@@ -16,6 +16,9 @@ import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+ import subprocess
+ subprocess.call('doxygen', shell=True)
+
 # -- Project information -----------------------------------------------------
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -200,7 +203,7 @@ exhale_args = {
     "createTreeView":        True,
     # TIP: if using the sphinx-bootstrap-theme, you need
     # "treeViewIsBootstrap": True,
-    "exhaleExecutesDoxygen": True,
+    "exhaleExecutesDoxygen": False,
     "exhaleUseDoxyfile": True, 
     "unabridgedOrphanKinds": {"define", "dir", "typedef", "function"},
     "minifyTreeView": False,
