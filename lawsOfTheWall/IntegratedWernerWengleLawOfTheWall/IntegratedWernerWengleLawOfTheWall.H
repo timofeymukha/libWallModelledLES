@@ -89,7 +89,9 @@ class IntegratedWernerWengleLawOfTheWall: public LawOfTheWall
         
 public:
     
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("IntegratedWernerWengle");
+#endif
 
     // Constructors
 

@@ -21,12 +21,14 @@ License
 #include "VanDriestEddyViscosity.H"
 #include "addToRunTimeSelectionTable.H"
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(VanDriestEddyViscosity, 0);
     addToRunTimeSelectionTable(EddyViscosity, VanDriestEddyViscosity, Dictionary);
     addToRunTimeSelectionTable(EddyViscosity, VanDriestEddyViscosity, TypeAndDictionary);
 }
+#endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

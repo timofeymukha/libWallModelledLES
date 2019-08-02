@@ -24,12 +24,14 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "scalarListIOList.H"
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(ReichardtLawOfTheWall, 0);
     addToRunTimeSelectionTable(LawOfTheWall, ReichardtLawOfTheWall, Dictionary);
     addToRunTimeSelectionTable(LawOfTheWall, ReichardtLawOfTheWall, TypeAndDictionary);
 }
+#endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

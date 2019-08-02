@@ -124,8 +124,10 @@ protected:
         
 public:
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     //- Runtime type information
     TypeName("ODEWallModel");
+#endif
 
     // Constructors
 

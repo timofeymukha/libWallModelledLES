@@ -63,7 +63,9 @@ class NewtonRootFinder : public RootFinder
 
 public:
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("Newton");
+#endif
 
     // Constructors
 

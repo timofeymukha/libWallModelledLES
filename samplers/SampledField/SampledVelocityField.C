@@ -23,11 +23,13 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(SampledVelocityField, 0);
     addToRunTimeSelectionTable(SampledField, SampledVelocityField, FvPatch);
 }
+#endif
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

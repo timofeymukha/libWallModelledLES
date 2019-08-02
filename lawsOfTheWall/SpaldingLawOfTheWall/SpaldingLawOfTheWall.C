@@ -23,6 +23,7 @@ License
 #include "volFields.H"
 #include "scalarListIOList.H"
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(SpaldingLawOfTheWall, 0);
@@ -30,6 +31,7 @@ namespace Foam
     addToRunTimeSelectionTable(LawOfTheWall, SpaldingLawOfTheWall, TypeAndDictionary);
 
 }
+#endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

@@ -23,7 +23,7 @@ Description
     Base abstract class for LES wall models.
     
     Handles creating and storing fields used by the wall models.
-    data. The following fields are created and stored in the registry.
+    The following fields are created and stored in the registry.
     - h, the patch fields of which hold the distance to the cells used for
     sampling. This field is read and must be present for the simulation to run.
     - samplingCells, which marks the cells used for sampling with a value
@@ -96,8 +96,10 @@ protected:
 
 public:
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     //- Runtime type information
     TypeName("wallModel");
+#endif
 
     // Constructors
 

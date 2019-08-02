@@ -26,11 +26,13 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(SampledPGradField, 0);
     addToRunTimeSelectionTable(SampledField, SampledPGradField, FvPatch);
 }
+#endif
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

@@ -18,16 +18,13 @@ License
 
 Class
     Foam::LESModels::NoModel
- 
-Group
-    grpLESTurbulence
 
 Description
     An SGS model that has the subgrid viscosity zero everywhere.
     The nut field is present, however, so wall models can be used.
- 
+
 Contributors/Copyright:
-    2016-2018 Timofey Mukha
+    2016-2019 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -82,8 +79,10 @@ public:
     typedef typename BasicTurbulenceModel::transportModel transportModel;
 
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     //- Runtime type information
     TypeName("NoModel");
+#endif
 
 
     // Constructors

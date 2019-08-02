@@ -26,10 +26,12 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(ODEWallModelFvPatchScalarField, 0);
 }
+#endif
 
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //

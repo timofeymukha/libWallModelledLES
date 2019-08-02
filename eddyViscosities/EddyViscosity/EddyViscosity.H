@@ -59,7 +59,9 @@ protected:
     
 public:
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("EddyViscosity");
+#endif
     
     // Constructors
     
@@ -133,6 +135,7 @@ public:
             return constDict_;
         }
         
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
      // RTS tables
 
         // RTS table "Dictionary"    
@@ -159,6 +162,7 @@ public:
             ),
             (modelName, dict)
         ); 
+#endif
 
 };
 

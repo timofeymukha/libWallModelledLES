@@ -22,12 +22,14 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(LawOfTheWall, 0);
     defineRunTimeSelectionTable(LawOfTheWall, Dictionary);
     defineRunTimeSelectionTable(LawOfTheWall, TypeAndDictionary);
 }    
+#endif
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
     
@@ -84,7 +86,6 @@ Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New
 
     return cstrIter()(lawName, dict);  
 }
-
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

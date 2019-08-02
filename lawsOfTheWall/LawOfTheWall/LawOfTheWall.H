@@ -66,7 +66,9 @@ protected:
     
 public:
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("LawOfTheWall");
+#endif
     
     // Constructors
     
@@ -106,12 +108,12 @@ public:
         virtual autoPtr<LawOfTheWall> clone() const = 0;
 
     // Selectors
-        static autoPtr<LawOfTheWall> New 
+        static autoPtr<LawOfTheWall> New
         (
             const dictionary & dict
         );
 
-        static autoPtr<LawOfTheWall> New 
+        static autoPtr<LawOfTheWall> New
         (
             const word & lawName,
             const dictionary & dict
@@ -155,6 +157,7 @@ public:
         }
         
         
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     // RTS tables
         // RTS table "Dictionary"    
         declareRunTimeSelectionTable
@@ -180,6 +183,7 @@ public:
             ),
             (lawName, dict)
         );  
+#endif
 };
 
 

@@ -17,7 +17,7 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::SampledField
+    Foam::SampledVelocityField
 
 Description
     Class for the sampled velocity field.
@@ -52,8 +52,11 @@ class SampledVelocityField
 {
    
 public:
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     //- Runtime type information
         TypeName("SampledVelocityField");   
+#endif
 
     // Constructors
 

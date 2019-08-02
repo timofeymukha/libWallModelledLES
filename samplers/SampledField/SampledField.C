@@ -22,11 +22,13 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(SampledField, 0);
     defineRunTimeSelectionTable(SampledField, FvPatch);
 }
+#endif
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
 

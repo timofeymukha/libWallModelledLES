@@ -24,6 +24,7 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "scalarListIOList.H"
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(IntegratedWernerWengleLawOfTheWall, 0);
@@ -39,6 +40,7 @@ namespace Foam
             TypeAndDictionary
     );
 }
+#endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

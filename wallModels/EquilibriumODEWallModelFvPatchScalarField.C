@@ -105,6 +105,8 @@ void Foam::EquilibriumODEWallModelFvPatchScalarField::write(Ostream& os) const
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     makePatchTypeField
@@ -113,6 +115,7 @@ namespace Foam
         EquilibriumODEWallModelFvPatchScalarField
     );
 }
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

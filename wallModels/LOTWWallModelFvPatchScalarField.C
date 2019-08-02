@@ -289,6 +289,7 @@ void Foam::LOTWWallModelFvPatchScalarField::updateCoeffs()
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     makePatchTypeField
@@ -297,5 +298,6 @@ namespace Foam
         LOTWWallModelFvPatchScalarField
     );
 }
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

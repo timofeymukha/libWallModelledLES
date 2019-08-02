@@ -22,6 +22,7 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(RootFinder, 0);
@@ -29,6 +30,7 @@ namespace Foam
     defineRunTimeSelectionTable(RootFinder, Dictionary);
     defineRunTimeSelectionTable(RootFinder, DictionaryOnly);
 }
+#endif
 
 // Dummy function to initialize the root finders
 Foam::scalar Foam::rootFinderDummy(Foam::scalar)

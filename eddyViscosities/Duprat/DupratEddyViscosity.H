@@ -92,7 +92,9 @@ class DupratEddyViscosity: public EddyViscosity
         
 public:
     
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("Duprat");
+#endif
 
     // Constructors
         

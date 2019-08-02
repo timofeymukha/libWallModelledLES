@@ -23,6 +23,7 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
 
@@ -36,3 +37,4 @@ namespace Foam
     defineCompoundTypeName(List<scalarListList>, scalarListListList);
     addCompoundToRunTimeSelectionTable(List<scalarListList>, scalarListListList);
 }
+#endif

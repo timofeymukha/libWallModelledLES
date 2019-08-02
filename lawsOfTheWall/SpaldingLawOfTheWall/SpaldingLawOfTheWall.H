@@ -85,7 +85,9 @@ class SpaldingLawOfTheWall: public LawOfTheWall
         
 public:
     
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("Spalding");
+#endif
 
     // Constructors
       

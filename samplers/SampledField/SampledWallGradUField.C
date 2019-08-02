@@ -24,11 +24,13 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(SampledWallGradUField, 0);
     addToRunTimeSelectionTable(SampledField, SampledWallGradUField, FvPatch);
 }
+#endif
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

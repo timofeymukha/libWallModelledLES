@@ -84,7 +84,9 @@ class WernerWengleLawOfTheWall: public LawOfTheWall
         
 public:
     
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("WernerWengle");
+#endif
 
     // Constructors
 

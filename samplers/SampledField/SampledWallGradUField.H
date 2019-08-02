@@ -17,10 +17,10 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::SampledField
+    Foam::SampledWallGradUField
 
 Description
-    Class for the sampled velocity field.
+    Class for the sampled velocity gradient field.
 
 Contributors/Copyright:
     2019 Timofey Mukha
@@ -51,8 +51,11 @@ class SampledWallGradUField
 {
    
 public:
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     //- Runtime type information
         TypeName("SampledWallGradUField");
+#endif
 
     // Constructors
 

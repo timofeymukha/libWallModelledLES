@@ -61,8 +61,11 @@ protected:
         const fvMesh & mesh_;
                             
 public:
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     //- Runtime type information
         TypeName("SampledField");
+#endif
 
     // Constructors
 
@@ -155,6 +158,7 @@ public:
         virtual void recompute() const = 0;       
 
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     // RTS tables
         
         // RTS table "Patch"
@@ -168,7 +172,8 @@ public:
                 const fvPatch& p
             ),
             (fieldName, p)
-        );       
+        );
+#endif
 };
 
 

@@ -23,6 +23,7 @@ License
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(BisectionRootFinder, 0);
@@ -30,6 +31,7 @@ namespace Foam
     addToRunTimeSelectionTable(RootFinder, BisectionRootFinder, Dictionary);
     addToRunTimeSelectionTable(RootFinder, BisectionRootFinder, DictionaryOnly);
 }
+#endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

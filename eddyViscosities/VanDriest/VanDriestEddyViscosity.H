@@ -85,7 +85,9 @@ class VanDriestEddyViscosity: public EddyViscosity
         
 public:
     
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("VanDriest");
+#endif
 
     // Constructors
       

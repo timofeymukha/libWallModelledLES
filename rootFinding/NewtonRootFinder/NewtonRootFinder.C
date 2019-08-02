@@ -23,6 +23,7 @@ License
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(NewtonRootFinder, 0);
@@ -30,6 +31,7 @@ namespace Foam
     addToRunTimeSelectionTable(RootFinder, NewtonRootFinder, Dictionary);
     addToRunTimeSelectionTable(RootFinder, NewtonRootFinder, DictionaryOnly);
 }
+#endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

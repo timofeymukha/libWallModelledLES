@@ -25,12 +25,14 @@ License
 #include "SampledPGradField.H"
 #include "scalarListIOList.H"
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(DupratEddyViscosity, 0);
     addToRunTimeSelectionTable(EddyViscosity, DupratEddyViscosity, Dictionary);
     addToRunTimeSelectionTable(EddyViscosity, DupratEddyViscosity, TypeAndDictionary);
 }
+#endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

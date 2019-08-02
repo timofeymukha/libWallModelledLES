@@ -221,7 +221,9 @@ void Foam::KnownWallShearStressWallModelFvPatchScalarField::write(Ostream& os) c
     wallModelFvPatchScalarField::write(os);
 }
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     makePatchTypeField
@@ -230,6 +232,6 @@ namespace Foam
         KnownWallShearStressWallModelFvPatchScalarField
     );
 }
-
+#endif
 
 // ************************************************************************* //

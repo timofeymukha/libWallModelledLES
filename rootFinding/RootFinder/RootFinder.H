@@ -46,7 +46,7 @@ namespace Foam
 {
 
 // Dummy function to initialize the root finder
-scalar rootFinderDummy(scalar);
+Foam::scalar rootFinderDummy(Foam::scalar);
 
 
 /*---------------------------------------------------------------------------*\
@@ -74,7 +74,9 @@ protected:
 public:
 
     // Static data members
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
         TypeName ("RootFinder");
+#endif
 
     // Constructors
 
@@ -214,6 +216,7 @@ public:
         
         virtual void write(Foam::Ostream& os) const;
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     // RTS tables 
         
         // RTS table "Word"    
@@ -257,6 +260,7 @@ public:
             ),
             (dict)
         );
+#endif
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

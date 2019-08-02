@@ -202,5 +202,6 @@ exhale_args = {
     # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": True,
     "exhaleUseDoxyfile": True, 
-    "unabridgedOrphanKinds": {"define", "dir", "typedef", "function"}
+    "unabridgedOrphanKinds": {"define", "dir", "typedef", "function"},
+    "minifyTreeView": False
 }

@@ -93,7 +93,9 @@ class ReichardtLawOfTheWall: public LawOfTheWall
         
 public:
     
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("Reichardt");
+#endif
 
     // Constructors
 

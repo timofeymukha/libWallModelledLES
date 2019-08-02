@@ -20,7 +20,7 @@ Class
     Foam::SampledPGradField
 
 Description
-    Class for a sampled pressure gradient field.
+    Class for the sampled pressure gradient field.
 
 Contributors/Copyright:
     2018 Timofey Mukha
@@ -50,8 +50,11 @@ class SampledPGradField
 {
               
 public:
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     //- Runtime type information
         TypeName("SampledPGradField");
+#endif
 
     // Constructors
 

@@ -106,8 +106,10 @@ protected:
         
 public:
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     //- Runtime type information
         TypeName("Sampler");
+#endif
 
     // Constructors
 
@@ -187,6 +189,7 @@ public:
         //- Add field for sampling
         virtual void addField(SampledField *);
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     // RTS tables
         
         // RTS table "PatchAndAveragingTime"
@@ -202,6 +205,7 @@ public:
             ),
             (samplerName, p, averagingTime)
         );
+#endif
 };
 
 

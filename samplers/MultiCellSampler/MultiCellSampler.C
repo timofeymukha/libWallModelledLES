@@ -41,11 +41,13 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(MultiCellSampler, 0);
     addToRunTimeSelectionTable(Sampler, MultiCellSampler, PatchAndAveragingTime);
 }
+#endif
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
