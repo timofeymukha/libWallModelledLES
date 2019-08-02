@@ -203,5 +203,6 @@ exhale_args = {
     "exhaleExecutesDoxygen": True,
     "exhaleUseDoxyfile": True, 
     "unabridgedOrphanKinds": {"define", "dir", "typedef", "function"},
-    "minifyTreeView": False
+    "minifyTreeView": False,
+    "doxygenStripFromPath": "../"
 }

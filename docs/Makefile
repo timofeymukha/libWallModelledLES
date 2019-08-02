@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
-SOURCEDIR     = source
+SOURCEDIR     = .
 BUILDDIR      = build
 
 # Put it first so that "make" without argument is like "make help".
@@ -16,7 +16,7 @@ help:
 .PHONY: help Makefile clean
 
 clean:
-	rm -rf source/xml source/html source/api
+	rm -rf xml html api DTAGS
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 # Catch-all target: route all unknown targets to Sphinx using the new

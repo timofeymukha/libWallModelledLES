@@ -43,12 +43,11 @@ lnInclude/
 **/Make/*
 /Make/linux64IccDPInt32Opt
 **/processor*
-/docs/source/html
-/docs/source/api
-/docs/source/xml
-/docs/source/DTAGS
-/docs/build
+/docs/html
+/docs/api
+/docs/xml
 /docs/DTAGS
+/docs/build
 !**/Make/files
 !**/Make/options
 versionRules/foamVersion4wmles.H
