@@ -142,13 +142,6 @@ public:
         //- Sample the field from multiple cells
         virtual void sample(scalarListListList &, const labelListList &) const = 0;
         
-        //- Project vector field to wall-parallel direction
-        void projectVectors(scalarListList &) const;
-
-        void projectVectors(scalarListListList &) const;
-
-        void projectVectors(vectorField &) const;
-        
         //- Register appropriate fields in the object registry
         virtual void registerFields(const labelList &) const = 0; 
 

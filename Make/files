@@ -1,4 +1,5 @@
 scalarListListIOList/scalarListListIOList.C
+helpers/helpers.C
 samplers/SampledField/SampledField.C
 samplers/SampledField/SampledPGradField.C
 samplers/SampledField/SampledVelocityField.C

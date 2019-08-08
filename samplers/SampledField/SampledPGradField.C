@@ -22,6 +22,7 @@ License
 #include "volFields.H"
 #include "fvcGrad.H"
 #include "List.H"
+#include "helpers.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -59,7 +60,7 @@ void Foam::SampledPGradField::sample
         }
         sampledValues[i] = temp;
     }
-    projectVectors(sampledValues);
+    Helpers::projectOnPatch(patch().nf(), sampledValues);
 }
 
 
@@ -88,7 +89,8 @@ Foam::SampledPGradField::sample
             }
         }
     }
-    projectVectors(sampledValues);
+
+    Helpers::projectOnPatch(patch().nf(), sampledValues);
 }
 
 
@@ -152,9 +154,9 @@ void Foam::SampledPGradField::registerFields
             sampledPGrad[i][j] = pGrad[indexList[i]][j];
         }
     }
-        
-    projectVectors(sampledPGrad);
-        
+
+    Helpers::projectOnPatch(patch().nf(), sampledPGrad);
+
     mesh().thisDb().store
     (          
         new IOList<scalarList>

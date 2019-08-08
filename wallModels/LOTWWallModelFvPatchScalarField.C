@@ -23,6 +23,7 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "codeRules.H"
 #include "scalarListIOList.H"
+#include "helpers.H"
 
 using namespace std::placeholders;
 
@@ -53,11 +54,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     const scalarListIOList & wallGradU =
         sampler_->db().lookupObject<scalarListIOList>("wallGradU");
 
-    scalarField magGradU(patch().size());
-    forAll(magGradU, i)
-    {
-        magGradU[i] = mag(vector(wallGradU[i][0], wallGradU[i][1], wallGradU[i][2]));
-    }
+    scalarField magGradU(Helpers::mag(wallGradU));
 
     return max
     (

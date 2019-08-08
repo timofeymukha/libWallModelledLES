@@ -20,6 +20,7 @@ License
 
 #include "SampledVelocityField.H"
 #include "volFields.H"
+#include "helpers.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -59,7 +60,7 @@ Foam::SampledVelocityField::sample
         sampledValues[i] = temp;
     }
 
-    projectVectors(sampledValues);
+    Helpers::projectOnPatch(patch().nf(), sampledValues);
 }
 
 
@@ -91,7 +92,8 @@ Foam::SampledVelocityField::sample
             sampledValues[i][j] = temp;
         }
     }
-    projectVectors(sampledValues);
+
+    Helpers::projectOnPatch(patch().nf(), sampledValues);
 }
 
 
@@ -118,7 +120,7 @@ void Foam::SampledVelocityField::registerFields
             }
         }
 
-        projectVectors(sampledU);
+        Helpers::projectOnPatch(patch().nf(), sampledU);
     }
 
     mesh().time().store
@@ -158,7 +160,7 @@ void Foam::SampledVelocityField::registerFields
             }
         }
 
-        projectVectors(sampledU);
+        Helpers::projectOnPatch(patch().nf(), sampledU);
     }
 
 

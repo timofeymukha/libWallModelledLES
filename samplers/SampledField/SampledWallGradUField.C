@@ -21,6 +21,7 @@ License
 #include "SampledWallGradUField.H"
 #include "volFields.H"
 #include "codeRules.H"
+#include "helpers.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -61,7 +62,8 @@ Foam::SampledWallGradUField::sample
         }
         sampledValues[i] = temp;
     }
-    projectVectors(sampledValues);
+
+    Helpers::projectOnPatch(patch().nf(), sampledValues);
 }
 
 
@@ -92,7 +94,8 @@ Foam::SampledWallGradUField::sample
             sampledValues[i][0][j] = boundaryValues[i][j]; 
         }
     }
-    projectVectors(sampledValues);
+
+    Helpers::projectOnPatch(patch().nf(), sampledValues);
 }
 
 
@@ -155,7 +158,7 @@ void Foam::SampledWallGradUField::registerFields
             }
         }
 
-        projectVectors(sampledWallGradU);
+        Helpers::projectOnPatch(patch().nf(), sampledWallGradU);
     }
 
     

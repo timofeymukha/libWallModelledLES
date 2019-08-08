@@ -13,6 +13,7 @@ $(INCOMPRESSIBLE_TURB_INC) \
 -IlawsOfTheWall/LawOfTheWall \
 -IeddyViscosities/EddyViscosity \
 -Isamplers/Sampler \
+-Ihelpers \
 -Isamplers/SampledField \
 -I$(LIB_SRC)/lagrangian/basic/lnInclude
 

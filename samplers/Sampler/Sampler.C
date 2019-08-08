@@ -88,7 +88,6 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
 
 void Foam::Sampler::createFields()
 {
-      
 
     const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
     // Field that marks cells that are used for sampling
@@ -117,7 +116,7 @@ void Foam::Sampler::createFields()
             )
         );
     }
-      
+
 }
 
 
@@ -250,23 +249,6 @@ Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
     }
 
     return tSearchCellLabels;
-}
-
-
-void Foam::Sampler::project(vectorField & field) const
-{
-    const tmp<vectorField> tfaceNormals = patch_.nf();
-    const vectorField faceNormals = tfaceNormals();
-
-    
-    forAll(field, i)
-    {    
-        // Normal component as dot product with (inwards) face normal
-        vector normal = -faceNormals[i]*(field[i] & -faceNormals[i]);
-        
-        // Subtract normal component to get the parallel one
-        field[i] -= normal;        
-    }
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //

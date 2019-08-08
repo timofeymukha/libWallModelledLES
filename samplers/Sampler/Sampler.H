@@ -46,20 +46,6 @@ SourceFiles
 namespace Foam
 {
         
-//- Convert sampled listList to a field
-template<class Type>
-void listListToField(const scalarListList & list, Field<Type> & field)
-{
-    forAll(list, i)
-    {
-        Type element;
-        forAll(list[i], j)
-        {
-            element[j] = list[i][j];
-        }
-        field[i] = element;
-    }
-}
 
     
 /*---------------------------------------------------------------------------*\
@@ -91,9 +77,6 @@ protected:
 
         //- Compute the length-scales
         virtual void createLengthList(){}
-
-        //- Project a vector field
-        void project(vectorField & field) const;
 
         //- Create fields
         virtual void createFields();
