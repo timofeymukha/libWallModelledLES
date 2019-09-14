@@ -1,4 +1,7 @@
 scalarListListIOList/scalarListListIOList.C
+cellFinders/CellFinder/CellFinder.C
+cellFinders/CrawlingCellFinder/CrawlingCellFinder.C
+cellFinders/TreeCellFinder/TreeCellFinder.C
 helpers/helpers.C
 samplers/SampledField/SampledField.C
 samplers/SampledField/SampledPGradField.C

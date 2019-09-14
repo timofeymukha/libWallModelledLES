@@ -15,6 +15,7 @@ $(INCOMPRESSIBLE_TURB_INC) \
 -Isamplers/Sampler \
 -Ihelpers \
 -Isamplers/SampledField \
+-IcellFinders/CellFinder \
 -I$(LIB_SRC)/lagrangian/basic/lnInclude
 
 LIB_LIBS = \

@@ -1,0 +1,113 @@
+/*---------------------------------------------------------------------------* \
+License
+    This file is part of libWallModelledLES.
+
+    libWallModelledLES is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    libWallModelledLES is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with libWallModelledLES. 
+    If not, see <http://www.gnu.org/licenses/>.
+
+Class
+    Foam::TreeCellFinder
+
+Description
+    Class for searching for sampling cells using.
+
+Contributors/Copyright:
+    2019 Timofey Mukha
+
+
+SourceFiles
+    TreeCellFinder.C
+
+\*---------------------------------------------------------------------------*/
+
+#ifndef TreeCellFinder_H
+#define TreeCellFinder_H
+
+#include "tmp.H"
+#include "fixedValueFvPatchFields.H"
+#include "runTimeSelectionTables.H"
+#include "addToRunTimeSelectionTable.H"
+#include "CellFinder.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+
+/*---------------------------------------------------------------------------*\
+                         Class TreeCellFinder Declaration
+\*---------------------------------------------------------------------------*/
+
+class TreeCellFinder : public CellFinder
+{
+
+protected:
+    
+    // Protected data
+        
+    // Protected Member Functions
+
+public:
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+    //- Runtime type information
+        TypeName("TreeCellFinder");
+#endif
+
+    // Constructors
+
+        //- Construct from patch and averaging time
+        TreeCellFinder
+        (
+            const fvPatch &
+        );
+
+        //- Construct from type, patch and averaging time
+        TreeCellFinder
+        (
+            const word & TreeCellFinderName,
+            const fvPatch &
+        );
+
+        //- Copy constructor
+        TreeCellFinder(const TreeCellFinder &) = default;
+        
+        //- Destructor
+        virtual ~TreeCellFinder(){}
+
+    // Member functions
+
+        void findCellIndices
+        (
+            labelList & indexList,
+            const scalarField & h
+        ) const;
+        
+        tmp<labelField> findCandidateCellLabels
+        (
+            const scalarField & dist,
+            const scalarField & h
+        ) const;
+
+};
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+

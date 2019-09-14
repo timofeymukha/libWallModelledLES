@@ -16,5 +16,7 @@ fixtures.C
 ./eddyViscosities/EddyViscosity/testEddyViscosity.C
 ./scalarListListIOList/testScalarListListIOList.C
 ./wallModels/testWallModel.C
+./cellFinders/CrawlingCellFinder/testCrawlingCellFinder.C
+./cellFinders/TreeCellFinder/testTreeCellFinder.C
 EXE=./testRunner
 
