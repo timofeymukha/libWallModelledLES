@@ -57,13 +57,15 @@ SourceFiles
 #define LOTWWallModelFvPatchScalarField_H
 
 #include "wallModelFvPatchScalarField.H"
-#include "LawOfTheWall.H"
-#include "RootFinder.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+
+class RootFinder;
+class LawOfTheWall;
+class SingleCellSampler;
 
 /*---------------------------------------------------------------------------*\
           Class LOTWWallModelPatchScalarField Declaration

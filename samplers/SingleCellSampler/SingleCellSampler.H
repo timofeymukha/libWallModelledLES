@@ -35,15 +35,14 @@ SourceFiles
 
 #include "fixedValueFvPatchFields.H"
 #include "Sampler.H"
-#include "SampledField.H"
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-    
+class SampledField;
+
 /*---------------------------------------------------------------------------*\
                          Class SingleCellSampler Declaration
 \*---------------------------------------------------------------------------*/

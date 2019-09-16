@@ -1,6 +1,7 @@
 #include "codeRules.H"
 #include "fvCFD.H"
 #include "IntegratedReichardtLawOfTheWall.H"
+#include "SingleCellSampler.H"
 #undef Log
 #include "gtest.h"
 #include "gmock/gmock.h"

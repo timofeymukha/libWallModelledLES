@@ -24,6 +24,9 @@ License
 #include "codeRules.H"
 #include "scalarListIOList.H"
 #include "helpers.H"
+#include "LawOfTheWall.H"
+#include "RootFinder.H"
+#include "SingleCellSampler.H"
 
 using namespace std::placeholders;
 

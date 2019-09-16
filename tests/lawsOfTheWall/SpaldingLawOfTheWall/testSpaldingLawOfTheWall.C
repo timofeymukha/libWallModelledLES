@@ -5,6 +5,7 @@
 #include "gtest.h"
 #include "gmock/gmock.h"
 #include "fixtures.H"
+#include "SingleCellSampler.H"
 
 class SpaldingLawOfTheWallTest : public ChannelFlow
 {};

@@ -25,9 +25,7 @@ License
 #include "wallFvPatch.H"
 #include "objectRegistry.H"
 #include "IOField.H"
-#include "SampledField.H"
 #include "SampledVelocityField.H"
-#include "SampledPGradField.H"
 #include "SampledWallGradUField.H"
 #include "treeDataCell.H"
 #include "treeDataFace.H"
@@ -181,7 +179,7 @@ void Foam::SingleCellSampler::createIndexList()
 
             pih = treePtr->findNearest(point, treePtr->bb().mag());
             indexList_[i] = searchCellLabels[pih.index()];
-            h_[i] = mag(C[indexList_[i]] - faceCentres[i]);
+            // h_[i] = mag(C[indexList_[i]] - faceCentres[i]);
         }
     }
     if (debug)
@@ -243,12 +241,12 @@ Foam::SingleCellSampler::SingleCellSampler
     
     addField
     (
-            new SampledVelocityField(patch_)     
+            new SampledVelocityField(patch_)
     );
     
     addField
     (
-            new SampledWallGradUField(patch_)     
+            new SampledWallGradUField(patch_)
     );
 }
 
@@ -290,7 +288,7 @@ void Foam::SingleCellSampler::sample() const
     {
 
         scalarListList sampledList(patch().size());
-        sampledFields_[fieldI].sample(sampledList, indexList());
+        sampledFields_[fieldI].sample(sampledList, indexList(), h_);
         
         scalarListIOList & storedValues = const_cast<scalarListIOList & >
         (

@@ -26,9 +26,6 @@ License
 #include "objectRegistry.H"
 #include "IOField.H"
 #include "SampledField.H"
-#include "SampledVelocityField.H"
-#include "SampledPGradField.H"
-#include "SampledWallGradUField.H"
 #include "codeRules.H"
 #include "patchDistMethod.H"
 

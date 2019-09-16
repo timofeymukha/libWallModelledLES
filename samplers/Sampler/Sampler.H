@@ -37,7 +37,6 @@ SourceFiles
 
 #include "tmp.H"
 #include "fixedValueFvPatchFields.H"
-#include "SampledField.H"
 #include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -45,9 +44,9 @@ SourceFiles
 
 namespace Foam
 {
-        
 
-    
+class SampledField;
+
 /*---------------------------------------------------------------------------*\
                          Class Sampler Declaration
 \*---------------------------------------------------------------------------*/

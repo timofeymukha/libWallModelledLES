@@ -21,6 +21,7 @@ License
 #include "WernerWengleLawOfTheWall.H"
 #include "addToRunTimeSelectionTable.H"
 #include "scalarListIOList.H"
+#include "SingleCellSampler.H"
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam

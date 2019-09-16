@@ -46,12 +46,14 @@ Contributors/Copyright:
 #include "typeInfo.H"
 #include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
-#include "SingleCellSampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+
+class Sampler;
+class SingleCellSampler;
 
 /*---------------------------------------------------------------------------*\
                       Class LawOfTheWall Declaration
