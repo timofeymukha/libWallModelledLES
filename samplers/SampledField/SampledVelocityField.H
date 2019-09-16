@@ -36,12 +36,13 @@ SourceFiles
 #include "fixedValueFvPatchFields.H"
 #include "SampledField.H"
 #include "scalarListListIOList.H"
+#include "interpolation.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    
+
 /*---------------------------------------------------------------------------*\
                     Class SampledVelocityField Declaration
 \*---------------------------------------------------------------------------*/
@@ -50,6 +51,12 @@ class SampledVelocityField
 :
     public SampledField
 {
+
+private:
+
+    const word interpolatorType_;
+
+    mutable autoPtr<interpolation<vector> > interpolator_;
    
 public:
 
@@ -60,31 +67,26 @@ public:
 
     // Constructors
 
-        //- Construct from patch
+        //- Construct from patch and interpolation type
         SampledVelocityField
         (
-            const fvPatch & patch
-        )
-        :
-            SampledField(patch)
-        {
-            //registerFields();
-        }
+            const fvPatch & patch,
+            word interpolationType = "cell"
+        );
 
         //- Construct from field name  and patch
         SampledVelocityField
         (
             const word & fieldName,
-            const fvPatch & patch
+            const fvPatch & patch,
+            word interpolationType="cell"
         )
         :
-            SampledVelocityField(patch)
-        {
-            //registerFields();
-        }
+            SampledVelocityField(patch, interpolationType)
+        {}
 
         //- Clone the object
-        virtual autoPtr<SampledField> clone() const
+        autoPtr<SampledField> clone() const override
         {
             return autoPtr<SampledField>
             (
@@ -100,33 +102,40 @@ public:
         //- Sample the velocity values
         virtual void sample(scalarListList &, const labelList &) const;
 
+        void sample
+        (
+            scalarListList & sampledValues,
+            const labelList & indexList,
+            const scalarField & h
+        ) const override;
+
         //- Sample the velocity value from multile cellss
-        virtual void sample
+        void sample
         (
             scalarListListList &,
             const labelListList &
-        ) const;
+        ) const override;
                 
         //- The number of dimensions of the field
-        virtual label nDims() const
+        label nDims() const override
         {
             return 3;
         }
         
         //- Get the name of the sampled field
-        virtual word name() const
+        word name() const override
         {
             return "U";
         }
         
         //- Register appropriate fields in the object registry
-        virtual void registerFields(const labelList &) const;
+        void registerFields(const labelList &) const override;
 
         //- Register appropriate fields in the object registry
-        virtual void registerFields(const labelListList &) const;
+        void registerFields(const labelListList &) const override;
         
         //- Recompute the field
-        virtual void recompute() const {}      
+        void recompute() const override {}      
 };
 
 

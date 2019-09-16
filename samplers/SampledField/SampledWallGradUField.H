@@ -79,7 +79,7 @@ public:
         {}
 
         //- Clone the object    
-        virtual autoPtr<SampledField> clone() const
+        autoPtr<SampledField> clone() const override
         {
             return autoPtr<SampledField>
             (
@@ -93,30 +93,35 @@ public:
     // Member functions
         
         //- Sample the wall-normal velocity gradient values
-        virtual void sample(scalarListList &, const labelList &) const;
+        void sample
+        (
+            scalarListList & sampledValues,
+            const labelList & indexList,
+            const scalarField & h
+        ) const override;
 
         //- Sample the wall-normal velocity gradient values from multiple cells
-        virtual void sample(scalarListListList &, const labelListList &) const;
+        void sample(scalarListListList &, const labelListList &) const override;
                 
         //- The number of dimensions of the field
-        virtual label nDims() const
+        label nDims() const override
         {
             return 3;
         }
         
         //- Get the name of the sampled field
-        virtual word name() const
+        word name() const override
         {
             return "wallGradU";
         }
         
         //- Register appropriate fields in the object registry
-        virtual void registerFields(const labelList &) const;
+        void registerFields(const labelList &) const override;
 
-        virtual void registerFields(const labelListList &) const; 
+        void registerFields(const labelListList &) const override;
         
         //- Recompute the field
-        virtual void recompute() const;   
+        void recompute() const override;
 };
 
 

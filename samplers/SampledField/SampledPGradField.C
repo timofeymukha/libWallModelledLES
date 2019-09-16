@@ -40,7 +40,8 @@ namespace Foam
 void Foam::SampledPGradField::sample
 (
     Foam::scalarListList & sampledValues,
-    const Foam::labelList & indexList
+    const Foam::labelList & indexList,
+    const Foam::scalarField & h
 ) const
 {
     Info<< "Sampling pressure gradient for patch " << patch_.name() << nl;
@@ -250,7 +251,7 @@ void Foam::SampledPGradField::recompute() const
 {
     volVectorField & pGrad = const_cast<volVectorField &>
     (
-            mesh().lookupObject<volVectorField>("pGrad")
+        mesh().lookupObject<volVectorField>("pGrad")
     );
     const volScalarField & p = mesh().lookupObject<volScalarField>("p");
     

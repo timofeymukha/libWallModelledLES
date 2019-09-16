@@ -137,10 +137,19 @@ public:
         virtual label nDims() const = 0;
         
         //- Sample the field
-        virtual void sample(scalarListList &, const labelList &) const = 0;
+        virtual void sample
+        (
+            scalarListList & sampledValues,
+            const labelList & indexList,
+            const scalarField & h
+        ) const = 0;
 
         //- Sample the field from multiple cells
-        virtual void sample(scalarListListList &, const labelListList &) const = 0;
+        virtual void sample
+        (
+            scalarListListList & sampledValues,
+            const labelListList & indexListList
+        ) const = 0;
         
         //- Register appropriate fields in the object registry
         virtual void registerFields(const labelList &) const = 0; 

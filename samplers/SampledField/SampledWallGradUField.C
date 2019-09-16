@@ -39,7 +39,8 @@ void
 Foam::SampledWallGradUField::sample
 (
     Foam::scalarListList & sampledValues,
-    const Foam::labelList & indexList
+    const Foam::labelList & indexList,
+    const Foam::scalarField & h
 ) const
 {
     Info<< "Sampling wall-normal velocity gradient for patch "
