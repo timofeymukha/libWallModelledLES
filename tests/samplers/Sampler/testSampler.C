@@ -47,11 +47,6 @@ namespace Foam
             virtual ~DummySampler()
             {}
 
-            void wrapProject(vectorField & field) const
-            {
-                return Sampler::project(field);
-            }
-
             tmp<volScalarField> wrapDistanceField() const
             {
                 return Sampler::distanceField();
@@ -190,25 +185,25 @@ TEST_F(SamplerTest, Copy)
 }
 
 
-TEST_F(SamplerTest, Project)
-{
-    extern argList * mainArgs;
-    argList & args = *mainArgs;
-    Time runTime(Foam::Time::controlDictName, args);
-    autoPtr<fvMesh> meshPtr = createMesh(runTime);
-    const fvMesh & mesh = meshPtr();
-    createSamplingHeightField(mesh);
+//TEST_F(SamplerTest, Project)
+//{
+    //extern argList * mainArgs;
+    //argList & args = *mainArgs;
+    //Time runTime(Foam::Time::controlDictName, args);
+    //autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    //const fvMesh & mesh = meshPtr();
+    //createSamplingHeightField(mesh);
 
-    const fvPatch & patch = mesh.boundary()["bottomWall"];
-    DummySampler sampler("SingleCellSampler", patch, 3.0);
+    //const fvPatch & patch = mesh.boundary()["bottomWall"];
+    //DummySampler sampler("SingleCellSampler", patch, 3.0);
 
-    vectorField field(patch.size(), vector(1, 2, 3));
-    sampler.wrapProject(field);
-    forAll (field, i)
-    {
-        ASSERT_EQ(field[i], vector(1, 0, 3));
-    }
-}
+    //vectorField field(patch.size(), vector(1, 2, 3));
+    //sampler.wrapProject(field);
+    //forAll (field, i)
+    //{
+        //ASSERT_EQ(field[i], vector(1, 0, 3));
+    //}
+//}
 
 
 TEST_F(SamplerTest, AddField)

@@ -256,11 +256,13 @@ TEST_F(SampledWallGradUTest, Sample)
         mesh.lookupObjectRef<volVectorField>("wallGradU");
     vectorField & boundaryValues =
         wallGradU.boundaryFieldRef()[patch.index()];
+    const scalarField & hBoundaryValues =
+        h.boundaryField()[patch.index()];
     boundaryValues = patch.Cf();
 
     scalarListList sampledValues(patch.size());
 
-    sampledField.sample(sampledValues, indexList);
+    sampledField.sample(sampledValues, indexList, h);
 
 
     forAll(sampledValues, i)

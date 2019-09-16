@@ -1,0 +1,25 @@
+ifeq ($(findstring clang, $(CC)), clang)
+    FLAGS = -Wno-inconsistent-missing-override
+endif
+
+EXE_INC = -std=c++0x $(FLAGS) \
+-I$(LIB_SRC)/finiteVolume/lnInclude \
+-I$(LIB_SRC)/OpenFOAM/lnInclude \
+-I$(LIB_SRC)/meshTools/lnInclude \
+-I$(LIB_SRC)/sampling/lnInclude \
+-I$(GTEST_DIR)/googletest/include/gtest \
+-I$(GTEST_DIR)/googletest/include \
+-I$(GTEST_DIR)/googlemock/include/gmock \
+-I$(GTEST_DIR)/googlemock/include \
+-I../../../lnInclude
+
+
+EXE_LIBS = \
+-L$(FOAM_USER_LIBBIN) \
+-lWallModelledLES \
+-lfiniteVolume \
+-lOpenFOAM \
+-lmeshTools \
+-lgtest \
+-lgmock \
+-lsampling

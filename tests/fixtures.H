@@ -63,9 +63,9 @@ class ChannelFlow : public ::testing::Test
     public:
         ChannelFlow()
         {
-            system("cp -r testCases/channel_flow/system .");
-            system("cp -r testCases/channel_flow/constant .");
-            system("cp -r testCases/channel_flow/0 .");
+            system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/system .");
+            system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/constant .");
+            system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/0 .");
 
         }
 

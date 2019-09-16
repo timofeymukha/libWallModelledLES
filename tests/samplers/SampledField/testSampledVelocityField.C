@@ -121,7 +121,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitialize)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     createWallModelSubregistry(mesh, patch);
 
-    SampledVelocityField sampledField(patch);
+    SampledVelocityField sampledField(patch, "cell");
 
     sampledField.registerFields(patch.faceCells());
 
@@ -243,6 +243,56 @@ TEST_F(SampledVelocityTest, Sample)
             else
             {
                 ASSERT_EQ
+                (
+                    sampledValues[i][j],
+                    U[indexList[i]][j]
+                );
+            }
+        }
+    }
+
+}
+
+TEST_F(SampledVelocityTest, SampleInterpolate)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
+    createVelocityField(mesh);
+    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
+    // Init U to something varying and easily to test
+    U.primitiveFieldRef() = mesh.C();
+
+    SampledVelocityField sampledField(patch, "cellPointFace");
+
+    labelList indexList(patch.faceCells());
+
+    scalarField h(patch.size(), 0.19);
+
+
+    scalarListList sampledValues(patch.size());
+
+    sampledField.sample(sampledValues, indexList, h);
+
+    forAll(sampledValues, i)
+    {
+        forAll(sampledValues[i], j)
+        {
+            if (j == 1)
+            {
+                ASSERT_EQ(sampledValues[i][j], 0);
+            }
+            else
+            {
+                ASSERT_FLOAT_EQ
                 (
                     sampledValues[i][j],
                     U[indexList[i]][j]

@@ -1,0 +1,6 @@
+../../fixtures.C
+testRunner.C
+testSampledVelocityField.C
+testSampledWallGradUField.C
+EXE=./testRunner
+
