@@ -35,3 +35,7 @@ form::
 
 As you can see, they state which version of OpenFOAM the install script has picked up.
 If it doesn't correspond to your expectations, there is almost surely something fishy with you setup.
+
+When recompiling for a different version of OpenFOAM than what was previously used, you should frist run ``Àllwclean``.
+If you make several compilation attempts and things don't work, it can be a good idea to delete ``Make/linux*`` and
+``lnInclude`` to make sure you start from a clean slate.
