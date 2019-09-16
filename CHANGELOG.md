@@ -27,7 +27,7 @@ Stability of wall modelling is also improved.
 
 - The wall model outputs the time it consumed in percent of the total CPU runtime.
 
-- An issue with compiling the library for version 3.0+ for OpenCFD has been fixed.
+- An issue with compiling the library for version 3.0+ from OpenCFD has been fixed.
 
 ### For developers
 
