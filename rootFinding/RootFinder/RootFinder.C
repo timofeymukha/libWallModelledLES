@@ -32,11 +32,6 @@ namespace Foam
 }
 #endif
 
-// Dummy function to initialize the root finders
-Foam::scalar Foam::rootFinderDummy(Foam::scalar)
-{
-    return 0;
-}   
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
 

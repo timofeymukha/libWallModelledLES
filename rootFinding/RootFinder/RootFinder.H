@@ -45,10 +45,6 @@ Contributors/Copyright:
 namespace Foam
 {
 
-// Dummy function to initialize the root finder
-Foam::scalar rootFinderDummy(Foam::scalar);
-
-
 /*---------------------------------------------------------------------------*\
                           Class RootFinder Declaration
 \*---------------------------------------------------------------------------*/
@@ -59,10 +55,10 @@ class RootFinder : public refCount
 protected:     
 
     //- Function defining the equation to be solved 
-    std::function<scalar(scalar)> f_;
+    std::function<scalar(scalar)> f_ = [](scalar i) { return 0; };
     
     //- Function defining the derivative of the equation to be solved
-    std::function<scalar(scalar)> d_;
+    std::function<scalar(scalar)> d_= [](scalar i) { return 0; };
     
      //- Target relative error
     const scalar eps_;
@@ -116,8 +112,6 @@ public:
         )
         :
         refCount(),
-        f_(rootFinderDummy),
-        d_(rootFinderDummy),
         eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
         maxIter_(dict.lookupOrDefault<label>("maxIter", 30))
         {};
