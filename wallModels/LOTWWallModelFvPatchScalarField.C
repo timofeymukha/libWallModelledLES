@@ -37,8 +37,9 @@ void Foam::LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
     wallModelFvPatchScalarField::writeLocalEntries(os);
     rootFinder_->write(os);
     law_->write(os);
-}    
-    
+    sampler_->write(os);
+}
+
 Foam::tmp<Foam::scalarField> 
 Foam::LOTWWallModelFvPatchScalarField::calcNut() const
 {
@@ -152,7 +153,7 @@ LOTWWallModelFvPatchScalarField
     wallModelFvPatchScalarField(p, iF),
     rootFinder_(),
     law_(),
-    sampler_()
+    sampler_(nullptr)
 {
     if (debug)
     {
@@ -202,7 +203,17 @@ LOTWWallModelFvPatchScalarField
     wallModelFvPatchScalarField(p, iF, dict),
     rootFinder_(RootFinder::New(dict.subDict("RootFinder"))),
     law_(LawOfTheWall::New(dict.subDict("Law"))),
-    sampler_(new SingleCellSampler(p, averagingTime_))
+    sampler_
+    (
+        new SingleCellSampler
+        (
+            p,
+            averagingTime(),
+            dict.lookupOrDefault<word>("interpolationType", "cell"),
+            dict.lookupOrDefault<word>("cellFinderType", "TreeCellFinder"),
+            dict.lookupOrDefault<bool>("hIsIndex", false)
+        )
+    )
 {
     if (debug)
     {

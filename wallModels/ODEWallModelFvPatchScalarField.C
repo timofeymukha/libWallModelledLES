@@ -41,6 +41,7 @@ void Foam::ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
     wallModelFvPatchScalarField::writeLocalEntries(os);
     eddyViscosity_->write(os);
+    sampler_->write(os);
     os.writeKeyword("eps") << eps_ << token::END_STATEMENT << endl;
     os.writeKeyword("maxIter") << maxIter_ << token::END_STATEMENT << endl;
     os.writeKeyword("nMeshY") << nMeshY_ << token::END_STATEMENT << endl;
@@ -188,7 +189,7 @@ calcUTau(const scalarField & magGradU) const
                     (
                         "Foam::ODEWallModelFvPatchScalarField::calcUTau()"
                     )
-                        << "when calculating newTau, division by zero occurred."
+                        << "When calculating newTau, division by zero occurred."
                         << nl;
                 };
                 
@@ -260,7 +261,7 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF),
-    sampler_(new SingleCellSampler(p, averagingTime_)),
+    sampler_(nullptr),
     meshes_(patch().size()),
     maxIter_(10),
     eps_(1e-3),
@@ -319,7 +320,17 @@ ODEWallModelFvPatchScalarField
 :
     wallModelFvPatchScalarField(p, iF, dict),
     eddyViscosity_(EddyViscosity::New(dict.subDict("EddyViscosity"))),
-    sampler_(new SingleCellSampler(p, averagingTime_)),
+    sampler_
+    (
+        new SingleCellSampler
+        (
+            p,
+            averagingTime(),
+            dict.lookupOrDefault<word>("interpolationType", "cell"),
+            dict.lookupOrDefault<word>("cellFinderType", "TreeCellFinder"),
+            dict.lookupOrDefault<bool>("hIsIndex", false)
+        )
+    ),
     meshes_(patch().size()),
     maxIter_(dict.lookupOrDefault<label>("maxIter", 10)),
     eps_(dict.lookupOrDefault<scalar>("eps", 1e-3)),
