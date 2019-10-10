@@ -25,7 +25,7 @@ class ChannelFlow : public ::testing::Test
 class IntegrationTest : public ChannelFlow
 {};
 
-// * * * * * * * * * * * * * * * Run LOTW in serial * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * Run in serial * * * * * * * * * * * * * //
 
 TEST_F(IntegrationTest, RunKnownWallShearStress)
 {
@@ -37,7 +37,7 @@ TEST_F(IntegrationTest, RunKnownWallShearStress)
     ASSERT_EQ(WEXITSTATUS(success), 0);
 }
 
-// * * * * * * * * * * * * * * * decomposePar with ODE * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * decomposePar * * * * * * * * * * * * * //
 
 TEST_F(IntegrationTest, DecomposeKnownWallShearStress)
 {
@@ -49,7 +49,7 @@ TEST_F(IntegrationTest, DecomposeKnownWallShearStress)
     ASSERT_EQ(WEXITSTATUS(success), 0);
 }
 
-// * * * * * * * * * * * * * * * Run in parallel with ODE * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * Run in parallel * * * * * * * * * * * * * //
 
 TEST_F(IntegrationTest, ParallelRunKnowWallShearStress)
 {
@@ -67,9 +67,9 @@ TEST_F(IntegrationTest, ParallelRunKnowWallShearStress)
     ASSERT_EQ(WEXITSTATUS(success), 0);
 }
 
-// * * * * * * * * * * * * * * * Reconstruct with ODE * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * Reconstruct * * * * * * * * * * * * * * * * //
 
-TEST_F(IntegrationTest, ReconstructEquilibriumODEVanDriest)
+TEST_F(IntegrationTest, ReconstructKnownWallShearStress)
 {
     int success = std::system("changeDictionary -dict system/setNutFixedValue");
     ASSERT_EQ(WIFEXITED(success), true);
