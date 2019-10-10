@@ -27,13 +27,11 @@ License
 #include "IOField.H"
 #include "SampledVelocityField.H"
 #include "SampledWallGradUField.H"
-#include "treeDataCell.H"
-#include "treeDataFace.H"
-#include "treeBoundBox.H"
-#include "indexedOctree.H"
 #include "codeRules.H"
 #include "patchDistMethod.H"
 #include "scalarListIOList.H"
+#include "CrawlingCellFinder.H"
+#include "TreeCellFinder.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -43,7 +41,7 @@ License
 namespace Foam
 {
     defineTypeNameAndDebug(SingleCellSampler, 0);
-    addToRunTimeSelectionTable(Sampler, SingleCellSampler, PatchAndAveragingTime);
+    addToRunTimeSelectionTable(Sampler, SingleCellSampler, SamplerRTSTable);
 }
 #endif
 
@@ -58,144 +56,57 @@ void Foam::SingleCellSampler::createIndexList()
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
 
     
-    h_ = h.boundaryField()[patchIndex];
-    scalar maxH = max(h_);
+    scalarField hPatch = h.boundaryField()[patchIndex];
 
-    if (debug)
+    if (cellFinderType() == word("crawling"))
     {
-        Info<< "SingleCellSampler: Constructing mesh bounding box" << nl;
+        CrawlingCellFinder cellFinder(patch());
+        cellFinder.findCellIndices(indexList_, hPatch, hIsIndex_);
     }
-
-    treeBoundBox boundBox(mesh_.bounds());
-    Random rndGen(261782);    
-#ifdef FOAM_TREEBOUNDBOX_DOES_NOT_ACCEPT_RNG
-    boundBox.extend(1e-4);
-#else
-    boundBox.extend(rndGen, 1e-4);
-#endif
-    boundBox.min() -= point(ROOTVSMALL, ROOTVSMALL, ROOTVSMALL);
-    boundBox.max() += point(ROOTVSMALL, ROOTVSMALL, ROOTVSMALL);
-
-    tmp<labelField> tSearchCellLabels = findSearchCellLabels();
-    const labelField & searchCellLabels = tSearchCellLabels();
-
-    autoPtr<indexedOctree<treeDataCell> > treePtr
-    (
-        new indexedOctree<treeDataCell>
-        (
-            treeDataCell
-            (
-                false,
-                mesh_,
-                searchCellLabels,
-                polyMesh::CELL_TETS
-            ),
-            boundBox,
-            8,
-            10,
-            3.0
-        )
-    );
-
-    if (treePtr->nodes().empty() && (maxH != 0))
+    else if (cellFinderType() == word("tree"))
     {
-        Warning
-            << "SingleCellSampler: max(h) is " << maxH << " but no cell centres within "
-            << "distance 2*max(h) were found. "
-            << "Will sample from wall-adjacent cells." << nl; 
+        TreeCellFinder cellFinder(patch());
+        cellFinder.findCellIndices(indexList_, hPatch);
     }
 
 
-    if (debug)
-    {
-        Info<< "SingleCellSampler: Constructing face octree" << nl;
-    }
-
-    labelList bndFaces(mesh_.nFaces() - mesh_.nInternalFaces());
-    forAll(bndFaces, i)
-    {
-        bndFaces[i] = mesh_.nInternalFaces() + i;
-    }
-
-    autoPtr<indexedOctree<treeDataFace> > boundaryTreePtr
-    (
-        new indexedOctree<treeDataFace>
-        (
-            treeDataFace
-            (
-                false,
-                mesh_,
-                bndFaces
-            ),
-            boundBox,
-            8,
-            10,
-            3.0
-        )
-    );
-
-
-    // Grab face centres, normal and adjacent cells' centres to each patch face
-    const vectorField & faceCentres = patch().Cf();
-    const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField faceNormals = tfaceNormals();
-    const tmp<vectorField> tcellCentres = patch().Cn();
-    const vectorField cellCentres = tcellCentres();
+    const vectorField & patchFaceCentres = patch().Cf();
     const volVectorField & C = mesh_.C();
-    
-    // Grab the global indices of adjacent cells 
-    const UList<label> & faceCells = patch().faceCells();
 
-    vector point;
-    //label pih;
-    pointIndexHit pih;
 
-    if (debug)
+    // if the h field is an index, compute h_ as distance from the sampling
+    // cell centers.
+    // Same if h is distance, but we do not interpolate within the cell
+    // Otherwise assign h_ to h.
+    if (hIsIndex_ || (interpolationType() == "cell"))
     {
-        Info << "SingleCellSampler: Starting search for sampling cells" << nl;
-    }
-    
-    forAll(faceCentres, i)
-    {
-        // Grab the point h away along the face normal
-        point = faceCentres[i] - faceNormals[i]*h_[i];
-
-        // If h is zero, or the point is outside the domain,
-        // set it to distance to adjacent cell's centre
-        // Set the cellIndexList component accordingly
-        bool inside = 
-#ifdef FOAM_VOLUMETYPE_NOT_CAPITAL
-            boundaryTreePtr->getVolumeType(point) == volumeType::inside;
-#else
-            boundaryTreePtr->getVolumeType(point) == volumeType::INSIDE;
-#endif
-        if ((h_[i] == 0) || (!inside) || (treePtr->nodes().empty()))
+        forAll(patch(), faceI)
         {
-            h_[i] = mag(cellCentres[i] - faceCentres[i]);
-            indexList_[i] = faceCells[i];          
-        }
-        else
-        {
-
-            pih = treePtr->findNearest(point, treePtr->bb().mag());
-            indexList_[i] = searchCellLabels[pih.index()];
-            // h_[i] = mag(C[indexList_[i]] - faceCentres[i]);
+            h_[faceI] = mag(C[indexList_[faceI]] - patchFaceCentres[faceI]);
         }
     }
+    else
+    {
+        h_ = hPatch;
+    }
+
     if (debug)
     {
         Info << "SingleCellSampler: Done" << nl;
     }
     
-    // Assign computed h_ to the global h field
+    // If the h field holds the distance, reassign the real distance used
+    if (!hIsIndex())
+    {
 #ifdef FOAM_NEW_GEOMFIELD_RULES
-    h.boundaryFieldRef()[patch().index()]
-#else        
-    h.boundaryField()[patch().index()]
+        h.boundaryFieldRef()[patch().index()]
+#else
+        h.boundaryField()[patch().index()]
 #endif
-    ==
-        h_;
-    
+        ==
+            h_;
+    }
+
     // Grab samplingCells field
     volScalarField & samplingCells = 
         const_cast<volScalarField &>
@@ -228,10 +139,13 @@ void Foam::SingleCellSampler::createLengthList()
 Foam::SingleCellSampler::SingleCellSampler
 (
     const fvPatch & p,
-    scalar averagingTime
+    scalar averagingTime,
+    const word interpolationType,
+    const word cellFinderType,
+    bool hIsIndex
 )
 :
-    Sampler(p, averagingTime),
+    Sampler(p, averagingTime, interpolationType, cellFinderType, hIsIndex),
     indexList_(p.size()),
     lengthList_(p.size()),
     h_(p.size(), 0)
@@ -241,12 +155,12 @@ Foam::SingleCellSampler::SingleCellSampler
     
     addField
     (
-            new SampledVelocityField(patch_)
+            new SampledVelocityField(patch_, interpolationType_)
     );
     
     addField
     (
-            new SampledWallGradUField(patch_)
+            new SampledWallGradUField(patch_, interpolationType_)
     );
 }
 
@@ -255,10 +169,20 @@ Foam::SingleCellSampler::SingleCellSampler
 (
     const word & samplerName,
     const fvPatch & p,
-    scalar averagingTime
+    scalar averagingTime,
+    const word interpolationType,
+    const word cellFinderType,
+    bool hIsIndex
 )
 :
-    SingleCellSampler(p, averagingTime)
+    SingleCellSampler
+    (
+        p,
+        averagingTime,
+        interpolationType,
+        cellFinderType,
+        hIsIndex
+    )
 {
 }
 
@@ -312,6 +236,7 @@ void Foam::SingleCellSampler::addField(SampledField * field)
 {
     Sampler::addField(field);
     field->registerFields(indexList());
+    field->setInterpolator(interpolationType_);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

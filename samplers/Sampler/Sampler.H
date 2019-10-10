@@ -69,6 +69,17 @@ protected:
         //- List of sampled fields
         PtrList<SampledField> sampledFields_;
 
+        //- Type of interpolation to do within the sampling cell
+        //- cell, cellPoint or cellPointFace. Defaults to cell.
+        word interpolationType_;
+
+        //- Type of cellFinder to use for finding sampling cells.
+        //- Defaults to TreeCellFinder.
+        word cellFinderType_;
+
+        //- Whether the h field is the coscutive index of the samping cell
+        bool hIsIndex_;
+
     // Protected Member Functions
 
         //- Create list of cell-indices from where data is sampled
@@ -80,12 +91,6 @@ protected:
         //- Create fields
         virtual void createFields();
 
-        //- Compute cell indices suitable for searching sampling cells
-        tmp<labelField> findSearchCellLabels() const;
-
-        //- Compute distance field
-        tmp<volScalarField> distanceField() const;
-        
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
@@ -99,7 +104,10 @@ public:
         Sampler
         (
             const fvPatch &,
-            scalar averagingTime
+            scalar averagingTime,
+            const word interpolationType,
+            const word cellFinderType,
+            bool hIsIndex
         );
 
         //- Construct from type, patch and averaging time
@@ -107,7 +115,10 @@ public:
         (
             const word & samplerName,
             const fvPatch &,
-            scalar averagingTime
+            scalar averagingTime,
+            const word interpolationType,
+            const word cellFinderType,
+            bool hIsIndex
         );
 
 
@@ -122,7 +133,10 @@ public:
         (
             const word & samplerName,
             const fvPatch &,
-            scalar averagingTime
+            scalar averagingTime,
+            const word interpolationType,
+            const word cellFinderType,
+            bool hIsIndex
         );
 
         static autoPtr<Sampler> New
@@ -162,6 +176,21 @@ public:
             return sampledFields_.size();
         }
 
+        word interpolationType() const
+        {
+            return interpolationType_;
+        }
+
+        word cellFinderType() const
+        {
+            return cellFinderType_;
+        }
+
+        bool hIsIndex() const
+        {
+            return hIsIndex_;
+        }
+
         //- Recompute fields to be sampled
         void recomputeFields() const;
         
@@ -171,21 +200,34 @@ public:
         //- Add field for sampling
         virtual void addField(SampledField *);
 
+        //- Write properties to dictionary
+        void write(Ostream & os) const;
+
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     // RTS tables
         
-        // RTS table "PatchAndAveragingTime"
+        // RTS table "SamplerRTSTable"
         declareRunTimeSelectionTable
         (
             autoPtr,
             Sampler,
-            PatchAndAveragingTime,
+            SamplerRTSTable,
             (
                 const word& samplerName,
                 const fvPatch& p,
-                scalar averagingTime
+                scalar averagingTime,
+                const word interpolationType,
+                const word cellFinderType,
+                bool hIsIndex
             ),
-            (samplerName, p, averagingTime)
+            (
+                samplerName,
+                p,
+                averagingTime,
+                interpolationType,
+                cellFinderType,
+                hIsIndex
+            )
         );
 #endif
 };

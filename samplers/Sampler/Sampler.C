@@ -36,7 +36,7 @@ License
 namespace Foam
 {
     defineTypeNameAndDebug(Sampler, 0);
-    defineRunTimeSelectionTable(Sampler, PatchAndAveragingTime);
+    defineRunTimeSelectionTable(Sampler, SamplerRTSTable);
 }
 #endif
 
@@ -46,13 +46,16 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
 (
     const word & samplerName,
     const fvPatch & p,
-    scalar averagingTime
+    scalar averagingTime,
+    const word interpolationType,
+    const word cellFinderType,
+    bool hIsIndex
 )
 {
-    PatchAndAveragingTimeConstructorTable::iterator cstrIter =
-    PatchAndAveragingTimeConstructorTablePtr_->find(samplerName);
+    SamplerRTSTableConstructorTable::iterator cstrIter =
+    SamplerRTSTableConstructorTablePtr_->find(samplerName);
 
-    if (cstrIter == PatchAndAveragingTimeConstructorTablePtr_->end())
+    if (cstrIter == SamplerRTSTableConstructorTablePtr_->end())
     {
         FatalErrorIn
         (
@@ -61,11 +64,19 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         )   << "Unknown Sampler type "
             << samplerName << nl << nl
             << "Valid Sampler types are :" << nl
-            << PatchAndAveragingTimeConstructorTablePtr_->sortedToc()
+            << SamplerRTSTableConstructorTablePtr_->sortedToc()
             << exit(FatalError);
     }
 
-    return cstrIter()(samplerName, p, averagingTime);
+    return cstrIter()
+    (
+        samplerName,
+        p,
+        averagingTime,
+        interpolationType,
+        cellFinderType,
+        hIsIndex
+    );
 }  
 
 Foam::autoPtr<Foam::Sampler> Foam::Sampler::New 
@@ -76,8 +87,22 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
 {
     word samplerName = dict.lookupOrDefault<word>("type", "SingleCellSampler");
     scalar averagingTime = dict.lookupOrDefault<scalar>("averagingTime", 0.0);
+    word interpolationType =
+        dict.lookupOrDefault<word>("interpolationType", "cell");
+    word cellFinderType =
+        dict.lookupOrDefault<word>("cellFinderType", "TreeCellFinder");
+    bool hIsIndex =
+        dict.lookupOrDefault<bool>("hIsIndex", false);
 
-    return Foam::Sampler::New(samplerName, p, averagingTime);
+    return Foam::Sampler::New
+    (
+        samplerName,
+        p,
+        averagingTime,
+        interpolationType,
+        cellFinderType,
+        hIsIndex
+    );
 }  
 
 
@@ -116,150 +141,24 @@ void Foam::Sampler::createFields()
 
 }
 
-
-Foam::tmp<Foam::volScalarField> Foam::Sampler::distanceField() const
-{
-    
-    // Grab h for the current patch
-    const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
-    if (debug)
-    {
-        Info<< "Sampler: Creating dist field" << nl;
-    }
-
-    tmp<volScalarField> dist
-    ( 
-        new volScalarField
-        (
-            IOobject
-            (
-                "dist",
-                mesh_.time().timeName(),
-                mesh_,
-                IOobject::READ_IF_PRESENT,
-                IOobject::NO_WRITE
-            ),
-            mesh_,
-            dimensionedScalar("dist", dimLength, 0),
-            h.boundaryField().types()
-        )
-    );
-
-    bool precomputedDist = 
-    #ifdef FOAM_NEW_GEOMFIELD_RULES
-        mag(max(dist().primitiveField())) > VSMALL;
-    #else
-        mag(max(dist().internalField())) > VSMALL;
-    #endif
-    
-    if (debug)
-    {
-        Info<<"Sampler: using precumputed distance field" << nl;
-    }
-
-    if (!precomputedDist)
-    {
-        labelHashSet patchIDs(1);
-        patchIDs.insert(patch().index());
-
-        dictionary methodDict = dictionary();
-        methodDict.lookupOrAddDefault(word("method"), word("meshWave"));
-
-        if (debug)
-        {
-            Info<< "Initializing patchDistanceMethod" << nl;
-        }
-
-        autoPtr<patchDistMethod> pdm
-        (
-            patchDistMethod::New
-            (
-                methodDict,
-                mesh_,
-                patchIDs
-            )
-        );
-
-        if (debug)
-        {
-            Info<< "Sampler: Computing dist field" << nl;
-        }
-#ifdef FOAM_NEW_TMP_RULES
-        pdm->correct(dist.ref());
-#else
-        pdm->correct(dist());
-#endif
-    }
-
-    return dist;
-}
-
-
-Foam::tmp<Foam::labelField> Foam::Sampler::findSearchCellLabels() const
-{
-    label patchIndex = patch().index(); 
-    const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
-    tmp<volScalarField> dist = distanceField();
-    
-    scalar maxH = max(h.boundaryField()[patchIndex]);
-    if (debug)
-    {
-        Info << "Sampler: The maximum h value is " << maxH << nl;
-    }
-
-    const volVectorField & C = mesh_.C();
-
-    if (debug)
-    {
-        Info<< "Sampler: Constructing mesh bounding box" << nl;
-    }
-
-    tmp<labelField> tSearchCellLabels(new labelField(C.size()));
-#ifdef FOAM_NEW_TMP_RULES
-    labelField & searchCellLabels = tSearchCellLabels.ref();
-#else
-    labelField & searchCellLabels = tSearchCellLabels();
-#endif
-    label nSearchCells = 0;
-
-    if (debug)
-    {
-        Info<< "Sampler: Searching for cells closer to 2maxH to the wall"
-            << nl;
-    }
-
-    forAll(searchCellLabels, i)
-    {
-        if (dist()[i] < 2*maxH)
-        {
-            searchCellLabels[nSearchCells] = i;
-            nSearchCells++;
-        }
-    }
-
-    searchCellLabels.resize(nSearchCells);
-
-    if (debug)
-    {
-        Info<< "Sampler: Found " << searchCellLabels.size() << " cells" << nl;
-        Info<< "Sampler: Constructing cell octree" << nl;
-    }
-
-    return tSearchCellLabels;
-}
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::Sampler::Sampler
 (
     const fvPatch & p,
-    scalar averagingTime
+    scalar averagingTime,
+    const word interpolationType,
+    const word cellFinderType,
+    bool hIsIndex
 )
 :
     patch_(p),
     averagingTime_(averagingTime),
     mesh_(patch_.boundaryMesh().mesh()),
-    sampledFields_(0)
+    sampledFields_(0),
+    interpolationType_(interpolationType),
+    cellFinderType_(cellFinderType),
+    hIsIndex_(hIsIndex)
 {
     if (debug)
     {
@@ -302,10 +201,13 @@ Foam::Sampler::Sampler
 (
     const word & samplerName,
     const fvPatch & p,
-    scalar averagingTime
+    scalar averagingTime,
+    const word interpolationType,
+    const word cellFinderType,
+    bool hIsIndex
 )
 :
-    Sampler(p, averagingTime)
+    Sampler(p, averagingTime, interpolationType, cellFinderType, hIsIndex)
 {
 }
 
@@ -314,7 +216,10 @@ Foam::Sampler::Sampler(const Sampler & copy)
     patch_(copy.patch_),
     averagingTime_(copy.averagingTime_),
     mesh_(copy.mesh_),
-    sampledFields_(copy.sampledFields_)
+    sampledFields_(copy.sampledFields_),
+    interpolationType_(copy.interpolationType_),
+    cellFinderType_(copy.cellFinderType_),
+    hIsIndex_(copy.hIsIndex_)
 {
     if (debug)
     {
@@ -345,6 +250,13 @@ void Foam::Sampler::recomputeFields() const
     {
         sampledFields_[i].recompute();
     } 
+}
+
+void Foam::Sampler::write(Ostream & os) const
+{
+    os.writeKeyword("interpolationType") << interpolationType_ << token::END_STATEMENT << endl;
+    os.writeKeyword("cellFinderType") << cellFinderType_ << token::END_STATEMENT << endl;
+    os.writeKeyword("hIsIndex") << hIsIndex_ << token::END_STATEMENT << endl;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
