@@ -36,7 +36,6 @@ SourceFiles
 #include "fixedValueFvPatchFields.H"
 #include "SampledField.H"
 #include "scalarListListIOList.H"
-#include "interpolation.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,18 +51,7 @@ class SampledVelocityField
     public SampledField
 {
 
-private:
-
-    const word interpolatorType_;
-
-    mutable autoPtr<interpolation<vector> > interpolator_;
-   
 public:
-
-#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-    //- Runtime type information
-        TypeName("SampledVelocityField");   
-#endif
 
     // Constructors
 
@@ -72,19 +60,23 @@ public:
         (
             const fvPatch & patch,
             word interpolationType = "cell"
-        );
-
-        //- Construct from field name  and patch
-        SampledVelocityField
-        (
-            const word & fieldName,
-            const fvPatch & patch,
-            word interpolationType="cell"
         )
         :
-            SampledVelocityField(patch, interpolationType)
-        {}
+            SampledField(patch, interpolationType)
+        {
+            createField();
+            setInterpolator(interpolationType);
+        }
 
+        SampledVelocityField(const SampledVelocityField & orig)
+        :
+            SampledField(orig)
+        {
+            if (orig.interpolator_.get() != nullptr)
+            {
+                setInterpolator(orig.interpolator_().type())
+            }
+        }
         //- Clone the object
         autoPtr<SampledField> clone() const override
         {
@@ -95,13 +87,11 @@ public:
         }
         
         //- Destructor
-        virtual ~SampledVelocityField() {};        
+        virtual ~SampledVelocityField() {}
             
     // Member functions
         
         //- Sample the velocity values
-        virtual void sample(scalarListList &, const labelList &) const;
-
         void sample
         (
             scalarListList & sampledValues,
@@ -129,13 +119,25 @@ public:
         }
         
         //- Register appropriate fields in the object registry
-        void registerFields(const labelList &) const override;
+        void registerFields
+        (
+            const labelList &
+        ) const override;
 
         //- Register appropriate fields in the object registry
-        void registerFields(const labelListList &) const override;
+        void registerFields
+        (
+            const labelListList &
+        ) const override;
         
         //- Recompute the field
-        void recompute() const override {}      
+        void recompute() const override {}
+
+        //- Set the inerpolator
+        void setInterpolator(const word interpolationType) override;
+
+        //- Create the field. Redunant, U should be created by the solver.
+        void createField() const override {}
 };
 
 

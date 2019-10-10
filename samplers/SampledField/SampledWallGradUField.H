@@ -52,33 +52,33 @@ class SampledWallGradUField
    
 public:
 
-#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-    //- Runtime type information
-        TypeName("SampledWallGradUField");
-#endif
-
     // Constructors
 
         //- Construct from patch
         SampledWallGradUField
         (
-            const fvPatch & patch
+            const fvPatch & patch,
+            const word interpolationType="cell"
         )
         :
-            SampledField(patch)
-        {}
+            SampledField(patch, interpolationType)
+        {
+            createField();
+            setInterpolator(interpolationType);
+        }
 
-       //- Construct from field name and patch
-        SampledWallGradUField
-        (
-            const word & fieldName,
-            const fvPatch & patch
-        )
+        //- Copy constructor
+        SampledWallGradUField(const SampledWallGradUField & orig)
         :
-            SampledWallGradUField(patch)
-        {}
+            SampledField(orig)
+        {
+            if (orig.interpolator_.get() != nullptr)
+            {
+                setInterpolator(orig.interpolator_().type());
+            }
+        }
 
-        //- Clone the object    
+        //- Clone the object
         autoPtr<SampledField> clone() const override
         {
             return autoPtr<SampledField>
@@ -88,7 +88,7 @@ public:
         }
         
         //- Destructor
-        virtual ~SampledWallGradUField() {};        
+        virtual ~SampledWallGradUField() {}
             
     // Member functions
         
@@ -116,12 +116,26 @@ public:
         }
         
         //- Register appropriate fields in the object registry
-        void registerFields(const labelList &) const override;
+        void registerFields
+        (
+            const labelList &
+        ) const override;
 
-        void registerFields(const labelListList &) const override;
-        
+        //- Register appropriate fields in the object registry
+        void registerFields
+        (
+            const labelListList &
+        ) const override;
+
         //- Recompute the field
         void recompute() const override;
+
+        //- Set interpolator. Redunant, no interpolation for this field.
+        void setInterpolator(const word interpolationType) override
+        {}
+
+        //- Create the global wallGrad gradient field that will be sampled
+        virtual void createField() const override;
 };
 
 

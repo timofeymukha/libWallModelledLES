@@ -24,17 +24,6 @@ License
 #include "List.H"
 #include "helpers.H"
 
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-namespace Foam
-{
-    defineTypeNameAndDebug(SampledPGradField, 0);
-    addToRunTimeSelectionTable(SampledField, SampledPGradField, FvPatch);
-}
-#endif
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::SampledPGradField::sample
@@ -97,49 +86,10 @@ Foam::SampledPGradField::sample
 
 void Foam::SampledPGradField::registerFields
 (
-    const labelList &  indexList 
+    const labelList &  indexList
+
 ) const
 {
-    // Grab h to copy bcs from it.
-    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
-    
-    // Init pGrad as (0 0 0)
-    if (!mesh().foundObject<volVectorField>("pGrad"))
-    {
-        mesh().thisDb().store
-        (     
-            new volVectorField
-            (
-                IOobject
-                (
-                    "pGrad",
-                    mesh().time().timeName(),
-                    mesh(),
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh(),
-                dimensionedVector
-                (
-                    "pGrad",
-                    dimLength/sqr(dimTime),
-                    pTraits<vector>::zero
-                ),
-                h.boundaryField().types()
-            )
-        );
-    }
-    
-    const IOdictionary fvSchemes = 
-        mesh().thisDb().lookupObject<IOdictionary>("fvSchemes");
-
-    // If we have p and scheme, compute the actual grad(p)
-    // The check for the scheme is due to fvSchemes not read by decomposePar
-    if ((mesh().foundObject<volScalarField>("p")) && 
-        (fvSchemes.isDict("gradSchemes")))
-    {
-        recompute();
-    }
 
     const volVectorField & pGrad =
         mesh().lookupObject<volVectorField>("pGrad");
@@ -182,35 +132,6 @@ void Foam::SampledPGradField::registerFields
     const labelListList & indexListList
 ) const
 {
-    // Grab h to copy bcs from it.
-    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
-    
-    if (!mesh().foundObject<volVectorField>("pGrad"))
-    {
-        mesh().thisDb().store
-        (     
-            new volVectorField
-            (
-                IOobject
-                (
-                    "pGrad",
-                    mesh().time().timeName(),
-                    mesh(),
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh(),
-                dimensionedVector
-                (
-                    "pGrad",
-                    dimLength/sqr(dimTime),
-                    pTraits<vector>::zero
-                ),
-                h.boundaryField().types()
-            )
-        );
-    }
-
     const objectRegistry & registry =
         mesh().subRegistry("wallModelSampling").subRegistry(patch_.name());
 
@@ -259,4 +180,75 @@ void Foam::SampledPGradField::recompute() const
   
 }
 
+
+void Foam::SampledPGradField::setInterpolator
+(
+    const word interpolationType
+)
+{
+    if (mesh().foundObject<volVectorField>("pGrad"))
+    {
+        const volVectorField & pGrad =
+            mesh().lookupObject<volVectorField>("pGrad");
+        interpolator_.reset
+        (
+            interpolation<vector>::New(interpolationType, pGrad)
+        );
+    }
+    else
+    {
+        interpolator_.reset(nullptr);
+        WarningIn("SampledPGradField::setInterpolator()")
+            << "No pGrad field is present, attempting to sample will lead "
+            << "to a crash."
+            << nl;
+    }
+
+}
+
+
+void Foam::SampledPGradField::createField
+(
+) const
+{
+    // Grab h to copy bcs from it.
+    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
+    
+    if (!mesh().foundObject<volVectorField>("pGrad"))
+    {
+        mesh().thisDb().store
+        (     
+            new volVectorField
+            (
+                IOobject
+                (
+                    "pGrad",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh(),
+                dimensionedVector
+                (
+                    "pGrad",
+                    dimLength/sqr(dimTime),
+                    pTraits<vector>::zero
+                ),
+                h.boundaryField().types()
+            )
+        );
+    }
+
+    const IOdictionary fvSchemes = 
+        mesh().thisDb().lookupObject<IOdictionary>("fvSchemes");
+
+    // If we have p and scheme, compute the actual grad(p)
+    // The check for the scheme is due to fvSchemes not read by decomposePar
+    if ((mesh().foundObject<volScalarField>("p")) && 
+        (fvSchemes.isDict("gradSchemes")))
+    {
+        recompute();
+    }
+}
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

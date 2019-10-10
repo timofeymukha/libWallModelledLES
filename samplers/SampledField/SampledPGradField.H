@@ -51,31 +51,31 @@ class SampledPGradField
               
 public:
 
-#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-    //- Runtime type information
-        TypeName("SampledPGradField");
-#endif
-
     // Constructors
 
         //- Construct from patch and cell index list
         SampledPGradField
         (
-            const fvPatch & patch
+            const fvPatch & patch,
+            const word interpolationType="cell"
         )
         :
-            SampledField(patch)
-        {}
+            SampledField(patch, interpolationType)
+        {
+            createField();
+            setInterpolator(interpolationType);
+        }
 
-        SampledPGradField
-        (
-            const word & fieldName,
-            const fvPatch & patch
-        )
+        SampledPGradField(const SampledPGradField & orig)
         :
-            SampledField(fieldName, patch)
-        {}
-        
+            SampledField(orig)
+        {
+            if (orig.interpolator_.get() != nullptr)
+            {
+                setInterpolator(orig.interpolator_().type());
+            }
+        }
+
         //- Clone the object
         autoPtr<SampledField> clone() const override
         {
@@ -86,7 +86,7 @@ public:
         }
         
         //- Destructor
-        virtual ~SampledPGradField() {};
+        virtual ~SampledPGradField() {}
             
     // Member functions
         
@@ -113,12 +113,25 @@ public:
         void sample(scalarListListList &, const labelListList &) const override;
         
         //- Register appropriate fields in the object registry
-        void registerFields(const labelList &) const override;
+        void registerFields
+        (
+            const labelList &
+        ) const override;
 
-        void registerFields(const labelListList &) const override; 
-        
+        //- Register appropriate fields in the object registry
+        void registerFields
+        (
+            const labelListList &
+        ) const override;
+
         //- Recompute the field
         void recompute() const override;
+
+        //- Reset the interpolator
+        void setInterpolator(const word interpolationType) override;
+
+        //- Create the global pressure gradient field that will be sampled
+        virtual void createField() const override;
 };
 
 

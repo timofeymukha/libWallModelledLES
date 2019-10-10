@@ -36,11 +36,10 @@ SourceFiles
 #ifndef SampledField_H
 #define SampledField_H
 
-#include "refCount.H"
 #include "fixedValueFvPatchFields.H"
 #include "scalarListListIOList.H"
 #include "runTimeSelectionTables.H"
-#include "addToRunTimeSelectionTable.H"
+#include "interpolation.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -51,65 +50,55 @@ namespace Foam
                         Class SampledField Declaration
 \*---------------------------------------------------------------------------*/
 
-class SampledField : public refCount
+class SampledField
 {
 protected:
     
     // Protected data
+        //- The patch
         const fvPatch & patch_;
     
+        //- The mesh
         const fvMesh & mesh_;
-                            
-public:
 
-#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-    //- Runtime type information
-        TypeName("SampledField");
-#endif
+        //- Pointer to the interpolator
+        autoPtr<interpolation<vector> > interpolator_;
+public:
 
     // Constructors
 
         //- Construct from patch and cell index list
         SampledField
         (
-            const fvPatch & patch
+            const fvPatch & patch,
+            const word interpolationType="cell"
         )
         :
             patch_(patch),
-            mesh_(patch_.boundaryMesh().mesh())
-        {}
+            mesh_(patch_.boundaryMesh().mesh()),
+            interpolator_(nullptr)
+        {
+        }
       
         SampledField
         (
-            const word & fieldName,
-            const fvPatch & patch
+            const SampledField & orig
         )
         :
-            SampledField(patch)
-        {}
-
-        SampledField
-        (
-            const SampledField & copy
-        )
-        :
-            refCount(),
-            patch_(copy.patch()),
-            mesh_(copy.mesh())
+            patch_(orig.patch()),
+            mesh_(orig.mesh()),
+// #ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
+            interpolator_(nullptr)
+// #else
+//             interpolator_(orig.interpolator_, false)
+// #endif
         {}
 
         //- Clone the object
         virtual autoPtr<SampledField> clone() const = 0;
 
         //- Destructor
-        virtual ~SampledField() {};        
-            
-        //- Selectors
-        static autoPtr<SampledField> New
-        (
-            const word &,
-            const fvPatch &
-        );           
+        virtual ~SampledField() {}
     // Member functions
         
         //- Get the mesh
@@ -152,30 +141,24 @@ public:
         ) const = 0;
         
         //- Register appropriate fields in the object registry
-        virtual void registerFields(const labelList &) const = 0; 
+        virtual void registerFields
+        (
+            const labelList &
+        ) const = 0; 
 
-        virtual void registerFields(const labelListList &) const = 0; 
+        virtual void registerFields
+        (
+            const labelListList &
+        ) const = 0; 
         
         //- Recompute the field
-        virtual void recompute() const = 0;       
+        virtual void recompute() const = 0;
 
+        //- Set interplator
+        virtual void setInterpolator(const word interpolationType) = 0;
 
-#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-    // RTS tables
-        
-        // RTS table "Patch"
-        declareRunTimeSelectionTable
-        (
-            autoPtr,
-            SampledField,
-            FvPatch,
-            (
-                const word& fieldName,
-                const fvPatch& p
-            ),
-            (fieldName, p)
-        );
-#endif
+        //- Create the global field that will be sampled
+        virtual void createField() const = 0;
 };
 
 

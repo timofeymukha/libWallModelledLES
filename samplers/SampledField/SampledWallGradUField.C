@@ -23,15 +23,6 @@ License
 #include "codeRules.H"
 #include "helpers.H"
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-namespace Foam
-{
-    defineTypeNameAndDebug(SampledWallGradUField, 0);
-    addToRunTimeSelectionTable(SampledField, SampledWallGradUField, FvPatch);
-}
-#endif
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
@@ -102,38 +93,9 @@ Foam::SampledWallGradUField::sample
 
 void Foam::SampledWallGradUField::registerFields
 (
-    const labelList &  indexList 
+    const labelList &  indexList
 ) const
 {
-    // Grab h to copy bcs from it.
-    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
-    
-    if (!mesh().foundObject<volVectorField>("wallGradU"))
-    {
-        mesh().time().store
-        (     
-            new volVectorField
-            (
-                IOobject
-                (
-                    "wallGradU",
-                    mesh().time().timeName(),
-                    mesh(),
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh(),
-                dimensionedVector
-                (
-                    "wallGradU",
-                    dimVelocity/dimLength,
-                    pTraits<vector>::zero
-                ),
-                h.boundaryField().types()
-            )
-        );  
-    }
-    
     scalarListList sampledWallGradU(patch().size());
 
     forAll(sampledWallGradU, i)
@@ -186,34 +148,6 @@ void Foam::SampledWallGradUField::registerFields
     const labelListList & indexListList
 ) const
 {
-    // Grab h to copy bcs from it.
-    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
-    
-    if (!mesh().foundObject<volVectorField>("wallGradU"))
-    {
-        mesh().time().store
-        (     
-            new volVectorField
-            (
-                IOobject
-                (
-                    "wallGradU",
-                    mesh().time().timeName(),
-                    mesh(),
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh(),
-                dimensionedVector
-                (
-                    "wallGradU",
-                    dimVelocity/dimLength,
-                    pTraits<vector>::zero
-                ),
-                h.boundaryField().types()
-            )
-        );  
-    }
 
     const objectRegistry & registry =
         mesh().subRegistry("wallModelSampling").subRegistry(patch().name());
@@ -273,4 +207,40 @@ void Foam::SampledWallGradUField::recompute() const
 }
 
 
+void Foam::SampledWallGradUField::createField() const
+{
+    // Grab h to copy bcs from it.
+    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
+    
+    if (!mesh().foundObject<volVectorField>("wallGradU"))
+    {
+        mesh().time().store
+        (     
+            new volVectorField
+            (
+                IOobject
+                (
+                    "wallGradU",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh(),
+                dimensionedVector
+                (
+                    "wallGradU",
+                    dimVelocity/dimLength,
+                    pTraits<vector>::zero
+                ),
+                h.boundaryField().types()
+            )
+        );  
+    }
+
+    if (mesh().foundObject<volVectorField>("U"))
+    {
+        recompute();
+    }
+}
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
