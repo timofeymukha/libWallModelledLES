@@ -67,13 +67,13 @@ public:
 
     // Constructors
 
-        //- Construct from patch and averaging time
+        //- Construct from patch
         TreeCellFinder
         (
             const fvPatch &
         );
 
-        //- Construct from type, patch and averaging time
+        //- Construct from type, patch
         TreeCellFinder
         (
             const word & TreeCellFinderName,
@@ -88,12 +88,21 @@ public:
 
     // Member functions
 
+        //- Find the sampling cell indices for a single cell sampler
         void findCellIndices
         (
             labelList & indexList,
             const scalarField & h
         ) const;
+
+        //- Find the sampling cell indices for a multi cell sampler
+        void findCellIndices
+        (
+            labelListList & indexList,
+            const scalarField & h
+        ) const;
         
+        //- Find cells close than 2max(h) to the wall
         tmp<labelField> findCandidateCellLabels
         (
             const scalarField & dist,

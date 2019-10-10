@@ -20,7 +20,7 @@ Class
     Foam::CrawlingCellFinder
 
 Description
-    Class for searching for sampling cells.
+    Class for searching for sampling cells by crawling through opposite faces.
 
 Contributors/Copyright:
     2019 Timofey Mukha
@@ -91,7 +91,8 @@ public:
         void findCellIndices
         (
             labelList & indexList,
-            const scalarField & h
+            const scalarField & h,
+            const bool hIsIndex
         ) const;
 
 };

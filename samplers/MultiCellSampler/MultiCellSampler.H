@@ -85,7 +85,10 @@ public:
         MultiCellSampler
         (
             const fvPatch&,
-            scalar averagingTime
+            scalar averagingTime,
+            const word interpolationType,
+            const word cellFinderType,
+            bool hIsIndex
         );
 
         //- Construct from type, patch and averaging time
@@ -93,7 +96,10 @@ public:
         (
             const word & samplerName,
             const fvPatch & p,
-            scalar averagingTime
+            scalar averagingTime,
+            const word interpolationType,
+            const word cellFinderType,
+            bool hIsIndex
         );
         
         //- Copy constructor

@@ -191,6 +191,10 @@ Foam::CellFinder::CellFinder
 :
     CellFinder(p)
 {
+    if (debug)
+    {
+        Info << "CellFinder: Constructing from name and patch" << nl;
+    }
 }
 
 Foam::CellFinder::CellFinder(const CellFinder & copy)
