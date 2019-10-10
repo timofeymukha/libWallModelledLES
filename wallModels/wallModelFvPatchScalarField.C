@@ -53,6 +53,8 @@ void Foam::wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
     os.writeKeyword("averagingTime")
         << averagingTime_ << token::END_STATEMENT << nl;
+    os.writeKeyword("copyToPatchInternalField")
+        << copyToPatchInternalField_ << token::END_STATEMENT << nl;
 }
 
 void Foam::wallModelFvPatchScalarField::createFields() const
@@ -217,7 +219,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     (
         dict.lookupOrDefault<bool>("copyToPatchInternalField", false)
     ),
-    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 2))
+    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0))
 {
     if (debug)
     {
