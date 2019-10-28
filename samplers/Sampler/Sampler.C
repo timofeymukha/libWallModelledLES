@@ -254,9 +254,12 @@ void Foam::Sampler::recomputeFields() const
 
 void Foam::Sampler::write(Ostream & os) const
 {
-    os.writeKeyword("interpolationType") << interpolationType_ << token::END_STATEMENT << endl;
-    os.writeKeyword("cellFinderType") << cellFinderType_ << token::END_STATEMENT << endl;
-    os.writeKeyword("hIsIndex") << hIsIndex_ << token::END_STATEMENT << endl;
+    os.writeKeyword("interpolationType")
+        << interpolationType_ << token::END_STATEMENT << endl;
+    os.writeKeyword("cellFinderType")
+        << cellFinderType_ << token::END_STATEMENT << endl;
+    os.writeKeyword("hIsIndex")
+        << hIsIndex_ << token::END_STATEMENT << endl;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
