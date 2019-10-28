@@ -74,7 +74,7 @@ public:
         {
             if (orig.interpolator_.get() != nullptr)
             {
-                setInterpolator(orig.interpolator_().type())
+                setInterpolator(orig.interpolator_().type());
             }
         }
         //- Clone the object
