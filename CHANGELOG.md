@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.5.1
+
+Hot fix for `copyToPatchInternalField` not getting written to the `nut` file by `decomposePar`.
+
 ## v0.5.0
 
 This release contains multiple improvements to the code structure, adds a unit test suite and
