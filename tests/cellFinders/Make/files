@@ -1,0 +1,6 @@
+../fixtures.C
+testRunner.C
+CrawlingCellFinder/testCrawlingCellFinder.C
+TreeCellFinder/testTreeCellFinder.C
+EXE=./testRunner
+

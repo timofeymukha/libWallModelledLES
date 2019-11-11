@@ -91,6 +91,7 @@ void Foam::CrawlingCellFinder::findCellIndices
     const UList<label> & faceCells = patch().faceCells();
     const List<face> & faces = mesh().faces();
     const label patchStart = patch().start();
+    const polyBoundaryMesh & boundaryMesh = mesh().boundaryMesh();
 
     if (hIsIndex)
     {
@@ -109,17 +110,43 @@ void Foam::CrawlingCellFinder::findCellIndices
         if (hIsIndex)
         {
             nLayers = std::round(h[patchFaceI]);
+            if (nLayers < 1)
+            {
+                Warning
+                    << "CrawlingCellFinder: Could not round "
+                    << h[patchFaceI] << " to a valid cell layer index. "
+                    << "Will fall back to wall-adjacent cell for face "
+                    <<  patchFaceI << " on patch " << patch().name() << nl;
+                indexList[patchFaceI] = faceCells[patchFaceI];
+                continue;
+            }
+            else if (nLayers == 1)
+            {
+                indexList[patchFaceI] = faceCells[patchFaceI];
+                continue;
+            }
         }
         else
         {
+            if (h[patchFaceI] < 0)
+            {
+                Warning
+                    << "CrawlingCellFinder: " << h[patchFaceI]
+                    << " is negative and thus not a valid distance. "
+                    << "Will fall back to wall-adjacent cell for face "
+                    <<  patchFaceI << " on patch " << patch().name() << nl;
+                indexList[patchFaceI] = faceCells[patchFaceI];
+                continue;
+            }
+            else if (h[patchFaceI] == 0)
+            {
+                indexList[patchFaceI] = faceCells[patchFaceI];
+                continue;
+            }
+
             nLayers = 1000; // arbitrary big number
         }
 
-        if (nLayers <= 1)
-        {
-            indexList[patchFaceI] = faceCells[patchFaceI];
-            continue;
-        }
 
         point patchFaceCenterI = patchFaceCentres[patchFaceI];
         label startCellIndex = faceCells[patchFaceI];
@@ -138,8 +165,9 @@ void Foam::CrawlingCellFinder::findCellIndices
                 Warning
                     << "CrawlingCellFinder: Could not find opposing face"
                     << "for cell " << startCellIndex << " with cell center "
-                    << C[startCellIndex] << "and face " << startFaceLabel << nl
-                    << "Will stop crawling and use the last valid cell"
+                    << C[startCellIndex] << " and face " << startFaceLabel << nl
+                    << "Will stop crawling and use the last valid cell " 
+                    << "corresponding to index " << layer + 1
                     << nl;
                 
                 indexList[patchFaceI] = startCellIndex;
@@ -147,12 +175,37 @@ void Foam::CrawlingCellFinder::findCellIndices
             }
             else if (opposingFace > mesh().nInternalFaces())
             {
+                label opposingPatchInd = boundaryMesh.whichPatch(opposingFace);
+                const fvPatch & opposingPatch =
+                    mesh().boundary()[opposingPatchInd];
+                word opposingPatchName = opposingPatch.name();
+                label opposingFaceLocalInd =
+                    opposingPatch.patch().whichFace(opposingFace);
+                vector opposingFaceCentre =
+                    opposingPatch.Cf()[opposingFaceLocalInd];
+
+                scalar distance =
+                    mag(opposingFaceCentre - patchFaceCentres[patchFaceI]);
+
+                if ((!hIsIndex) && (distance > h[patchFaceI]))
+                {
+                    indexList[patchFaceI] = startCellIndex;
+                    continue;
+                }
+
+                // Recompute as the actual distance that will be used
+                // due to abortion in crawling
+                distance =
+                    mag(C[startCellIndex] - patchFaceCentres[patchFaceI]);
+
                 Warning
-                    << "CrawlingCellFinder: Opposing face for cell "
+                    << "CrawlingCellFinder: The opposing face for cell "
                     << startCellIndex << " with cell center "
-                    << C[startCellIndex] << "and face " << startFaceLabel
-                    << "belongs to a patch" << nl 
-                    << "Will stop crawling and use the last valid cell"
+                    << C[startCellIndex] << " and face " << startFaceLabel
+                    << " belongs to patch " << opposingPatchName << nl 
+                    << "Will stop crawling and use the last valid cell " 
+                    << "corresponding to index " << layer + 1
+                    << " and distance " << distance
                     << nl;
 
                 indexList[patchFaceI] = startCellIndex;
@@ -169,9 +222,6 @@ void Foam::CrawlingCellFinder::findCellIndices
                 continue;
             }
 
-            // Info << "opposingFace " << opposingFace << faceCentres[opposingFace]
-                //  << nl;
-
             if (owner[opposingFace] == startCellIndex)
             {
                 nextCellIndex = neighbour[opposingFace];
@@ -181,10 +231,6 @@ void Foam::CrawlingCellFinder::findCellIndices
                 nextCellIndex = owner[opposingFace];
             }
 
-
-
-            // Info << "nextCellIndex " << nextCellIndex << " " << C[nextCellIndex]
-            //      << nl;
             startFaceLabel = opposingFace;
             startCellIndex = nextCellIndex;
             startCell = cells[startCellIndex];
@@ -192,7 +238,6 @@ void Foam::CrawlingCellFinder::findCellIndices
 
         indexList[patchFaceI] = startCellIndex;
     }
-    Info << indexList << nl;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
