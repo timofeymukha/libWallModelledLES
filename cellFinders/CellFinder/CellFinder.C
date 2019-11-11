@@ -26,7 +26,6 @@ License
 #include "objectRegistry.H"
 #include "IOField.H"
 #include "codeRules.H"
-#include "patchDistMethod.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -83,86 +82,8 @@ Foam::autoPtr<Foam::CellFinder> Foam::CellFinder::New
 
 void Foam::CellFinder::createFields() const
 {
-
 }
 
-
-Foam::tmp<Foam::volScalarField> Foam::CellFinder::distanceField() const
-{
-    
-    // Grab h for the current patch
-    const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
-    if (debug)
-    {
-        Info<< "CellFinder: Creating dist field" << nl;
-    }
-
-    tmp<volScalarField> dist
-    ( 
-        new volScalarField
-        (
-            IOobject
-            (
-                "dist",
-                mesh_.time().timeName(),
-                mesh_,
-                IOobject::READ_IF_PRESENT,
-                IOobject::NO_WRITE
-            ),
-            mesh_,
-            dimensionedScalar("dist", dimLength, 0),
-            h.boundaryField().types()
-        )
-    );
-
-    bool precomputedDist = 
-    #ifdef FOAM_NEW_GEOMFIELD_RULES
-        mag(max(dist().primitiveField())) > VSMALL;
-    #else
-        mag(max(dist().internalField())) > VSMALL;
-    #endif
-    
-    if (debug)
-    {
-        Info<<"CellFinder: using precumputed distance field" << nl;
-    }
-
-    if (!precomputedDist)
-    {
-        labelHashSet patchIDs(1);
-        patchIDs.insert(patch().index());
-
-        dictionary methodDict = dictionary();
-        methodDict.lookupOrAddDefault(word("method"), word("meshWave"));
-
-        if (debug)
-        {
-            Info<< "Initializing patchDistanceMethod" << nl;
-        }
-
-        autoPtr<patchDistMethod> pdm
-        (
-            patchDistMethod::New
-            (
-                methodDict,
-                mesh_,
-                patchIDs
-            )
-        );
-
-        if (debug)
-        {
-            Info<< "CellFinder: Computing dist field" << nl;
-        }
-#ifdef FOAM_NEW_TMP_RULES
-        pdm->correct(dist.ref());
-#else
-        pdm->correct(dist());
-#endif
-    }
-
-    return dist;
-}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //

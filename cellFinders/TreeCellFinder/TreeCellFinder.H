@@ -39,6 +39,7 @@ SourceFiles
 #include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
 #include "CellFinder.H"
+#include "patchDistMethod.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -87,6 +88,9 @@ public:
         virtual ~TreeCellFinder(){}
 
     // Member functions
+
+        //- Compute distance field
+        tmp<volScalarField> distanceField() const;
 
         //- Find the sampling cell indices for a single cell sampler
         void findCellIndices

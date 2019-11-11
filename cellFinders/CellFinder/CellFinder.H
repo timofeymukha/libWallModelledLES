@@ -63,9 +63,6 @@ protected:
 
     // Protected Member Functions
 
-        //- Compute distance field
-        tmp<volScalarField> distanceField() const;
-
         void createFields() const;
         
 public:

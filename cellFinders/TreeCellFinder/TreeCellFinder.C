@@ -189,17 +189,31 @@ void Foam::TreeCellFinder::findCellIndices
         point = faceCentres[i] - faceNormals[i]*h[i];
 
         // If h is zero, or the point is outside the domain,
-        // set it to distance to adjacent cell's centre
-        // Set the cellIndexList component accordingly
+        // grab the wall-adjacent cell
         bool inside = 
 #ifdef FOAM_VOLUMETYPE_NOT_CAPITAL
             boundaryTreePtr->getVolumeType(point) == volumeType::inside;
 #else
             boundaryTreePtr->getVolumeType(point) == volumeType::INSIDE;
 #endif
-        if ((h[i] == 0) || (!inside) || (treePtr->nodes().empty()))
+        if ((h[i] <= 0) || (!inside) || (treePtr->nodes().empty()))
         {
-            //h_[i] = mag(cellCentres[i] - faceCentres[i]);
+            if (h[i] < 0)
+            {
+                Warning
+                    << "TreeCellFinder: " << h[i]
+                    << " is negative and thus not a valid distance. "
+                    << "Will fall back to wall-adjacent cell for face "
+                    <<  i << " on patch " << patch().name() << nl;
+            }
+            else if (!inside)
+            {
+                Warning
+                    << "TreeCellFinder: the point " << h[i]
+                    << " away from the wall is outside the domain. "
+                    << "Will fall back to wall-adjacent cell for face "
+                    <<  i << " on patch " << patch().name() << nl;
+            }
             indexList[i] = faceCells[i];
         }
         else
@@ -207,7 +221,6 @@ void Foam::TreeCellFinder::findCellIndices
 
             pih = treePtr->findNearest(point, treePtr->bb().mag());
             indexList[i] = searchCellLabels[pih.index()];
-            //h_[i] = mag(C[indexList_[i]] - faceCentres[i]);
         }
     }
     if (debug)
@@ -476,5 +489,83 @@ Foam::TreeCellFinder::findCandidateCellLabels
 
     return tCandidates;
 }
+
+Foam::tmp<Foam::volScalarField> Foam::TreeCellFinder::distanceField() const
+{
+    
+    // Grab h for the current patch
+    const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
+    if (debug)
+    {
+        Info<< "CellFinder: Creating dist field" << nl;
+    }
+
+    tmp<volScalarField> dist
+    ( 
+        new volScalarField
+        (
+            IOobject
+            (
+                "dist",
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE
+            ),
+            mesh_,
+            dimensionedScalar("dist", dimLength, 0),
+            h.boundaryField().types()
+        )
+    );
+
+    bool precomputedDist = 
+    #ifdef FOAM_NEW_GEOMFIELD_RULES
+        mag(max(dist().primitiveField())) > VSMALL;
+    #else
+        mag(max(dist().internalField())) > VSMALL;
+    #endif
+    
+    if (debug)
+    {
+        Info<<"CellFinder: using precumputed distance field" << nl;
+    }
+
+    if (!precomputedDist)
+    {
+        labelHashSet patchIDs(1);
+        patchIDs.insert(patch().index());
+
+        dictionary methodDict = dictionary();
+        methodDict.lookupOrAddDefault(word("method"), word("meshWave"));
+
+        if (debug)
+        {
+            Info<< "Initializing patchDistanceMethod" << nl;
+        }
+
+        autoPtr<patchDistMethod> pdm
+        (
+            patchDistMethod::New
+            (
+                methodDict,
+                mesh_,
+                patchIDs
+            )
+        );
+
+        if (debug)
+        {
+            Info<< "CellFinder: Computing dist field" << nl;
+        }
+#ifdef FOAM_NEW_TMP_RULES
+        pdm->correct(dist.ref());
+#else
+        pdm->correct(dist());
+#endif
+    }
+
+    return dist;
+}
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
