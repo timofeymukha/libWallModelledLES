@@ -167,7 +167,15 @@ TEST_F(ReichardtLawOfTheWallTest, ValueSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     ReichardtLawOfTheWall law = ReichardtLawOfTheWall(0.395, 11, 3, 7.8);
 
     scalar value = law.value(sampler, 5, 0.04, 8e-6);
@@ -185,7 +193,15 @@ TEST_F(ReichardtLawOfTheWallTest, DerivativeSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     ReichardtLawOfTheWall law = ReichardtLawOfTheWall(0.395, 11, 3, 7.8);
 
     scalar derivative = law.derivative(sampler, 5, 0.04, 8e-6);

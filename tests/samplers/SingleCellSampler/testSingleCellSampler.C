@@ -21,10 +21,22 @@ TEST_F(SingleCellSamplerTest, FullConstructor)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
+
 
     ASSERT_EQ(&sampler.patch(), &patch);
     ASSERT_EQ(sampler.averagingTime(), 3.0);
+    ASSERT_EQ(sampler.interpolationType(), "cell");
+    ASSERT_EQ(sampler.cellFinderType(), "crawling");
+    ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
     ASSERT_EQ(sampler.lengthList().size(), patch.size());

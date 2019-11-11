@@ -131,7 +131,14 @@ TEST_F(VanDriestEddyViscosityTest, ValueSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     VanDriestEddyViscosity eddy = VanDriestEddyViscosity(0.4, 18);
     
     scalarList y(2, 0.01);

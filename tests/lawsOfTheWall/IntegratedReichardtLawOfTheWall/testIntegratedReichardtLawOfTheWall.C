@@ -177,7 +177,14 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, ValueSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     IntegratedReichardtLawOfTheWall law =
         IntegratedReichardtLawOfTheWall(0.395, 11, 3, 7.8);
 
@@ -196,7 +203,14 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, DerivativeSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     IntegratedReichardtLawOfTheWall law =
         IntegratedReichardtLawOfTheWall(0.395, 11, 3, 7.8);
 

@@ -37,7 +37,7 @@ TEST_F(SampledVelocityTest, Clone)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     SampledVelocityField sampledField(patch);
 
-    tmp<SampledField> clone(sampledField.clone());
+    autoPtr<SampledField> clone(sampledField.clone());
 }
 
 
@@ -195,65 +195,6 @@ TEST_F(SampledVelocityTest, RegisterFieldsRead)
 
 
 TEST_F(SampledVelocityTest, Sample)
-{
-    extern argList * mainArgs;
-    const argList & args = *mainArgs;
-    Time runTime(Foam::Time::controlDictName, args);
-
-    autoPtr<fvMesh> meshPtr = createMesh(runTime);
-    const fvMesh & mesh = meshPtr();
-
-
-    const fvPatch & patch = mesh.boundary()["bottomWall"];
-    createWallModelSubregistry(mesh, patch);
-
-    SampledVelocityField sampledField(patch);
-
-
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    std::uniform_int_distribution<int> uni(0, mesh.C().size() - 1);
-
-    labelList indexList(patch.size());
-
-    // fill index list with random valid cell ids
-    forAll(indexList, i)
-    {
-        indexList[i] = uni(rng);
-    }
-
-    createVelocityField(mesh);
-    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
-
-    // Init U to something varying and easily to test
-    U.primitiveFieldRef() = mesh.C();
-
-    scalarListList sampledValues(patch.size());
-
-    sampledField.sample(sampledValues, indexList);
-
-    forAll(sampledValues, i)
-    {
-        forAll(sampledValues[i], j)
-        {
-            if (j == 1)
-            {
-                ASSERT_EQ(sampledValues[i][j], 0);
-            }
-            else
-            {
-                ASSERT_EQ
-                (
-                    sampledValues[i][j],
-                    U[indexList[i]][j]
-                );
-            }
-        }
-    }
-
-}
-
-TEST_F(SampledVelocityTest, SampleInterpolate)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;

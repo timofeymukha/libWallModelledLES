@@ -133,7 +133,14 @@ TEST_F(DupratEddyViscosityTest, AddFieldsToSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
 
     DupratEddyViscosity eddy = DupratEddyViscosity(0.4, 18, 0.78);
     eddy.addFieldsToSampler(sampler);
@@ -169,7 +176,14 @@ TEST_F(DupratEddyViscosityTest, ValueSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     DupratEddyViscosity eddy = DupratEddyViscosity(0.4, 18, 0.78);
     eddy.addFieldsToSampler(sampler);
 

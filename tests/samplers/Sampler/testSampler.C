@@ -19,20 +19,29 @@ namespace Foam
             DummySampler
             (
                 const fvPatch& p,
-                scalar averagingTime
+                scalar averagingTime,
+                const word interpolationType,
+                const word cellFinderType,
+                bool hIsIndex
+
             )
             :
-                Sampler(p, averagingTime)
+                Sampler(p, averagingTime, interpolationType, cellFinderType,
+                        hIsIndex)
             {}
 
             DummySampler
             (
                 const word & samplerName,
                 const fvPatch & p,
-                scalar averagingTime
+                scalar averagingTime,
+                const word interpolationType,
+                const word cellFinderType,
+                bool hIsIndex
             )
             :
-                Sampler(samplerName, p, averagingTime)
+                Sampler(p, averagingTime, interpolationType, cellFinderType,
+                        hIsIndex)
             {}
             
             DummySampler(const DummySampler &) = default;
@@ -47,20 +56,10 @@ namespace Foam
             virtual ~DummySampler()
             {}
 
-            tmp<volScalarField> wrapDistanceField() const
-            {
-                return Sampler::distanceField();
-            }
-
-            tmp<labelField> wrapFindSearchCellLabels() const
-            {
-                return Sampler::findSearchCellLabels();
-            }
-            
     };
 
     defineTypeNameAndDebug(DummySampler, 0);
-    addToRunTimeSelectionTable(Sampler, DummySampler, PatchAndAveragingTime);
+    addToRunTimeSelectionTable(Sampler, DummySampler, SamplerRTSTable);
 }
 
 class SamplerTest : public ChannelFlow
@@ -77,10 +76,21 @@ TEST_F(SamplerTest, FullConstructor)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    DummySampler sampler("SingleCellSampler", patch, 3.0);
+    DummySampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
 
     ASSERT_EQ(&sampler.Sampler::patch(), &patch);
     ASSERT_EQ(sampler.Sampler::averagingTime(), 3.0);
+    ASSERT_EQ(sampler.Sampler::interpolationType(), "cell");
+    ASSERT_EQ(sampler.Sampler::cellFinderType(), "crawling");
+    ASSERT_EQ(sampler.Sampler::hIsIndex(), false);
     ASSERT_EQ(&sampler.Sampler::mesh(), &mesh);
     ASSERT_EQ(sampler.Sampler::nSampledFields(), 0);
     ASSERT_TRUE(mesh.foundObject<objectRegistry>("wallModelSampling"));
@@ -102,11 +112,25 @@ TEST_F(SamplerTest, NewNamePatchAveragingTime)
 
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    autoPtr<Sampler> sampler(Sampler::New("DummySampler", patch, 3.0));
+    autoPtr<Sampler> sampler
+    (
+        Sampler::New
+        (
+            "DummySampler",
+            patch,
+            3.0,
+            "cell",
+            "crawling",
+            false
+        )
+    );
 
     ASSERT_EQ(sampler().type(), word("DummySampler"));
     ASSERT_EQ(&sampler().Sampler::patch(), &patch);
     ASSERT_EQ(sampler().Sampler::averagingTime(), 3.0);
+    ASSERT_EQ(sampler().Sampler::interpolationType(), "cell");
+    ASSERT_EQ(sampler().Sampler::cellFinderType(), "crawling");
+    ASSERT_EQ(sampler().Sampler::hIsIndex(), false);
     ASSERT_EQ(&sampler().Sampler::mesh(), &mesh);
     ASSERT_EQ(sampler().Sampler::nSampledFields(), 0);
     ASSERT_TRUE(mesh.foundObject<objectRegistry>("wallModelSampling"));
@@ -129,6 +153,9 @@ TEST_F(SamplerTest, NewDictionaryPatch)
     dictionary dict = dictionary();
     dict.lookupOrAddDefault(word("averagingTime"), 3.0);
     dict.lookupOrAddDefault(word("type"), word("DummySampler"));
+    dict.lookupOrAddDefault(word("interpolationType"), word("cell"));
+    dict.lookupOrAddDefault(word("cellFinderType"), word("crawling"));
+    dict.lookupOrAddDefault(word("hIsIndex"), false);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     autoPtr<Sampler> sampler(Sampler::New(dict, patch));
@@ -136,6 +163,9 @@ TEST_F(SamplerTest, NewDictionaryPatch)
     ASSERT_EQ(sampler().type(), word("DummySampler"));
     ASSERT_EQ(&sampler().Sampler::patch(), &patch);
     ASSERT_EQ(sampler().Sampler::averagingTime(), 3.0);
+    ASSERT_EQ(sampler().Sampler::interpolationType(), "cell");
+    ASSERT_EQ(sampler().Sampler::cellFinderType(), "crawling");
+    ASSERT_EQ(sampler().Sampler::hIsIndex(), false);
     ASSERT_EQ(&sampler().Sampler::mesh(), &mesh);
     ASSERT_EQ(sampler().Sampler::nSampledFields(), 0);
     ASSERT_TRUE(mesh.foundObject<objectRegistry>("wallModelSampling"));
@@ -156,7 +186,15 @@ TEST_F(SamplerTest, CreateFields)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    DummySampler sampler("SingleCellSampler", patch, 3.0);
+    DummySampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
 
     ASSERT_TRUE(mesh.foundObject<volScalarField>("samplingCells"));
 }
@@ -172,7 +210,15 @@ TEST_F(SamplerTest, Copy)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    DummySampler sampler("SingleCellSampler", patch, 3.0);
+    DummySampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     sampler.addField(new SampledVelocityField(patch));
 
     DummySampler sampler2(sampler);
@@ -180,6 +226,9 @@ TEST_F(SamplerTest, Copy)
     ASSERT_EQ(sampler.type(), sampler2.type());
     ASSERT_EQ(&sampler.patch(), &sampler2.patch());
     ASSERT_EQ(sampler.averagingTime(), sampler2.averagingTime());
+    ASSERT_EQ(sampler.interpolationType(), sampler2.interpolationType());
+    ASSERT_EQ(sampler.cellFinderType(), sampler2.cellFinderType());
+    ASSERT_EQ(sampler.hIsIndex(), sampler2.hIsIndex());
     ASSERT_EQ(&sampler.mesh(), &sampler2.mesh());
     ASSERT_EQ(sampler.nSampledFields(), sampler2.nSampledFields());
 }
@@ -216,109 +265,117 @@ TEST_F(SamplerTest, AddField)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    DummySampler sampler("SingleCellSampler", patch, 3.0);
+    DummySampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     
     sampler.addField(new SampledVelocityField(patch));
     ASSERT_EQ(sampler.Sampler::nSampledFields(), 1);
 }
 
 
-TEST_F(SamplerTest, DistanceFieldBottom)
-{
-    extern argList * mainArgs;
-    argList & args = *mainArgs;
-    Time runTime(Foam::Time::controlDictName, args);
-    autoPtr<fvMesh> meshPtr = createMesh(runTime);
-    const fvMesh & mesh = meshPtr();
-    createSamplingHeightField(mesh);
+// TEST_F(SamplerTest, DistanceFieldBottom)
+// {
+//     extern argList * mainArgs;
+//     argList & args = *mainArgs;
+//     Time runTime(Foam::Time::controlDictName, args);
+//     autoPtr<fvMesh> meshPtr = createMesh(runTime);
+//     const fvMesh & mesh = meshPtr();
+//     createSamplingHeightField(mesh);
 
 
-    const fvPatch & patch = mesh.boundary()["bottomWall"];
-    DummySampler sampler("SingleCellSampler", patch, 3.0);
+//     const fvPatch & patch = mesh.boundary()["bottomWall"];
+//     DummySampler sampler("SingleCellSampler", patch, 3.0);
 
-    tmp<volScalarField> tDist = sampler.wrapDistanceField();
-    const volScalarField & dist = tDist();
+//     tmp<volScalarField> tDist = sampler.wrapDistanceField();
+//     const volScalarField & dist = tDist();
 
-    const vectorField C = mesh.C();
+//     const vectorField C = mesh.C();
     
-    forAll (C, i)
-    {
-        ASSERT_NEAR(dist[i], C[i][1], 1e-8);
-    }
-}
+//     forAll (C, i)
+//     {
+//         ASSERT_NEAR(dist[i], C[i][1], 1e-8);
+//     }
+// }
 
-TEST_F(SamplerTest, DistanceFieldTop)
-{
-    extern argList * mainArgs;
-    argList & args = *mainArgs;
-    Time runTime(Foam::Time::controlDictName, args);
-    autoPtr<fvMesh> meshPtr = createMesh(runTime);
-    const fvMesh & mesh = meshPtr();
-    createSamplingHeightField(mesh);
+// TEST_F(SamplerTest, DistanceFieldTop)
+// {
+//     extern argList * mainArgs;
+//     argList & args = *mainArgs;
+//     Time runTime(Foam::Time::controlDictName, args);
+//     autoPtr<fvMesh> meshPtr = createMesh(runTime);
+//     const fvMesh & mesh = meshPtr();
+//     createSamplingHeightField(mesh);
 
 
-    const fvPatch & patch = mesh.boundary()["topWall"];
-    DummySampler sampler("SingleCellSampler", patch, 3.0);
+//     const fvPatch & patch = mesh.boundary()["topWall"];
+//     DummySampler sampler("SingleCellSampler", patch, 3.0);
 
-    tmp<volScalarField> tDist = sampler.wrapDistanceField();
-    const volScalarField & dist = tDist();
+//     tmp<volScalarField> tDist = sampler.wrapDistanceField();
+//     const volScalarField & dist = tDist();
 
-    const vectorField C = mesh.C();
+//     const vectorField C = mesh.C();
     
-    forAll (C, i)
-    {
-        ASSERT_NEAR(dist[i], 2 - C[i][1], 1e-8);
-    }
-}
+//     forAll (C, i)
+//     {
+//         ASSERT_NEAR(dist[i], 2 - C[i][1], 1e-8);
+//     }
+// }
 
 
-TEST_F(SamplerTest, FindSearchCellLabels)
-{
-    extern argList * mainArgs;
-    argList & args = *mainArgs;
-    Time runTime(Foam::Time::controlDictName, args);
-    autoPtr<fvMesh> meshPtr = createMesh(runTime);
-    const fvMesh & mesh = meshPtr();
-    createSamplingHeightField(mesh);
-    volScalarField & h = 
-        const_cast<volScalarField &>(mesh.lookupObject<volScalarField> ("h"));
+// TEST_F(SamplerTest, FindSearchCellLabels)
+// {
+//     extern argList * mainArgs;
+//     argList & args = *mainArgs;
+//     Time runTime(Foam::Time::controlDictName, args);
+//     autoPtr<fvMesh> meshPtr = createMesh(runTime);
+//     const fvMesh & mesh = meshPtr();
+//     createSamplingHeightField(mesh);
+//     volScalarField & h = 
+//         const_cast<volScalarField &>(mesh.lookupObject<volScalarField> ("h"));
 
-    const fvPatch & patchBottom = mesh.boundary()["topWall"];
+//     const fvPatch & patchBottom = mesh.boundary()["topWall"];
 
-    h.boundaryFieldRef()[patchBottom.index()] == 0;
-    DummySampler samplerBottom("SingleCellSampler", patchBottom, 3.0);
-    tmp<labelField> tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
-    ASSERT_EQ(tCellLabelsBottom().size(), 0);
+//     h.boundaryFieldRef()[patchBottom.index()] == 0;
+//     DummySampler samplerBottom("SingleCellSampler", patchBottom, 3.0);
+//     tmp<labelField> tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
+//     ASSERT_EQ(tCellLabelsBottom().size(), 0);
 
-    h.boundaryFieldRef()[patchBottom.index()] == 0.1;
-    tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
-    ASSERT_EQ(tCellLabelsBottom().size(), 9);
+//     h.boundaryFieldRef()[patchBottom.index()] == 0.1;
+//     tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
+//     ASSERT_EQ(tCellLabelsBottom().size(), 9);
 
-    h.boundaryFieldRef()[patchBottom.index()] == 0.21;
-    tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
-    ASSERT_EQ(tCellLabelsBottom().size(), 18);
+//     h.boundaryFieldRef()[patchBottom.index()] == 0.21;
+//     tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
+//     ASSERT_EQ(tCellLabelsBottom().size(), 18);
 
-    h.boundaryFieldRef()[patchBottom.index()] == 1;
-    tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
-    ASSERT_EQ(tCellLabelsBottom().size(), 90);
+//     h.boundaryFieldRef()[patchBottom.index()] == 1;
+//     tCellLabelsBottom = samplerBottom.wrapFindSearchCellLabels();
+//     ASSERT_EQ(tCellLabelsBottom().size(), 90);
 
-    const fvPatch & patchTop = mesh.boundary()["topWall"];
+//     const fvPatch & patchTop = mesh.boundary()["topWall"];
 
-    h.boundaryFieldRef()[patchTop.index()] == 0;
-    DummySampler samplerTop("SingleCellSampler", patchTop, 3.0);
-    tmp<labelField> tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
-    ASSERT_EQ(tCellLabelsTop().size(), 0) << "h = 0";
+//     h.boundaryFieldRef()[patchTop.index()] == 0;
+//     DummySampler samplerTop("SingleCellSampler", patchTop, 3.0);
+//     tmp<labelField> tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
+//     ASSERT_EQ(tCellLabelsTop().size(), 0) << "h = 0";
 
-    h.boundaryFieldRef()[patchTop.index()] == 0.1;
-    tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
-    ASSERT_EQ(tCellLabelsTop().size(), 9) << "h = 0.1";
+//     h.boundaryFieldRef()[patchTop.index()] == 0.1;
+//     tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
+//     ASSERT_EQ(tCellLabelsTop().size(), 9) << "h = 0.1";
 
-    h.boundaryFieldRef()[patchTop.index()] == 0.21;
-    tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
-    ASSERT_EQ(tCellLabelsTop().size(), 18) << "h = 0.21";
+//     h.boundaryFieldRef()[patchTop.index()] == 0.21;
+//     tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
+//     ASSERT_EQ(tCellLabelsTop().size(), 18) << "h = 0.21";
 
-    h.boundaryFieldRef()[patchTop.index()] == 1;
-    tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
-    ASSERT_EQ(tCellLabelsTop().size(), 90) << "h = 1";
+//     h.boundaryFieldRef()[patchTop.index()] == 1;
+//     tCellLabelsTop = samplerTop.wrapFindSearchCellLabels();
+//     ASSERT_EQ(tCellLabelsTop().size(), 90) << "h = 1";
     
-}
+// }

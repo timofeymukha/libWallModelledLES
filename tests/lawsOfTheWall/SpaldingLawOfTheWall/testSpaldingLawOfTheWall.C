@@ -134,7 +134,15 @@ TEST_F(SpaldingLawOfTheWallTest, ValueSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     SpaldingLawOfTheWall law = SpaldingLawOfTheWall(0.4, 5.5);
 
     scalar value = law.value(sampler, 5, 0.04, 8e-6);
@@ -152,7 +160,15 @@ TEST_F(SpaldingLawOfTheWallTest, DerivativeSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     SpaldingLawOfTheWall law = SpaldingLawOfTheWall(0.4, 5.5);
 
     scalar derivative = law.derivative(sampler, 5, 0.04, 8e-6);

@@ -133,7 +133,14 @@ TEST_F(WernerWengleLawOfTheWallTest, ValueSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     WernerWengleLawOfTheWall law = WernerWengleLawOfTheWall(8.3, 1./7);
 
     scalar value = law.value(sampler, 5, 0.04, 8e-6);
@@ -151,7 +158,14 @@ TEST_F(WernerWengleLawOfTheWallTest, DerivativeSampler)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SingleCellSampler sampler("SingleCellSampler", patch, 3.0);
+    SingleCellSampler sampler
+    (
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        false
+    );
     WernerWengleLawOfTheWall law = WernerWengleLawOfTheWall(8.3, 1./7);
 
     scalar derivative = law.derivative(sampler, 5, 0.04, 8e-6);

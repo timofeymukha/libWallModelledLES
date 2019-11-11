@@ -4,7 +4,6 @@
 #include "SampledWallGradUField.H"
 #undef Log
 #include "gtest.h"
-#include "gmock/gmock.h"
 #include "fixtures.H"
 #include <random>
 
@@ -19,6 +18,7 @@ TEST_F(SampledWallGradUTest, Constructor)
 
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     SampledWallGradUField sampledField(patch);
@@ -33,11 +33,12 @@ TEST_F(SampledWallGradUTest, Clone)
 
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     SampledWallGradUField sampledField(patch);
 
-    tmp<SampledField> clone(sampledField.clone());
+    autoPtr<SampledField> clone(sampledField.clone());
 }
 
 
@@ -48,6 +49,7 @@ TEST_F(SampledWallGradUTest, NDims)
     Time runTime(Foam::Time::controlDictName, args);
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     SampledWallGradUField sampledField(patch);
@@ -64,6 +66,7 @@ TEST_F(SampledWallGradUTest, Name)
 
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     SampledWallGradUField sampledField(patch);

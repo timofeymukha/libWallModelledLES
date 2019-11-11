@@ -130,7 +130,7 @@ public:
         //- Recompute the field
         void recompute() const override;
 
-        //- Set interpolator. Redunant, no interpolation for this field.
+        //- Set interpolator. Redundant, no interpolation for this field.
         void setInterpolator(const word interpolationType) override
         {}
 
