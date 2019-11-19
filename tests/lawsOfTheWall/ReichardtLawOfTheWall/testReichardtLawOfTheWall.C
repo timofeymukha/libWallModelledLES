@@ -171,10 +171,7 @@ TEST_F(ReichardtLawOfTheWallTest, ValueSampler)
     (
         "SingleCellSampler",
         patch,
-        3.0,
-        "cell",
-        "crawling",
-        false
+        3.0
     );
     ReichardtLawOfTheWall law = ReichardtLawOfTheWall(0.395, 11, 3, 7.8);
 
@@ -197,10 +194,7 @@ TEST_F(ReichardtLawOfTheWallTest, DerivativeSampler)
     (
         "SingleCellSampler",
         patch,
-        3.0,
-        "cell",
-        "crawling",
-        false
+        3.0
     );
     ReichardtLawOfTheWall law = ReichardtLawOfTheWall(0.395, 11, 3, 7.8);
 

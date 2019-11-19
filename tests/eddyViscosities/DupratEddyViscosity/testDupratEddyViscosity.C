@@ -138,7 +138,7 @@ TEST_F(DupratEddyViscosityTest, AddFieldsToSampler)
         patch,
         3.0,
         "cell",
-        "crawling",
+        "Tree",
         false
     );
 
@@ -179,10 +179,7 @@ TEST_F(DupratEddyViscosityTest, ValueSampler)
     SingleCellSampler sampler
     (
         patch,
-        3.0,
-        "cell",
-        "crawling",
-        false
+        3.0
     );
     DupratEddyViscosity eddy = DupratEddyViscosity(0.4, 18, 0.78);
     eddy.addFieldsToSampler(sampler);

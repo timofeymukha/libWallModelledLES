@@ -136,7 +136,7 @@ TEST_F(VanDriestEddyViscosityTest, ValueSampler)
         patch,
         3.0,
         "cell",
-        "crawling",
+        "Tree",
         false
     );
     VanDriestEddyViscosity eddy = VanDriestEddyViscosity(0.4, 18);

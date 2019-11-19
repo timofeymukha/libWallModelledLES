@@ -145,10 +145,7 @@ TEST_F(IntegratedWernerWengleLawOfTheWallTest, ValueSampler)
     SingleCellSampler sampler
     (
         patch,
-        3.0,
-        "cell",
-        "crawling",
-        false
+        3.0
     );
     IntegratedWernerWengleLawOfTheWall law =
         IntegratedWernerWengleLawOfTheWall(8.3, 1./7);
@@ -171,10 +168,7 @@ TEST_F(IntegratedWernerWengleLawOfTheWallTest, DerivativeSampler)
     SingleCellSampler sampler
     (
         patch,
-        3.0,
-        "cell",
-        "crawling",
-        false
+        3.0
     );
     IntegratedWernerWengleLawOfTheWall law = 
         IntegratedWernerWengleLawOfTheWall(8.3, 1./7);

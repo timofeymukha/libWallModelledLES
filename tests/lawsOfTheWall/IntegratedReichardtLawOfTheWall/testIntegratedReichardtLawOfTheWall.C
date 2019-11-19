@@ -180,10 +180,7 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, ValueSampler)
     SingleCellSampler sampler
     (
         patch,
-        3.0,
-        "cell",
-        "crawling",
-        false
+        3.0
     );
     IntegratedReichardtLawOfTheWall law =
         IntegratedReichardtLawOfTheWall(0.395, 11, 3, 7.8);
@@ -208,7 +205,7 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, DerivativeSampler)
         patch,
         3.0,
         "cell",
-        "crawling",
+        "Tree",
         false
     );
     IntegratedReichardtLawOfTheWall law =

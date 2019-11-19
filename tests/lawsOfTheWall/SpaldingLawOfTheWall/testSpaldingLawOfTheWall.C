@@ -138,10 +138,7 @@ TEST_F(SpaldingLawOfTheWallTest, ValueSampler)
     (
         "SingleCellSampler",
         patch,
-        3.0,
-        "cell",
-        "crawling",
-        false
+        3.0
     );
     SpaldingLawOfTheWall law = SpaldingLawOfTheWall(0.4, 5.5);
 
@@ -164,10 +161,7 @@ TEST_F(SpaldingLawOfTheWallTest, DerivativeSampler)
     (
         "SingleCellSampler",
         patch,
-        3.0,
-        "cell",
-        "crawling",
-        false
+        3.0
     );
     SpaldingLawOfTheWall law = SpaldingLawOfTheWall(0.4, 5.5);
 
