@@ -217,7 +217,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     (
         dict.lookupOrDefault<bool>("copyToPatchInternalField", false)
     ),
-    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 2))
+    averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0))
 {
     if (debug)
     {
