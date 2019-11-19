@@ -84,9 +84,9 @@ public:
         (
             const fvPatch&,
             scalar averagingTime,
-            const word interpolationType,
-            const word cellFinderType,
-            bool hIsIndex
+            const word interpolationType="cell",
+            const word cellFinderType="Tree",
+            bool hIsIndex=false
         );
 
         //- Construct from type, patch and averaging time
@@ -95,9 +95,9 @@ public:
             const word & samplerName,
             const fvPatch & p,
             scalar averagingTime,
-            const word interpolationType,
-            const word cellFinderType,
-            bool hIsIndex
+            const word interpolationType="cell",
+            const word cellFinderType="Tree",
+            bool hIsIndex=false
         );
         
         SingleCellSampler(const SingleCellSampler &) = default;

@@ -29,7 +29,6 @@ boundaryField
   //       value            uniform 0;  //redundant
   //
          copyToPatchInternalField 1;
-         sampler     MultiCellSampler;
          RootFinder
          {
              type    Newton;
@@ -42,8 +41,13 @@ boundaryField
             kappa   0.4;
             B       5.5;
        }
-      
-         cellFinderType Crawling;
+
+       cellFinderType Tree;
+       interpolationType cellPointFace;
+       hIsIndex false;
+
+       
+
           
 /* * * * * * * * * Equilibrion ODE wall model * * * * * * */                  
   //     type   PGradODEWallModel;

@@ -58,15 +58,42 @@ void Foam::SingleCellSampler::createIndexList()
     
     scalarField hPatch = h.boundaryField()[patchIndex];
 
-    if (cellFinderType() == word("crawling"))
+    if (hIsIndex_ && interpolationType_ != "cell")
+    {
+        Warning
+            << "SingleCellSampler: hIsIndex is set to true, there is no sense "
+            << "to interpolate within the cell." << nl
+            << "Will fall back to the 'cell' interpolation type, i.e. use the "
+            << "cell-centred values."
+            << nl;
+
+        interpolationType_ = "cell";
+    }
+
+    if (cellFinderType() == "Crawling")
     {
         CrawlingCellFinder cellFinder(patch());
         cellFinder.findCellIndices(indexList_, hPatch, hIsIndex_);
     }
-    else if (cellFinderType() == word("tree"))
+    else if (cellFinderType() == word("Tree"))
     {
+        if (hIsIndex_)
+        {
+            FatalErrorInFunction
+                << "SingleCellSampler: hIsIndex is not supported by the Tree "
+                << "sampler. Please use the Crawling sampler or provide h as "
+                << "distances."
+                <<  abort(FatalError);
+        }
         TreeCellFinder cellFinder(patch());
         cellFinder.findCellIndices(indexList_, hPatch);
+    }
+    else
+    {
+        FatalErrorInFunction
+            << "SingleCellSampler: cellFinderType should be either Tree or "
+            << "Crawling. Current input is " << cellFinderType()
+            <<  abort(FatalError);
     }
 
 
