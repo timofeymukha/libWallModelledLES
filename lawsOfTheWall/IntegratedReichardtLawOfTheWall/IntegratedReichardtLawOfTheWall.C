@@ -182,6 +182,41 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::derivative
 }
 
 
+Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
+(
+ 
+    const MultiCellSampler & sampler,
+    label index,
+    scalar uTau,
+    scalar nu
+) const
+{
+
+    const scalarListList U = sampler.db().lookupObject<scalarListListIOList>("U")[index];
+    const scalarList lengthList = sampler.lengthList()[index];
+    const scalarList h = sampler.h()[index]; 
+
+
+    // The integrated value of U from h1 to h2
+    scalar integratedU = 0;
+
+
+    forAll (lengthList, i)
+    {
+        const scalar h1 = mag(h[i] - lengthList[i]/2);
+        const scalar h2 = h[i] + lengthList[i]/2; 
+        const scalar u = mag(vector(U[i][0], U[i][1], U[i][2]));
+        integratedU += (h2 - h1)*u;
+    }
+
+    const scalar h1 = h[0] - lengthList[0]/2;
+    const scalar h2 =  h[h.size()] + lengthList[h.size()]/2;
+    return integratedU - (logTerm(h2, uTau, nu) - logTerm(h1, uTau, nu) +
+                          expTerm(h2, uTau, nu) - expTerm(h1, uTau, nu));
+
+}
+
+
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::logTerm
 (
     scalar y,

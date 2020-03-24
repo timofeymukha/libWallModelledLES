@@ -62,11 +62,14 @@ SourceFiles
 #include "typeInfo.H"
 #include "dictionary.H"
 #include "LawOfTheWall.H"
+#include "MultiCellSampler.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+
+
 
 /*---------------------------------------------------------------------------*\
                     Class IntegratedReichardtLawOfTheWall Declaration
@@ -206,6 +209,15 @@ public:
         (
             scalar h1,
             scalar h2,
+            scalar uTau,
+            scalar nu
+        ) const;
+
+        //- Return the value of the implicit function defining the law
+        virtual scalar value
+        (
+            const MultiCellSampler & sampler,
+            label index,
             scalar uTau,
             scalar nu
         ) const;
