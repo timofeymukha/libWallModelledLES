@@ -196,26 +196,30 @@ void Foam::TreeCellFinder::findCellIndices
 #else
             boundaryTreePtr->getVolumeType(point) == volumeType::INSIDE;
 #endif
-        if ((h[i] <= 0) || (!inside) || (treePtr->nodes().empty()))
+
+        if ( (h[i] == 0) || (treePtr->nodes().empty()) )
         {
-            if (h[i] < 0)
-            {
-                Warning
-                    << "TreeCellFinder: " << h[i]
-                    << " is negative and thus not a valid distance. "
-                    << "Will fall back to wall-adjacent cell for face "
-                    <<  i << " on patch " << patch().name() << nl;
-            }
-            else if (!inside)
-            {
-                Warning
-                    << "TreeCellFinder: the point " << h[i]
-                    << " away from the wall is outside the domain. "
-                    << "Will fall back to wall-adjacent cell for face "
-                    <<  i << " on patch " << patch().name() << nl;
-            }
+            continue;
             indexList[i] = faceCells[i];
         }
+        else if (h[i] < 0)
+        {
+            Warning
+                << "TreeCellFinder: " << h[i]
+                << " is negative and thus not a valid distance. "
+                << "Will fall back to wall-adjacent cell for face "
+                <<  i << " on patch " << patch().name() << nl;
+                indexList[i] = faceCells[i];
+        }
+        else if (!inside)
+        {
+            Warning
+                << "TreeCellFinder: the point " << h[i]
+                << " away from the wall is outside the domain. "
+                << "Will fall back to wall-adjacent cell for face "
+                <<  i << " on patch " << patch().name() << nl;
+                indexList[i] = faceCells[i];
+        }    
         else
         {
 
