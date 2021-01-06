@@ -95,6 +95,13 @@ public:
             const bool hIsIndex
         ) const;
 
+        void findCellIndices
+        (
+            labelListList & indexList,
+            const scalarField & h,
+            const bool hIsIndex
+        ) const;
+
 };
 
 

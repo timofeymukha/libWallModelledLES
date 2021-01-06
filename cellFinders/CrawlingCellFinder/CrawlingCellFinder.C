@@ -148,7 +148,6 @@ void Foam::CrawlingCellFinder::findCellIndices
         }
 
 
-        point patchFaceCenterI = patchFaceCentres[patchFaceI];
         label startCellIndex = faceCells[patchFaceI];
         cell startCell = cells[startCellIndex];
         label startFaceLabel = patchStart + patchFaceI;
@@ -237,6 +236,185 @@ void Foam::CrawlingCellFinder::findCellIndices
         }
 
         indexList[patchFaceI] = startCellIndex;
+    }
+}
+
+
+void Foam::CrawlingCellFinder::findCellIndices
+(
+    labelListList & indexList,
+    const scalarField & h,
+    const bool hIsIndex
+) const
+{
+    const labelList & owner = mesh_.faceOwner();
+    const labelList & neighbour = mesh_.faceNeighbour();
+    const vectorField & faceCentres = mesh().Cf().primitiveField();
+    const List<cell> & cells = mesh().cells();
+
+    const vectorField & patchFaceCentres = patch().Cf();
+    const tmp<vectorField> tfaceNormals = patch().nf();
+    const vectorField faceNormals = tfaceNormals();
+    const tmp<vectorField> tcellCentres = patch().Cn();
+    const vectorField cellCentres = tcellCentres();
+    const volVectorField & C = mesh_.C();
+    const UList<label> & faceCells = patch().faceCells();
+    const List<face> & faces = mesh().faces();
+    const label patchStart = patch().start();
+    const polyBoundaryMesh & boundaryMesh = mesh().boundaryMesh();
+
+    if (hIsIndex)
+    {
+        Info<< "CrawlingCellFinder: Treating h as indices!" << nl;
+    }
+    else
+    {
+        Info<< "CrawlingCellFinder: Treating h as distances!" << nl;
+    }
+
+    forAll(patch(), patchFaceI)
+    {
+
+        label nLayers = 0;
+
+        if (hIsIndex)
+        {
+            nLayers = std::round(h[patchFaceI]);
+            if (nLayers < 1)
+            {
+                Warning
+                    << "CrawlingCellFinder: Could not round "
+                    << h[patchFaceI] << " to a valid cell layer index. "
+                    << "Will fall back to wall-adjacent cell for face "
+                    <<  patchFaceI << " on patch " << patch().name() << nl;
+                indexList[patchFaceI].setSize(1, faceCells[patchFaceI]);
+                continue;
+            }
+            else if (nLayers == 1)
+            {
+                indexList[patchFaceI].setSize(1, faceCells[patchFaceI]);
+                continue;
+            }
+        }
+        else
+        {
+            if (h[patchFaceI] < 0)
+            {
+                Warning
+                    << "CrawlingCellFinder: " << h[patchFaceI]
+                    << " is negative and thus not a valid distance. "
+                    << "Will fall back to wall-adjacent cell for face "
+                    <<  patchFaceI << " on patch " << patch().name() << nl;
+                indexList[patchFaceI].setSize(1, faceCells[patchFaceI]);
+                continue;
+            }
+            else if (h[patchFaceI] == 0)
+            {
+                indexList[patchFaceI].setSize(1, faceCells[patchFaceI]);
+                continue;
+            }
+
+            nLayers = 1000; // arbitrary big number
+        }
+        indexList[patchFaceI].setSize(nLayers, -1);
+
+        label startCellIndex = faceCells[patchFaceI];
+        cell startCell = cells[startCellIndex];
+        label startFaceLabel = patchStart + patchFaceI;
+        label nextCellIndex = -1;
+
+        label layerCounter = 0;
+
+        for (label layer=0; layer < nLayers-1; layer++)
+        {
+            layerCounter++;
+
+            label opposingFace = 
+                startCell.opposingFaceLabel(startFaceLabel, faces);
+
+            if (opposingFace == -1)
+            {
+                Warning
+                    << "CrawlingCellFinder: Could not find opposing face"
+                    << "for cell " << startCellIndex << " with cell center "
+                    << C[startCellIndex] << " and face " << startFaceLabel << nl
+                    << "Will stop crawling and use the last valid cell " 
+                    << "corresponding to index " << layer + 1
+                    << nl;
+                
+                indexList[patchFaceI].setSize(1, faceCells[patchFaceI]);
+                continue;
+                break;
+            }
+            else if (opposingFace > mesh().nInternalFaces())
+            {
+                label opposingPatchInd = boundaryMesh.whichPatch(opposingFace);
+                const fvPatch & opposingPatch =
+                    mesh().boundary()[opposingPatchInd];
+                word opposingPatchName = opposingPatch.name();
+                label opposingFaceLocalInd =
+                    opposingPatch.patch().whichFace(opposingFace);
+                vector opposingFaceCentre =
+                    opposingPatch.Cf()[opposingFaceLocalInd];
+
+                scalar distance =
+                    mag(opposingFaceCentre - patchFaceCentres[patchFaceI]);
+
+                if ((!hIsIndex) && (distance > h[patchFaceI]))
+                {
+                    indexList[patchFaceI][layer] = startCellIndex;
+                    continue;
+                }
+
+                // Recompute as the actual distance that will be used
+                // due to abortion in crawling
+                distance =
+                    mag(C[startCellIndex] - patchFaceCentres[patchFaceI]);
+
+                Warning
+                    << "CrawlingCellFinder: The opposing face for cell "
+                    << startCellIndex << " with cell center "
+                    << C[startCellIndex] << " and face " << startFaceLabel
+                    << " belongs to patch " << opposingPatchName << nl 
+                    << "Will stop crawling and use the last valid cell " 
+                    << "corresponding to index " << layer + 1
+                    << " and distance " << distance
+                    << nl;
+
+                indexList[patchFaceI][layer] = startCellIndex;
+                break;
+            }
+
+            scalar distance =
+                mag(faceCentres[opposingFace] - patchFaceCentres[patchFaceI]);
+
+            // if the opposing face is above h, stop and grab the cell
+            if ((!hIsIndex) && (distance > h[patchFaceI]))
+            {
+                indexList[patchFaceI][layer] = startCellIndex;
+                continue;
+            }
+
+            if (owner[opposingFace] == startCellIndex)
+            {
+                nextCellIndex = neighbour[opposingFace];
+            }
+            else
+            {
+                nextCellIndex = owner[opposingFace];
+            }
+
+            startFaceLabel = opposingFace;
+            startCellIndex = nextCellIndex;
+            startCell = cells[startCellIndex];
+        }
+
+        indexList[patchFaceI] = startCellIndex;
+
+        if (!hIsIndex)
+        {
+            indexList.setSize(layerCounter);
+        }
     }
 }
 
