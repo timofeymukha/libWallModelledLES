@@ -443,3 +443,54 @@ TEST_F(CrawlingCellFinderTest, FindDistanceTooLargeDistance)
         ASSERT_FLOAT_EQ(C[indexList[i]][1], 1.9);
     }
 }
+
+
+TEST_F(CrawlingCellFinderTest, MulticellFindIndexBasedBottomWall)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+    const volVectorField & C = mesh.C();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    CrawlingCellFinder finder(patch);
+    labelListList indexList(patch.size());
+
+    h.boundaryFieldRef()[patch.index()] == 1;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        true
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 1);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+    }
+
+    h.boundaryFieldRef()[patch.index()] == 2;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        true
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 2);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+        ASSERT_FLOAT_EQ(C[indexList[i][1]][1], 0.3);
+    }
+}

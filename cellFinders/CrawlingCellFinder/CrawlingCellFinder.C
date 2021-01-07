@@ -329,6 +329,8 @@ void Foam::CrawlingCellFinder::findCellIndices
         {
             layerCounter++;
 
+            indexList[patchFaceI][layer] = startCellIndex;
+
             label opposingFace = 
                 startCell.opposingFaceLabel(startFaceLabel, faces);
 
@@ -409,7 +411,7 @@ void Foam::CrawlingCellFinder::findCellIndices
             startCell = cells[startCellIndex];
         }
 
-        indexList[patchFaceI] = startCellIndex;
+        indexList[patchFaceI][layerCounter] = startCellIndex;
 
         if (!hIsIndex)
         {

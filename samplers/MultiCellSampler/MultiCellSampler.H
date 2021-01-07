@@ -88,7 +88,7 @@ public:
             scalar averagingTime,
             const word interpolationType,
             const word cellFinderType,
-            bool hIsIndex
+            bool hIsIndex=false
         );
 
         //- Construct from type, patch and averaging time
@@ -99,7 +99,7 @@ public:
             scalar averagingTime,
             const word interpolationType,
             const word cellFinderType,
-            bool hIsIndex
+            bool hIsIndex=false
         );
         
         //- Copy constructor

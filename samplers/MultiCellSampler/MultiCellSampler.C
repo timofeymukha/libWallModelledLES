@@ -34,6 +34,7 @@ License
 #include "scalarListIOList.H"
 #include "scalarListListIOList.H"
 #include "TreeCellFinder.H"
+#include "CrawlingCellFinder.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -58,8 +59,25 @@ void Foam::MultiCellSampler::createIndexList()
 
     scalarField hPatch = hField.boundaryField()[patchIndex];
 
-    TreeCellFinder cellFinder(patch());
-    cellFinder.findCellIndices(indexList_, hPatch);
+    if (cellFinderType() == "Crawling")
+    {
+        CrawlingCellFinder cellFinder(patch());
+        cellFinder.findCellIndices(indexList_, hPatch, hIsIndex_);
+    }
+    else
+    {
+        if (hIsIndex_)
+        {
+            FatalErrorInFunction
+                << "SingleCellSampler: hIsIndex is not supported by the Tree "
+                << "sampler. Please use the Crawling sampler or provide h as "
+                << "distances."
+                <<  abort(FatalError);
+        }
+        TreeCellFinder cellFinder(patch());
+        cellFinder.findCellIndices(indexList_, hPatch);
+    }
+
 
     const vectorField & patchFaceCentres = patch().Cf();
     const volVectorField & C = mesh_.C();
