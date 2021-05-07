@@ -115,7 +115,7 @@ Foam::scalarList Foam::DupratEddyViscosity::value
     const scalar nu
 ) const
 {  
-    const scalarListList pGrad =
+    const scalarListList & pGrad =
         sampler.db().lookupObject<scalarListIOList>("pGrad");
 
     scalarList pGradI = pGrad[index];
