@@ -30,7 +30,8 @@ https://doi.org/10.1016/j.cpc.2019.01.016
 
 ## Compatibility ##
 
-The library compiles for versions 3.0.x to 7.x from the OpenFOAM Foundation, and versions 3.0+ to 1906 from OpenCFD. 
+The library compiles for versions 3.0.x to 7.x from the OpenFOAM Foundation, and versions 3.0+ to 1906 from OpenCFD.
+Later versions from OpenCFD are expected to work as well, however OpenFOAM 8 will currently not work due to fundamental changes in library structure.
 A special branch on the repository for version 2.3.1 is available but is now very outdated and will not be further supported.
 
 ## Installing ##
