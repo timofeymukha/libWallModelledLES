@@ -225,6 +225,8 @@ LOTWWallModelFvPatchScalarField
 }
 
 
+#ifdef FOAM_FVPATCHFIELD_NO_COPY
+#else
 Foam::LOTWWallModelFvPatchScalarField::
 LOTWWallModelFvPatchScalarField
 (
@@ -248,6 +250,7 @@ LOTWWallModelFvPatchScalarField
     }
     law_->addFieldsToSampler(sampler());
 }
+#endif
 
 
 Foam::LOTWWallModelFvPatchScalarField::

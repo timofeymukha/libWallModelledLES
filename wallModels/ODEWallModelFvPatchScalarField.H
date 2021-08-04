@@ -155,12 +155,15 @@ public:
             const DimensionedField<scalar, volMesh> &,
             const fvPatchFieldMapper &
         );
-
+        
+        #ifdef FOAM_FVPATCHFIELD_NO_COPY
+        #else
         //- Construct as copy
         ODEWallModelFvPatchScalarField
         (
             const ODEWallModelFvPatchScalarField &
         );
+        #endif
 
         //- Construct as copy setting internal field reference
         ODEWallModelFvPatchScalarField

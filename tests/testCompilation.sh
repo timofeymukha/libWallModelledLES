@@ -18,6 +18,16 @@ then
     docker start of_7
     docker exec -w $PWD/.. of_7 /bin/bash -c ". /opt/openfoam7/etc/bashrc && export FOAM_USER_LIBBIN=/home/timofey/OpenFOAM/timofey-7/platforms/linux64GccDPInt32Opt/lib && ./Allwclean && ./Allwmake"
 fi
+if [ $1 == "8.0" ]
+then
+    docker start of_8
+    docker exec -w $PWD/.. of_8 /bin/bash -c ". /opt/openfoam8/etc/bashrc && export FOAM_USER_LIBBIN=/home/timofey/OpenFOAM/timofey-7/platforms/linux64GccDPInt32Opt/lib && ./Allwclean && ./Allwmake"
+fi
+if [ $1 == "9.0" ]
+then
+    docker start of_9
+    docker exec -w $PWD/.. of_9 /bin/bash -c ". /opt/openfoam9/etc/bashrc && export FOAM_USER_LIBBIN=/home/timofey/OpenFOAM/timofey-7/platforms/linux64GccDPInt32Opt/lib && ./Allwclean && ./Allwmake"
+fi
 if [ $1 == "v30plus" ]
 then
     docker start of_v30plus

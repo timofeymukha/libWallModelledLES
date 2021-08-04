@@ -72,7 +72,7 @@ public:
         :
             SampledField(orig)
         {
-            if (orig.interpolator_.get() != nullptr)
+            if (orig.interpolator_.valid())
             {
                 setInterpolator(orig.interpolator_().type());
             }

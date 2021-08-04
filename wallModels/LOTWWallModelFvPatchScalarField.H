@@ -135,12 +135,15 @@ public:
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
-
+                
+        #ifdef FOAM_FVPATCHFIELD_NO_COPY
+        #else
         //- Construct as copy
         LOTWWallModelFvPatchScalarField
         (
             const LOTWWallModelFvPatchScalarField&
         );
+        #endif
 
         //- Construct and return a clone
         virtual tmp<fvPatchScalarField> clone() const

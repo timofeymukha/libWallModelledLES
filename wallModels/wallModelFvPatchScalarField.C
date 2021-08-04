@@ -233,6 +233,8 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 }
 
 
+#ifdef FOAM_FVPATCHFIELD_NO_COPY
+#else
 Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
     const wallModelFvPatchScalarField& orig 
@@ -251,6 +253,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 
     checkType();
 }
+#endif
 
 
 Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField

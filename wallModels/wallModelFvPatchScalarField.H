@@ -129,11 +129,14 @@ public:
             const fvPatchFieldMapper&
         );
 
+        #ifdef FOAM_FVPATCHFIELD_NO_COPY
+        #else
         //- Construct as copy
         wallModelFvPatchScalarField
         (
             const wallModelFvPatchScalarField&
         );
+        #endif
 
         //- Construct as copy setting internal field reference
         wallModelFvPatchScalarField

@@ -193,7 +193,7 @@ void Foam::SampledVelocityField::setInterpolator
     {
         const volVectorField & U =
             mesh().lookupObject<volVectorField>("U");
-        interpolator_.reset
+        interpolator_.operator=
         (
             interpolation<vector>::New(interpolationType, U)
         );

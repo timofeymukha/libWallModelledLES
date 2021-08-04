@@ -190,7 +190,7 @@ void Foam::SampledPGradField::setInterpolator
     {
         const volVectorField & pGrad =
             mesh().lookupObject<volVectorField>("pGrad");
-        interpolator_.reset
+        interpolator_.operator=
         (
             interpolation<vector>::New(interpolationType, pGrad)
         );

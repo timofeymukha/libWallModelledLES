@@ -31,7 +31,7 @@ Contributors/Copyright:
     2012-2018 Bernhard F.W. Gschaider <bgschaid@hfd-research.com>
     2015-2016 Bruno Santos <wyldckat@gmail.com>
     2016-2018 Mark Olesen <Mark.Olesen@esi-group.com>
-    2019      Timofey Mukha
+    2019-2021 Timofey Mukha
 
 \*---------------------------------------------------------------------------*/
 
@@ -161,6 +161,14 @@ Contributors/Copyright:
 
 #if (defined(FOAM_VERSION4WMLES_IS_ORG) && FOAM_VERSION4WMLES>=VERSION_NR(7,0,0))
 #define FOAM_NEW_WRITEENTRY
+#endif
+
+#if (defined(FOAM_VERSION4WMLES_IS_ORG) && FOAM_VERSION4WMLES>=VERSION_NR(8,0,0))
+#define FOAM_DOTORG_TURBULENCE
+#endif
+
+#if (defined(FOAM_VERSION4WMLES_IS_ORG) && FOAM_VERSION4WMLES>=VERSION_NR(9,0,0))
+#define FOAM_FVPATCHFIELD_NO_COPY
 #endif
 
 #endif

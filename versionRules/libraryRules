@@ -17,9 +17,6 @@ SOLIDTHERMO_LIB=-lbasicSolidThermo
 
 THERMOPHYSICALFUNCTIONS_LIB=-lthermophysicalFunctions
 
-RADIATION_LIB=-lradiationModels
-RADIATION_INC=-I$(LIB_SRC)/thermophysicalModels/radiationModels/lnInclude
-
 INCOMPRESSIBLE_TURB_INC=-I$(LIB_SRC)/turbulenceModels
 COMPRESSIBLE_TURB_INC=-I$(LIB_SRC)/turbulenceModels
 INCOMPRESSIBLE_TURB_LIB=-lincompressibleTurbulenceModel
@@ -58,7 +55,16 @@ ifdef OPENFOAM_COM
     FOAM_UNIFIEDTURBULENCE=yes
     NEEDS_FILTER_DROPIN=1
   endif
+  INCOMPRESSIBLE_TRANSPORT_INC=-I$(LIB_SRC)/transportModels/incompressible/lnInclude
 endif
+# -----------------------------------------------------------------------------
+
+ifdef OPENFOAM_ORG
+  ifeq "8" "$(word 1, $(sort 8 $(OPENFOAM_ORG)))"
+    FOAM_TURBULENCE_IS_NOW_MOMENTUM_TRANSPORT=yes
+  endif
+endif
+
 # -----------------------------------------------------------------------------
 
 ifeq "dev" "$(WM_PROJECT_VERSION)"
@@ -87,32 +93,17 @@ ifeq "$(FOAM_UNIFIEDTURBULENCE)" "yes"
   COMPRESSIBLE_TURB_LIB=-lcompressibleTurbulenceModels -lturbulenceModels
   INCOMPRESSIBLE_TURB_ALL_LIBS=
   COMPRESSIBLE_TURB_ALL_LIBS=
-  RADIATION_INC=-I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude
 endif
 
-ifdef FOAM_DEV
-  RADIATION_LIB=-lradiation
-  RADIATION_INC=-I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude
-  SOLIDTHERMO_LIB=
-else
-  ifeq "2.2" "$(word 1, $(sort 2.2 $(WM_PROJECT_VERSION)))"
-     FILEFORMATS_INC=-I$(LIB_SRC)/fileFormats/lnInclude
-     FLUIDTHERMO_LIB=-lfluidThermophysicalModels
-     SOLIDTHERMO_LIB=-lsolidThermo
-     FVOPTIONS_LIB=-lfvOptions
-     FVOPTIONS_INC=-I$(LIB_SRC)/fvOptions/lnInclude
-  endif
-endif
+ifeq "$(FOAM_TURBULENCE_IS_NOW_MOMENTUM_TRANSPORT)" "yes"
+  INCOMPRESSIBLE_TURB_LIB=-lmomentumTransportModels -lincompressibleMomentumTransportModels
+  COMPRESSIBLE_TURB_LIB=-lmomentumTransportModels -lfluidThermoMomentumTransportModels
+  COMPRESSIBLE_TRANSPORT_MODELS=-lthermophysicalTransportModels
 
-ifndef FOAM_DEV
-  ifndef OPENFOAM_COM
-    ifeq "4" "$(word 1, $(sort 4 $(WM_PROJECT_VERSION)))"
-      NEEDS_FILTER_DROPIN=1
-    endif
-    ifeq "4" "$(word 1, $(sort 4 $(WM_PROJECT_VERSION)))"
-      THERMOPHYSICALFUNCTIONS_LIB=
-    endif
-  endif
+  INCOMPRESSIBLE_TURB_INC=-I$(LIB_SRC)/MomentumTransportModels/incompressible/lnInclude -I$(LIB_SRC)/MomentumTransportModels/momentumTransportModels/lnInclude
+  COMPRESSIBLE_TURB_INC=-I$(LIB_SRC)/MomentumTransportModels/compressible/lnInclude -I$(LIB_SRC)/MomentumTransportModels/momentumTransportModels/lnInclude
+
+  INCOMPRESSIBLE_TRANSPORT_INC=-I$(LIB_SRC)/transportModels/lnInclude
 endif
 
 # -----------------------------------------------------------------------------

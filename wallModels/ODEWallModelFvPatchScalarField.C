@@ -349,6 +349,8 @@ ODEWallModelFvPatchScalarField
 }
 
 
+#ifdef FOAM_FVPATCHFIELD_NO_COPY
+#else
 Foam::ODEWallModelFvPatchScalarField::
 ODEWallModelFvPatchScalarField
 (
@@ -377,6 +379,7 @@ ODEWallModelFvPatchScalarField
     }
     eddyViscosity_->addFieldsToSampler(sampler());
 }
+#endif
 
 
 Foam::ODEWallModelFvPatchScalarField::
