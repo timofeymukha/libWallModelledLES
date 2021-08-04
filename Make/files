@@ -28,6 +28,5 @@ wallModels/LOTWWallModelFvPatchScalarField.C
 wallModels/EquilibriumODEWallModelFvPatchScalarField.C
 wallModels/ODEWallModelFvPatchScalarField.C
 wallModels/PGradODEWallModelFvPatchScalarField.C
-sgsModels/makeSGSModel.C
 
 LIB = $(FOAM_USER_LIBBIN)/libWallModelledLES
