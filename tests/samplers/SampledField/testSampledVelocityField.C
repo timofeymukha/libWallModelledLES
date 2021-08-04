@@ -159,7 +159,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsRead)
     Time runTime(Foam::Time::controlDictName, args);
 
     // Make previously sampled data readable
-    system("mv 0/wallModelSamplingSingle 0/wallModelSampling");
+    system("cp -r 0/wallModelSamplingSingle 0/wallModelSampling");
 
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
@@ -189,7 +189,6 @@ TEST_F(SampledVelocityTest, RegisterFieldsRead)
                 ASSERT_EQ(sampledFieldIOobject[i][j], i + 1);
         }
     }
-    system("mv 0/wallModelSampling 0/wallModelSamplingSingle");
 
 }
 

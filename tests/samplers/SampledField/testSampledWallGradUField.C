@@ -171,7 +171,7 @@ TEST_F(SampledWallGradUTest, RegisterFieldsRead)
     Time runTime(Foam::Time::controlDictName, args);
 
     // Make previously sampled data readable
-    system("mv 0/wallModelSamplingSingle 0/wallModelSampling");
+    system("cp -r 0/wallModelSamplingSingle 0/wallModelSampling");
 
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
@@ -205,7 +205,6 @@ TEST_F(SampledWallGradUTest, RegisterFieldsRead)
                 ASSERT_EQ(sampledFieldIOobject[i][j], i + 1);
         }
     }
-    system("mv 0/wallModelSampling 0/wallModelSamplingSingle");
 
 }
 
@@ -220,41 +219,17 @@ TEST_F(SampledWallGradUTest, Sample)
     const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
 
-
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     createWallModelSubregistry(mesh, patch);
 
     SampledWallGradUField sampledField(patch);
-
 
     // Init indexList with invalid ids since it is not used
     labelList indexList(patch.size(), -1);
 
     // Create wallGradU field
     const volScalarField & h = mesh.lookupObject<volScalarField>("h");
-    
-    mesh.time().store
-    (     
-        new volVectorField
-        (
-            IOobject
-            (
-                "wallGradU",
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimensionedVector
-            (
-                "wallGradU",
-                dimVelocity/dimLength,
-                pTraits<vector>::zero
-            ),
-            h.boundaryField().types()
-        )
-    );  
+
     volVectorField & wallGradU =
         mesh.lookupObjectRef<volVectorField>("wallGradU");
     vectorField & boundaryValues =
@@ -319,28 +294,6 @@ TEST_F(SampledWallGradUTest, Recompute)
     // Create wallGradU field
     const volScalarField & h = mesh.lookupObject<volScalarField>("h");
     
-    mesh.time().store
-    (     
-        new volVectorField
-        (
-            IOobject
-            (
-                "wallGradU",
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimensionedVector
-            (
-                "wallGradU",
-                dimVelocity/dimLength,
-                pTraits<vector>::zero
-            ),
-            h.boundaryField().types()
-        )
-    );  
     const volVectorField & wallGradU =
         mesh.lookupObject<volVectorField>("wallGradU");
     const vectorField & boundaryValues =
