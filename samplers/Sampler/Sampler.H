@@ -74,7 +74,6 @@ protected:
         word interpolationType_;
 
         //- Type of cellFinder to use for finding sampling cells.
-        //- Defaults to TreeCellFinder.
         word cellFinderType_;
 
         //- Whether the h field is the coscutive index of the samping cell
