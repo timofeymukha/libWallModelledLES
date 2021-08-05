@@ -210,7 +210,7 @@ LOTWWallModelFvPatchScalarField
             p,
             averagingTime(),
             dict.lookupOrDefault<word>("interpolationType", "cell"),
-            dict.lookupOrDefault<word>("cellFinderType", "TreeCellFinder"),
+            dict.lookupOrDefault<word>("cellFinderType", "Tree"),
             dict.lookupOrDefault<bool>("hIsIndex", false)
         )
     )
