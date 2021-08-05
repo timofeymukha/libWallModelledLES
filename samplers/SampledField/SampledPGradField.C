@@ -108,21 +108,25 @@ void Foam::SampledPGradField::registerFields
 
     Helpers::projectOnPatch(patch().nf(), sampledPGrad);
 
-    mesh().thisDb().store
-    (          
-        new IOList<scalarList>
-        (
-            IOobject
+    
+    if (!db().foundObject<scalarListIOList>("pGrad"))
+    {
+        mesh().thisDb().store
+        (          
+            new IOList<scalarList>
             (
-                "pGrad",
-                mesh().time().timeName(),
-                db(),
-                IOobject::READ_IF_PRESENT,
-                IOobject::AUTO_WRITE
-            ),
-            sampledPGrad
-         )
-    );
+                IOobject
+                (
+                    "pGrad",
+                    mesh().time().timeName(),
+                    db(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                sampledPGrad
+             )
+        );
+    }
     
 }
 
@@ -132,9 +136,6 @@ void Foam::SampledPGradField::registerFields
     const labelListList & indexListList
 ) const
 {
-    const objectRegistry & registry =
-        mesh().subRegistry("wallModelSampling").subRegistry(patch_.name());
-
     scalarListListList sampledPGrad(patch().size());
 
     if (mesh().thisDb().foundObject<volScalarField>("p"))
@@ -150,21 +151,24 @@ void Foam::SampledPGradField::registerFields
         }
     }
     
-    mesh().thisDb().store
-    (          
-        new scalarListListIOList
-        (
-            IOobject
+    if (!db().foundObject<scalarListIOList>("pGrad"))
+    {
+        mesh().thisDb().store
+        (          
+            new scalarListListIOList
             (
-                "pGrad",
-                mesh().time().timeName(),
-                registry,
-                IOobject::READ_IF_PRESENT,
-                IOobject::AUTO_WRITE
-            ),
-            sampledPGrad
-         )
-    );
+                IOobject
+                (
+                    "pGrad",
+                    mesh().time().timeName(),
+                    db(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                sampledPGrad
+             )
+        );
+    }
     
 }
 

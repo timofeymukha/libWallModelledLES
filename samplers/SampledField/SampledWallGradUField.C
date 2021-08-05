@@ -125,21 +125,24 @@ void Foam::SampledWallGradUField::registerFields
     }
 
     
-    mesh().time().store
-    (        
-        new IOList<scalarList>
-        (
-            IOobject
+    if (!db().foundObject<scalarListIOList>("wallGradU"))
+    {
+        mesh().time().store
+        (        
+            new IOList<scalarList>
             (
-                "wallGradU",
-                mesh().time().timeName(),
-                db(),
-                IOobject::READ_IF_PRESENT,
-                IOobject::AUTO_WRITE
-            ),
-            sampledWallGradU
-        )
-    );
+                IOobject
+                (
+                    "wallGradU",
+                    mesh().time().timeName(),
+                    db(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                sampledWallGradU
+            )
+        );
+    }
 
 }
 
@@ -165,22 +168,24 @@ void Foam::SampledWallGradUField::registerFields
     }
 
     
-    mesh().time().store
-    (        
-        new scalarListListIOList
-        (
-            IOobject
+    if (!db().foundObject<scalarListListIOList>("wallGradU"))
+    {
+        mesh().time().store
+        (        
+            new scalarListListIOList
             (
-                "wallGradU",
-                mesh().time().timeName(),
-                registry,
-                IOobject::READ_IF_PRESENT,
-                IOobject::AUTO_WRITE
-            ),
-            sampledWallGradU
-        )
-    );
-
+                IOobject
+                (
+                    "wallGradU",
+                    mesh().time().timeName(),
+                    registry,
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                sampledWallGradU
+            )
+        );
+    }
 }
 
 

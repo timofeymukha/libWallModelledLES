@@ -124,21 +124,24 @@ void Foam::SampledVelocityField::registerFields
         Helpers::projectOnPatch(patch().nf(), sampledU);
     }
 
-    mesh().time().store
-    (        
-        new IOList<scalarList>
-        (
-            IOobject
+    if (!db().foundObject<scalarListIOList>("U"))
+    {
+        mesh().time().store
+        (        
+            new IOList<scalarList>
             (
-                "U",
-                mesh().time().timeName(),
-                db(), 
-                IOobject::READ_IF_PRESENT,
-                IOobject::AUTO_WRITE
-            ),
-            sampledU
-        )
-    );
+                IOobject
+                (
+                    "U",
+                    mesh().time().timeName(),
+                    db(), 
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                sampledU
+            )
+        );
+    }
 }
 
 
@@ -165,21 +168,24 @@ void Foam::SampledVelocityField::registerFields
         Helpers::projectOnPatch(patch().nf(), sampledU);
     }
 
-    mesh().time().store
-    (        
-        new scalarListListIOList
-        (
-            IOobject
+    if (!db().foundObject<scalarListListIOList>("U"))
+    {
+        mesh().time().store
+        (        
+            new scalarListListIOList
             (
-                "U",
-                mesh().time().timeName(),
-                db(), 
-                IOobject::READ_IF_PRESENT,
-                IOobject::AUTO_WRITE
-            ),
-            sampledU
-        )
-    );
+                IOobject
+                (
+                    "U",
+                    mesh().time().timeName(),
+                    db(), 
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                sampledU
+            )
+        );
+    }
 
 }
 
