@@ -99,12 +99,14 @@ void Foam::SingleCellSampler::createIndexList()
 
     const vectorField & patchFaceCentres = patch().Cf();
     const volVectorField & C = mesh_.C();
+    const UList<label> & faceCells = patch().faceCells();
 
 
     // if the h field is an index, compute h_ as distance from the sampling
     // cell centers.
     // Same if h is distance, but we do not interpolate within the cell
-    // Otherwise assign h_ to h.
+    // Otherwise assign h_ to h, excluding when we sample from the wall-adjacent
+    // cell, since it can be used as fall-back when things go wrong.
     if (hIsIndex_ || (interpolationType() == "cell"))
     {
         forAll(patch(), faceI)
@@ -114,7 +116,17 @@ void Foam::SingleCellSampler::createIndexList()
     }
     else
     {
-        h_ = hPatch;
+        forAll(patch(), faceI)
+        {
+            if (indexList_[faceI] == faceCells[faceI])
+            {
+                h_[faceI] = mag(C[indexList_[faceI]] - patchFaceCentres[faceI]);
+            }
+            else
+            {
+                h_[faceI] = hPatch[faceI];
+            }
+        }
     }
 
     if (debug)
@@ -122,7 +134,7 @@ void Foam::SingleCellSampler::createIndexList()
         Info << "SingleCellSampler: Done" << nl;
     }
     
-    // If the h field holds the distance, reassign the real distance used
+    // If the global h field holds the distance, reassign the real distance used
     if (!hIsIndex())
     {
 #ifdef FOAM_NEW_GEOMFIELD_RULES

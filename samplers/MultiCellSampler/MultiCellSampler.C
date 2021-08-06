@@ -62,20 +62,28 @@ void Foam::MultiCellSampler::createIndexList()
     if (cellFinderType() == "Crawling")
     {
         CrawlingCellFinder cellFinder(patch());
-        cellFinder.findCellIndices(indexList_, hPatch, hIsIndex_);
+        cellFinder.findCellIndices(indexList_, hPatch, hIsIndex_, excludeWallAdjacent_);
     }
-    else
+    else if (cellFinderType() == "Tree")
     {
         if (hIsIndex_)
         {
             FatalErrorInFunction
-                << "SingleCellSampler: hIsIndex is not supported by the Tree "
+                << "MultiCellSampler: hIsIndex is not supported by the Tree "
                 << "sampler. Please use the Crawling sampler or provide h as "
                 << "distances."
                 <<  abort(FatalError);
         }
+
         TreeCellFinder cellFinder(patch());
-        cellFinder.findCellIndices(indexList_, hPatch);
+        cellFinder.findCellIndices(indexList_, hPatch, excludeWallAdjacent_);
+    }
+    else
+    {
+        FatalErrorInFunction
+            << "MultiCellSampler: invalid cell finder name, choose "
+            << "Tree or Crawling. Current choice is " << cellFinderType()
+            <<  abort(FatalError);
     }
 
 
@@ -84,6 +92,7 @@ void Foam::MultiCellSampler::createIndexList()
 
     forAll(patch(), faceI)
     {
+        h_[faceI].setSize(indexList_[faceI].size());
         forAll(indexList_[faceI], i)
         {
             h_[faceI][i] =
@@ -167,21 +176,25 @@ Foam::MultiCellSampler::MultiCellSampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
-    bool hIsIndex
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 :
     Sampler(p, averagingTime, interpolationType, cellFinderType, hIsIndex),
     indexList_(p.size()),
     h_(p.size()),
-    lengthList_(p.size())
+    lengthList_(p.size()),
+    excludeWallAdjacent_(excludeWallAdjacent)
 {
 
     if (interpolationType != "cell")
     {
-        Warning
-            << "MulticellSmapler: interpolation is not supported "
-            << " for multcell sampling. Cell centres will be used."
-            << nl;
+        FatalErrorIn 
+        (
+            "MultiCellSampler::MultiCellSampler"
+        )   << "MulticellSmapler: interpolation is not supported "
+            << " for multcell sampling. Use 'cell'"
+            << exit(FatalError); 
     }
 
     createIndexList();
@@ -206,7 +219,8 @@ Foam::MultiCellSampler::MultiCellSampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
-    bool hIsIndex
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 :
     MultiCellSampler
@@ -215,7 +229,8 @@ Foam::MultiCellSampler::MultiCellSampler
         averagingTime,
         interpolationType,
         cellFinderType,
-        hIsIndex
+        hIsIndex,
+        excludeWallAdjacent
     )
 {
 }

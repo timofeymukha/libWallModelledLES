@@ -181,18 +181,27 @@ Foam::Sampler::Sampler
         subObr->store();
     }
 
-    objectRegistry * subObr = new objectRegistry
+    if
     (
-        IOobject
+        !mesh_.subRegistry
         (
-            patch_.name(),
-            mesh_.time().constant(),
-            mesh_.subRegistry("wallModelSampling"),
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        )
-    );
-    subObr->store();
+            "wallModelSampling"
+        ).foundObject<objectRegistry>(patch_.name())
+    )
+    {
+        objectRegistry * subObr = new objectRegistry
+        (
+            IOobject
+            (
+                patch_.name(),
+                mesh_.time().constant(),
+                mesh_.subRegistry("wallModelSampling"),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            )
+        );
+        subObr->store();
+    }
 
     createFields();
 }

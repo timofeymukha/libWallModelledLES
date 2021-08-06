@@ -63,6 +63,9 @@ protected:
 
         //- The distance from the wall that data is sampled from
         scalarListList lengthList_;
+
+        //- Whether to exclude wall-adjacent cell from the sampling cells
+        bool excludeWallAdjacent_;
         
     // Protected Member Functions
                     
@@ -86,9 +89,10 @@ public:
         (
             const fvPatch&,
             scalar averagingTime,
-            const word interpolationType,
-            const word cellFinderType,
-            bool hIsIndex=false
+            const word interpolationType="cell",
+            const word cellFinderType="Tree",
+            bool hIsIndex=false,
+            bool excludeWallAdjacent=false
         );
 
         //- Construct from type, patch and averaging time
@@ -97,9 +101,10 @@ public:
             const word & samplerName,
             const fvPatch & p,
             scalar averagingTime,
-            const word interpolationType,
-            const word cellFinderType,
-            bool hIsIndex=false
+            const word interpolationType="cell",
+            const word cellFinderType="Tree",
+            bool hIsIndex=false,
+            bool excludeWallAdjacent=false
         );
         
         //- Copy constructor
@@ -136,6 +141,12 @@ public:
         virtual const scalarListList & lengthList() const
         {
             return lengthList_;
+        }
+
+
+        bool excludeWallAdjacent() const
+        {
+            return excludeWallAdjacent_;
         }
         
         //- Element access operator
