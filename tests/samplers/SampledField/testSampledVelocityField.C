@@ -2,6 +2,7 @@
 #include "fvCFD.H"
 #include "scalarListIOList.H"
 #include "SampledVelocityField.H"
+#include "MultiCellSampler.H"
 #undef Log
 #include "gtest.h"
 #include "gmock/gmock.h"
@@ -98,6 +99,71 @@ TEST_F(SampledVelocityTest, RegisterFieldsZero)
         forAll(sampledFieldIOobject[i], j)
         {
             ASSERT_EQ(sampledFieldIOobject[i][j], 0);
+        }
+    }
+}
+
+
+TEST_F(SampledVelocityTest, RegisterFieldsZeroMultiCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
+    createSamplingHeightField(mesh);
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+    h.boundaryFieldRef()[patch.index()] == 2;
+
+    autoPtr<MultiCellSampler> sampler
+    (
+        new MultiCellSampler
+        (
+            "MultiCellSampler",
+            patch,
+            3.0,
+            "cell",
+            "Crawling",
+            true
+        )
+    );
+
+    labelListList indexList = sampler->indexList();
+
+    // Remove U from the registry and delete the sampler
+    sampler->db().checkOut("U");
+    sampler.clear();
+    
+
+    h.boundaryFieldRef()[patch.index()] == 2;
+
+    SampledVelocityField sampledField(patch);
+    
+    
+    sampledField.registerFields(indexList);
+
+    // Assert we registred the field in the registry
+    ASSERT_TRUE(sampledField.db().foundObject<scalarListListIOList>("U"));
+
+    const scalarListListIOList & sampledFieldIOobject =
+        sampledField.db().lookupObject<scalarListListIOList>("U");
+
+    forAll(sampledFieldIOobject, i)
+    {
+        forAll(sampledFieldIOobject[i], j)
+        {
+            forAll(sampledFieldIOobject[i], k)
+            {
+                ASSERT_EQ(sampledFieldIOobject[i][j][k], 0);
+            }
         }
     }
 }
@@ -202,7 +268,6 @@ TEST_F(SampledVelocityTest, Sample)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
 
-
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     createWallModelSubregistry(mesh, patch);
 
@@ -211,7 +276,7 @@ TEST_F(SampledVelocityTest, Sample)
     // Init U to something varying and easily to test
     U.primitiveFieldRef() = mesh.C();
 
-    SampledVelocityField sampledField(patch, "cellPointFace");
+    SampledVelocityField sampledField(patch, "cell");
 
     labelList indexList(patch.faceCells());
 
@@ -233,6 +298,57 @@ TEST_F(SampledVelocityTest, Sample)
             else
             {
                 ASSERT_FLOAT_EQ
+                (
+                    sampledValues[i][j],
+                    U[indexList[i]][j]
+                );
+            }
+        }
+    }
+
+}
+
+
+TEST_F(SampledVelocityTest, CheckInterpolationWorks)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
+    createVelocityField(mesh);
+    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
+    // Init U to something varying and easily to test
+    U.primitiveFieldRef() = mesh.C();
+
+    SampledVelocityField sampledField(patch, "pointMVC");
+
+    labelList indexList(patch.faceCells());
+
+    scalarField h(patch.size(), 0.19);
+
+
+    scalarListList sampledValues(patch.size());
+
+    sampledField.sample(sampledValues, indexList, h);
+
+    forAll(sampledValues, i)
+    {
+        forAll(sampledValues[i], j)
+        {
+            if (j == 1)
+            {
+                ASSERT_EQ(sampledValues[i][j], 0);
+            }
+            else
+            { // Here we just check that pointMVC gives us a different value
+              // Than stored in the U field cell centres
+                ASSERT_NE
                 (
                     sampledValues[i][j],
                     U[indexList[i]][j]

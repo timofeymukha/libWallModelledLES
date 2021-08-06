@@ -29,7 +29,7 @@ TEST_F(TreeCellFinderTest, FullConstructor)
 }
 
 
-TEST_F(TreeCellFinderTest, FindDistanceBasedBottomWall)
+TEST_F(TreeCellFinderTest, FindDistanceBasedBottomWallSingleCell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -87,7 +87,7 @@ TEST_F(TreeCellFinderTest, FindDistanceBasedBottomWall)
 }
 
 
-TEST_F(TreeCellFinderTest, FindDistanceBasedTopWall)
+TEST_F(TreeCellFinderTest, FindDistanceBasedTopWallSingleCell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -145,7 +145,7 @@ TEST_F(TreeCellFinderTest, FindDistanceBasedTopWall)
 }
 
 
-TEST_F(TreeCellFinderTest, FindDistanceInvalidDistance)
+TEST_F(TreeCellFinderTest, FindDistanceInvalidDistanceSingleCell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -178,7 +178,7 @@ TEST_F(TreeCellFinderTest, FindDistanceInvalidDistance)
     }
 }
 
-TEST_F(TreeCellFinderTest, FindDistanceZeroDistance)
+TEST_F(TreeCellFinderTest, FindDistanceZeroDistanceSingleCell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -212,7 +212,7 @@ TEST_F(TreeCellFinderTest, FindDistanceZeroDistance)
 }
 
 
-TEST_F(TreeCellFinderTest, FindDistanceTooLargeDistance)
+TEST_F(TreeCellFinderTest, FindDistanceTooLargeDistanceSingleCell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -374,4 +374,246 @@ TEST_F(TreeCellFinderTest, FindCandidateCellLabelsTop)
     h = 1;
     tCellLabelsTop = finderTop.findCandidateCellLabels(dist, h);
     ASSERT_EQ(tCellLabelsTop().size(), 90) << "h = 1";
+}
+
+TEST_F(TreeCellFinderTest, FindDistanceBasedBottomWallMultiCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+    const volVectorField & C = mesh.C();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    TreeCellFinder finder(patch);
+    labelListList indexList(patch.size());
+
+    // Single, wall-adjacent cell
+    h.boundaryFieldRef()[patch.index()] == 0.1;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        false
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 1);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+    }
+
+    // h is boundary between first two cells, expecting a 1-cell list
+    h.boundaryFieldRef()[patch.index()] == 0.2;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        false
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 1);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+    }
+
+    // h above 3rd cell center, expecting a 3-cell list
+    h.boundaryFieldRef()[patch.index()] == 0.55;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        false
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 3);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+        ASSERT_FLOAT_EQ(C[indexList[i][1]][1], 0.3);
+        ASSERT_FLOAT_EQ(C[indexList[i][2]][1], 0.5);
+    }
+}
+
+TEST_F(TreeCellFinderTest, FindDistanceBasedBottomWallWithExclusionMultiCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+    const volVectorField & C = mesh.C();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    TreeCellFinder finder(patch);
+    labelListList indexList(patch.size());
+
+    // Single, wall-adjacent cell
+    h.boundaryFieldRef()[patch.index()] == 0.1;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        true 
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 1);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+    }
+
+    // h is boundary between first two cells, expecting a 1-cell list
+    h.boundaryFieldRef()[patch.index()] == 0.2;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        true
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 1);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+    }
+
+    // h above 3rd cell center, expecting a 2-cell list
+    h.boundaryFieldRef()[patch.index()] == 0.55;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        true
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 2);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.3);
+        ASSERT_FLOAT_EQ(C[indexList[i][1]][1], 0.5);
+    }
+}
+
+TEST_F(TreeCellFinderTest, ZeroDistanceMultiCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+    const volVectorField & C = mesh.C();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    TreeCellFinder finder(patch);
+    labelListList indexList(patch.size());
+
+    // Expect wall-adjacent
+    h.boundaryFieldRef()[patch.index()] == 0.0;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        true 
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 1);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+    }
+}
+
+TEST_F(TreeCellFinderTest, InvalidDistanceMultiCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+    const volVectorField & C = mesh.C();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    TreeCellFinder finder(patch);
+    labelListList indexList(patch.size());
+
+    h.boundaryFieldRef()[patch.index()] == -10.0;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        true 
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 1);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+    }
+}
+
+TEST_F(TreeCellFinderTest, TooLargeDistanceMultiCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+    const volVectorField & C = mesh.C();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    TreeCellFinder finder(patch);
+    labelListList indexList(patch.size());
+
+    h.boundaryFieldRef()[patch.index()] == 2.9;
+    finder.findCellIndices
+    (
+        indexList,
+        h.boundaryFieldRef()[patch.index()],
+        false
+    );
+
+    forAll(indexList, i)
+    {
+        ASSERT_EQ(indexList[i].size(), 10);
+        ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+        ASSERT_FLOAT_EQ(C[indexList[i][9]][1], 1.9);
+    }
 }

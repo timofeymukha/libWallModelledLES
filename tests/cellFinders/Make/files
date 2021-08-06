@@ -2,5 +2,7 @@
 testRunner.C
 CrawlingCellFinder/testCrawlingCellFinder.C
 TreeCellFinder/testTreeCellFinder.C
+Compatibility/testCellFinderCompatibility.C
+
 EXE=./testRunner
 

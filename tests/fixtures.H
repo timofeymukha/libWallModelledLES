@@ -31,7 +31,6 @@ SourceFiles
 #include "fvCFD.H"
 #undef Log
 #include "gtest.h"
-#include "gmock/gmock.h"
 
 
 // construct h given mesh

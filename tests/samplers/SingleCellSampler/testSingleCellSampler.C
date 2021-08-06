@@ -1,5 +1,7 @@
 #include "fvCFD.H"
+#include "SampledPGradField.H"
 #include "SingleCellSampler.H"
+#include "scalarListIOList.H"
 #include <functional>
 #include "gtest.h"
 #undef Log
@@ -38,7 +40,7 @@ TEST_F(SingleCellSamplerTest, ConstructorDefaults)
     ASSERT_EQ(sampler.h().size(), patch.size());
 }
 
-TEST_F(SingleCellSamplerTest, ConstructorCellCrawlingTrue)
+TEST_F(SingleCellSamplerTest, ConstructorCellCrawlingHIsIndex)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -76,7 +78,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellCrawlingTrue)
 }
 
 
-TEST_F(SingleCellSamplerTest, ConstructorCellCrawlingFalse)
+TEST_F(SingleCellSamplerTest, ConstructorCellCrawlingHIsDistance)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -115,7 +117,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellCrawlingFalse)
 }
 
 
-TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingTrue)
+TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsIndex)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -153,7 +155,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingTrue)
     
 }
 
-TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingFalse)
+TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsDistance)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -169,6 +171,9 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingFalse)
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    h.boundaryFieldRef()[patch.index()] == 0.35;
+
     SingleCellSampler sampler
     (
         "SingleCellSampler",
@@ -191,13 +196,60 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingFalse)
 
     forAll(sampler.h(), i)
     {
-        ASSERT_FLOAT_EQ(sampler.h()[i], 0.11);
+        ASSERT_FLOAT_EQ(sampler.h()[i], 0.35);
     }
     
 }
 
 
-TEST_F(SingleCellSamplerTest, ConstructorCellTreeTrue)
+TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsDistanceFirstCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    h.boundaryFieldRef()[patch.index()] == 0.05;
+
+    SingleCellSampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cellPoint",
+        "Crawling",
+        false
+    );
+
+    ASSERT_EQ(&sampler.patch(), &patch);
+    ASSERT_EQ(sampler.averagingTime(), 3.0);
+    ASSERT_EQ(sampler.interpolationType(), "cellPoint");
+    ASSERT_EQ(sampler.cellFinderType(), "Crawling");
+    ASSERT_EQ(sampler.hIsIndex(), false);
+    ASSERT_EQ(&sampler.mesh(), &mesh);
+    ASSERT_EQ(sampler.indexList().size(), patch.size());
+    ASSERT_EQ(sampler.lengthList().size(), patch.size());
+    ASSERT_EQ(sampler.h().size(), patch.size());
+
+    forAll(sampler.h(), i)
+    {
+        ASSERT_FLOAT_EQ(sampler.h()[i], 0.1);
+    }
+    
+}
+
+
+TEST_F(SingleCellSamplerTest, ConstructorCellTreeHIsIndex)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -226,7 +278,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellTreeTrue)
 }
 
 
-TEST_F(SingleCellSamplerTest, ConstructorCellTreeFalse)
+TEST_F(SingleCellSamplerTest, ConstructorCellTreeHIsDistance)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -261,13 +313,10 @@ TEST_F(SingleCellSamplerTest, ConstructorCellTreeFalse)
     {
         ASSERT_FLOAT_EQ(sampler.h()[i], 0.1);
     }
-    
-    // const scalarField & hPatch = h.boundaryFieldRef()[patch.index()] == 10.0;
-
 }
 
 
-TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeFalse)
+TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeHIsDistance)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -276,8 +325,15 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeFalse)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
     createSamplingHeightField(mesh);
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    h.boundaryFieldRef()[patch.index()] == 0.35;
+
     SingleCellSampler sampler
     (
         "SingleCellSampler",
@@ -300,6 +356,147 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeFalse)
 
     forAll(sampler.h(), i)
     {
-        ASSERT_FLOAT_EQ(sampler.h()[i], 0.11);
+        ASSERT_FLOAT_EQ(sampler.h()[i], 0.35);
     }
+}
+
+
+
+TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeHIsDistanceFirstCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    h.boundaryFieldRef()[patch.index()] == 0.05;
+
+    SingleCellSampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cellPoint",
+        "Tree",
+        false
+    );
+
+    ASSERT_EQ(&sampler.patch(), &patch);
+    ASSERT_EQ(sampler.averagingTime(), 3.0);
+    ASSERT_EQ(sampler.interpolationType(), "cellPoint");
+    ASSERT_EQ(sampler.cellFinderType(), "Tree");
+    ASSERT_EQ(sampler.hIsIndex(), false);
+    ASSERT_EQ(&sampler.mesh(), &mesh);
+    ASSERT_EQ(sampler.indexList().size(), patch.size());
+    ASSERT_EQ(sampler.lengthList().size(), patch.size());
+    ASSERT_EQ(sampler.h().size(), patch.size());
+
+    forAll(sampler.h(), i)
+    {
+        ASSERT_FLOAT_EQ(sampler.h()[i], 0.1);
+    }
+    
+}
+
+
+TEST_F(SingleCellSamplerTest, Sample)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+    createVelocityField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+
+    h.boundaryFieldRef()[patch.index()] == 3;
+
+    auto & U = const_cast<volVectorField &>
+    (
+        mesh.thisDb().lookupObject<volVectorField>("U")
+    );
+
+    U.primitiveFieldRef() = vector(1, 0, 0);
+
+    SingleCellSampler sampler
+    (
+        "MultiCellSampler",
+        patch,
+        0.02,
+        "cell",
+        "Crawling",
+        3
+    );
+    
+    U.primitiveFieldRef() = vector(4, 0, 0);
+    
+    sampler.sample();
+
+    auto & sampledU = const_cast<scalarListIOList &>
+    (
+        sampler.db().lookupObject<scalarListIOList>("U")
+    );
+    
+    forAll(sampledU, i)
+    {
+        ASSERT_FLOAT_EQ(sampledU[i][0], 2.5);
+    }
+}
+
+
+TEST_F(SingleCellSamplerTest, AddField)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+    createVelocityField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+
+    h.boundaryFieldRef()[patch.index()] == 3;
+
+    // auto sampledPGrad = SampledPGradField(patch);
+    // auto sampledPGrad = SampledVelocityField(patch);
+
+    SingleCellSampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        0.02,
+        "cell",
+        "Crawling",
+        3
+    );
+    
+    sampler.addField(new SampledPGradField(patch));
+    
+    ASSERT_EQ(sampler.nSampledFields(), 3);
+    ASSERT_TRUE(sampler.db().foundObject<scalarListIOList>("pGrad"));
 }
