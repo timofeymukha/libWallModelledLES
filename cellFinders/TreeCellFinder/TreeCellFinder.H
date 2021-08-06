@@ -103,7 +103,8 @@ public:
         void findCellIndices
         (
             labelListList & indexList,
-            const scalarField & h
+            const scalarField & h,
+            const bool excludeWallAdjacent
         ) const;
         
         //- Find cells close than 2max(h) to the wall

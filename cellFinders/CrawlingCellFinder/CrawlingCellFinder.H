@@ -99,7 +99,8 @@ public:
         (
             labelListList & indexList,
             const scalarField & h,
-            const bool hIsIndex
+            const bool hIsIndex,
+            const bool excludeWallAdjacent
         ) const;
 
 };

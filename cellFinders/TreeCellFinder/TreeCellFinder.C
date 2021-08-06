@@ -197,12 +197,7 @@ void Foam::TreeCellFinder::findCellIndices
             boundaryTreePtr->getVolumeType(point) == volumeType::INSIDE;
 #endif
 
-        if ( (h[i] == 0) || (treePtr->nodes().empty()) )
-        {
-            continue;
-            indexList[i] = faceCells[i];
-        }
-        else if (h[i] < 0)
+        if (h[i] < 0)
         {
             Warning
                 << "TreeCellFinder: " << h[i]
@@ -210,6 +205,10 @@ void Foam::TreeCellFinder::findCellIndices
                 << "Will fall back to wall-adjacent cell for face "
                 <<  i << " on patch " << patch().name() << nl;
                 indexList[i] = faceCells[i];
+        }
+        else if ( (h[i] == 0) || (treePtr->nodes().empty()) )
+        {
+            indexList[i] = faceCells[i];
         }
         else if (!inside)
         {
@@ -236,14 +235,15 @@ void Foam::TreeCellFinder::findCellIndices
 void Foam::TreeCellFinder::findCellIndices
 (
     labelListList & indexList,
-    const scalarField & h
+    const scalarField & h,
+    const bool excludeWallAdjacent
 ) const
 {
     scalar maxH = max(h);
 
     if (debug)
     {
-        Info<< "MultiCellSampler: Constructing mesh bounding box" << nl;
+        Info<< "TreeCellFinder: Constructing mesh bounding box" << nl;
     }
 
     treeBoundBox boundBox(mesh_.bounds());
@@ -345,6 +345,7 @@ void Foam::TreeCellFinder::findCellIndices
     forAll(faceCentres, i)
     {
         // Grab the point 2h away along the face normal
+        // This just sets the direction of the ray cast
         p = faceCentres[i] - 2*faceNormals[i]*h[i];
 
         vector tolVector = (p - faceCentres[i])*1e-6;
@@ -354,23 +355,24 @@ void Foam::TreeCellFinder::findCellIndices
         // If h is zero, or the point is outside the domain,
         // set it to distance to adjacent cell's centre
         // Set the cellIndexList component accordingly
-        bool inside = 
-#ifdef FOAM_VOLUMETYPE_NOT_CAPITAL
-            boundaryTreePtr->getVolumeType(p) == volumeType::inside;
-#else
-            boundaryTreePtr->getVolumeType(p) == volumeType::INSIDE;
-#endif
 
-        if ((h[i] == 0) || (!inside) || (treePtr->nodes().empty()))
+        if (h[i] < 0)
+        {
+            Warning
+                << "TreeCellFinder: " << h[i]
+                << " is negative and thus not a valid distance. "
+                << "Will fall back to wall-adjacent cell for face "
+                <<  i << " on patch " << patch().name() << nl;
+            indexList[i] = labelList(1, faceCells[i]);
+        }
+        else if ((h[i] == 0) || (treePtr->nodes().empty()))
         {
             indexList[i] = labelList(1, faceCells[i]);
-            //h_[i] = scalarList(1, mag(cellCentres[i] - faceCentres[i]));
         }
         else
         {
-            // Allocate list for the sampling cell indices for face i, and associated heights
+            // Allocate list for the sampling cell indices for face i
             indexList[i] = labelList(50);
-            //h_[i] = scalarList(50);
 
             // Amount of cells sampled from for this face
             label n = 0;
@@ -391,16 +393,12 @@ void Foam::TreeCellFinder::findCellIndices
 
                     indexList[i][n] = searchCellLabels[cellI];
 
-                    // No projection currently
-                    //h_[i][n] = mag(C[searchCellLabels[cellI]] - faceCentres[i]);
-
                     if (debug > 1)
                     {
                         Info<< "Hit face: " << hitP << nl;
                         Info<< "CC: " << C[searchCellLabels[cellI]] << nl;
                     }
                    
-
                     n++;
 
                     // If we are now inside the last cell
@@ -411,7 +409,6 @@ void Foam::TreeCellFinder::findCellIndices
                             Info<< "This is the last cell, n = " << n << nl;
                         }
                         indexList[i].setSize(n);
-                        //h_[i].setSize(n);
                         break;
                     }
 
@@ -419,20 +416,38 @@ void Foam::TreeCellFinder::findCellIndices
                 }
                 else
                 {
-                    // Not a single face intersected
-                    // revert to wall-adjacent cell
                     if (n == 0)
                     {
+                        // Not a single face intersected
+                        // revert to wall-adjacent cell
                         Info << "No faces were intersected, reverting to "
                              << "wall-adjacent cell" << nl;
                         indexList[i].setSize(1, faceCells[i]);
-                        //h_[i].setSize(1, mag(cellCentres[i] - faceCentres[i]));
                         break;
                     
                     }
+                    else
+                    {
+                        // We went outside the domain
+                        indexList[i].setSize(n);
+                        if (debug > 1)
+                        {
+                            Info<< "This is the last cell, n = " << n << nl;
+                        }
+                        break;
+                    }
                 }
            }
+        }
 
+        // Remove wall adjacent cell from list if applicable
+        if ((indexList[i].size() != 1) && (excludeWallAdjacent))
+        {
+            for(int j=0; j<indexList[i].size()-1; j++)
+            {
+                indexList[i][j] = indexList[i][j+1];
+            }
+            indexList[i].setSize(indexList[i].size()-1);
         }
     }
     if (debug)
