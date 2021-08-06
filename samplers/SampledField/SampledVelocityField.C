@@ -147,26 +147,36 @@ void Foam::SampledVelocityField::registerFields
 
 void Foam::SampledVelocityField::registerFields
 (
-    const labelListList & indexListList
+    const labelListList & indexList
 ) const
 {
     scalarListListList sampledU(patch().size());
+    forAll(sampledU, i)
+    {
+        sampledU[i] = scalarListList(indexList[i].size());
+
+        forAll(sampledU[i], j)
+        {
+            sampledU[i][j] = scalarList(3, 0.0);
+        }
+    }
 
     if (mesh().foundObject<volVectorField>("U"))
     {
-        const volVectorField & U = mesh().lookupObject<volVectorField>("U");
+        const auto & U = mesh().lookupObject<volVectorField>("U");
         forAll(sampledU, i)
         {
-            sampledU[i] = scalarListList(indexListList[i].size());
-
             forAll(sampledU[i], j)
             {
-                sampledU[i][j] = scalarList(3, 0.0);
+                forAll(sampledU[i][j], k)
+                {
+                    sampledU[i][j][k] = U[indexList[i][j]][k];
+                }
             }
         }
-
         Helpers::projectOnPatch(patch().nf(), sampledU);
     }
+
 
     if (!db().foundObject<scalarListListIOList>("U"))
     {

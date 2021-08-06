@@ -91,22 +91,24 @@ void Foam::SampledPGradField::registerFields
 ) const
 {
 
-    const volVectorField & pGrad =
-        mesh().lookupObject<volVectorField>("pGrad");
-    
     // Init sampled p grad to (0 0 0)
     scalarListList sampledPGrad(patch().size(), scalarList(3, 0.0));
 
     // Copy values from the pGrad field
-    forAll(sampledPGrad, i)
+    if (mesh().foundObject<volVectorField>("pGrad"))
     {
-        forAll(sampledPGrad[i], j)
+        forAll(sampledPGrad, i)
         {
-            sampledPGrad[i][j] = pGrad[indexList[i]][j];
+            const volVectorField & pGrad =
+                mesh().lookupObject<volVectorField>("pGrad");
+            forAll(sampledPGrad[i], j)
+            {
+                sampledPGrad[i][j] = pGrad[indexList[i]][j];
+            }
         }
-    }
 
-    Helpers::projectOnPatch(patch().nf(), sampledPGrad);
+        Helpers::projectOnPatch(patch().nf(), sampledPGrad);
+    }
 
     
     if (!db().foundObject<scalarListIOList>("pGrad"))
@@ -133,20 +135,33 @@ void Foam::SampledPGradField::registerFields
 
 void Foam::SampledPGradField::registerFields
 (
-    const labelListList & indexListList
+    const labelListList & indexList
 ) const
 {
     scalarListListList sampledPGrad(patch().size());
 
-    if (mesh().thisDb().foundObject<volScalarField>("p"))
+    forAll(sampledPGrad, i)
     {
+        sampledPGrad[i] = scalarListList(indexList[i].size());
+
+        forAll(sampledPGrad[i], j)
+        {
+            sampledPGrad[i][j] = scalarList(3, 0.0);
+        }
+    }
+
+    if (mesh().foundObject<volVectorField>("pGrad"))
+    {
+        const auto & pGrad = mesh().lookupObject<volVectorField>("pGrad");
+
         forAll(sampledPGrad, i)
         {
-            sampledPGrad[i] = scalarListList(indexListList[i].size());
-
             forAll(sampledPGrad[i], j)
             {
-                sampledPGrad[i][j] = scalarList(3, 0.0);
+                forAll(sampledPGrad[i][j], k)
+                {
+                    sampledPGrad[i][j][k] = pGrad[indexList[i][j]][k];
+                }
             }
         }
     }
@@ -207,7 +222,6 @@ void Foam::SampledPGradField::setInterpolator
             << "to a crash."
             << nl;
     }
-
 }
 
 
