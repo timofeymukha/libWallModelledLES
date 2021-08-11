@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.5.2
+
+Hot fix for the default value of  `averagingTime` not being 0.
+
+## v0.5.1
+
+Hot fix for `copyToPatchInternalField` not getting written to the `nut` file by `decomposePar`.
+
 ## v0.5.0
 
 This release contains multiple improvements to the code structure, adds a unit test suite and

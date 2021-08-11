@@ -19,17 +19,19 @@ If you use the library, please cite the following publication, which fully descr
 
 https://doi.org/10.1016/j.cpc.2019.01.016
 
-**This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM� and OpenCFD� trademarks.**
+**This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM(R) and OpenCFD(R) trademarks.**
 
 ## News ##
 
-- **2019-08-01** Version 0.5 released.
+- **2019-10-28** Version 0.5.1 released.
+- **2019-08-01** Version 0.5.0 released.
 - **2019-02-23** Version 0.4.1 released, containing a small bugfix.
-- **2018-11-17** Version 0.4 released, see CHANGELOG.md for list of changes.
+- **2018-11-17** Version 0.4.0 released, see CHANGELOG.md for list of changes.
 
 ## Compatibility ##
 
-The library compiles for versions 3.0.x to 7.x from the OpenFOAM Foundation, and versions 3.0+ to 1906 from OpenCFD. 
+The library compiles for versions 3.0.x to 7.x from the OpenFOAM Foundation, and versions 3.0+ to 1906 from OpenCFD.
+Later versions from OpenCFD are expected to work as well, however OpenFOAM 8 will currently not work due to fundamental changes in library structure.
 A special branch on the repository for version 2.3.1 is available but is now very outdated and will not be further supported.
 
 ## Installing ##
@@ -174,3 +176,5 @@ Each such pair is treated as one item in the list below, without providing the f
   Department of Mathematics University of Wyoming (UW) Laramie Institute of Fluid Dynamics Swiss Federal Institute of Technology (ETH) Z�rich.
 - Mukha, T., Rezeeiravesh, S., & Liefvendahl, M. (2019). A library for wall-modelled large-eddy simulation based on OpenFOAM technology. Computer Physics Communications. DOI: 10.1016/j.cpc.2019.01.016. Preprint: https://arxiv.org/abs/1807.11786
 - Rezaeiravesh, S., Mukha, T., & Liefvendahl, M. (2019). Systematic study of accuracy of wall-modeled large eddy simulation using uncertainty quantification techniques. Computers & Fluids. DOI: 10.1016/j.compfluid.2019.03.025. Preprint: https://arxiv.org/abs/1810.05213
+- Mukha, T. (2019) The effect of numerical dissipation on the predictive accuracy of wall-modelled large-eddy simulation. Trudy ISP RAN/Proc. ISP RAS. DOI: 10.15514/ISPRAS-2019-31(6)-11
+- Malkus, T., &  Belloni, C. (2020) Wall-modeled large-eddy simulations of airfoil trailing edge noise. In proceedings of the 8th ESI OpenFOAM Conference. URL: https://www.esi-group.com/sites/default/files/resource/other/1682/8th_OpenFOAM_Conference_Ohio_State_University_Malkus.pdf
