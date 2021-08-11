@@ -6,6 +6,7 @@
 #include "gtest.h"
 #include "fixtures.H"
 #include <random>
+#include "MultiCellSampler.H"
 
 class SampledWallGradUTest : public ChannelFlow
 {};
@@ -110,6 +111,63 @@ TEST_F(SampledWallGradUTest, RegisterFieldsZero)
 }
 
 
+TEST_F(SampledWallGradUTest, RegisterFieldsZeroMultiCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
+    createSamplingHeightField(mesh);
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+    h.boundaryFieldRef()[patch.index()] == 2;
+
+    autoPtr<MultiCellSampler> sampler
+    (
+        new MultiCellSampler
+        (
+            "MultiCellSampler",
+            patch,
+            3.0,
+            "cell",
+            "Crawling",
+            true
+        )
+    );
+
+    labelListList indexList = sampler->indexList();
+
+    sampler->db().checkOut("wallGradU");
+    sampler.clear();
+    
+    SampledWallGradUField sampledField(patch);
+    
+    sampledField.registerFields(indexList);
+
+    // Assert we registred the field in the registry
+    ASSERT_TRUE(sampledField.db().foundObject<scalarListListIOList>("wallGradU"));
+
+    const scalarListListIOList & sampledFieldIOobject =
+        sampledField.db().lookupObject<scalarListListIOList>("wallGradU");
+
+    forAll(sampledFieldIOobject, i)
+    {
+        forAll(sampledFieldIOobject[i][0], j)
+        {
+            ASSERT_EQ(sampledFieldIOobject[i][0][j], 0);
+        }
+    }
+}
+
+
 TEST_F(SampledWallGradUTest, RegisterFieldsInitialize)
 {
     extern argList * mainArgs;
@@ -164,6 +222,77 @@ TEST_F(SampledWallGradUTest, RegisterFieldsInitialize)
 }
 
 
+TEST_F(SampledWallGradUTest, RegisterInitializeMultiCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
+    createSamplingHeightField(mesh);
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+    h.boundaryFieldRef()[patch.index()] == 2;
+
+    autoPtr<MultiCellSampler> sampler
+    (
+        new MultiCellSampler
+        (
+            "MultiCellSampler",
+            patch,
+            3.0,
+            "cell",
+            "Crawling",
+            true
+        )
+    );
+
+    labelListList indexList = sampler->indexList();
+
+    sampler->db().checkOut("wallGradU");
+    sampler.clear();
+    
+
+    volVectorField & wallGradU = mesh.lookupObjectRef<volVectorField>("wallGradU");
+    wallGradU.boundaryFieldRef()[patch.index()] == vector(1, 2, 3);
+
+    SampledWallGradUField sampledField(patch);
+    sampledField.registerFields(indexList);
+
+    // Assert we registred the field in the registry
+    ASSERT_TRUE(sampledField.db().foundObject<scalarListListIOList>("wallGradU"));
+
+    const scalarListListIOList & sampledFieldIOobject =
+        sampledField.db().lookupObject<scalarListListIOList>("wallGradU");
+
+    forAll(sampledFieldIOobject, i)
+    {
+
+        ASSERT_EQ(sampledFieldIOobject[i].size(), 1);
+        for(int j=0; j<sampledFieldIOobject[i][0].size(); j++)
+        {
+            
+            if (j != 1)
+            {
+                ASSERT_FLOAT_EQ(sampledFieldIOobject[i][0][j], j+1);
+            }
+            else
+            {
+                ASSERT_FLOAT_EQ(sampledFieldIOobject[i][0][j], 0);
+            }
+
+        }
+    }
+}
+
+
 TEST_F(SampledWallGradUTest, RegisterFieldsRead)
 {
     extern argList * mainArgs;
@@ -209,6 +338,65 @@ TEST_F(SampledWallGradUTest, RegisterFieldsRead)
 }
 
 
+TEST_F(SampledWallGradUTest, RegisterReadFieldsMultiCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    // Make previously sampled data readable
+    system("cp -r 0/wallModelSamplingMulti 0/wallModelSampling");
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
+    createSamplingHeightField(mesh);
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+    h.boundaryFieldRef()[patch.index()] == 2;
+
+    autoPtr<MultiCellSampler> sampler
+    (
+        new MultiCellSampler
+        (
+            "MultiCellSampler",
+            patch,
+            3.0,
+            "cell",
+            "Crawling",
+            true
+        )
+    );
+
+    labelListList indexList = sampler->indexList();
+
+    sampler->db().checkOut("wallGradU");
+    sampler.clear();
+    
+    SampledWallGradUField sampledField(patch);
+    sampledField.registerFields(indexList);
+
+    // Assert we registred the field in the registry
+    ASSERT_TRUE(sampledField.db().foundObject<scalarListListIOList>("wallGradU"));
+
+    const scalarListListIOList & sampledFieldIOobject =
+        sampledField.db().lookupObject<scalarListListIOList>("wallGradU");
+
+    forAll(sampledFieldIOobject, i)
+    {
+
+        ASSERT_EQ(sampledFieldIOobject[i].size(), 1);
+        for(int j=0; j<sampledFieldIOobject[i][0].size(); j++)
+        {
+            ASSERT_FLOAT_EQ(sampledFieldIOobject[i][0][j], j+1);
+        }
+    }
+}
 TEST_F(SampledWallGradUTest, Sample)
 {
     extern argList * mainArgs;
@@ -234,8 +422,6 @@ TEST_F(SampledWallGradUTest, Sample)
         mesh.lookupObjectRef<volVectorField>("wallGradU");
     vectorField & boundaryValues =
         wallGradU.boundaryFieldRef()[patch.index()];
-    const scalarField & hBoundaryValues =
-        h.boundaryField()[patch.index()];
     boundaryValues = patch.Cf();
 
     scalarListList sampledValues(patch.size());
@@ -256,6 +442,57 @@ TEST_F(SampledWallGradUTest, Sample)
                 ASSERT_NEAR
                 (
                     sampledValues[i][j],
+                    boundaryValues[i][j], 
+                    1e-8
+                );
+            }
+        }
+    }
+
+}
+
+
+TEST_F(SampledWallGradUTest, SampleMultiCell)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
+    SampledWallGradUField sampledField(patch);
+
+    // Init indexList with invalid ids since it is not used
+    labelListList indexList(patch.size(), labelList(3, -1));
+
+    volVectorField & wallGradU =
+        mesh.lookupObjectRef<volVectorField>("wallGradU");
+    vectorField & boundaryValues =
+        wallGradU.boundaryFieldRef()[patch.index()];
+    boundaryValues = patch.Cf();
+
+    scalarListListList sampledValues(patch.size());
+
+    sampledField.sample(sampledValues, indexList);
+
+    forAll(sampledValues, i)
+    {
+        forAll(sampledValues[i][0], j)
+        {
+            if (j == 1)
+            {
+                ASSERT_FLOAT_EQ(sampledValues[i][0][j], 0);
+            }
+            else
+            {
+                ASSERT_NEAR
+                (
+                    sampledValues[i][0][j],
                     boundaryValues[i][j], 
                     1e-8
                 );
@@ -291,9 +528,6 @@ TEST_F(SampledWallGradUTest, Recompute)
     // Init indexList with invalid ids since it is not used
     labelList indexList(patch.size(), -1);
 
-    // Create wallGradU field
-    const volScalarField & h = mesh.lookupObject<volScalarField>("h");
-    
     const volVectorField & wallGradU =
         mesh.lookupObject<volVectorField>("wallGradU");
     const vectorField & boundaryValues =

@@ -302,8 +302,6 @@ TEST_F(MultiCellSamplerTest, AddField)
 
     h.boundaryFieldRef()[patch.index()] == 3;
 
-    auto sampledPGrad = SampledPGradField(patch);
-
     MultiCellSampler sampler
     (
         "MultiCellSampler",
@@ -314,7 +312,7 @@ TEST_F(MultiCellSamplerTest, AddField)
         3
     );
     
-    sampler.addField(&sampledPGrad);
+    sampler.addField(new SampledPGradField(patch));
     
     ASSERT_EQ(sampler.nSampledFields(), 3);
     ASSERT_TRUE(sampler.db().foundObject<scalarListListIOList>("pGrad"));

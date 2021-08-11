@@ -40,6 +40,39 @@ void createVelocityField(const Foam::fvMesh & mesh)
 }
 
 
+void createPGradField(const Foam::fvMesh & mesh)
+{
+    // Grab h to copy bcs from it.
+    const volScalarField & h = mesh.lookupObject<volScalarField>("h");
+    
+    if (!mesh.foundObject<volVectorField>("pGrad"))
+    {
+        mesh.thisDb().store
+        (     
+            new volVectorField
+            (
+                IOobject
+                (
+                    "pGrad",
+                    mesh.time().timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh,
+                dimensionedVector
+                (
+                    "pGrad",
+                    dimLength/sqr(dimTime),
+                    pTraits<vector>::zero
+                ),
+                h.boundaryField().types()
+            )
+        );
+    }
+}
+
+
 void createNutField(const Foam::fvMesh & mesh)
 {
     mesh.time().store

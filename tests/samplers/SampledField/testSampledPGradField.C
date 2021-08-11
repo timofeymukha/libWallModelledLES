@@ -1,7 +1,7 @@
 #include "codeRules.H"
 #include "fvCFD.H"
 #include "scalarListIOList.H"
-#include "SampledVelocityField.H"
+#include "SampledPGradField.H"
 #include "MultiCellSampler.H"
 #undef Log
 #include "gtest.h"
@@ -9,10 +9,10 @@
 #include "fixtures.H"
 #include <random>
 
-class SampledVelocityTest : public ChannelFlow
+class SampledPGradTest : public ChannelFlow
 {};
 
-TEST_F(SampledVelocityTest, Constructor)
+TEST_F(SampledPGradTest, Constructor)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -21,12 +21,14 @@ TEST_F(SampledVelocityTest, Constructor)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
 
+    createSamplingHeightField(mesh);
+
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SampledVelocityField sampledField(patch);
+    SampledPGradField sampledField(patch);
 }
 
 
-TEST_F(SampledVelocityTest, Clone)
+TEST_F(SampledPGradTest, Clone)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -35,14 +37,16 @@ TEST_F(SampledVelocityTest, Clone)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
 
+    createSamplingHeightField(mesh);
+
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SampledVelocityField sampledField(patch);
+    SampledPGradField sampledField(patch);
 
     autoPtr<SampledField> clone(sampledField.clone());
 }
 
 
-TEST_F(SampledVelocityTest, NDims)
+TEST_F(SampledPGradTest, NDims)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -50,14 +54,16 @@ TEST_F(SampledVelocityTest, NDims)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
 
+    createSamplingHeightField(mesh);
+
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SampledVelocityField sampledField(patch);
+    SampledPGradField sampledField(patch);
 
     ASSERT_EQ(sampledField.nDims(), 3);
 }
 
 
-TEST_F(SampledVelocityTest, Name)
+TEST_F(SampledPGradTest, Name)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -66,14 +72,16 @@ TEST_F(SampledVelocityTest, Name)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
 
-    const fvPatch & patch = mesh.boundary()["bottomWall"];
-    SampledVelocityField sampledField(patch);
+    createSamplingHeightField(mesh);
 
-    ASSERT_EQ(sampledField.name(), "U");
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    SampledPGradField sampledField(patch);
+
+    ASSERT_EQ(sampledField.name(), "pGrad");
 }
 
 
-TEST_F(SampledVelocityTest, RegisterFieldsZero)
+TEST_F(SampledPGradTest, RegisterFieldsZero)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -84,15 +92,17 @@ TEST_F(SampledVelocityTest, RegisterFieldsZero)
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     createWallModelSubregistry(mesh, patch);
+    createSamplingHeightField(mesh);
 
-    SampledVelocityField sampledField(patch);
+    SampledPGradField sampledField(patch);
 
     sampledField.registerFields(patch.faceCells());
 
     // Assert we registred the field in the registry
-    ASSERT_TRUE(sampledField.db().foundObject<scalarListIOList>("U"));
+    ASSERT_TRUE(sampledField.db().foundObject<scalarListIOList>("pGrad"));
 
-    const scalarListIOList & sampledFieldIOobject = sampledField.db().lookupObject<scalarListIOList>("U");
+    const scalarListIOList & sampledFieldIOobject = 
+        sampledField.db().lookupObject<scalarListIOList>("pGrad");
 
     forAll(sampledFieldIOobject, i)
     {
@@ -104,7 +114,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsZero)
 }
 
 
-TEST_F(SampledVelocityTest, RegisterFieldsZeroMultiCell)
+TEST_F(SampledPGradTest, RegisterFieldsZeroMultiCell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -139,22 +149,19 @@ TEST_F(SampledVelocityTest, RegisterFieldsZeroMultiCell)
     labelListList indexList = sampler->indexList();
 
     // Remove U from the registry and delete the sampler
-    sampler->db().checkOut("U");
     sampler.clear();
     
 
-    h.boundaryFieldRef()[patch.index()] == 2;
-
-    SampledVelocityField sampledField(patch);
+    SampledPGradField sampledField(patch);
     
     
     sampledField.registerFields(indexList);
 
     // Assert we registred the field in the registry
-    ASSERT_TRUE(sampledField.db().foundObject<scalarListListIOList>("U"));
+    ASSERT_TRUE(sampledField.db().foundObject<scalarListListIOList>("pGrad"));
 
     const scalarListListIOList & sampledFieldIOobject =
-        sampledField.db().lookupObject<scalarListListIOList>("U");
+        sampledField.db().lookupObject<scalarListListIOList>("pGrad");
 
     forAll(sampledFieldIOobject, i)
     {
@@ -169,7 +176,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsZeroMultiCell)
 }
 
 
-TEST_F(SampledVelocityTest, RegisterFieldsInitialize)
+TEST_F(SampledPGradTest, RegisterFieldsInitialize)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -178,24 +185,24 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitialize)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
 
-    createVelocityField(mesh);
-    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
+    createSamplingHeightField(mesh);
+    createPGradField(mesh);
+    volVectorField & pGrad = mesh.lookupObjectRef<volVectorField>("pGrad");
 
-    // Init U to something varying
-    U.primitiveFieldRef() = mesh.C();
+    pGrad.primitiveFieldRef() = mesh.C();
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     createWallModelSubregistry(mesh, patch);
 
-    SampledVelocityField sampledField(patch, "cell");
+    SampledPGradField sampledField(patch, "cell");
 
     sampledField.registerFields(patch.faceCells());
 
     // Assert we registred the field in the registry
-    ASSERT_TRUE(sampledField.db().foundObject<scalarListIOList>("U"));
+    ASSERT_TRUE(sampledField.db().foundObject<scalarListIOList>("pGrad"));
 
     const scalarListIOList & sampledFieldIOobject =
-        sampledField.db().lookupObject<scalarListIOList>("U");
+        sampledField.db().lookupObject<scalarListIOList>("pGrad");
 
     forAll(sampledFieldIOobject, i)
     {
@@ -210,7 +217,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitialize)
                 ASSERT_EQ
                 (
                     sampledFieldIOobject[i][j],
-                    U[patch.faceCells()[i]][j]
+                    pGrad[patch.faceCells()[i]][j]
                 );
             }
         }
@@ -219,7 +226,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitialize)
 
 
 
-TEST_F(SampledVelocityTest, RegisterFieldsInitializeMultiCell)
+TEST_F(SampledPGradTest, RegisterFieldsInitializeMultiCell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -228,21 +235,21 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitializeMultiCell)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
 
-    createVelocityField(mesh);
-    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
-
-    // Init U to something varying
-    U.primitiveFieldRef() = mesh.C();
-
-    const fvPatch & patch = mesh.boundary()["bottomWall"];
-    createWallModelSubregistry(mesh, patch);
-
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
         mesh.thisDb().lookupObject<volScalarField>("h")
     );
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
     h.boundaryFieldRef()[patch.index()] == 3;
+
+    createPGradField(mesh);
+    volVectorField & pGrad = mesh.lookupObjectRef<volVectorField>("pGrad");
+
+    pGrad.primitiveFieldRef() = mesh.C();
 
     autoPtr<MultiCellSampler> sampler
     (
@@ -260,21 +267,19 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitializeMultiCell)
     labelListList indexList = sampler->indexList();
 
     // Remove U from the registry and delete the sampler
-    sampler->db().checkOut("U");
     sampler.clear();
     
-    h.boundaryFieldRef()[patch.index()] == 2;
+    h.boundaryFieldRef()[patch.index()] == 3;
 
-    SampledVelocityField sampledField(patch);
-    
+    SampledPGradField sampledField(patch);
     
     sampledField.registerFields(indexList);
 
     // Assert we registred the field in the registry
-    ASSERT_TRUE(sampledField.db().foundObject<scalarListListIOList>("U"));
+    ASSERT_TRUE(sampledField.db().foundObject<scalarListListIOList>("pGrad"));
 
     const scalarListListIOList & sampledFieldIOobject =
-        sampledField.db().lookupObject<scalarListListIOList>("U");
+        sampledField.db().lookupObject<scalarListListIOList>("pGrad");
 
     forAll(sampledFieldIOobject, i)
     {
@@ -284,7 +289,8 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitializeMultiCell)
             {
                 if (k != 1)
                 {
-                    ASSERT_FLOAT_EQ(sampledFieldIOobject[i][j][k], U[indexList[i][j]][k]);
+                    ASSERT_FLOAT_EQ(sampledFieldIOobject[i][j][k],
+                                    pGrad[indexList[i][j]][k]);
                 }
                 else
                 {
@@ -296,7 +302,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitializeMultiCell)
 }
 
 
-TEST_F(SampledVelocityTest, RegisterFieldsRead)
+TEST_F(SampledPGradTest, RegisterFieldsRead)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -308,23 +314,23 @@ TEST_F(SampledVelocityTest, RegisterFieldsRead)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
 
-    createVelocityField(mesh);
-    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
+    createSamplingHeightField(mesh);
+    createPGradField(mesh);
+    volVectorField & pGrad = mesh.lookupObjectRef<volVectorField>("pGrad");
 
-    // Init U to something varying
-    U.primitiveFieldRef() = mesh.C();
+    pGrad.primitiveFieldRef() = mesh.C();
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     createWallModelSubregistry(mesh, patch);
 
-    SampledVelocityField sampledField(patch);
+    SampledPGradField sampledField(patch);
 
     sampledField.registerFields(patch.faceCells());
 
     // Assert we registred the field in the registry
-    ASSERT_TRUE(sampledField.db().foundObject<scalarListIOList>("U"));
+    ASSERT_TRUE(sampledField.db().foundObject<scalarListIOList>("pGrad"));
 
-    const scalarListIOList & sampledFieldIOobject = sampledField.db().lookupObject<scalarListIOList>("U");
+    const scalarListIOList & sampledFieldIOobject = sampledField.db().lookupObject<scalarListIOList>("pGrad");
 
     forAll(sampledFieldIOobject, i)
     {
@@ -337,7 +343,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsRead)
 }
 
 
-TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
+TEST_F(SampledPGradTest, RegisterFieldsReadMulticell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -349,15 +355,15 @@ TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
 
-    createVelocityField(mesh);
-    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
+    createSamplingHeightField(mesh);
+    createPGradField(mesh);
+    volVectorField & U = mesh.lookupObjectRef<volVectorField>("pGrad");
 
     // Init U to something varying
     U.primitiveFieldRef() = mesh.C();
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
-    createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
         mesh.thisDb().lookupObject<volScalarField>("h")
@@ -380,18 +386,18 @@ TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
     labelListList indexList = sampler->indexList();
 
     // Remove U from the registry and delete the sampler
-    sampler->db().checkOut("U");
+    sampler->db().checkOut("pGrad");
     sampler.clear();
     
-    SampledVelocityField sampledField(patch);
+    SampledPGradField sampledField(patch);
     
     sampledField.registerFields(indexList);
 
     // Assert we registred the field in the registry
-    ASSERT_TRUE(sampledField.db().foundObject<scalarListListIOList>("U"));
+    ASSERT_TRUE(sampledField.db().foundObject<scalarListListIOList>("pGrad"));
 
     const scalarListListIOList & sampledFieldIOobject =
-        sampledField.db().lookupObject<scalarListListIOList>("U");
+        sampledField.db().lookupObject<scalarListListIOList>("pGrad");
 
     forAll(sampledFieldIOobject, i)
     {
@@ -407,7 +413,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
 }
 
 
-TEST_F(SampledVelocityTest, Sample)
+TEST_F(SampledPGradTest, Sample)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -418,13 +424,13 @@ TEST_F(SampledVelocityTest, Sample)
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     createWallModelSubregistry(mesh, patch);
+    createSamplingHeightField(mesh);
 
-    createVelocityField(mesh);
-    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
-    // Init U to something varying and easily to test
-    U.primitiveFieldRef() = mesh.C();
+    createPGradField(mesh);
+    volVectorField & pGrad = mesh.lookupObjectRef<volVectorField>("pGrad");
+    pGrad.primitiveFieldRef() = mesh.C();
 
-    SampledVelocityField sampledField(patch, "cell");
+    SampledPGradField sampledField(patch, "cell");
 
     labelList indexList(patch.faceCells());
 
@@ -447,7 +453,7 @@ TEST_F(SampledVelocityTest, Sample)
                 ASSERT_FLOAT_EQ
                 (
                     sampledValues[i][j],
-                    U[indexList[i]][j]
+                    pGrad[indexList[i]][j]
                 );
             }
         }
@@ -456,7 +462,7 @@ TEST_F(SampledVelocityTest, Sample)
 }
 
 
-TEST_F(SampledVelocityTest, SampleMulticell)
+TEST_F(SampledPGradTest, SampleMulticell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -491,13 +497,13 @@ TEST_F(SampledVelocityTest, SampleMulticell)
     labelListList indexList = sampler->indexList();
 
     // Remove U from the registry and delete the sampler
-    sampler->db().checkOut("U");
+    sampler->db().checkOut("pGrad");
     sampler.clear();
     
-    SampledVelocityField sampledField(patch);
+    SampledPGradField sampledField(patch);
 
-    createVelocityField(mesh);
-    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
+    createPGradField(mesh);
+    volVectorField & U = mesh.lookupObjectRef<volVectorField>("pGrad");
 
     // Init U to something varying
     U.primitiveFieldRef() = mesh.C();
@@ -506,7 +512,7 @@ TEST_F(SampledVelocityTest, SampleMulticell)
     sampledField.registerFields(indexList);
 
     const scalarListListIOList & sampledFieldIOobject =
-        sampledField.db().lookupObject<scalarListListIOList>("U");
+        sampledField.db().lookupObject<scalarListListIOList>("pGrad");
 
     forAll(sampledFieldIOobject, i)
     {
@@ -529,7 +535,7 @@ TEST_F(SampledVelocityTest, SampleMulticell)
 }
 
 
-TEST_F(SampledVelocityTest, CheckInterpolationWorks)
+TEST_F(SampledPGradTest, CheckInterpolationWorks)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -540,18 +546,17 @@ TEST_F(SampledVelocityTest, CheckInterpolationWorks)
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     createWallModelSubregistry(mesh, patch);
+    createSamplingHeightField(mesh);
 
-    createVelocityField(mesh);
-    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
-    // Init U to something varying and easily to test
-    U.primitiveFieldRef() = mesh.C();
+    createPGradField(mesh);
+    volVectorField & pGrad = mesh.lookupObjectRef<volVectorField>("pGrad");
+    pGrad.primitiveFieldRef() = mesh.C();
 
-    SampledVelocityField sampledField(patch, "pointMVC");
+    SampledPGradField sampledField(patch, "pointMVC");
 
     labelList indexList(patch.faceCells());
 
     scalarField h(patch.size(), 0.19);
-
 
     scalarListList sampledValues(patch.size());
 
@@ -567,11 +572,11 @@ TEST_F(SampledVelocityTest, CheckInterpolationWorks)
             }
             else
             { // Here we just check that pointMVC gives us a different value
-              // Than stored in the U field cell centres
+              // Than stored in the pGrad field cell centres
                 ASSERT_NE
                 (
                     sampledValues[i][j],
-                    U[indexList[i]][j]
+                    pGrad[indexList[i]][j]
                 );
             }
         }

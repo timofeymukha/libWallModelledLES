@@ -110,7 +110,10 @@ public:
         //- Subregistry for sampled fields
         const objectRegistry & db() const
         {
-            return mesh().subRegistry("wallModelSampling").subRegistry(patch().name());
+            return mesh().subRegistry
+            (
+                "wallModelSampling"
+            ).subRegistry(patch().name());
         }
             
         //- Get the patch

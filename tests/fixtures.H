@@ -39,6 +39,9 @@ void createSamplingHeightField(const Foam::fvMesh & mesh);
 // construct U given mesh
 void createVelocityField(const Foam::fvMesh & mesh);
 
+// construct pGrad given mesh
+void createPGradField(const Foam::fvMesh & mesh);
+
 // construct nut given mesh
 void createNutField(const Foam::fvMesh & mesh);
 

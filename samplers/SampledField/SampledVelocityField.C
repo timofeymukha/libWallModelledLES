@@ -49,7 +49,6 @@ void Foam::SampledVelocityField::sample
 
         point p = faceCentres[i] - h[i]*faceNormals[i];
         const vector interp = interpolator_->interpolate(p, indexList[i]);
-        // Info << p << " " << interp << " " << UField[indexList[i]] << nl;
         sampledU[i] = interp - Uwall[i];
         scalarList temp(3, 0.0);
         

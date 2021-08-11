@@ -5,6 +5,7 @@ MultiCellSampler/testMultiCellSampler.C
 SingleCellSampler/testSingleCellSampler.C
 SampledField/testSampledVelocityField.C
 SampledField/testSampledWallGradUField.C
+SampledField/testSampledPGradField.C
 
 EXE=./testRunner
 

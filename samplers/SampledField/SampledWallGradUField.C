@@ -103,10 +103,8 @@ void Foam::SampledWallGradUField::registerFields
         sampledWallGradU[i] = scalarList(3, 0.0);
     }
 
-    if (mesh().foundObject<volVectorField>("U"))
+    if (mesh().foundObject<volVectorField>("wallGradU"))
     {
-        recompute();
-        
         const volVectorField & wallGradU = 
             mesh().lookupObject<volVectorField>("wallGradU");
         
@@ -152,19 +150,31 @@ void Foam::SampledWallGradUField::registerFields
 ) const
 {
 
-    const objectRegistry & registry =
-        mesh().subRegistry("wallModelSampling").subRegistry(patch().name());
-
     scalarListListList sampledWallGradU(patch().size());
 
-    if (mesh().foundObject<volVectorField>("U"))
+    forAll(sampledWallGradU, i)
     {
+        sampledWallGradU[i] = scalarListList(1);
+        sampledWallGradU[i][0] = scalarList(3, 0.0);
+    }
+
+    if (mesh().foundObject<volVectorField>("wallGradU"))
+    {
+        const volVectorField & wallGradU = 
+            mesh().lookupObject<volVectorField>("wallGradU");
         
+        label pI = patch().index();
+        const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
+
         forAll(sampledWallGradU, i)
         {
-            sampledWallGradU[i] = scalarListList(1);
-            sampledWallGradU[i][0] = scalarList(3, 0.0);
+            forAll(sampledWallGradU[i][0], j)
+            {
+                sampledWallGradU[i][0][j] = boundaryValues[i][j];
+            }
         }
+
+        Helpers::projectOnPatch(patch().nf(), sampledWallGradU);
     }
 
     
@@ -178,7 +188,7 @@ void Foam::SampledWallGradUField::registerFields
                 (
                     "wallGradU",
                     mesh().time().timeName(),
-                    registry,
+                    db(),
                     IOobject::READ_IF_PRESENT,
                     IOobject::AUTO_WRITE
                 ),

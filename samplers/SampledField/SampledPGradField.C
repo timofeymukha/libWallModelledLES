@@ -34,14 +34,18 @@ void Foam::SampledPGradField::sample
 ) const
 {
     Info<< "Sampling pressure gradient for patch " << patch_.name() << nl;
+
+    const vectorField & faceCentres = patch().Cf();
+    const tmp<vectorField> tfaceNormals = patch().nf();
+    const vectorField & faceNormals = tfaceNormals();
     
-    const volVectorField & pGradField =
-        mesh().lookupObject<volVectorField>("pGrad");
     vectorField sampledPGrad(indexList.size());
     
     for (int i=0; i<indexList.size(); i++)
     {
-        sampledPGrad[i] = pGradField[indexList[i]];
+        point p = faceCentres[i] - h[i]*faceNormals[i];
+        const vector interp = interpolator_->interpolate(p, indexList[i]);
+        sampledPGrad[i] = interp;
         scalarList temp(3, 0.0);
         
         for (int j=0; j<3; j++)
@@ -164,6 +168,7 @@ void Foam::SampledPGradField::registerFields
                 }
             }
         }
+        Helpers::projectOnPatch(patch().nf(), sampledPGrad);
     }
     
     if (!db().foundObject<scalarListIOList>("pGrad"))
