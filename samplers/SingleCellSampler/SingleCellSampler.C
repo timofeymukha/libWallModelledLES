@@ -50,7 +50,7 @@ namespace Foam
 void Foam::SingleCellSampler::createIndexList()
 {
     const label patchIndex = patch().index();
-    
+
     // Grab h for the current patch
     volScalarField & h = 
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
@@ -91,7 +91,7 @@ void Foam::SingleCellSampler::createIndexList()
     else
     {
         FatalErrorInFunction
-            << "SingleCellSampler: cellFinderType should be either Tree or "
+            << "SingleCellSampler: the sampler should be either Tree or "
             << "Crawling. Current input is " << cellFinderType()
             <<  abort(FatalError);
     }

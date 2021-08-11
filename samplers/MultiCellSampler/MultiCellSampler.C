@@ -81,7 +81,7 @@ void Foam::MultiCellSampler::createIndexList()
     else
     {
         FatalErrorInFunction
-            << "MultiCellSampler: invalid cell finder name, choose "
+            << "MultiCellSampler: invalid sampler finder name, choose "
             << "Tree or Crawling. Current choice is " << cellFinderType()
             <<  abort(FatalError);
     }

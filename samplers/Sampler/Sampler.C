@@ -90,7 +90,7 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
     word interpolationType =
         dict.lookupOrDefault<word>("interpolationType", "cell");
     word cellFinderType =
-        dict.lookupOrDefault<word>("cellFinderType", "TreeCellFinder");
+        dict.lookupOrDefault<word>("sampler", "Tree");
     bool hIsIndex =
         dict.lookupOrDefault<bool>("hIsIndex", false);
 
@@ -265,7 +265,7 @@ void Foam::Sampler::write(Ostream & os) const
 {
     os.writeKeyword("interpolationType")
         << interpolationType_ << token::END_STATEMENT << endl;
-    os.writeKeyword("cellFinderType")
+    os.writeKeyword("sampler")
         << cellFinderType_ << token::END_STATEMENT << endl;
     os.writeKeyword("hIsIndex")
         << hIsIndex_ << token::END_STATEMENT << endl;
