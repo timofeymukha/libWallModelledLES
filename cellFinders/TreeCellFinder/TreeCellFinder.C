@@ -127,7 +127,7 @@ void Foam::TreeCellFinder::findCellIndices
         )
     );
 
-    if (treePtr->nodes().empty() && (maxH != 0))
+    if (treePtr->nodes().empty() && (maxH != 0) && (patch().size()))
     {
         Warning
             << "TreeCellFinder: max(h) is " << maxH << " but no cell centres within "
