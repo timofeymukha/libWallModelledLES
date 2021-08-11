@@ -222,10 +222,10 @@ void Foam::SampledPGradField::setInterpolator
     else
     {
         interpolator_.reset(nullptr);
-        WarningIn("SampledPGradField::setInterpolator()")
-            << "No pGrad field is present, attempting to sample will lead "
-            << "to a crash."
-            << nl;
+        // WarningIn("SampledPGradField::setInterpolator()")
+        //     << "No pGrad field is present, attempting to sample will lead "
+        //     << "to a crash."
+        //     << nl;
     }
 }
 

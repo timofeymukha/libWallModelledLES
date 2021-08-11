@@ -216,10 +216,10 @@ void Foam::SampledVelocityField::setInterpolator
     else
     {
         interpolator_.reset(nullptr);
-        WarningIn("SampledVelocityField::setInterpolator()")
-            << "No U field is present, attempting to sample will lead "
-            << "to a crash."
-            << nl;
+        // WarningIn("SampledVelocityField::setInterpolator()")
+        //     << "No U field is present, attempting to sample will lead "
+        //     << "to a crash."
+        //     << nl;
     }
 
 }
