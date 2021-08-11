@@ -2,6 +2,7 @@
 **/system
 **/constant
 **/0
+/tests/test_cases/channelFlow/constant/polyMesh
 !/tests/test_cases/channelFlow/system
 !/tests/test_cases/channelFlow/constant
 !/tests/test_cases/channelFlow/0
