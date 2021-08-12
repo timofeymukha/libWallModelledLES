@@ -544,9 +544,16 @@ TEST_F(SampledVelocityTest, CheckInterpolationWorks)
     createVelocityField(mesh);
     volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
     // Init U to something varying and easily to test
-    U.primitiveFieldRef() = mesh.C();
+    
+    forAll(U.primitiveFieldRef(), i)
+    {
+        for(int j=0; j<3; j++)
+        {
+            U.primitiveFieldRef()[i][j] = mesh.C()[i][1];
+        }
+    }
 
-    SampledVelocityField sampledField(patch, "pointMVC");
+    SampledVelocityField sampledField(patch, "cellPointFace");
 
     labelList indexList(patch.faceCells());
 
@@ -568,10 +575,10 @@ TEST_F(SampledVelocityTest, CheckInterpolationWorks)
             else
             { // Here we just check that pointMVC gives us a different value
               // Than stored in the U field cell centres
-                ASSERT_NE
+                ASSERT_FLOAT_EQ
                 (
                     sampledValues[i][j],
-                    U[indexList[i]][j]
+                    0.19
                 );
             }
         }
