@@ -154,7 +154,7 @@ TEST_F(SamplerTest, NewDictionaryPatch)
     dict.lookupOrAddDefault(word("averagingTime"), 3.0);
     dict.lookupOrAddDefault(word("type"), word("DummySampler"));
     dict.lookupOrAddDefault(word("interpolationType"), word("cell"));
-    dict.lookupOrAddDefault(word("cellFinderType"), word("crawling"));
+    dict.lookupOrAddDefault(word("sampler"), word("Crawling"));
     dict.lookupOrAddDefault(word("hIsIndex"), false);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -164,7 +164,7 @@ TEST_F(SamplerTest, NewDictionaryPatch)
     ASSERT_EQ(&sampler().Sampler::patch(), &patch);
     ASSERT_EQ(sampler().Sampler::averagingTime(), 3.0);
     ASSERT_EQ(sampler().Sampler::interpolationType(), "cell");
-    ASSERT_EQ(sampler().Sampler::cellFinderType(), "crawling");
+    ASSERT_EQ(sampler().Sampler::cellFinderType(), "Crawling");
     ASSERT_EQ(sampler().Sampler::hIsIndex(), false);
     ASSERT_EQ(&sampler().Sampler::mesh(), &mesh);
     ASSERT_EQ(sampler().Sampler::nSampledFields(), 0);
