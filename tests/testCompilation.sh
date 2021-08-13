@@ -68,6 +68,21 @@ then
     docker start of_v1906
     docker exec -w $PWD/.. of_v1906 /bin/bash -c "source /opt/OpenFOAM/setImage_v1906.sh && ./Allwclean && ./Allwmake"
 fi
+if [ $1 == "v1912" ]
+then
+    docker start of_v1912
+    docker exec -w $PWD/.. of_v1912 /bin/bash -c "source /opt/OpenFOAM/setImage_v1912.sh && ./Allwclean && ./Allwmake"
+fi
+if [ $1 == "v2006" ]
+then
+    docker start of_v2006
+    docker exec -w $PWD/.. of_v2006 /bin/bash -c "source /opt/OpenFOAM/setImage_v2006.sh && ./Allwclean && ./Allwmake"
+fi
+if [ $1 == "v2012" ]
+then
+    docker start of_v2012
+    docker exec -w $PWD/.. of_v2012 /bin/bash -c "source /opt/OpenFOAM/setImage_v2012.sh && ./Allwclean && ./Allwmake"
+fi
 if [ $1 == "all" ]
 then
     mkdir logs
