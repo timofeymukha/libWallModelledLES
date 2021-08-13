@@ -1,6 +1,6 @@
 include $(OBJECTS_DIR)/../../versionRules/libraryRules
 
-EXE_INC = -std=c++11 \
+EXE_INC = \
 -I$(LIB_SRC)/finiteVolume/lnInclude \
 -I$(LIB_SRC)/OpenFOAM/lnInclude \
 -I$(LIB_SRC)/meshTools/lnInclude \
