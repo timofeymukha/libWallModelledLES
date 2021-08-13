@@ -1,5 +1,50 @@
 # CHANGELOG
 
+## v0.6.0
+
+### For users
+
+- Support for versions 3.x dropped.
+
+- Documentation portal now available at https://libwmles.readthedocs.io
+
+- It is now possible to choose between two different samplers that differ in
+how sampling cells are located. This is done by sampling the `sampler` keyword
+to `Tree` and `Crawling`. The default is `Tree`, which corresponds to the
+behaviour in prevous versions. For mor information, see the documentation.
+
+- It is now possible to tell the software to treat the values of the h field
+as the consecutive index of the cell to be sampled from intead of the distance
+to be sampled from. This is controlled by the hIsIndex keyword. Default is 0,
+corresponding to behaviour in previous versions.
+
+- It is now possible to interpolate the sampled values to a particular point
+within the sampling cell. This means that the sampling distance does not
+have to strictly correspond to a distance to the cell centre.
+To that end, the `interpolationType` is used, with the default value of `cell`, 
+which corresponds to using the cell-centre value.
+This functionality uses the `interpolation` class available in OpenFOAM,
+with corresponding options for the interpolation procedure.
+See documentation for more details.
+
+- The NoModel SGS model is removed (to make compilation with the Foundation
+  version of OF easier to manage)
+
+### For developers
+
+- Searching for sampling cells is now removed from the Sampler classes and
+put into CellFinder classes.
+
+- Useful helper functions now presenent in helpers.C/H files.
+  
+- SampledField classes no longer RTS.
+
+- There is now a MultiCellSampler class for building models based on data
+sampled from multiple consecutive cells. SampledFields also have support for
+this.
+  
+
+
 ## v0.5.2
 
 Hot fix for the default value of  `averagingTime` not being 0.
