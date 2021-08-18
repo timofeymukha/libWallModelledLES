@@ -18,6 +18,8 @@ If you use the library, please cite the following publication:
    :caption: Contents:
 
    install
+   wallmodelling
+   zzreferences
    api/class_view_hierarchy.rst
    api/file_view_hierarchy.rst
 

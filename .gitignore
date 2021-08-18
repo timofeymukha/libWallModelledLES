@@ -48,6 +48,7 @@ lnInclude/
 /docs/xml
 /docs/DTAGS
 /docs/build
+/docs/_build
 !**/Make/files
 !**/Make/options
 versionRules/foamVersion4wmles.H

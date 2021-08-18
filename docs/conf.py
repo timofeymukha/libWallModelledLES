@@ -17,7 +17,7 @@ import os
 # sys.path.insert(0, os.path.abspath('.'))
 
 import subprocess
-subprocess.call('doxygen', shell=True)
+#subprocess.call('doxygen', shell=True)
 
 # -- Project information -----------------------------------------------------
 
@@ -49,16 +49,19 @@ release = 'v0.5.0'
 # ones.
 extensions = [
     'sphinx.ext.mathjax',
-    'breathe',
-    'exhale',
-    'sphinx_rtd_theme'
+#    'breathe',
+#    'exhale',
+    'sphinx_rtd_theme',
+    'sphinxcontrib.bibtex',
 ]
 
+bibtex_bibfiles = ['bibl.bib']
+bibtex_reference_style = "label"
 #extensions.append("guzzle_sphinx_theme")
 
-breathe_projects = { "libWallModelledLES": "xml" }
+#breathe_projects = { "libWallModelledLES": "xml" }
 
-breathe_default_project = "libWallModelledLES"
+#breathe_default_project = "libWallModelledLES"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -209,3 +212,5 @@ exhale_args = {
     "minifyTreeView": False,
     "doxygenStripFromPath": "../"
 }
+
+numfig = True
