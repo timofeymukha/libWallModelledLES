@@ -42,3 +42,16 @@ If it doesn't correspond to your expectations, there is almost surely something 
 When recompiling for a different version of OpenFOAM than what was previously used, you should frist run ``Àllwclean``.
 If you make several compilation attempts and things don't work, it can be a good idea to delete ``Make/linux*`` and
 ``lnInclude`` to make sure you start from a clean slate.
+
+Running tests
+-------------
+
+To run the tests, Google Test and Google Mock should first be installed, see https://github.com/google/googletest.
+The environmental variable :code:`GTEST_DIR` should point to the root directory containing both Google Test and Google
+Mock (i.e. the directory to which you've clone the `googletest` repo).
+Don't forget to copy the compiled libraries to your :code:`FOAM_USER_LIBBIN`.
+
+The unit tests are located in the :code:`tests` directory, are compiled with :code:`wmake` producing the file `testRunner`,
+which could be executed to run the tests.
+The integration tests are located in :code:`test/integrationTests`, are also compiled with `wmake`, and the produced
+executable is called `testIntegration`.

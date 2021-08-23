@@ -53,6 +53,7 @@ extensions = [
 #    'exhale',
     'sphinx_rtd_theme',
     'sphinxcontrib.bibtex',
+    'sphinx.ext.autosectionlabel'
 ]
 
 bibtex_bibfiles = ['bibl.bib']

@@ -39,7 +39,38 @@ This library provides associated functionality:
 * Possibility to define an arbitrary :math:`h` for each face.
 * Sampling relevant fields and temporal averaging of the sampled values.
 * A set of wall models implemented as boundary conditions for :code:`nut`.
-  
+
+Documentation on particular models is provided in the header :code:`.H` files of corresponding classes.
+Below, a summary of the models is given and links to appropriate classes are provided.
+
+Algebraic models
+----------------
+
+These are essentially wall functions: some law of the wall is used to connect the sampled LES solution to the wall shear
+stress.
+Implemented in the library as the :code:`LOTWWallModelFvPatchScalarField` class.
+A multitude of laws of the wall are implemented:
+
+- Spalding's law: :code`SpaldingLawOfTheWall.H`
+- Reichard's law.
+- Werner & Wengel's law.
+- Integrated Reichard's law.
+- Integrated Werner & Wengel's law.
+
+The Newton root finder should be used to solve the associated non-linear algebraic equation.
+
+ODE-based models
+----------------
+
+These models are based on an ODE formulation, yet the ODE is integrated, and the model therefore only performs
+numerical integration using the trapezoidal rule, and does not solve and ODE directly.
+The models differ in the treatment of the right-hand side of the underlying ODE.
+For more details see the :code:`ODEWallModelFvPatchScalarField` class
+
+The following models are available
+- Equilibrium ODE model: right-hand side of the ODE is set to 0.
+- Pressure gradient ODE model: the right-hand side is set equal to the pressure gradient.
+
 
 Further reading
 ---------------

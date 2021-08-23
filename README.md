@@ -14,6 +14,7 @@ https://doi.org/10.1016/j.cpc.2019.01.016
 
 ## News ##
 
+- **2021-08-27** Version 0.6.0 released.
 - **2019-10-28** Version 0.5.1 released.
 - **2019-08-01** Version 0.5.0 released.
 - **2019-02-23** Version 0.4.1 released, containing a small bugfix.
@@ -23,32 +24,6 @@ https://doi.org/10.1016/j.cpc.2019.01.016
 
 The library compiles for versions 4.x to 9 from the OpenFOAM Foundation, and versions 3.0+ to 2021 from OpenCFD.
 If you are using a later version, there is a good chance that it will work anyway!
-
-## Key features ##
-
-- Provides a number of wall models, based on both non-linear algebraic and ordinary differential equations, see the class-headers in the wallModels folder.
-- Makes it possible to specify the distance to the wall model's sampling point, h, on a per-face basis.
-- Allows the user to control all the other parameters of wall modelling, e.g. model constants, iterative solver settings etc.
-- Serves a as a convenient framework for implementing new models without a lot of code duplication.
-
-## Validation cases ##
-In the *tests* folder there is a toy channel flow case that you can try running to make sure that things compiled well.
-No more simulation cases are shipped with the library.
-However, OpenFOAM cases for turbulent channel flow and flow over a backward-facing step can be found using the following DOI: 10.6084/m9.figshare.6790013
-These thus serve both as tutorials for case set-up and as validation cases.
-Further results obtained using the library can be found in the publications listed below.
-The cases considered in these publication can thus also be used for validation.
-
-## Running inlcuded  unit and integration tests
-To run the tests, Google Test and Google Mock should first be installed, see https://github.com/google/googletest.
-The environmental variable `GTEST_DIR` should point to the root directory containing both Google Test and Google Mock (i.e. the directory to which you've clone the `googletest` repo).
-
-The unit tests are located in the `tests` directory, are compiled with `wmake` producing the file `testRunner`, which could be executed to run the tests.
-The integration tests are located in `test/integrationTests`, are also compiled with `wmake`, and the produced executable is called `testIntegration`.
-
-Unfortunately, the unit tests have been developed using OpenFOAMv1812 and may not run on all versions.
-The integration tests should run on all versions, but were only run on v1812 as well.
-Reports on regressions are welcome.
 
 ## Case set-up ##
 Assume that you've already set up a case for the classical wall-resolved LES. To convert it to WMLES you need to do the following:
@@ -70,8 +45,6 @@ Assume that you've already set up a case for the classical wall-resolved LES. To
 
 Each class is documented in the corresponding .H header file.
 This includes usage instructions, and, where applicable, formulas and references to literature.
-A tiny toy case can be found under tests/testCases/channel\_flow where the 0/nut file provides an example of setting up the boundary conditions.
-The article linked to in the beginning of the README also serves as documentation.
 
 ## Best practice guidelines ##
 This is intended to be a summary of tips based on the experience of the developers and users of the library.
