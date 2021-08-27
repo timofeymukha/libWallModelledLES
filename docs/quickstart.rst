@@ -1,6 +1,9 @@
 Quick start
 ===========
 
+Case setup
+----------
+
 Assume that you've already set up a case for the classical wall-resolved LES. To convert it to WMLES you need to do the
 following:
 
@@ -33,19 +36,19 @@ Instead, we recommend using a meshing strategy presented in :ref:`Grid construct
 Miscellaneous tips
 ------------------
 
-- In regions where the TBL is attached, set :code:`h` to be the distance to the second consecutive off-the wall cell centre.
+- In regions where the TBL is attached, set :code:`h` to be the distance to the second consecutive off-the-wall cell centre.
   In other regions, set it to 0, i.e. sample from the wall-adjacent cell.
 - Use a mildly diffusive numerical scheme, e.g. :code:`LUST`. Tips regarding what other schemes worked well are welcome :).
 - The WALE model is a good first choice for SGS modelling. Don't use implicit LES on a WMLES mesh.
 - If your simulation crashes because of the wall model (you can usually see that in the log), make sure you have a good
   initial condition.
 - If your simulation crashed anyway, use :math:`h = 0`, this is pretty much guaranteed to be stable.
-- Large values of :code:`h` are known to sometimes lead to a crash, in particular, if the grid below :code:`h` is refined.
+- Large values of :math:`h` are known to sometimes lead to a crash, in particular, if the grid below :math:`h` is refined.
 - If you use :math:`h = 0`, use an algebraic wall model in integral formulation, i.e. the :code:`LOTWWallModel` with e.g.
   the :code:`IntegratedReichardt` law.
 
-Available cases
----------------
+Publically available cases
+--------------------------
 
 There is a number of cases that use the library available on the web.
 These can serve as good examples on how to setup your simulation!

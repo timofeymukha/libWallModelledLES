@@ -13,12 +13,14 @@ versions suported, it is impossible to actually run test cases for all of them.
 That being said, libWMLES has been extensively used with version 3.0.x, 4.1, and v1806 of OpenFOAM.
 Reports regarding difficulties with running a particular version are welcome: please open an issue on Bitbucket.
 
-The best level of testing is done for latest availbale release from OpenCFD, for which the test harness is run.
+The best level of testing is done for latest available release from OpenCFD, for which the test harness is run.
 This consists of unit and integration tests that aim to cover all the functionality of the library.
+A single system test is also run, which is a simulation of channel flow on a coarse grid, using the Spalding-law wall
+model and otherwise default parameters in the :code:`nut` dictionary.
 
-The aim is to support all new OpenCFD and Foundation realeases, meaning that the amount of supported versions grows with
+The aim is to support all new OpenCFD and Foundation releases, meaning that the amount of supported versions grows with
 three per year.
-This likely to become unsustainable, leading to deprecation of support for the oldest versions.
+This is likely to become unsustainable, leading to deprecation of support for the oldest versions.
 
 Compilation
 -----------
@@ -27,7 +29,7 @@ Clone the repository with git or download it as an archive by navigating Downloa
 A prerequisite for installing is having Python installed, but no packages are needed and any modern Python version
 should do.
 To compile, run ``Allwmake``.
-If you get compilation errors, please make sure your OpenFOAM environment is peroperly set up before opening a Bitbucket
+If you get compilation errors, please make sure your OpenFOAM environment is properly set up before opening a Bitbucket
 issue.
 In particular, take notice of the first couple of lines in the output for ``Allwmake``, which are of the following
 form::
