@@ -42,7 +42,7 @@ boundaryField
             B       5.5;
        }
 
-       cellFinderType Tree;
+       sampler Crawling;
        interpolationType cellPointFace;
        hIsIndex false;
 
