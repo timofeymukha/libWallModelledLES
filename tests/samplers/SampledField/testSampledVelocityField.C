@@ -585,3 +585,61 @@ TEST_F(SampledVelocityTest, CheckInterpolationWorks)
     }
 
 }
+
+
+TEST_F(SampledVelocityTest, CheckInterpolationPointOutside)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
+    createVelocityField(mesh);
+    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
+    // Init U to something varying and easily to test
+    
+    forAll(U.primitiveFieldRef(), i)
+    {
+        for(int j=0; j<3; j++)
+        {
+            U.primitiveFieldRef()[i][j] = mesh.C()[i][1];
+        }
+    }
+
+    SampledVelocityField sampledField(patch, "cellPointFace");
+
+    labelList indexList(patch.faceCells());
+
+    scalarField h(patch.size(), 0.5);
+
+
+    scalarListList sampledValues(patch.size());
+
+    sampledField.sample(sampledValues, indexList, h);
+
+    forAll(sampledValues, i)
+    {
+        forAll(sampledValues[i], j)
+        {
+            if (j == 1)
+            {
+                ASSERT_EQ(sampledValues[i][j], 0);
+            }
+            else
+            { // Here we just check that pointMVC gives us a different value
+              // Than stored in the U field cell centres
+                ASSERT_FLOAT_EQ
+                (
+                    sampledValues[i][j],
+                    0.2
+                );
+            }
+        }
+    }
+
+}
