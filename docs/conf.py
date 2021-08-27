@@ -49,8 +49,8 @@ release = 'v0.5.0'
 # ones.
 extensions = [
     'sphinx.ext.mathjax',
-#    'breathe',
-#    'exhale',
+    'breathe',
+    'exhale',
     'sphinx_rtd_theme',
     'sphinxcontrib.bibtex',
     'sphinx.ext.autosectionlabel'
@@ -60,9 +60,9 @@ bibtex_bibfiles = ['bibl.bib']
 bibtex_reference_style = "label"
 #extensions.append("guzzle_sphinx_theme")
 
-#breathe_projects = { "libWallModelledLES": "xml" }
+breathe_projects = { "libWallModelledLES": "xml" }
 
-#breathe_default_project = "libWallModelledLES"
+breathe_default_project = "libWallModelledLES"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
