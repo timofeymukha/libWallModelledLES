@@ -1,4 +1,3 @@
 exhale
 sphinxcontrib.bibtex
-sphinx.ext.autosectionlabel
 sphinx==3.3.1
