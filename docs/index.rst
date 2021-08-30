@@ -31,9 +31,3 @@ If you use the library, please cite the following publication:
 
    This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software and
    owner of the OPENFOAM\ :sup:`®` and OpenCFD\ :sup:`®`  trade marks.
-
-Index and search
-================
-
-* :ref:`genindex`
-* :ref:`search`
