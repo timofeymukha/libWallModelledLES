@@ -52,6 +52,8 @@ Description
     shear stress and the eddy viscosity values.
     - eps, the relative error tolerance for the convergence of the wall shear
     stress.
+    - nMeshY, the amount of nodes in the 1D grid discretising the distance
+    between 0 and h.
 
 Contributors/Copyright:
     2016-2019 Timofey Mukha

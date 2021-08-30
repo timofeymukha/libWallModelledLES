@@ -23,7 +23,7 @@ Description
     Class for the sampled velocity field.
 
 Contributors/Copyright:
-    2019 Timofey Mukha
+    2019-2021 Timofey Mukha
 
 SourceFiles
     SampledVelocityField.C

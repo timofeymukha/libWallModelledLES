@@ -48,7 +48,7 @@ Description
     \endverbatim
 
 Contributors/Copyright:
-    2018 Timofey Mukha
+    2018-2020 Timofey Mukha
 
 SourceFiles
     IntegratedReichardtLawOfTheWall.C

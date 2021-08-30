@@ -26,7 +26,7 @@ Description
     
 
 Contributors/Copyright:
-    2018-2019 Timofey Mukha
+    2018-2021 Timofey Mukha
 
 SourceFiles
     SampledField.C
@@ -67,7 +67,7 @@ public:
 
     // Constructors
 
-        //- Construct from patch and cell index list
+        //- Construct from patch and interpolation type
         SampledField
         (
             const fvPatch & patch,
@@ -80,6 +80,7 @@ public:
         {
         }
       
+        //- Copy constructor
         SampledField
         (
             const SampledField & orig
@@ -154,7 +155,7 @@ public:
             const labelListList &
         ) const = 0; 
         
-        //- Recompute the field
+        //- Recompute the values of the field
         virtual void recompute() const = 0;
 
         //- Set interplator

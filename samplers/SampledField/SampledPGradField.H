@@ -23,7 +23,7 @@ Description
     Class for the sampled pressure gradient field.
 
 Contributors/Copyright:
-    2018 Timofey Mukha
+    2018-2021 Timofey Mukha
 
 SourceFiles
     SampledPGradField.C
@@ -53,7 +53,7 @@ public:
 
     // Constructors
 
-        //- Construct from patch and cell index list
+        //- Construct from patch and interpolation type
         SampledPGradField
         (
             const fvPatch & patch,
@@ -66,6 +66,7 @@ public:
             setInterpolator(interpolationType);
         }
 
+        //- Copy constructor
         SampledPGradField(const SampledPGradField & orig)
         :
             SampledField(orig)
@@ -102,7 +103,7 @@ public:
             return "pGrad";
         }
 
-        //- Sample the pressure gradient values
+        //- Sample the pressure gradient values from a single cell per wall face
         void sample
         (
             scalarListList & sampledValues,
@@ -110,15 +111,16 @@ public:
             const scalarField & h
         ) const override;
 
+        //- Sample the pressure gradient values from multiple cells per wall face
         void sample(scalarListListList &, const labelListList &) const override;
         
-        //- Register appropriate fields in the object registry
+        //- Register the pGrad field in the object registry
         void registerFields
         (
             const labelList &
         ) const override;
 
-        //- Register appropriate fields in the object registry
+        //- Register the pGrad field in the object registry
         void registerFields
         (
             const labelListList &

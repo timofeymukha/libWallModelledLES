@@ -52,7 +52,7 @@ Description
     \endverbatim
 
 Contributors/Copyright:
-    2018 Timofey Mukha
+    2018-2019 Timofey Mukha
 
 SourceFiles
     IntegratedWernerWengleLawOfTheWall.C

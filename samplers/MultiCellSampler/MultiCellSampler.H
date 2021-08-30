@@ -20,10 +20,10 @@ Class
     Foam::MultiCellSampler
 
 Description
-    Class for sampling from several consequtive cells.
+    Class for sampling from several consecutive cells per wall face.
 
 Contributors/Copyright:
-    2018-2019 Timofey Mukha
+    2018-2021 Timofey Mukha
 
 SourceFiles
     MultiCellSampler.C
@@ -143,13 +143,13 @@ public:
             return lengthList_;
         }
 
-
+        //- Return the flag for excluding the wall adjacent cell from sampling
         bool excludeWallAdjacent() const
         {
             return excludeWallAdjacent_;
         }
         
-        //- Element access operator
+        //- Returning sampling cell indices for a given wall face using []
         inline labelList operator[](const label i) const
         {
             return indexList_[i];

@@ -20,7 +20,9 @@ Class
     Foam::WernerWengleLawOfTheWall
 
 Description
-    The law of the wall proposed by Werner and Wengle.
+    The law of the wall proposed by Werner and Wengle. Note that the model in
+    the reference uses the integrated version of this law, also present in the
+    library.
 
     \f{eqnarray*}{
         u^+ &=& y^+ \quad y+ \leq 11.81\\
@@ -48,7 +50,7 @@ Description
     \endverbatim
 
 Contributors/Copyright:
-    2016-2018 Timofey Mukha
+    2016-2021 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 

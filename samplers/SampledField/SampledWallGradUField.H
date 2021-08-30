@@ -20,10 +20,10 @@ Class
     Foam::SampledWallGradUField
 
 Description
-    Class for the sampled velocity gradient field.
+    Class for the sampled velocity gradient field at the wall.
 
 Contributors/Copyright:
-    2019 Timofey Mukha
+    2019-2021 Timofey Mukha
 
 SourceFiles
     SampledWallGradUField.C

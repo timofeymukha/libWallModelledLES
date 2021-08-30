@@ -23,7 +23,7 @@ Description
     Class for sampling data to the wall models.
 
 Contributors/Copyright:
-    2016-2018 Timofey Mukha
+    2016-2021 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 
@@ -76,7 +76,7 @@ protected:
         //- Type of cellFinder to use for finding sampling cells.
         word cellFinderType_;
 
-        //- Whether the h field is the coscutive index of the samping cell
+        //- Whether the h field is the consecutive index of the samping cell
         bool hIsIndex_;
 
     // Protected Member Functions

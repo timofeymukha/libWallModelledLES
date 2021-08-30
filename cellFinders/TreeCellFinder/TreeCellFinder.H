@@ -23,7 +23,7 @@ Description
     Class for searching for sampling cells using.
 
 Contributors/Copyright:
-    2019 Timofey Mukha
+    2019-2021 Timofey Mukha
 
 
 SourceFiles
