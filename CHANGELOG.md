@@ -4,17 +4,17 @@
 
 ### For users
 
-- Support for versions 3.x dropped.
+- This is the last version to support versions 3.x.
 
 - Documentation portal now available at https://libwmles.readthedocs.io
 
 - It is now possible to choose between two different samplers that differ in
 how sampling cells are located. This is done by sampling the `sampler` keyword
 to `Tree` and `Crawling`. The default is `Tree`, which corresponds to the
-behaviour in prevous versions. For mor information, see the documentation.
+behaviour in previous versions. For mor information, see the documentation.
 
 - It is now possible to tell the software to treat the values of the h field
-as the consecutive index of the cell to be sampled from intead of the distance
+as the consecutive index of the cell to be sampled from instead of the distance
 to be sampled from. This is controlled by the hIsIndex keyword. Default is 0,
 corresponding to behaviour in previous versions.
 
@@ -35,7 +35,7 @@ See documentation for more details.
 - Searching for sampling cells is now removed from the Sampler classes and
 put into CellFinder classes.
 
-- Useful helper functions now presenent in helpers.C/H files.
+- Useful helper functions now present in helpers.C/H files.
   
 - SampledField classes no longer RTS.
 
@@ -140,7 +140,7 @@ This a hotfix release, squashing a bug in one of the constructors of the LOTW mo
 ### For developers
 - The multiple versions are accounted for using pre-processor macros, with code borrowed from swak4foam, see the versionRules folder.
 
-- The Sampler now explicitely constructs the sub-registry corresponding to data sampled from the patch. This is instead of using the `subRegistry()` method, which does not support creating a new sub-registry in older OF versions. 
+- The Sampler now explicitly constructs the sub-registry corresponding to data sampled from the patch. This is instead of using the `subRegistry()` method, which does not support creating a new sub-registry in older OF versions. 
 
 - For the same purpose, accessing the subregistry via `subRegistry()` is used without a second argument to the method.
 

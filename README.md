@@ -1,12 +1,12 @@
 # README #
 
-libWallModelledLES is a library based on OpenFOAM� technology, extending the capabilities of OpenFOAM in the area of wall-modelled LES (WMLES).
-In particular, so-called wall-stress models are considered. These aim at correctly predicting the wall shear stress at the wall without the need for the LES mesh to resolve the inner part of the turbulent boundary layers.
+libWallModelledLES is a library based on OpenFOAM� technology, extending the capabilities of OpenFOAM in the area of
+wall-modelled LES (WMLES).
+This is a turbulence modelling methodology, which allows to make LES cheaper by not resolving the inner region of
+turbulent boundary layers.
 
-**Documentation is available here**
-https://libwmles.readthedocs.org/
-
-If you use the library, please cite the following publication, which fully describes the implemented functionality.
+If you use the library, please cite the following publication. This is also a good source for understanding the theory
+behind the models.
 
 https://doi.org/10.1016/j.cpc.2019.01.016
 
@@ -14,111 +14,26 @@ https://doi.org/10.1016/j.cpc.2019.01.016
 
 ## News ##
 
-- **2021-08-27** Version 0.6.0 released.
+- **2021-08-30** Version 0.6.0 released.
 - **2019-10-28** Version 0.5.1 released.
 - **2019-08-01** Version 0.5.0 released.
 - **2019-02-23** Version 0.4.1 released, containing a small bugfix.
 - **2018-11-17** Version 0.4.0 released, see CHANGELOG.md for list of changes.
 
+## Documentation
+https://libwmles.readthedocs.org/
+
 ## Compatibility ##
 
-The library compiles for versions 4.x to 9 from the OpenFOAM Foundation, and versions 3.0+ to 2021 from OpenCFD.
-If you are using a later version, there is a good chance that it will work anyway!
+See "Installation" section on the documentation portal. In short: the latest ESI and Foundation releases should work.
 
-## Case set-up ##
-Assume that you've already set up a case for the classical wall-resolved LES. To convert it to WMLES you need to do the following:
+## Getting help
 
-- Add libWallModelledLES.so to the loaded libraries in the controlDict.
-- Go into the *nut* file, and set up wall models as the boundary conditions at the walls.
-  This is similar to what you would do with OpenFOAM's built-in model based on Spalding's law, *nutUSpaldingWallFunction*.
-  The set-up and parameters for each model in the library can be found in the header of the associated .H file, see list of files below.
-- In your *0* directory, you should add a new volScalarField, *h*.
-  This will hold the distance from the faces to the cell-centre which will be used for sampling data into the wall model.
-  The value of the internalField is irrelevant, you can put it to some constant scalar, e.g. 0.
-  At boundaries where wall modelling is not applied, *zeroGradient* can be used.
-  At the walls where wall modelling is applied, the value of h should be provided.
-  The value 0 is reserved to indicate sampling from the wall-adjacent cell.
-  You can either provide a uniform value for the whole patch or a list of scalars, with separate values for each face.
-  To do the latter conveniently based on some criteria, using funkySetFields is recommended, it is a utility, which is part of swak4foam.
-
-## Documentation ##
-
-Each class is documented in the corresponding .H header file.
-This includes usage instructions, and, where applicable, formulas and references to literature.
-
-## Best practice guidelines ##
-This is intended to be a summary of tips based on the experience of the developers and users of the library.
-The intention is to give a good starting point for new users.
-Naturally, results may vary heavily depending on the case in question.
-
-- In the boundary layer, define your grid density as the number of cells per delta^3, where delta is the thickness of the boundary layer.
-  A good number is 27000 cells, but you can get good results with less.
-  This will need an a-priori knowledge of the distribution of delta across the wall.
-  A RANS precursor can do the job.
-- Use an isotropic grid in the boundary layer.
-  In particular, no need to refine it towards the wall, which may at first seem weird for practitioners of hybrid RANS/LES methods.
-  For some inspiration on unstructured meshing strategies see (Mukha, Johansson & Liefvendahl, in ECFD 7, Glasgow, UK, 2018).
-- In regions where the TBL is attached, set *h* to be the distance to the second consecutive off-the wall cell centre. In other regions, use *h=0*,
-  i.e. sample from the wall-adjacent cell.
-- Use a mildly diffusive numerical scheme, e.g. LUST. Tips regarding what other schemes worked well are welcome :).
-- The WALE model is a good first choice for SGS modelling.
-- If your simulation crashes because of the wall model (you can usually see that in the log), make sure you have a good initial condition.
-- If your simulation crashed anyway, use *h =0*, this is pretty much guaranteed to be stable.
-- Large values of *h* are known to sometimes lead to a crash, in particular, if the grid below *h* is refined.
-- If you use *h=0*, use an algebraic wall model in integral formulation, i.e. the *LOTWWallModel* with e.g. the *IntegratedReichardt* law.
-- Use a low tolerance and a decent number of iteration for the Newton solver, this will remove occasional spikes in *nut* that may occur when the solver is not converged but have no impact on the performance in general.
-  A tolerance of 0.0001 and 20-30 iterations is usually a good choice.
-- Similarly, for ODE models, use a relatively dense 1D grid, e.g. 50 points.
-  There is no large impact on performance either.
-
-## Source files' contents
-
-The contents of the files in each folder is briefly described below.
-Most classes are implemented in a pair of files with the same name ending with .C and .H, as is customary in C++ and OpenFOAM.
-Each such pair is treated as one item in the list below, without providing the file extension.
-
-- eddyViscosities
-    * Duprat/DupratEddyViscosity Class for eddy viscosity based on (Duprat et al, Physics of Fluids, 2011).
-    * EddyViscosity/EddyViscosity Base abstract class for eddy viscosity models used by ODE wall models.
-    * JohnsonKing/JohnsonKingEddyViscosity Class for eddy viscosity based on the mixing length model with vanDriest damping (van Driest, Journal of the Aeronautical Sciences, 1956).
-
-- lawsOfTheWall
-    * IntegratedReichardtLawOfTheWall/IntegratedReichardtLawOfTheWall Class for the integrated formulation of Reichardt's law, (Reichardt, Zeit. f�r Ang. Math. und Mech., 1951).
-    * IntegratedWernerWengleLawOfTheWall/IntegratedWernerWengleLawOfTheWall Class for the integrated formulation of the law of Werner and Wengle, (Werner & Wengle, Turb. Shear Flows 8, 1991).
-    * LawOfTheWall/LawOfTheWall Base abstract class for laws of the wall.
-    * ReichardLawOfTheWall/ReichardLawOfTheWall Class for Reichardt's law of the wall, (Reichardt, Zeit. f�r Ang. Math. und Mech., 1951).
-    * SpaldingLawOfTheWall/SpaldingLawOfTheWall Class for Spalding's law of the wall, (Spalding, J. of Applied Mechanics, 1961).
-    * WernerWengleLawOfTheWall/WernerWengleLawOfTheWall Class for Werner and Wengle's law of the wall, (Werner & Wengle, Turb. Shear Flows 8, 1991).
-- Make
-    * files File used by wmake to determine what source files to compile.
-    * options File used by wmkae to determine what libraries and headers to include at compilation.
-- rootFinding
-    * BisectionRootFinder/BisectionRootFinder Class for a root finder implementing the bisection method.
-    * NewtonRootFinder/NewtonRootFinder Class for a root finder implementing Newton's method.
-    * RootFinder/RootFinder Base abstract class for root finders.
-- samplers
-    * SampledField/SampledField Base abstract class for a field to be sampled by the wall models.
-    * SampledField/SampledPGradField Class for sampling the pressure gradient
-    * SampledField/SampledVelocityField Class for sampling the velocity
-    * SampledField/SampledWallGradUField Class for sampling the wall-normal gradient of velocity.
-    * Sampler/Sampler
-- sgsModels
-    * makeSGSModel.C Helper file to create a new turbulence model
-    * NoModel Class for an SGS model with zero SGS viscosity in the internal field.
-- tests
-- versionRules
-    * codeRules.H Defines macros based on the version of OpenFOAM which is used.
-    * libraryRules.H Defines locations of libraries included in Make/options depending on the OpenFOAM version used.
-    * makeFoamVersionHeader.py A Python script that determines the version of OpenFOAM which is used and writes-out associated data to foamVersion4wmles.H
-- wallModels
-    * EquilibriumODEWallModelFvPatchScalarField Class for the ODE-based wall model with a zero source term.
-    * KnownWallShearStressWallModelFvPatchScalarField Class for wall model that reads a-priori known wall shear stress from disk.
-    * LOTWWallModelFvPatchScalarField Class for algebraic (law of the wall based) wall models.
-    * ODEWallModelFvPatchScalarField Base class for ODE-based wall models.
-    * PGradODEWallModelFvPatchScalarField Class for ODE-based wall model with a source term equal to the pressure gradient.
-    * wallModelFvPatchScalarField Base abstract class for wall models.
+Please open [an issue on Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/issues?status=new&status=open)!
 
 ## Published works using the library
+If your works is missing from this glorious list and you want it here, [open an issue](https://bitbucket.org/lesituu/libwallmodelledles/issues?status=new&status=open)!
+
 
 - Mukha, T., Rezaeiravesh, S., & Liefvendahl, M. (2017). An OpenFOAM library for wall-modelled Large-Eddy Simulation. In proceedings of the 12th OpenFOAM Workshop, Exeter, UK.
 - Mukha, T., Johansson, M., & Liefvendahl, M. (2018). Effect of wall-stress model and mesh-cell topology on the predictive accuracy of LES of turbulent boundary layer flows.
@@ -131,3 +46,4 @@ Each such pair is treated as one item in the list below, without providing the f
 - Rezaeiravesh, S., Mukha, T., & Liefvendahl, M. (2019). Systematic study of accuracy of wall-modeled large eddy simulation using uncertainty quantification techniques. Computers & Fluids. DOI: 10.1016/j.compfluid.2019.03.025. Preprint: https://arxiv.org/abs/1810.05213
 - Mukha, T. (2019) The effect of numerical dissipation on the predictive accuracy of wall-modelled large-eddy simulation. Trudy ISP RAN/Proc. ISP RAS. DOI: 10.15514/ISPRAS-2019-31(6)-11
 - Malkus, T., &  Belloni, C. (2020) Wall-modeled large-eddy simulations of airfoil trailing edge noise. In proceedings of the 8th ESI OpenFOAM Conference. URL: https://www.esi-group.com/sites/default/files/resource/other/1682/8th_OpenFOAM_Conference_Ohio_State_University_Malkus.pdf
+- Mukha, T., Bensow, R.E., Liefvendahl, M., 2021. Predictive accuracy of wall-modelled large-eddy simulation on unstructured grids. Comput. Fluids 221, 104885. https://doi.org/10.1016/j.compfluid.2021.104885 (Open access)
