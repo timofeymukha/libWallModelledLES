@@ -31,6 +31,14 @@ See "Installation" section on the documentation portal. In short: the latest ESI
 
 Please open [an issue on Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/issues?status=new&status=open)!
 
+## Where this code lives
+This code is available on several public repositories:
+- [Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/) --- the main repository, where all the development happens, and where you should open issues to get help.
+- [Gitlab](https://gitlab.com/chalmers-marine-technology/libwallmodelledles) --- mirror, which only gets updated upon new releases.
+- [Github](https://github.com/timofeymukha/libWallModelledLES) --- mirror, which only gets updated upon releases.
+
+
+
 ## Published works using the library
 If your works is missing from this glorious list and you want it here, [open an issue](https://bitbucket.org/lesituu/libwallmodelledles/issues?status=new&status=open)!
 
