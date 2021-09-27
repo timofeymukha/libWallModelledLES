@@ -252,7 +252,6 @@ void Foam::MultiCellSampler::sample() const
         eps = mesh_.time().deltaTValue()/averagingTime_;
     }
 
-    Info << "Sampling" << nl;
     forAll(sampledFields_, fieldI)
     {
 

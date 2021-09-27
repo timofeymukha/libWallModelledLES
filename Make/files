@@ -25,6 +25,7 @@ eddyViscosities/Duprat/DupratEddyViscosity.C
 wallModels/wallModelFvPatchScalarField.C
 wallModels/KnownWallShearStressWallModelFvPatchScalarField.C
 wallModels/LOTWWallModelFvPatchScalarField.C
+wallModels/MulticellLOTWWallModelFvPatchScalarField.C
 wallModels/EquilibriumODEWallModelFvPatchScalarField.C
 wallModels/ODEWallModelFvPatchScalarField.C
 wallModels/PGradODEWallModelFvPatchScalarField.C

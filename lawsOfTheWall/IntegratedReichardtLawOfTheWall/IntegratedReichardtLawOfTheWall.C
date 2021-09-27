@@ -136,6 +136,39 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
 }
 
 
+Foam::scalar Foam::IntegratedReichardtLawOfTheWall::valueMulticell
+(
+ 
+    const MultiCellSampler & sampler,
+    label index,
+    scalar uTau,
+    scalar nu
+) const
+{  
+    const scalarListList & U =
+        sampler.db().lookupObject<scalarListListIOList>("U")[index];
+    
+    
+    scalarList h = sampler.h()[index];
+    scalarList l = sampler.lengthList()[index];
+
+    // Compute cell-length weighted mean of u across sampling cells
+    scalar uMean = 0;
+    
+    for(int i=0; i < h.size(); i++)
+    {
+        uMean += l[i]*mag(vector(U[i][0], U[i][1], U[i][2]));
+    }
+
+    scalar h1 = mag(h[0] - l[0]/2);
+    scalar h2 = h[h.size()-1] + l[h.size()-1]/2;
+    
+    uMean = uMean/(h2 - h1);
+
+    return value(uMean, h1, h2, uTau, nu);
+}
+
+
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
 (
     scalar u,
@@ -169,6 +202,23 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::derivative
 }
 
 
+Foam::scalar Foam::IntegratedReichardtLawOfTheWall::derivativeMulticell
+(
+    const MultiCellSampler & sampler,
+    label index,
+    scalar uTau,
+    scalar nu        
+) const
+{ 
+    scalarList h = sampler.h()[index];
+    scalar h1 = mag(h[0] - sampler.lengthList()[index][0]/2);
+    scalar h2 = h[h.size()-1] +
+                sampler.lengthList()[index][h.size()-1]/2;
+
+    return derivative(h1, h2, uTau, nu);
+}
+
+
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::derivative
 (
     scalar h1,
@@ -180,42 +230,6 @@ Foam::scalar Foam::IntegratedReichardtLawOfTheWall::derivative
     return -(logTermDerivative(h2, uTau, nu) - logTermDerivative(h1, uTau, nu) +
              expTermDerivative(h2, uTau, nu) - expTermDerivative(h1, uTau, nu));
 }
-
-
-Foam::scalar Foam::IntegratedReichardtLawOfTheWall::value
-(
- 
-    const MultiCellSampler & sampler,
-    label index,
-    scalar uTau,
-    scalar nu
-) const
-{
-
-    const scalarListList U = sampler.db().lookupObject<scalarListListIOList>("U")[index];
-    const scalarList lengthList = sampler.lengthList()[index];
-    const scalarList h = sampler.h()[index]; 
-
-
-    // The integrated value of U from h1 to h2
-    scalar integratedU = 0;
-
-
-    forAll (lengthList, i)
-    {
-        const scalar h1 = mag(h[i] - lengthList[i]/2);
-        const scalar h2 = h[i] + lengthList[i]/2; 
-        const scalar u = mag(vector(U[i][0], U[i][1], U[i][2]));
-        integratedU += (h2 - h1)*u;
-    }
-
-    const scalar h1 = h[0] - lengthList[0]/2;
-    const scalar h2 =  h[h.size()] + lengthList[h.size()]/2;
-    return integratedU - (logTerm(h2, uTau, nu) - logTerm(h1, uTau, nu) +
-                          expTerm(h2, uTau, nu) - expTerm(h1, uTau, nu));
-
-}
-
 
 Foam::scalar Foam::IntegratedReichardtLawOfTheWall::logTerm
 (

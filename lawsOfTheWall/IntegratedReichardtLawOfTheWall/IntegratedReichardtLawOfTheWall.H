@@ -116,10 +116,10 @@ public:
         //- Construct from model constants
         IntegratedReichardtLawOfTheWall
         (
-            const scalar kappa,
-            const scalar B1,
-            const scalar B2,
-            const scalar C
+            const scalar kappa=0.4,
+            const scalar B1=11,
+            const scalar B2=3,
+            const scalar C=7.8
         );
 
         // Destructor
@@ -184,9 +184,17 @@ public:
             scalar nu
         ) const override;
 
+        scalar valueMulticell
+        (
+            const MultiCellSampler & sampler,
+            label index,
+            scalar uTau,
+            scalar nu
+        ) const;
+
         scalar value
         (
-            scalar u,
+            scalar uIntegral,
             scalar h1,
             scalar h2,
             scalar uTau,
@@ -204,20 +212,19 @@ public:
             scalar nu
         ) const override;
 
+        scalar derivativeMulticell
+        (
+            const MultiCellSampler & sampler,
+            label index,
+            scalar uTau,
+            scalar nu
+        ) const;
+
         scalar
         derivative
         (
             scalar h1,
             scalar h2,
-            scalar uTau,
-            scalar nu
-        ) const;
-
-        //- Return the value of the implicit function defining the law
-        virtual scalar value
-        (
-            const MultiCellSampler & sampler,
-            label index,
             scalar uTau,
             scalar nu
         ) const;
