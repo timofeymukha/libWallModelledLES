@@ -211,6 +211,7 @@ LOTWWallModelFvPatchScalarField
             averagingTime(),
             dict.lookupOrDefault<word>("interpolationType", "cell"),
             dict.lookupOrDefault<word>("sampler", "Tree"),
+            dict.lookupOrDefault<word>("lengthScale", "CubeRootVol"),
             dict.lookupOrDefault<bool>("hIsIndex", false)
         )
     )

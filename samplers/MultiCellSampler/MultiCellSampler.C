@@ -150,7 +150,7 @@ void Foam::MultiCellSampler::createIndexList()
     }
 }
 
-void Foam::MultiCellSampler::createLengthList()
+void Foam::MultiCellSampler::createLengthList(const word lengthScaleType)
 {
     // Cell volumes
     const scalarField & V = mesh_.V();
@@ -176,11 +176,13 @@ Foam::MultiCellSampler::MultiCellSampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
+    const word lengthScaleType,
     bool hIsIndex,
     bool excludeWallAdjacent
 )
 :
-    Sampler(p, averagingTime, interpolationType, cellFinderType, hIsIndex),
+    Sampler(p, averagingTime, interpolationType, cellFinderType,
+            lengthScaleType, hIsIndex),
     indexList_(p.size()),
     h_(p.size()),
     lengthList_(p.size()),
@@ -198,7 +200,7 @@ Foam::MultiCellSampler::MultiCellSampler
     }
 
     createIndexList();
-    createLengthList();
+    createLengthList(lengthScaleType);
     
     addField
     (
@@ -219,6 +221,7 @@ Foam::MultiCellSampler::MultiCellSampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
+    const word lengthScaleType,
     bool hIsIndex,
     bool excludeWallAdjacent
 )
@@ -229,6 +232,7 @@ Foam::MultiCellSampler::MultiCellSampler
         averagingTime,
         interpolationType,
         cellFinderType,
+        lengthScaleType,
         hIsIndex,
         excludeWallAdjacent
     )

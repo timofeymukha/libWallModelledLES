@@ -70,10 +70,10 @@ protected:
     // Protected Member Functions
                     
         //- Create list of cell-indices from where data is sampled
-        virtual void createIndexList();
+        void createIndexList() override;
         
         //- Compute the length-scales
-        virtual void createLengthList();
+        void createLengthList(const word lengthScaleType) override;
         
 public:
 
@@ -91,6 +91,7 @@ public:
             scalar averagingTime,
             const word interpolationType="cell",
             const word cellFinderType="Tree",
+            const word lengthScaleType="CubeRootVol",
             bool hIsIndex=false,
             bool excludeWallAdjacent=false
         );
@@ -103,6 +104,7 @@ public:
             scalar averagingTime,
             const word interpolationType="cell",
             const word cellFinderType="Tree",
+            const word lengthScaleType="CubeRootVol",
             bool hIsIndex=false,
             bool excludeWallAdjacent=false
         );

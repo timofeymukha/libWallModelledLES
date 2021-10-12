@@ -76,6 +76,9 @@ protected:
         //- Type of cellFinder to use for finding sampling cells.
         word cellFinderType_;
 
+        //- Way to compute the length-scale for the cells
+        word lengthScaleType_;
+
         //- Whether the h field is the consecutive index of the samping cell
         bool hIsIndex_;
 
@@ -85,7 +88,7 @@ protected:
         virtual void createIndexList() = 0;
 
         //- Compute the length-scales
-        virtual void createLengthList(){}
+        virtual void createLengthList(const word lengthScaleType){}
 
         //- Create fields
         virtual void createFields();
@@ -106,6 +109,7 @@ public:
             scalar averagingTime,
             const word interpolationType,
             const word cellFinderType,
+            const word lengthScaleType,
             bool hIsIndex
         );
 
@@ -117,6 +121,7 @@ public:
             scalar averagingTime,
             const word interpolationType,
             const word cellFinderType,
+            const word lengthScaleType,
             bool hIsIndex
         );
 
@@ -135,6 +140,7 @@ public:
             scalar averagingTime,
             const word interpolationType,
             const word cellFinderType,
+            const word lengthScaleType,
             bool hIsIndex
         );
 
@@ -184,6 +190,11 @@ public:
         {
             return cellFinderType_;
         }
+        
+        word lengthScaleType() const
+        {
+            return lengthScaleType_;
+        }
 
         bool hIsIndex() const
         {
@@ -217,6 +228,7 @@ public:
                 scalar averagingTime,
                 const word interpolationType,
                 const word cellFinderType,
+                const word lengthScaleType,
                 bool hIsIndex
             ),
             (
@@ -225,6 +237,7 @@ public:
                 averagingTime,
                 interpolationType,
                 cellFinderType,
+                lengthScaleType,
                 hIsIndex
             )
         );

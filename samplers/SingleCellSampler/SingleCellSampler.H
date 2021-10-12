@@ -66,9 +66,15 @@ protected:
                     
         //- Create list of cell-indices from where data is sampled
         void createIndexList() override;
-        
+
         //- Compute the length-scales
-        void createLengthList() override;
+        void createLengthList(const word lengthScaleType) override;
+        
+        //- Compute length-scales as cubic root of the volume
+        void createLengthListCubeRootVol();
+        
+        //- Compute length-scales as distance across wall-normal direction
+        void createLengthListWallNormalDistance();
         
 public:
 
@@ -79,17 +85,16 @@ public:
 
     // Constructors
 
-        //- Construct from patch and averaging time
         SingleCellSampler
         (
             const fvPatch&,
             scalar averagingTime,
             const word interpolationType="cell",
             const word cellFinderType="Tree",
+            const word lengthScaleType="CubeRootVol",
             bool hIsIndex=false
         );
 
-        //- Construct from type, patch and averaging time
         SingleCellSampler
         (
             const word & samplerName,
@@ -97,6 +102,7 @@ public:
             scalar averagingTime,
             const word interpolationType="cell",
             const word cellFinderType="Tree",
+            const word lengthScaleType="CubeRootVol",
             bool hIsIndex=false
         );
         

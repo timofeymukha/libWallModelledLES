@@ -49,6 +49,7 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
+    const word lengthScaleType,
     bool hIsIndex
 )
 {
@@ -75,6 +76,7 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         averagingTime,
         interpolationType,
         cellFinderType,
+        lengthScaleType,
         hIsIndex
     );
 }  
@@ -91,6 +93,8 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         dict.lookupOrDefault<word>("interpolationType", "cell");
     word cellFinderType =
         dict.lookupOrDefault<word>("sampler", "Tree");
+    word lengthScaleType =
+        dict.lookupOrDefault<word>("lengthScale", "CubeRootVol");
     bool hIsIndex =
         dict.lookupOrDefault<bool>("hIsIndex", false);
 
@@ -101,6 +105,7 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         averagingTime,
         interpolationType,
         cellFinderType,
+        lengthScaleType,
         hIsIndex
     );
 }  
@@ -149,6 +154,7 @@ Foam::Sampler::Sampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
+    const word lengthScaleType,
     bool hIsIndex
 )
 :
@@ -158,6 +164,7 @@ Foam::Sampler::Sampler
     sampledFields_(0),
     interpolationType_(interpolationType),
     cellFinderType_(cellFinderType),
+    lengthScaleType_(lengthScaleType),
     hIsIndex_(hIsIndex)
 {
     if (debug)
@@ -213,10 +220,19 @@ Foam::Sampler::Sampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
+    const word lengthScaleType,
     bool hIsIndex
 )
 :
-    Sampler(p, averagingTime, interpolationType, cellFinderType, hIsIndex)
+    Sampler
+    (
+        p,
+        averagingTime,
+        interpolationType,
+        cellFinderType,
+        lengthScaleType,
+        hIsIndex
+    )
 {
 }
 
@@ -228,6 +244,7 @@ Foam::Sampler::Sampler(const Sampler & copy)
     sampledFields_(copy.sampledFields_),
     interpolationType_(copy.interpolationType_),
     cellFinderType_(copy.cellFinderType_),
+    lengthScaleType_(copy.lengthScaleType_),
     hIsIndex_(copy.hIsIndex_)
 {
     if (debug)
