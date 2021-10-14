@@ -19,6 +19,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "wallModelFvPatchScalarField.H"
+#include "turbulenceModel.H"
 #include "meshSearch.H"
 #include "wallFvPatch.H"
 #include "codeRules.H"
@@ -155,6 +156,30 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             )
         );  
     }
+}
+
+Foam::tmp<Foam::volScalarField> Foam::wallModelFvPatchScalarField::nu() const
+{
+    const turbulenceModel& turbModel =
+            db().lookupObject<turbulenceModel>
+            (
+                turbulenceModel::propertiesName
+            );
+    return turbModel.nu();
+}
+
+
+Foam::tmp<Foam::scalarField> Foam::wallModelFvPatchScalarField::nu
+(
+    const label patchi
+) const
+{
+    const turbulenceModel& turbModel =
+            db().lookupObject<turbulenceModel>
+            (
+                turbulenceModel::propertiesName
+            );
+    return turbModel.nu(patchi);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -303,7 +328,8 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     
     const vectorField & wallGradU = wallGradUField.boundaryField()[pI];
     
-    const volScalarField & nu = db().lookupObject<volScalarField>("nu");
+    tmp<scalarField> tnuw = this->nu(pI);
+    const scalarField& nuw = tnuw();
 
     // Compute nut and assign
     scalarField nut(calcNut());
@@ -333,7 +359,7 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     wss.boundaryField()[pI]
 #endif
     ==
-        (nut + nu.boundaryField()[pI])*wallGradU;
+        (nut + nuw)*wallGradU;
 
     consumedTime_ += (db().time().elapsedClockTime() - startCPUTime);
 

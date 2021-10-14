@@ -86,6 +86,13 @@ protected:
 
         //- Check that the patch is a wall
         virtual void checkType();
+        
+        //- Return the laminar viscosity
+        //  Note: this is the internal field
+        tmp<volScalarField> nu() const;
+        
+        //- Return laminar viscosity on patchi
+        tmp<scalarField> nu(const label patchi) const;
 
         //- Calculate the turbulence viscosity
         virtual tmp<scalarField> calcNut() const = 0;
