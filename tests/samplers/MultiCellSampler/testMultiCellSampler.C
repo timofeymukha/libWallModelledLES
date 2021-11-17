@@ -32,6 +32,7 @@ TEST_F(MultiCellSamplerTest, ConstructorDefaults)
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cell");
     ASSERT_EQ(sampler.cellFinderType(), "Tree");
+    ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
@@ -64,6 +65,7 @@ TEST_F(MultiCellSamplerTest, ConstructorCellCrawling)
         3.0,
         "cell",
         "Crawling",
+        "CubeRootVol",
         true
     );
 
@@ -107,6 +109,7 @@ TEST_F(MultiCellSamplerTest, ConstructorAttemptCellPoint)
                 3.0,
                 "cellPoint",
                 "Crawling",
+                "CubeRootVol",
                 false
             );
         },
@@ -138,6 +141,7 @@ TEST_F(MultiCellSamplerTest, ConstructorAttemptTreeHIsIndex)
                 3.0,
                 "cell",
                 "Tree",
+                "CubeRootVol",
                 true
             );
         },
@@ -173,6 +177,7 @@ TEST_F(MultiCellSamplerTest, ConstructorTree)
         3.0,
         "cell",
         "Tree",
+        "CubeRootVol",
         false
     );
 
@@ -218,6 +223,7 @@ TEST_F(MultiCellSamplerTest, AttemptInvalidCellFinderName)
                 3.0,
                 "cell",
                 "RandomName",
+                "CubeRootCol",
                 true
             );
         },
@@ -226,6 +232,35 @@ TEST_F(MultiCellSamplerTest, AttemptInvalidCellFinderName)
 }
 
 
+TEST_F(MultiCellSamplerTest, AttemptInvalidLengthScaleName)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    ASSERT_DEATH
+    (
+        {
+            MultiCellSampler sampler
+            (
+                "MultiCellSampler",
+                patch,
+                3.0,
+                "cell",
+                "Tree",
+                "RandomName",
+                true
+            );
+        },
+        "FATAL ERROR"
+    );
+}
 TEST_F(MultiCellSamplerTest, Sample)
 {
     extern argList * mainArgs;
@@ -260,6 +295,7 @@ TEST_F(MultiCellSamplerTest, Sample)
         0.02,
         "cell",
         "Crawling",
+        "CubeRootVol",
         3
     );
     
@@ -309,6 +345,7 @@ TEST_F(MultiCellSamplerTest, AddField)
         0.02,
         "cell",
         "Crawling",
+        "CubeRootVol",
         3
     );
     

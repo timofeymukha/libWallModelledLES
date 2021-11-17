@@ -22,12 +22,13 @@ namespace Foam
                 scalar averagingTime,
                 const word interpolationType,
                 const word cellFinderType,
+                const word lengthScaleType,
                 bool hIsIndex
 
             )
             :
                 Sampler(p, averagingTime, interpolationType, cellFinderType,
-                        hIsIndex)
+                        lengthScaleType, hIsIndex)
             {}
 
             DummySampler
@@ -37,11 +38,12 @@ namespace Foam
                 scalar averagingTime,
                 const word interpolationType,
                 const word cellFinderType,
+                const word lengthScaleType,
                 bool hIsIndex
             )
             :
                 Sampler(p, averagingTime, interpolationType, cellFinderType,
-                        hIsIndex)
+                        lengthScaleType, hIsIndex)
             {}
             
             DummySampler(const DummySampler &) = default;
@@ -83,6 +85,7 @@ TEST_F(SamplerTest, FullConstructor)
         3.0,
         "cell",
         "crawling",
+        "CubeRootVol",
         false
     );
 
@@ -90,6 +93,7 @@ TEST_F(SamplerTest, FullConstructor)
     ASSERT_EQ(sampler.Sampler::averagingTime(), 3.0);
     ASSERT_EQ(sampler.Sampler::interpolationType(), "cell");
     ASSERT_EQ(sampler.Sampler::cellFinderType(), "crawling");
+    ASSERT_EQ(sampler.Sampler::lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.Sampler::hIsIndex(), false);
     ASSERT_EQ(&sampler.Sampler::mesh(), &mesh);
     ASSERT_EQ(sampler.Sampler::nSampledFields(), 0);
@@ -121,6 +125,7 @@ TEST_F(SamplerTest, NewNamePatchAveragingTime)
             3.0,
             "cell",
             "crawling",
+            "CubeRootVol",
             false
         )
     );
@@ -130,6 +135,7 @@ TEST_F(SamplerTest, NewNamePatchAveragingTime)
     ASSERT_EQ(sampler().Sampler::averagingTime(), 3.0);
     ASSERT_EQ(sampler().Sampler::interpolationType(), "cell");
     ASSERT_EQ(sampler().Sampler::cellFinderType(), "crawling");
+    ASSERT_EQ(sampler().Sampler::lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler().Sampler::hIsIndex(), false);
     ASSERT_EQ(&sampler().Sampler::mesh(), &mesh);
     ASSERT_EQ(sampler().Sampler::nSampledFields(), 0);
@@ -193,6 +199,7 @@ TEST_F(SamplerTest, CreateFields)
         3.0,
         "cell",
         "crawling",
+        "CubeRootVol",
         false
     );
 
@@ -217,6 +224,7 @@ TEST_F(SamplerTest, Copy)
         3.0,
         "cell",
         "crawling",
+        "CubeRootVol",
         false
     );
     sampler.addField(new SampledVelocityField(patch));
@@ -272,6 +280,7 @@ TEST_F(SamplerTest, AddField)
         3.0,
         "cell",
         "crawling",
+        "CubeRootVol",
         false
     );
     
