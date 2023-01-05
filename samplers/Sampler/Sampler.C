@@ -52,7 +52,7 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
     bool hIsIndex
 )
 {
-    SamplerRTSTableConstructorTable::iterator cstrIter =
+    auto cstrIter =
     SamplerRTSTableConstructorTablePtr_->find(samplerName);
 
     if (cstrIter == SamplerRTSTableConstructorTablePtr_->end())
