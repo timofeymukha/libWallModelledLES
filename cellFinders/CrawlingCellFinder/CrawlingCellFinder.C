@@ -195,7 +195,7 @@ void Foam::CrawlingCellFinder::findCellIndices
                         << "Will stop crawling and use the last valid cell " 
                         << "corresponding to index " << layer + 1
                         << " and cell centre at distance " << distance
-                        << ". Requested distance is " << h[patchFaceI]
+                        << ". Requested index/distance is " << h[patchFaceI]
                         << " which may or may not correspond to this cell." 
                         << nl;
                 }
