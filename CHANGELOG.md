@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.6.1
+### For users
+
+- The library now works with up to release v2206 from OpenCFD.
+
 ## v0.6.0
 
 ### For users

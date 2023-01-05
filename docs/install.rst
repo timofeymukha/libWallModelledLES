@@ -6,7 +6,7 @@ OpenFOAM version compatibility
 
 The libWMLES library supports two forks of OpenFOAM, developed by `OpenCFD <https://openfoam.com/>`_, and the
 `OpenFOAM Foundation <https://openfoam.org/>`_, repsectively.
-Curently, all releases from OpenCFD up to v2012 are supported, as well as releases 3.0.x to 9 from the Foundation.
+Curently, all releases from OpenCFD up to v2212 are supported, as well as releases 3.0.x to 9 from the Foundation.
 It should be stressed that *supported* means that it is checked that the library compiles.
 This should in principle entail that it also works properly, but due to time constraints and the ambitious number of
 versions suported, it is impossible to actually run test cases for all of them.

@@ -40,7 +40,7 @@ Foam::autoPtr<Foam::EddyViscosity> Foam::EddyViscosity::New
 {
     word modelName(dict.lookup("type"));
     
-    DictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
     DictionaryConstructorTablePtr_->find(modelName);
 
     if (cstrIter == DictionaryConstructorTablePtr_->end())
@@ -68,7 +68,7 @@ Foam::autoPtr<Foam::EddyViscosity> Foam::EddyViscosity::New
 )
 {
     
-    TypeAndDictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
     TypeAndDictionaryConstructorTablePtr_->find(modelName);
 
     if (cstrIter == TypeAndDictionaryConstructorTablePtr_->end())

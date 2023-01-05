@@ -1,6 +1,6 @@
 # README #
 
-libWallModelledLES is a library based on OpenFOAM� technology, extending the capabilities of OpenFOAM in the area of
+libWallModelledLES is a library based on OpenFOAM® technology, extending the capabilities of OpenFOAM in the area of
 wall-modelled LES (WMLES).
 This is a turbulence modelling methodology, which allows to make LES cheaper by not resolving the inner region of
 turbulent boundary layers.
@@ -14,6 +14,7 @@ https://doi.org/10.1016/j.cpc.2019.01.016
 
 ## News ##
 
+- **2023-01-05** Version 0.6.1 released.
 - **2021-08-30** Version 0.6.0 released.
 - **2019-10-28** Version 0.5.1 released.
 - **2019-08-01** Version 0.5.0 released.
@@ -21,7 +22,7 @@ https://doi.org/10.1016/j.cpc.2019.01.016
 - **2018-11-17** Version 0.4.0 released, see CHANGELOG.md for list of changes.
 
 ## Documentation
-https://libwmles.readthedocs.org/
+[https://libwmles.readthedocs.io](https://libwmles.readthedocs.io)
 
 ## Compatibility ##
 
@@ -30,6 +31,14 @@ See "Installation" section on the documentation portal. In short: the latest ESI
 ## Getting help
 
 Please open [an issue on Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/issues?status=new&status=open)!
+
+## Where this code lives
+This code is available on several public repositories:
+- [Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/) --- the main repository, where all the development happens, and where you should open issues to get help.
+- [Gitlab](https://gitlab.com/chalmers-marine-technology/libwallmodelledles) --- mirror, which only gets updated upon new releases.
+- [Github](https://github.com/timofeymukha/libWallModelledLES) --- mirror, which only gets updated upon releases.
+
+
 
 ## Published works using the library
 If your works is missing from this glorious list and you want it here, [open an issue](https://bitbucket.org/lesituu/libwallmodelledles/issues?status=new&status=open)!

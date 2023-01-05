@@ -41,7 +41,8 @@ Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New
 {
     Foam::word lawName(dict.lookup("type"));
     
-    DictionaryConstructorTable::iterator cstrIter =
+
+    auto cstrIter =
         DictionaryConstructorTablePtr_->find(lawName);
 
     if (cstrIter == DictionaryConstructorTablePtr_->end())
@@ -70,7 +71,7 @@ Foam::autoPtr<Foam::LawOfTheWall> Foam::LawOfTheWall::New
 )
 {
     
-    TypeAndDictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         TypeAndDictionaryConstructorTablePtr_->find(lawName);
 
     if (cstrIter == TypeAndDictionaryConstructorTablePtr_->end())
