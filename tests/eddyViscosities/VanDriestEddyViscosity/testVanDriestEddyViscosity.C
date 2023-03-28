@@ -137,6 +137,7 @@ TEST_F(VanDriestEddyViscosityTest, ValueSampler)
         3.0,
         "cell",
         "Tree",
+        "CubeRootVol",
         false
     );
     VanDriestEddyViscosity eddy = VanDriestEddyViscosity(0.4, 18);
