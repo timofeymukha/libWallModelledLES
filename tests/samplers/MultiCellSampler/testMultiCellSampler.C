@@ -34,6 +34,7 @@ TEST_F(MultiCellSamplerTest, ConstructorDefaults)
     ASSERT_EQ(sampler.cellFinderType(), "Tree");
     ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), false);
+    ASSERT_EQ(sampler.excludeWallAdjacent(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
     ASSERT_EQ(sampler.lengthList().size(), patch.size());
@@ -74,6 +75,7 @@ TEST_F(MultiCellSamplerTest, ConstructorCellCrawling)
     ASSERT_EQ(sampler.interpolationType(), "cell");
     ASSERT_EQ(sampler.cellFinderType(), "Crawling");
     ASSERT_EQ(sampler.hIsIndex(), true);
+    ASSERT_EQ(sampler.excludeWallAdjacent(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
     ASSERT_EQ(sampler.lengthList().size(), patch.size());
@@ -186,6 +188,7 @@ TEST_F(MultiCellSamplerTest, ConstructorTree)
     ASSERT_EQ(sampler.interpolationType(), "cell");
     ASSERT_EQ(sampler.cellFinderType(), "Tree");
     ASSERT_EQ(sampler.hIsIndex(), false);
+    ASSERT_EQ(sampler.excludeWallAdjacent(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
     ASSERT_EQ(sampler.lengthList().size(), patch.size());
@@ -353,4 +356,83 @@ TEST_F(MultiCellSamplerTest, AddField)
     
     ASSERT_EQ(sampler.nSampledFields(), 3);
     ASSERT_TRUE(sampler.db().foundObject<scalarListListIOList>("pGrad"));
+}
+
+TEST_F(MultiCellSamplerTest, LengthCubeRootVol) {
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    h.boundaryFieldRef()[patch.index()] == 0.3;
+
+    MultiCellSampler sampler
+    (
+        "MultiCellSampler",
+        patch,
+        3.0
+    );
+
+    ASSERT_EQ(sampler.lengthList().size(), patch.size());
+    
+    for (int i=0; i< sampler.lengthList().size(); i++)
+    {
+
+        forAll(sampler.lengthList()[i], j)
+        {
+            ASSERT_EQ(sampler.lengthList()[i].size(), 2);
+            ASSERT_FLOAT_EQ(sampler.lengthList()[i][j], 0.9283177667225558);
+        }
+    }
+}
+
+TEST_F(MultiCellSamplerTest, LengthWallNormalDistance) {
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    h.boundaryFieldRef()[patch.index()] == 0.3;
+
+    MultiCellSampler sampler
+    (
+        "MultiCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "Crawling",
+        "WallNormalDistance"
+    );
+
+    ASSERT_EQ(sampler.lengthList().size(), patch.size());
+    
+    for (int i=0; i< sampler.lengthList().size(); i++)
+    {
+
+        forAll(sampler.lengthList()[i], j)
+        {
+            ASSERT_EQ(sampler.lengthList()[i].size(), 2);
+            ASSERT_FLOAT_EQ(sampler.lengthList()[i][j], 0.2);
+        }
+    }
 }
