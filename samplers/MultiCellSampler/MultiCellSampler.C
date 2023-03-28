@@ -35,6 +35,8 @@ License
 #include "scalarListListIOList.H"
 #include "TreeCellFinder.H"
 #include "CrawlingCellFinder.H"
+#include "Sampler.H"
+#include "surfaceMesh.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -152,6 +154,19 @@ void Foam::MultiCellSampler::createIndexList()
 
 void Foam::MultiCellSampler::createLengthList(const word lengthScaleType)
 {
+    if (lengthScaleType == "CubeRootVol")
+    {
+        createLengthListCubeRootVol();
+    }
+    else if (lengthScaleType == "WallNormalDistance")
+    {
+        createLengthListWallNormalDistance(); 
+    }
+    
+}
+
+void Foam::MultiCellSampler::createLengthListCubeRootVol()
+{
     // Cell volumes
     const scalarField & V = mesh_.V();
     
@@ -164,7 +179,46 @@ void Foam::MultiCellSampler::createLengthList(const word lengthScaleType)
             lengthList_[i][j] = pow(V[indexList_[i][j]], 1.0/3.0);
         }
     }
-    
+}
+
+void Foam::MultiCellSampler::createLengthListWallNormalDistance()
+{
+    const vectorField & faceCentres = mesh().Cf().primitiveField();
+    const List<cell> & cells = mesh().cells();
+    const vectorField & patchFaceCentres = patch().Cf();
+    const List<face> & faces = mesh().faces();
+    forAll(lengthList_, i)
+    {
+        const vector patchFaceI = patchFaceCentres[i];
+        forAll(lengthList_[i], j)
+        {
+            const label index = indexList_[i][j];
+            const cell cellI = cells[index];
+
+            scalar minDist = GREAT;
+            label minDistFace = 0;
+
+            for (int k=0; k<cellI.nFaces(); k++)
+            {
+                const vector faceK = faceCentres[cellI[k]];
+
+                const scalar dist = mag(faceK - patchFaceI);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    minDistFace = cellI[k];
+                }
+            }
+            
+            label opposingFace = 
+                cellI.opposingFaceLabel(minDistFace, faces);
+            vector opposingFaceCentre = faceCentres[opposingFace];
+            vector minDistFaceCentre = faceCentres[minDistFace];
+
+            lengthList_[i][j] = mag(opposingFaceCentre - minDistFaceCentre); 
+        }
+
+    }
 }
 
 
@@ -195,7 +249,7 @@ Foam::MultiCellSampler::MultiCellSampler
         (
             "MultiCellSampler::MultiCellSampler"
         )   << "MulticellSmapler: interpolation is not supported "
-            << " for multcell sampling. Use 'cell'"
+            << " for multicell sampling. Use 'cell'"
             << exit(FatalError); 
     }
 

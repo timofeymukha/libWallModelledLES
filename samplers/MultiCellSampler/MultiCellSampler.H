@@ -74,6 +74,12 @@ protected:
         
         //- Compute the length-scales
         void createLengthList(const word lengthScaleType) override;
+
+        //- Compute length-scales as cubic root of the volume
+        void createLengthListCubeRootVol();
+        
+        //- Compute length-scales as distance across wall-normal direction
+        void createLengthListWallNormalDistance();
         
 public:
 
