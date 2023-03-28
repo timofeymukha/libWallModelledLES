@@ -169,7 +169,7 @@ void Foam::SingleCellSampler::createLengthList(const word lengthScaleType)
     }
     else if (lengthScaleType == "WallNormalDistance")
     {
-        
+        createLengthListWallNormalDistance(); 
     }
 
 }
