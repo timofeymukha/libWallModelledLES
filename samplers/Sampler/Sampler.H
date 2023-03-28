@@ -176,26 +176,31 @@ public:
             return averagingTime_;
         }
 
+        //- Get the number of sampled fields
         label nSampledFields() const
         {
             return sampledFields_.size();
         }
 
+        //- Get the interpolation type
         word interpolationType() const
         {
             return interpolationType_;
         }
 
+        //- Get the cell finder type
         word cellFinderType() const
         {
             return cellFinderType_;
         }
         
+        //- Get the length-scale type
         word lengthScaleType() const
         {
             return lengthScaleType_;
         }
 
+        //- Check if h holds the cell index
         bool hIsIndex() const
         {
             return hIsIndex_;
