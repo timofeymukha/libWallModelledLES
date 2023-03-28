@@ -139,6 +139,7 @@ TEST_F(SampledWallGradUTest, RegisterFieldsZeroMultiCell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -250,6 +251,7 @@ TEST_F(SampledWallGradUTest, RegisterInitializeMultiCell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -369,6 +371,7 @@ TEST_F(SampledWallGradUTest, RegisterReadFieldsMultiCell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );

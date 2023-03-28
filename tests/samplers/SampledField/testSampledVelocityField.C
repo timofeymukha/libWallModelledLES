@@ -131,8 +131,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsZeroMultiCell)
             patch,
             3.0,
             "cell",
-            "Crawling",
-            true
+            "Crawling"
         )
     );
 
@@ -253,6 +252,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitializeMultiCell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -373,6 +373,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -483,6 +484,7 @@ TEST_F(SampledVelocityTest, SampleMulticell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true,
             false
         )
