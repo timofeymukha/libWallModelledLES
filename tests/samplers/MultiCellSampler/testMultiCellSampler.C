@@ -388,9 +388,9 @@ TEST_F(MultiCellSamplerTest, LengthCubeRootVol) {
     for (int i=0; i< sampler.lengthList().size(); i++)
     {
 
+        ASSERT_EQ(sampler.lengthList()[i].size(), 2);
         forAll(sampler.lengthList()[i], j)
         {
-            ASSERT_EQ(sampler.lengthList()[i].size(), 2);
             ASSERT_FLOAT_EQ(sampler.lengthList()[i][j], 0.9283177667225558);
         }
     }
@@ -429,9 +429,9 @@ TEST_F(MultiCellSamplerTest, LengthWallNormalDistance) {
     for (int i=0; i< sampler.lengthList().size(); i++)
     {
 
+        ASSERT_EQ(sampler.lengthList()[i].size(), 2);
         forAll(sampler.lengthList()[i], j)
         {
-            ASSERT_EQ(sampler.lengthList()[i].size(), 2);
             ASSERT_FLOAT_EQ(sampler.lengthList()[i][j], 0.2);
         }
     }
