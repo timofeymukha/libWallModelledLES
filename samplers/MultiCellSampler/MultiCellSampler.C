@@ -189,7 +189,9 @@ void Foam::MultiCellSampler::createLengthListWallNormalDistance()
     const List<face> & faces = mesh().faces();
     forAll(lengthList_, i)
     {
+        lengthList_[i] = scalarList(indexList_[i].size());
         const vector patchFaceI = patchFaceCentres[i];
+
         forAll(lengthList_[i], j)
         {
             const label index = indexList_[i][j];
