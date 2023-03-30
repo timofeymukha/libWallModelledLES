@@ -212,7 +212,7 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, ValueMulticellSampler)
     // Init U to something varying
     for (int i=0; i< U.size(); i++)
     {
-        U.primitiveFieldRef()[i] = mesh.C()[1];
+        U.primitiveFieldRef()[i] = vector(5, 0, 0);
     }
 
     h.boundaryFieldRef()[patch.index()] == 2;
@@ -222,14 +222,21 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, ValueMulticellSampler)
         3.0,
         "cell",
         "Crawling",
+        "WallNormalDistance",
         true,
         false
     );
     IntegratedReichardtLawOfTheWall law =
-        IntegratedReichardtLawOfTheWall(0.3, 11, 3, 7.8);
+        IntegratedReichardtLawOfTheWall(0.4, 11, 3, 7.8);
 
+    // label index = 5;
+    // const scalarListList & sampledU =
+    //     sampler.db().lookupObject<scalarListListIOList>("U")[index];
+    // scalarList samplerh = sampler.h()[index];
+    // scalarList samplerl = sampler.lengthList()[index];
+    
     scalar value = law.valueMulticell(sampler, 5, 0.04, 8e-6);
-    ASSERT_FLOAT_EQ(value, -0.20040621277606402);
+    ASSERT_FLOAT_EQ(value, 1.6481687);
 }
 
 TEST_F(IntegratedReichardtLawOfTheWallTest, DerivativeSampler)
@@ -249,6 +256,7 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, DerivativeSampler)
         3.0,
         "cell",
         "Tree",
+        "CubeRootVol",
         false
     );
     IntegratedReichardtLawOfTheWall law =
