@@ -44,7 +44,7 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
     const label maxIter
 )
 {
-    WordConstructorTable::iterator cstrIter =
+    auto cstrIter =
     WordConstructorTablePtr_->find(rootFinderName);
 
     if (cstrIter == WordConstructorTablePtr_->end())
@@ -77,7 +77,7 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
     //word rootFinderName(ePtr->stream());
     //ePtr->stream() >> rootFinderName;
 
-    DictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
     DictionaryConstructorTablePtr_->find(rootFinderName);
 
     if (cstrIter == DictionaryConstructorTablePtr_->end())
@@ -104,7 +104,7 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
 {
     Foam::word rootFinderName(dict.lookup("type"));
 
-    DictionaryOnlyConstructorTable::iterator cstrIter =
+    auto cstrIter =
         DictionaryOnlyConstructorTablePtr_->find(rootFinderName);
 
     if (cstrIter == DictionaryOnlyConstructorTablePtr_->end())

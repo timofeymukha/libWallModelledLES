@@ -76,8 +76,15 @@ protected:
         //- Type of cellFinder to use for finding sampling cells.
         word cellFinderType_;
 
-        //- Whether the h field is the consecutive index of the samping cell
+        //- Way to compute the length-scale for the cells
+        word lengthScaleType_;
+
+        //- Whether the h field is the consecutive index of the sampling cell
         bool hIsIndex_;
+
+        //- Whether to exclude wall-adjacent cell from the sampling cells
+        bool excludeWallAdjacent_;
+
 
     // Protected Member Functions
 
@@ -85,7 +92,7 @@ protected:
         virtual void createIndexList() = 0;
 
         //- Compute the length-scales
-        virtual void createLengthList(){}
+        virtual void createLengthList(const word lengthScaleType){}
 
         //- Create fields
         virtual void createFields();
@@ -99,17 +106,19 @@ public:
 
     // Constructors
 
-        //- Construct from patch and averaging time
+        //- Construct without typename
         Sampler
         (
             const fvPatch &,
             scalar averagingTime,
             const word interpolationType,
             const word cellFinderType,
-            bool hIsIndex
+            const word lengthScaleType,
+            bool hIsIndex,
+            bool excludeWallAdjacent
         );
 
-        //- Construct from type, patch and averaging time
+        //- Construct from typename
         Sampler
         (
             const word & samplerName,
@@ -117,7 +126,9 @@ public:
             scalar averagingTime,
             const word interpolationType,
             const word cellFinderType,
-            bool hIsIndex
+            const word lengthScaleType,
+            bool hIsIndex,
+            bool excludeWallAdjacent
         );
 
 
@@ -135,7 +146,9 @@ public:
             scalar averagingTime,
             const word interpolationType,
             const word cellFinderType,
-            bool hIsIndex
+            const word lengthScaleType,
+            bool hIsIndex,
+            bool excludeWallAjdacent
         );
 
         static autoPtr<Sampler> New
@@ -170,21 +183,37 @@ public:
             return averagingTime_;
         }
 
+        //- Get the number of sampled fields
         label nSampledFields() const
         {
             return sampledFields_.size();
         }
 
+        //- Get the interpolation type
         word interpolationType() const
         {
             return interpolationType_;
         }
 
+        //- Get the cell finder type
         word cellFinderType() const
         {
             return cellFinderType_;
         }
+        
+        //- Get the length-scale type
+        word lengthScaleType() const
+        {
+            return lengthScaleType_;
+        }
+        
+        //- Check if wall-adjacent cell is excluded in the multicell sampler
+        bool excludeWallAdjacent() const
+        {
+            return excludeWallAdjacent_;
+        }
 
+        //- Check if h holds the cell index
         bool hIsIndex() const
         {
             return hIsIndex_;
@@ -217,7 +246,9 @@ public:
                 scalar averagingTime,
                 const word interpolationType,
                 const word cellFinderType,
-                bool hIsIndex
+                const word lengthScaleType,
+                bool hIsIndex,
+                bool excludeWallAdjacent
             ),
             (
                 samplerName,
@@ -225,7 +256,9 @@ public:
                 averagingTime,
                 interpolationType,
                 cellFinderType,
-                hIsIndex
+                lengthScaleType,
+                hIsIndex,
+                excludeWallAdjacent
             )
         );
 #endif

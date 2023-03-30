@@ -142,6 +142,7 @@ TEST_F(SampledPGradTest, RegisterFieldsZeroMultiCell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -260,6 +261,7 @@ TEST_F(SampledPGradTest, RegisterFieldsInitializeMultiCell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -379,6 +381,7 @@ TEST_F(SampledPGradTest, RegisterFieldsReadMulticell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -489,6 +492,7 @@ TEST_F(SampledPGradTest, SampleMulticell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true,
             false
         )

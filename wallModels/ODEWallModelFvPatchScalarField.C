@@ -323,6 +323,7 @@ ODEWallModelFvPatchScalarField
             averagingTime(),
             dict.lookupOrDefault<word>("interpolationType", "cell"),
             dict.lookupOrDefault<word>("sampler", "Tree"),
+            dict.lookupOrDefault<word>("lengthScaleType", "CubeRootVol"),
             dict.lookupOrDefault<bool>("hIsIndex", false)
         )
     ),

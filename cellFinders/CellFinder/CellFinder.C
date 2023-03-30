@@ -46,7 +46,7 @@ Foam::autoPtr<Foam::CellFinder> Foam::CellFinder::New
     const fvPatch & p
 )
 {
-    PatchConstructorTable::iterator cstrIter =
+    auto cstrIter =
     PatchConstructorTablePtr_->find(CellFinderName);
 
     if (cstrIter == PatchConstructorTablePtr_->end())

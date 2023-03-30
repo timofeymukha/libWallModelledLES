@@ -33,6 +33,7 @@ TEST_F(SingleCellSamplerTest, ConstructorDefaults)
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cell");
     ASSERT_EQ(sampler.cellFinderType(), "Tree");
+    ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
@@ -58,6 +59,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellCrawlingHIsIndex)
         3.0,
         "cell",
         "Crawling",
+        "CubeRootVol",
         true
     );
 
@@ -65,6 +67,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellCrawlingHIsIndex)
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cell");
     ASSERT_EQ(sampler.cellFinderType(), "Crawling");
+    ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), true);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
@@ -96,6 +99,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellCrawlingHIsDistance)
         3.0,
         "cell",
         "Crawling",
+        "CubeRootVol",
         false
     );
 
@@ -103,6 +107,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellCrawlingHIsDistance)
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cell");
     ASSERT_EQ(sampler.cellFinderType(), "Crawling");
+    ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
@@ -135,6 +140,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsIndex)
         3.0,
         "cellPoint",
         "Crawling",
+        "CubeRootVol",
         true
     );
 
@@ -142,6 +148,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsIndex)
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cell");
     ASSERT_EQ(sampler.cellFinderType(), "Crawling");
+    ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), true);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
@@ -181,6 +188,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsDistance)
         3.0,
         "cellPoint",
         "Crawling",
+        "WallNormalDistance",
         false
     );
 
@@ -188,6 +196,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsDistance)
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cellPoint");
     ASSERT_EQ(sampler.cellFinderType(), "Crawling");
+    ASSERT_EQ(sampler.lengthScaleType(), "WallNormalDistance");
     ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
@@ -228,6 +237,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsDistanceFirstCell)
         3.0,
         "cellPoint",
         "Crawling",
+        "CubeRootVol",
         false
     );
 
@@ -235,6 +245,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsDistanceFirstCell)
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cellPoint");
     ASSERT_EQ(sampler.cellFinderType(), "Crawling");
+    ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
@@ -270,6 +281,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellTreeHIsIndex)
                 3.0,
                 "cell",
                 "Tree",
+                "CubeRootVol",
                 true
             );
         },
@@ -296,6 +308,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellTreeHIsDistance)
         3.0,
         "cell",
         "Tree",
+        "CubeRootVol",
         false
     );
 
@@ -303,6 +316,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellTreeHIsDistance)
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cell");
     ASSERT_EQ(sampler.cellFinderType(), "Tree");
+    ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
@@ -341,6 +355,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeHIsDistance)
         3.0,
         "cellPoint",
         "Tree",
+        "CubeRootVol",
         false
     );
 
@@ -348,6 +363,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeHIsDistance)
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cellPoint");
     ASSERT_EQ(sampler.cellFinderType(), "Tree");
+    ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
@@ -388,6 +404,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeHIsDistanceFirstCell)
         3.0,
         "cellPoint",
         "Tree",
+        "CubeRootVol",
         false
     );
 
@@ -395,6 +412,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeHIsDistanceFirstCell)
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cellPoint");
     ASSERT_EQ(sampler.cellFinderType(), "Tree");
+    ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
     ASSERT_EQ(sampler.indexList().size(), patch.size());
@@ -443,6 +461,7 @@ TEST_F(SingleCellSamplerTest, Sample)
         0.02,
         "cell",
         "Crawling",
+        "CubeRootVol",
         3
     );
     
@@ -492,6 +511,7 @@ TEST_F(SingleCellSamplerTest, AddField)
         0.02,
         "cell",
         "Crawling",
+        "CubeRootVol",
         3
     );
     
@@ -499,4 +519,76 @@ TEST_F(SingleCellSamplerTest, AddField)
     
     ASSERT_EQ(sampler.nSampledFields(), 3);
     ASSERT_TRUE(sampler.db().foundObject<scalarListIOList>("pGrad"));
+}
+
+
+TEST_F(SingleCellSamplerTest, createLengthListCubeRootVol)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    h.boundaryFieldRef()[patch.index()] == 0.5;
+
+    SingleCellSampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0
+    );
+
+    ASSERT_EQ(sampler.lengthList().size(), patch.size());
+    
+    for (int i=0; i< sampler.lengthList().size(); i++)
+    {
+        ASSERT_FLOAT_EQ(sampler.lengthList()[i], 0.9283177667225558);
+    }
+}
+
+TEST_F(SingleCellSamplerTest, createLengthListWallNormalDistance)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("h")
+    );
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    h.boundaryFieldRef()[patch.index()] == 0.5;
+
+    SingleCellSampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "Crawling",
+        "WallNormalDistance"
+    );
+
+    ASSERT_EQ(sampler.lengthList().size(), patch.size());
+    
+    for (int i=0; i< sampler.lengthList().size(); i++)
+    {
+        ASSERT_FLOAT_EQ(sampler.lengthList()[i], 0.2);
+    }
 }
