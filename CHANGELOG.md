@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## v0.7.0
+
+### For users
+- The library works with up to release v2212 from OpenCFD.
+
+- It is now possible to use the library with compressible solvers.
+
+- Intracell interpolation should work properly now.
+
+- New parameter "silent", which suppresses time consumption output.
+
+- Messages like "Sampling field ... for patch ..." are now only printed in debug mode.
+  Use `DebugSwitches` in the `controlDict` to enable debug.
+  
+- A new law of the wall is added, the `RoughLogLaw`, suitable for rough surfaces.
+
+- As a beta release, multi-cell sampling is implemented.
+  No simulations have been run using it as of yet.
+
+### For developers
+- The SampledField classes now have `TypeName`.
+
+- 'excludeWallAdjacent' is now in the base Sampler class.
+
+- Slightly different methods to get the viscosity internal field and patch field in the base wall model class (to accommodate compressible solvers).
+
+
 ## v0.6.1
 ### For users
 
