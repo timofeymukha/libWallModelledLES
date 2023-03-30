@@ -23,7 +23,7 @@ Description
     Class for the sampled pressure gradient field.
 
 Contributors/Copyright:
-    2018-2021 Timofey Mukha
+    2018-2023 Timofey Mukha
 
 SourceFiles
     SampledPGradField.C
@@ -63,19 +63,13 @@ public:
             SampledField(patch, interpolationType)
         {
             createField();
-            setInterpolator(interpolationType);
         }
 
         //- Copy constructor
         SampledPGradField(const SampledPGradField & orig)
         :
             SampledField(orig)
-        {
-            if (orig.interpolator_.valid())
-            {
-                setInterpolator(orig.interpolator_().type());
-            }
-        }
+        {}
 
         //- Clone the object
         autoPtr<SampledField> clone() const override
@@ -128,9 +122,6 @@ public:
 
         //- Recompute the field
         void recompute() const override;
-
-        //- Reset the interpolator
-        void setInterpolator(const word interpolationType) override;
 
         //- Create the global pressure gradient field that will be sampled
         virtual void createField() const override;

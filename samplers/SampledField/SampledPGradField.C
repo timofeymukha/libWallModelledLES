@@ -39,12 +39,20 @@ void Foam::SampledPGradField::sample
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField & faceNormals = tfaceNormals();
     
+    const volVectorField & pGradField =
+        mesh().lookupObject<volVectorField>("pGrad");
+    autoPtr<interpolation<vector> > interpolator;
+    interpolator.operator=
+    (
+        interpolation<vector>::New(interpolationType(), pGradField)
+    );
+
     vectorField sampledPGrad(indexList.size());
     
     for (int i=0; i<indexList.size(); i++)
     {
         point p = faceCentres[i] - h[i]*faceNormals[i];
-        const vector interp = interpolator_->interpolate(p, indexList[i]);
+        const vector interp = interpolator->interpolate(p, indexList[i]);
         sampledPGrad[i] = interp;
         scalarList temp(3, 0.0);
         
@@ -202,31 +210,6 @@ void Foam::SampledPGradField::recompute() const
     
     pGrad = fvc::grad(p);
   
-}
-
-
-void Foam::SampledPGradField::setInterpolator
-(
-    const word interpolationType
-)
-{
-    if (mesh().foundObject<volVectorField>("pGrad"))
-    {
-        const volVectorField & pGrad =
-            mesh().lookupObject<volVectorField>("pGrad");
-        interpolator_.operator=
-        (
-            interpolation<vector>::New(interpolationType, pGrad)
-        );
-    }
-    else
-    {
-        interpolator_.reset(nullptr);
-        // WarningIn("SampledPGradField::setInterpolator()")
-        //     << "No pGrad field is present, attempting to sample will lead "
-        //     << "to a crash."
-        //     << nl;
-    }
 }
 
 

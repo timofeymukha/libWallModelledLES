@@ -337,7 +337,6 @@ void Foam::SingleCellSampler::addField(SampledField * field)
 {
     Sampler::addField(field);
     field->registerFields(indexList());
-    field->setInterpolator(interpolationType_);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

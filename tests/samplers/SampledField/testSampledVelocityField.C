@@ -575,8 +575,7 @@ TEST_F(SampledVelocityTest, CheckInterpolationWorks)
                 ASSERT_EQ(sampledValues[i][j], 0);
             }
             else
-            { // Here we just check that pointMVC gives us a different value
-              // Than stored in the U field cell centres
+            { 
                 ASSERT_FLOAT_EQ
                 (
                     sampledValues[i][j],
@@ -615,8 +614,10 @@ TEST_F(SampledVelocityTest, CheckInterpolationPointOutside)
 
     SampledVelocityField sampledField(patch, "cellPointFace");
 
-    labelList indexList(patch.faceCells());
 
+    // we sample from near-wall cell which ends at 0.2
+    // but set h to 0.5
+    labelList indexList(patch.faceCells());
     scalarField h(patch.size(), 0.5);
 
 
@@ -633,12 +634,11 @@ TEST_F(SampledVelocityTest, CheckInterpolationPointOutside)
                 ASSERT_EQ(sampledValues[i][j], 0);
             }
             else
-            { // Here we just check that pointMVC gives us a different value
-              // Than stored in the U field cell centres
+            { 
                 ASSERT_FLOAT_EQ
                 (
                     sampledValues[i][j],
-                    0.2
+                    0.2 // the top value of the cell we sample from
                 );
             }
         }
