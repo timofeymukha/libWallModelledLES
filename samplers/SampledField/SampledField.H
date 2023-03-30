@@ -65,6 +65,11 @@ protected:
         const word interpolationType_;
 public:
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+    //- Runtime type information
+        TypeName("SampledField");
+#endif
+
     // Constructors
 
         //- Construct from patch and interpolation type

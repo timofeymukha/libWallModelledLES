@@ -52,6 +52,10 @@ class SampledVelocityField
 {
 
 public:
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+    //- Runtime type information
+        TypeName("SampledVelocityField");
+#endif
 
     // Constructors
 

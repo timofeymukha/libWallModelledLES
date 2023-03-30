@@ -22,6 +22,15 @@ License
 #include "volFields.H"
 #include "codeRules.H"
 #include "helpers.H"
+//
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+namespace Foam
+{
+    defineTypeNameAndDebug(SampledWallGradUField, 0);
+}
+#endif
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -34,8 +43,11 @@ Foam::SampledWallGradUField::sample
     const Foam::scalarField & h
 ) const
 {
-    Info<< "Sampling wall-normal velocity gradient for patch "
-        << patch_.name() << nl;
+    if (debug)
+    {
+        Info<< "Sampling wall-normal velocity gradient for patch "
+            << patch_.name() << nl;
+    }
     
     label pI = patch().index();
    

@@ -22,6 +22,15 @@ License
 #include "volFields.H"
 #include "helpers.H"
 #include "interpolation.H"
+//
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+namespace Foam
+{
+    defineTypeNameAndDebug(SampledVelocityField, 0);
+}
+#endif
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -33,7 +42,10 @@ void Foam::SampledVelocityField::sample
     const Foam::scalarField & h
 ) const
 {
-    Info<< "Sampling velocity for patch " << patch_.name() << nl;
+    if (debug)
+    {
+        Info<< "Sampling velocity for patch " << patch_.name() << nl;
+    }
 
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();

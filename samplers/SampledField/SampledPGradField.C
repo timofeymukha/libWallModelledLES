@@ -24,6 +24,15 @@ License
 #include "List.H"
 #include "helpers.H"
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+namespace Foam
+{
+    defineTypeNameAndDebug(SampledPGradField, 0);
+}
+#endif
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::SampledPGradField::sample
@@ -33,7 +42,10 @@ void Foam::SampledPGradField::sample
     const Foam::scalarField & h
 ) const
 {
-    Info<< "Sampling pressure gradient for patch " << patch_.name() << nl;
+    if (debug)
+    {
+        Info<< "Sampling pressure gradient for patch " << patch_.name() << nl;
+    }
 
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();
