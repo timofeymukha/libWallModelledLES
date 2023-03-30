@@ -92,7 +92,8 @@ public:
             const word interpolationType="cell",
             const word cellFinderType="Tree",
             const word lengthScaleType="CubeRootVol",
-            bool hIsIndex=false
+            bool hIsIndex=false,
+            bool excludeWallAdjacent=false
         );
 
         SingleCellSampler
@@ -103,7 +104,8 @@ public:
             const word interpolationType="cell",
             const word cellFinderType="Tree",
             const word lengthScaleType="CubeRootVol",
-            bool hIsIndex=false
+            bool hIsIndex=false,
+            bool excludeWallAdjacent=false
         );
         
         SingleCellSampler(const SingleCellSampler &) = default;

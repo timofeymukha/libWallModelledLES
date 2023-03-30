@@ -79,8 +79,12 @@ protected:
         //- Way to compute the length-scale for the cells
         word lengthScaleType_;
 
-        //- Whether the h field is the consecutive index of the samping cell
+        //- Whether the h field is the consecutive index of the sampling cell
         bool hIsIndex_;
+
+        //- Whether to exclude wall-adjacent cell from the sampling cells
+        bool excludeWallAdjacent_;
+
 
     // Protected Member Functions
 
@@ -102,7 +106,7 @@ public:
 
     // Constructors
 
-        //- Construct from patch and averaging time
+        //- Construct without typename
         Sampler
         (
             const fvPatch &,
@@ -110,10 +114,11 @@ public:
             const word interpolationType,
             const word cellFinderType,
             const word lengthScaleType,
-            bool hIsIndex
+            bool hIsIndex,
+            bool excludeWallAdjacent
         );
 
-        //- Construct from type, patch and averaging time
+        //- Construct from typename
         Sampler
         (
             const word & samplerName,
@@ -122,7 +127,8 @@ public:
             const word interpolationType,
             const word cellFinderType,
             const word lengthScaleType,
-            bool hIsIndex
+            bool hIsIndex,
+            bool excludeWallAdjacent
         );
 
 
@@ -141,7 +147,8 @@ public:
             const word interpolationType,
             const word cellFinderType,
             const word lengthScaleType,
-            bool hIsIndex
+            bool hIsIndex,
+            bool excludeWallAjdacent
         );
 
         static autoPtr<Sampler> New
@@ -199,6 +206,12 @@ public:
         {
             return lengthScaleType_;
         }
+        
+        //- Check if wall-adjacent cell is excluded in the multicell sampler
+        bool excludeWallAdjacent() const
+        {
+            return excludeWallAdjacent_;
+        }
 
         //- Check if h holds the cell index
         bool hIsIndex() const
@@ -234,7 +247,8 @@ public:
                 const word interpolationType,
                 const word cellFinderType,
                 const word lengthScaleType,
-                bool hIsIndex
+                bool hIsIndex,
+                bool excludeWallAdjacent
             ),
             (
                 samplerName,
@@ -243,7 +257,8 @@ public:
                 interpolationType,
                 cellFinderType,
                 lengthScaleType,
-                hIsIndex
+                hIsIndex,
+                excludeWallAdjacent
             )
         );
 #endif

@@ -64,8 +64,6 @@ protected:
         //- The distance from the wall that data is sampled from
         scalarListList lengthList_;
 
-        //- Whether to exclude wall-adjacent cell from the sampling cells
-        bool excludeWallAdjacent_;
         
     // Protected Member Functions
                     
@@ -151,12 +149,6 @@ public:
             return lengthList_;
         }
 
-        //- Return the flag for excluding the wall adjacent cell from sampling
-        bool excludeWallAdjacent() const
-        {
-            return excludeWallAdjacent_;
-        }
-        
         //- Returning sampling cell indices for a given wall face using []
         inline labelList operator[](const label i) const
         {

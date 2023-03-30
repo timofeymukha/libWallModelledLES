@@ -50,7 +50,8 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
     const word interpolationType,
     const word cellFinderType,
     const word lengthScaleType,
-    bool hIsIndex
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 {
     auto cstrIter =
@@ -77,7 +78,8 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         interpolationType,
         cellFinderType,
         lengthScaleType,
-        hIsIndex
+        hIsIndex,
+        excludeWallAdjacent
     );
 }  
 
@@ -97,6 +99,8 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         dict.lookupOrDefault<word>("lengthScale", "CubeRootVol");
     bool hIsIndex =
         dict.lookupOrDefault<bool>("hIsIndex", false);
+    bool excludeWallAdjacent =
+        dict.lookupOrDefault<bool>("excludeWallAdjacent", false);
 
     return Foam::Sampler::New
     (
@@ -106,7 +110,8 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         interpolationType,
         cellFinderType,
         lengthScaleType,
-        hIsIndex
+        hIsIndex,
+        excludeWallAdjacent
     );
 }  
 
@@ -155,7 +160,8 @@ Foam::Sampler::Sampler
     const word interpolationType,
     const word cellFinderType,
     const word lengthScaleType,
-    bool hIsIndex
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 :
     patch_(p),
@@ -165,7 +171,8 @@ Foam::Sampler::Sampler
     interpolationType_(interpolationType),
     cellFinderType_(cellFinderType),
     lengthScaleType_(lengthScaleType),
-    hIsIndex_(hIsIndex)
+    hIsIndex_(hIsIndex),
+    excludeWallAdjacent_(excludeWallAdjacent)
 {
     if (debug)
     {
@@ -221,7 +228,8 @@ Foam::Sampler::Sampler
     const word interpolationType,
     const word cellFinderType,
     const word lengthScaleType,
-    bool hIsIndex
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 :
     Sampler
@@ -231,7 +239,8 @@ Foam::Sampler::Sampler
         interpolationType,
         cellFinderType,
         lengthScaleType,
-        hIsIndex
+        hIsIndex,
+        excludeWallAdjacent
     )
 {
 }
@@ -245,7 +254,8 @@ Foam::Sampler::Sampler(const Sampler & copy)
     interpolationType_(copy.interpolationType_),
     cellFinderType_(copy.cellFinderType_),
     lengthScaleType_(copy.lengthScaleType_),
-    hIsIndex_(copy.hIsIndex_)
+    hIsIndex_(copy.hIsIndex_),
+    excludeWallAdjacent_(copy.excludeWallAdjacent_)
 {
     if (debug)
     {

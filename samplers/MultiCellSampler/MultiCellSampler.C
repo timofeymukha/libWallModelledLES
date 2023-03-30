@@ -238,11 +238,10 @@ Foam::MultiCellSampler::MultiCellSampler
 )
 :
     Sampler(p, averagingTime, interpolationType, cellFinderType,
-            lengthScaleType, hIsIndex),
+            lengthScaleType, hIsIndex, excludeWallAdjacent),
     indexList_(p.size()),
     h_(p.size()),
-    lengthList_(p.size()),
-    excludeWallAdjacent_(excludeWallAdjacent)
+    lengthList_(p.size())
 {
 
     if (interpolationType != "cell")

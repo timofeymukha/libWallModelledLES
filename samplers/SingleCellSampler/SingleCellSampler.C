@@ -237,11 +237,12 @@ Foam::SingleCellSampler::SingleCellSampler
     const word interpolationType,
     const word cellFinderType,
     const word lengthScaleType,
-    bool hIsIndex
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 :
     Sampler(p, averagingTime, interpolationType, cellFinderType,
-            lengthScaleType, hIsIndex),
+            lengthScaleType, hIsIndex, excludeWallAdjacent),
     indexList_(p.size()),
     lengthList_(p.size()),
     h_(p.size(), 0)
@@ -269,7 +270,8 @@ Foam::SingleCellSampler::SingleCellSampler
     const word interpolationType,
     const word cellFinderType,
     const word lengthScaleType,
-    bool hIsIndex
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 :
     SingleCellSampler
@@ -279,7 +281,8 @@ Foam::SingleCellSampler::SingleCellSampler
         interpolationType,
         cellFinderType,
         lengthScaleType,
-        hIsIndex
+        hIsIndex,
+        excludeWallAdjacent
     )
 {
 }
