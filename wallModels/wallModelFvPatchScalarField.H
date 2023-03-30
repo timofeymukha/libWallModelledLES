@@ -71,6 +71,9 @@ private:
     //- Switch to copy data to wall-adjacent cells
     bool copyToPatchInternalField_;
     
+    //- Wether to suppress most output to the log file
+    bool silent_;
+    
 protected:
 
     // Protected data
@@ -162,6 +165,11 @@ public:
         scalar consumedTime() const
         {
             return consumedTime_;
+        }
+
+        bool silent() const
+        {
+            return silent_;
         }
 
         bool copyToPatchInternalField() const

@@ -56,6 +56,8 @@ void Foam::wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
         << averagingTime_ << token::END_STATEMENT << nl;
     os.writeKeyword("copyToPatchInternalField")
         << copyToPatchInternalField_ << token::END_STATEMENT << nl;
+    os.writeKeyword("silent")
+        << silent_ << token::END_STATEMENT << nl;
 }
 
 void Foam::wallModelFvPatchScalarField::createFields() const
@@ -193,6 +195,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(p, iF),
     consumedTime_(0),
     copyToPatchInternalField_(false),
+    silent_(false),
     averagingTime_(0)
 {
     if (debug)
@@ -218,6 +221,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(orig, p, iF, mapper),
     consumedTime_(0),
     copyToPatchInternalField_(orig.copyToPatchInternalField_),
+    silent_(orig.silent_),
     averagingTime_(orig.averagingTime_)
 {
     if (debug)
@@ -244,6 +248,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     (
         dict.lookupOrDefault<bool>("copyToPatchInternalField", false)
     ),
+    silent_(dict.lookupOrDefault<bool>("silent", false)),
     averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0))
 {
     if (debug)
@@ -268,6 +273,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(orig),
     consumedTime_(orig.consumedTime_),
     copyToPatchInternalField_(orig.copyToPatchInternalField_),
+    silent_(orig.silent_),
     averagingTime_(orig.averagingTime_)
 {
     if (debug)
@@ -290,6 +296,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(orig, iF),       
     consumedTime_(orig.consumedTime_),
     copyToPatchInternalField_(orig.copyToPatchInternalField_),
+    silent_(orig.silent_),
     averagingTime_(orig.averagingTime_)
 {
     if (debug)
@@ -365,9 +372,13 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
 
     // Take the max consumed time across all procs
     reduce(consumedTime_, maxOp<scalar>());
-    Info<< "Wall modelling time consumption = " << consumedTime_ 
-        << "s "  << 100*consumedTime_/(db().time().elapsedClockTime() + SMALL)
-        << "% of total " << nl;
+    
+    if (!silent_)
+    {
+        Info<< "Wall modelling time consumption = " << consumedTime_ 
+            << "s "  << 100*consumedTime_/(db().time().elapsedClockTime() + SMALL)
+            << "% of total " << nl;
+    }
 }
 
 
