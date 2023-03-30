@@ -72,7 +72,7 @@ namespace Foam
     (
         fvPatchScalarField,
         DummyWallModel
-    )
+    );
 }
 
 class WallModelTest : public ChannelFlow
