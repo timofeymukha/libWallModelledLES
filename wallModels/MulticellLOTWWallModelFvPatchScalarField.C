@@ -187,7 +187,8 @@ MulticellLOTWWallModelFvPatchScalarField
     law_(new IntegratedReichardtLawOfTheWall()),
 #else
     rootFinder_(orig.rootFinder_, false),
-    law_(orig.law_, false),
+    //law_(orig.law_, false),
+    law_(new IntegratedReichardtLawOfTheWall()),
 #endif
     sampler_(new MultiCellSampler(orig.sampler()))
 {
@@ -249,7 +250,8 @@ MulticellLOTWWallModelFvPatchScalarField
     law_(new IntegratedReichardtLawOfTheWall()),
 #else
     rootFinder_(orig.rootFinder_, false),
-    law_(orig.law_, false),
+    //law_(orig.law_, false),
+    law_(new IntegratedReichardtLawOfTheWall()),
 #endif
     sampler_(new MultiCellSampler(orig.sampler_()))
 {
@@ -276,7 +278,8 @@ MulticellLOTWWallModelFvPatchScalarField
     law_(new IntegratedReichardtLawOfTheWall()),
 #else
     rootFinder_(orig.rootFinder_, false),
-    law_(orig.law_, false),
+    //law_(orig.law_, false),
+    law_(new IntegratedReichardtLawOfTheWall()),
 #endif
     sampler_(new MultiCellSampler(orig.sampler_()))
 {
