@@ -2,14 +2,20 @@ latest_task:
   container:
     image: opencfd/openfoam-dev:latest
   test_script:
-    - /usr/bin/openfoam ./Allwmake
+    - apt-get update
+    - apt-get install -y python3 python-is-python3
+    - /usr/bin/openfoam ./Allwmake -j
 v2206_task:
   container:
     image: opencfd/openfoam-dev:2206
   test_script:
+    - apt-get update
+    - apt-get install -y python3 python-is-python3
     - /usr/bin/openfoam ./Allwmake
 v2112_task:
   container:
     image: opencfd/openfoam-dev:2112
   test_script: 
+    - apt-get update
+    - apt-get install -y python3 python-is-python3
     - /usr/bin/openfoam ./Allwmake
