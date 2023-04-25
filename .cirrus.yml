@@ -2,7 +2,7 @@ latest_task:
   container:
     image: opencfd/openfoam-dev:latest
     cpu: 4
-    memory: 8G
+    memory: 16G
   test_script:
     - apt-get update
     - apt-get install -y python3 python-is-python3
