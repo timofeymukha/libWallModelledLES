@@ -2,7 +2,7 @@ ifeq ($(findstring clang, $(CC)), clang)
     FLAGS = -Wno-inconsistent-missing-override
 endif
 
-EXE_INC = -std=c++0x $(FLAGS) \
+EXE_INC = -std=c++14 $(FLAGS) \
 -I$(LIB_SRC)/finiteVolume/lnInclude \
 -I$(LIB_SRC)/OpenFOAM/lnInclude \
 -I$(LIB_SRC)/meshTools/lnInclude \
