@@ -62,6 +62,10 @@ void Foam::wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 
 void Foam::wallModelFvPatchScalarField::createFields() const
 {
+    if (debug)
+    {
+        Info<< "wallModelFvPatchScalarField creating fields" << nl;
+    }
     // Check if hSampler exists
     IOobject hHeader
     (
@@ -72,7 +76,14 @@ void Foam::wallModelFvPatchScalarField::createFields() const
     );
     
     bool foundhSampler = hHeader.typeHeaderOk<volScalarField>();
+    db().checkOut("hSampler");
     word hName;
+
+    if (debug)
+    {
+        Info<< "wallModelFvPatchScalarField: Found hSampler? " << foundhSampler
+            << nl;
+    }
 
     if (!db().found("hSampler") && foundhSampler)
     {
@@ -194,6 +205,10 @@ void Foam::wallModelFvPatchScalarField::createFields() const
                 h.boundaryField().types()
             )
         );  
+    }
+    if (debug)
+    {
+        Info<< "wallModelFvPatchScalarField finished creating fields" << nl;
     }
 }
 
