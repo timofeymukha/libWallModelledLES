@@ -3,6 +3,8 @@
 ## v0.7.0
 
 ### For users
+- The main repository is now on Github. Use Github issues instead of Bitbucket to get help!
+
 - The library works with up to release v2212 from OpenCFD.
 
 - It is now possible to use the library with compressible solvers.
