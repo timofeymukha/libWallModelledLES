@@ -1,7 +1,6 @@
 **/testRunner
 **/system
 **/constant
-**/0
 /tests/testCases/channelFlow/constant/polyMesh
 !/tests/testCases/channelFlow/system
 !/tests/testCases/channelFlow/constant
