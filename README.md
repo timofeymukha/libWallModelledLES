@@ -24,7 +24,7 @@ https://doi.org/10.1016/j.cpc.2019.01.016
 
 ## Compatibility ##
 
-See "Installation" section on the documentation portal. In short: the latest ESI and Foundation releases should work.
+See "Installation" section on the documentation portal. In short: the latest ESI versions should work, Foundation version 7  and below should work.
 
 ## Getting help
 

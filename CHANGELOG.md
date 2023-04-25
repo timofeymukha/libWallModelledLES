@@ -6,6 +6,9 @@
 - The main repository is now on Github. Use Github issues instead of Bitbucket to get help!
 
 - The library works with up to release v2212 from OpenCFD.
+  Badges from CI in the README clearly signal, which versions are guaranteed to compile.
+
+- Ambition to support Foundation version is dropped. Pull requests are much welcome though.
 
 - It is now possible to use the library with compressible solvers.
 
