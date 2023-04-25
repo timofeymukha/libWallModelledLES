@@ -120,8 +120,25 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
 
 void Foam::Sampler::createFields()
 {
+    bool foundhSampler = mesh_.foundObject<volScalarField>("hSampler");
+    word hName;
 
-    const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
+    // Grab h for the current patch
+    if (foundhSampler)
+    {
+        Warning
+            << "The hSampler field is not found, will try to find h. "
+            << "Please note that h will not work with compressible solvers. "
+            << "It is recommended to use hSampler in new cases." << nl; 
+        hName = "hSampler";
+    }
+    else
+    {
+        hName = "h";
+    }
+
+    const volScalarField & h = mesh_.lookupObject<volScalarField> (hName);
+
     // Field that marks cells that are used for sampling
     if (!mesh_.thisDb().found("samplingCells"))
     {

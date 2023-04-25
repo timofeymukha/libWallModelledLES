@@ -54,10 +54,25 @@ namespace Foam
 void Foam::MultiCellSampler::createIndexList()
 {
     const label patchIndex = patch().index();
-    
+
+    word hName;
+
     // Grab h for the current patch
+    if (mesh_.foundObject<volScalarField>("hSampler"))
+    {
+        Warning
+            << "The hSampler field is not found, will try to find h. "
+            << "Please note that h will not work with compressible solvers. "
+            << "It is recommended to use hSampler in new cases." << nl; 
+        hName = "hSampler";
+    }
+    else
+    {
+        hName = "h";
+    }
+    
     volScalarField & hField = 
-        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
+        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> (hName));
 
     scalarField hPatch = hField.boundaryField()[patchIndex];
 

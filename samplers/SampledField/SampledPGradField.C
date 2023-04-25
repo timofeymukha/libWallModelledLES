@@ -229,8 +229,23 @@ void Foam::SampledPGradField::createField
 (
 ) const
 {
-    // Grab h to copy bcs from it.
-    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
+    word hName;
+
+    // Grab h for the current patch
+    if (mesh_.foundObject<volScalarField>("hSampler"))
+    {
+        Warning
+            << "The hSampler field is not found, will try to find h. "
+            << "Please note that h will not work with compressible solvers. "
+            << "It is recommended to use hSampler in new cases." << nl; 
+        hName = "hSampler";
+    }
+    else
+    {
+        hName = "h";
+    }
+
+    const volScalarField & h = mesh_.lookupObject<volScalarField> (hName);
     
     if (!mesh().foundObject<volVectorField>("pGrad"))
     {

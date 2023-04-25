@@ -236,8 +236,24 @@ void Foam::SampledWallGradUField::recompute() const
 
 void Foam::SampledWallGradUField::createField() const
 {
-    // Grab h to copy bcs from it.
-    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
+    bool foundhSampler = mesh_.foundObject<volScalarField>("hSampler");
+    word hName;
+
+    // Grab h for the current patch
+    if (foundhSampler)
+    {
+        Warning
+            << "The hSampler field is not found, will try to find h. "
+            << "Please note that h will not work with compressible solvers. "
+            << "It is recommended to use hSampler in new cases." << nl; 
+        hName = "hSampler";
+    }
+    else
+    {
+        hName = "h";
+    }
+
+    const volScalarField & h = mesh_.lookupObject<volScalarField> (hName);
     
     if (!mesh().foundObject<volVectorField>("wallGradU"))
     {

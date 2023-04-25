@@ -62,8 +62,44 @@ void Foam::wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 
 void Foam::wallModelFvPatchScalarField::createFields() const
 {
-    if (!db().found("h"))
+    // Check if hSampler exists
+    IOobject hHeader
+    (
+        "hSampler",
+        db().time().timeName(),
+        db(),
+        IOobject::NO_READ
+    );
+    
+    bool foundhSampler = hHeader.typeHeaderOk<volScalarField>();
+    word hName;
+
+    if (!db().found("hSampler") && foundhSampler)
     {
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "hSampler",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh()
+            )
+        );
+        hName = "hSampler";
+    }
+    
+    if (!db().found("h") && !foundhSampler)
+    {
+        Warning
+            << "The hSampler field is not found, will try to find h. "
+            << "Please note that h will not work with compressible solvers. "
+            << "It is recommended to use hSampler in new cases." << nl; 
         db().store
         (
             new volScalarField
@@ -79,9 +115,10 @@ void Foam::wallModelFvPatchScalarField::createFields() const
                 patch().boundaryMesh().mesh()
             )
         );
+        hName = "h";
     }
       
-    const volScalarField & h = db().lookupObject<volScalarField>("h");
+    const volScalarField & h = db().lookupObject<volScalarField>(hName);
     
     // Create and register wallShearStress field, if not there already.
     if (!db().found("wallShearStress"))
