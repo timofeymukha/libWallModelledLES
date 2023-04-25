@@ -2,8 +2,8 @@
 **/system
 **/constant
 **/0
-/tests/test_cases/channelFlow/constant/polyMesh
-!/tests/test_cases/channelFlow/system
-!/tests/test_cases/channelFlow/constant
-!/tests/test_cases/channelFlow/0
+/tests/testCases/channelFlow/constant/polyMesh
+!/tests/testCases/channelFlow/system
+!/tests/testCases/channelFlow/constant
+!/tests/testCases/channelFlow/0
 logs
