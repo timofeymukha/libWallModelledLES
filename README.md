@@ -1,12 +1,9 @@
 # README #
 
-libWallModelledLES is a library based on OpenFOAM® technology, extending the capabilities of OpenFOAM in the area of
-wall-modelled LES (WMLES).
-This is a turbulence modelling methodology, which allows to make LES cheaper by not resolving the inner region of
-turbulent boundary layers.
+libWallModelledLES is a library based on OpenFOAM® technology, extending the capabilities of OpenFOAM in the area of wall-modelled LES (WMLES).
+This is a turbulence modelling methodology, which allows to make LES cheaper by not resolving the inner region of turbulent boundary layers.
 
-If you use the library, please cite the following publication. This is also a good source for understanding the theory
-behind the models.
+If you use the library, please cite the following publication. This is also a good source for understanding the theory behind the models.
 
 https://doi.org/10.1016/j.cpc.2019.01.016
 
@@ -14,6 +11,7 @@ https://doi.org/10.1016/j.cpc.2019.01.016
 
 ## News ##
 
+- **2023-04-25** Development moves to [Github](https://github.com/timofeymukha/libWallModelledLES/), Bitbucket remains as a mirror.
 - **2023-01-05** Version 0.6.1 released.
 - **2021-08-30** Version 0.6.0 released.
 - **2019-10-28** Version 0.5.1 released.
@@ -30,18 +28,18 @@ See "Installation" section on the documentation portal. In short: the latest ESI
 
 ## Getting help
 
-Please open [an issue on Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/issues?status=new&status=open)!
+Please open [an issue on Github](https://github.com/timofeymukha/libWallModelledLES/issues)!
 
 ## Where this code lives
 This code is available on several public repositories:
-- [Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/) --- the main repository, where all the development happens, and where you should open issues to get help.
+- [Github](https://github.com/timofeymukha/libWallModelledLES) --- the main repository, where all the development happens, and where you should open issues to get help.
+- [Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/) --- mirror, which only gets update upon new releases.
+ 
 - [Gitlab](https://gitlab.com/chalmers-marine-technology/libwallmodelledles) --- mirror, which only gets updated upon new releases.
-- [Github](https://github.com/timofeymukha/libWallModelledLES) --- mirror, which only gets updated upon releases.
-
-
 
 ## Published works using the library
-If your works is missing from this glorious list and you want it here, [open an issue](https://bitbucket.org/lesituu/libwallmodelledles/issues?status=new&status=open)!
+
+If your works is missing from this glorious list and you want it here, [open an issue](https://github.com/timofeymukha/libWallModelledLES/issues)!
 
 
 - Mukha, T., Rezaeiravesh, S., & Liefvendahl, M. (2017). An OpenFOAM library for wall-modelled Large-Eddy Simulation. In proceedings of the 12th OpenFOAM Workshop, Exeter, UK.
