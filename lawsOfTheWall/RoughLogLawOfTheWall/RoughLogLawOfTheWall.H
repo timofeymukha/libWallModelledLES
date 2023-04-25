@@ -42,9 +42,7 @@ Description
     \endverbatim
 
 Contributors/Copyright:
-    2019-2021 Timofey Mukha
-
-
+    2019-2023 Timofey Mukha
 
 SourceFiles
     RoughLogLawOfTheWall.C
