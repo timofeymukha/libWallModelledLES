@@ -129,7 +129,7 @@ TEST_F(SampledPGradTest, RegisterFieldsZeroMultiCell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 
@@ -239,7 +239,7 @@ TEST_F(SampledPGradTest, RegisterFieldsInitializeMultiCell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -352,7 +352,8 @@ TEST_F(SampledPGradTest, RegisterFieldsReadMulticell)
     Time runTime(Foam::Time::controlDictName, args);
 
     // Make previously sampled data readable
-    system("cp -r 0/wallModelSamplingMulti 0/wallModelSampling");
+    auto code = system("cp -r 0/wallModelSamplingMulti 0/wallModelSampling");
+    ASSERT_EQ(code, 0);
 
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
@@ -368,7 +369,7 @@ TEST_F(SampledPGradTest, RegisterFieldsReadMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 
@@ -479,7 +480,7 @@ TEST_F(SampledPGradTest, SampleMulticell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 

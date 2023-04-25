@@ -20,7 +20,7 @@ TEST_F(CrawlingCellFinderTest, FullConstructor)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     h.boundaryFieldRef()[patch.index()] == 2;
@@ -39,7 +39,7 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedBottomWall)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -99,7 +99,7 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedTopWall)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -160,7 +160,7 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedInvalidIndex)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -195,7 +195,7 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedTooLargeIndex)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -230,7 +230,7 @@ TEST_F(CrawlingCellFinderTest, FindDistanceBasedBottomWall)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -291,7 +291,7 @@ TEST_F(CrawlingCellFinderTest, FindDistanceBasedTopWall)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -352,7 +352,7 @@ TEST_F(CrawlingCellFinderTest, FindDistanceInvalidDistance)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -386,7 +386,7 @@ TEST_F(CrawlingCellFinderTest, FindDistanceZeroDistance)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -421,7 +421,7 @@ TEST_F(CrawlingCellFinderTest, FindDistanceTooLargeDistance)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -456,7 +456,7 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedBottomWallMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -509,7 +509,7 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedTopWallMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -563,7 +563,7 @@ TEST_F(CrawlingCellFinderTest, FindDistanceBasedBottomWallMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -617,7 +617,7 @@ TEST_F(CrawlingCellFinderTest, FindDistanceBasedTopWallMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -671,7 +671,7 @@ TEST_F(CrawlingCellFinderTest, NegativeIndexMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -708,7 +708,7 @@ TEST_F(CrawlingCellFinderTest, NegativeDistanceMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -745,7 +745,7 @@ TEST_F(CrawlingCellFinderTest, LargeIndexMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -782,7 +782,7 @@ TEST_F(CrawlingCellFinderTest, LargeDistanceMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -819,7 +819,7 @@ TEST_F(CrawlingCellFinderTest, ExcludeWallAdjacentMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -856,7 +856,7 @@ TEST_F(CrawlingCellFinderTest, ExcludeWallAdjacentOneCellMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 

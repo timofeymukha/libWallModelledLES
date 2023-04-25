@@ -55,7 +55,7 @@ TEST_F(MultiCellSamplerTest, ConstructorCellCrawling)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     h.boundaryFieldRef()[patch.index()] == 2;
@@ -168,7 +168,7 @@ TEST_F(MultiCellSamplerTest, ConstructorTree)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     h.boundaryFieldRef()[patch.index()] == 0.5;
@@ -279,7 +279,7 @@ TEST_F(MultiCellSamplerTest, Sample)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     h.boundaryFieldRef()[patch.index()] == 3;
@@ -336,7 +336,7 @@ TEST_F(MultiCellSamplerTest, AddField)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     h.boundaryFieldRef()[patch.index()] == 3;
@@ -369,7 +369,7 @@ TEST_F(MultiCellSamplerTest, LengthCubeRootVol) {
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -407,7 +407,7 @@ TEST_F(MultiCellSamplerTest, LengthWallNormalDistance) {
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];

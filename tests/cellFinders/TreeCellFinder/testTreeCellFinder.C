@@ -21,7 +21,7 @@ TEST_F(TreeCellFinderTest, FullConstructor)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     h.boundaryFieldRef()[patch.index()] == 0.25;
@@ -41,7 +41,7 @@ TEST_F(TreeCellFinderTest, FindDistanceBasedBottomWallSingleCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -99,7 +99,7 @@ TEST_F(TreeCellFinderTest, FindDistanceBasedTopWallSingleCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -157,7 +157,7 @@ TEST_F(TreeCellFinderTest, FindDistanceInvalidDistanceSingleCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -190,7 +190,7 @@ TEST_F(TreeCellFinderTest, FindDistanceZeroDistanceSingleCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -224,7 +224,7 @@ TEST_F(TreeCellFinderTest, FindDistanceTooLargeDistanceSingleCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -388,7 +388,7 @@ TEST_F(TreeCellFinderTest, FindDistanceBasedBottomWallMultiCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -456,7 +456,7 @@ TEST_F(TreeCellFinderTest, FindDistanceBasedBottomWallWithExclusionMultiCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -523,7 +523,7 @@ TEST_F(TreeCellFinderTest, ZeroDistanceMultiCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -559,7 +559,7 @@ TEST_F(TreeCellFinderTest, InvalidDistanceMultiCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 
@@ -594,7 +594,7 @@ TEST_F(TreeCellFinderTest, TooLargeDistanceMultiCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const volVectorField & C = mesh.C();
 

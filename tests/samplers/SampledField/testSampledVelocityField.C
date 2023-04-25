@@ -119,7 +119,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsZeroMultiCell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 
@@ -239,7 +239,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitializeMultiCell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 3;
 
@@ -337,14 +337,16 @@ TEST_F(SampledVelocityTest, RegisterFieldsRead)
 }
 
 
-TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
+TEST_F(SampledVelocityTest, RegisterFieldsReadMultiCell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
 
     // Make previously sampled data readable
-    system("cp -r 0/wallModelSamplingMulti 0/wallModelSampling");
+    auto code = system("cp -r 0/wallModelSamplingMulti 0/wallModelSampling");
+    ASSERT_EQ(code, 0);
+
 
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
@@ -353,14 +355,14 @@ TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
     volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
 
     // Init U to something varying
-    U.primitiveFieldRef() = mesh.C();
+    //U.primitiveFieldRef() = mesh.C();
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 
@@ -394,6 +396,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
     const scalarListListIOList & sampledFieldIOobject =
         sampledField.db().lookupObject<scalarListListIOList>("U");
 
+    // The mesh has 3 cells in x, 3 in z and 10 in y
     forAll(sampledFieldIOobject, i)
     {
         forAll(sampledFieldIOobject[i], j)
@@ -471,7 +474,7 @@ TEST_F(SampledVelocityTest, SampleMulticell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 

@@ -174,7 +174,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsDistance)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -223,7 +223,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointCrawlingHIsDistanceFirstCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -341,7 +341,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeHIsDistance)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -390,7 +390,7 @@ TEST_F(SingleCellSamplerTest, ConstructorCellPointTreeHIsDistanceFirstCell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -442,7 +442,7 @@ TEST_F(SingleCellSamplerTest, Sample)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     h.boundaryFieldRef()[patch.index()] == 3;
@@ -496,7 +496,7 @@ TEST_F(SingleCellSamplerTest, AddField)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     h.boundaryFieldRef()[patch.index()] == 3;
@@ -534,7 +534,7 @@ TEST_F(SingleCellSamplerTest, createLengthListCubeRootVol)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
@@ -568,7 +568,7 @@ TEST_F(SingleCellSamplerTest, createLengthListWallNormalDistance)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];

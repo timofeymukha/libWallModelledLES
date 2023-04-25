@@ -203,7 +203,7 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, ValueMulticellSampler)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     createVelocityField(mesh);

@@ -159,7 +159,7 @@ TEST_F(RoughLogLawOfTheWallTest, ValueSampler)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
