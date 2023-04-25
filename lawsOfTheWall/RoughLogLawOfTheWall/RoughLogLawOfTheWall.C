@@ -23,6 +23,7 @@ License
 #include "volFields.H"
 #include "scalarListIOList.H"
 #include "SingleCellSampler.H"
+#include "codeRules.H"
 
 namespace Foam
 {
@@ -41,8 +42,18 @@ Foam::RoughLogLawOfTheWall::RoughLogLawOfTheWall
 :
     LawOfTheWall(dict),
     kappa_(constDict_.lookupOrAddDefault<scalar>("kappa", 0.4)),
+#ifdef FOAM_DICTIONARY_NO_GET
+#ifdef FOAM_DICTIONARY_HAS_LOOKUP
+    B_(constDict_.lookup<scalar>("B")),
+    ks_(constDict_.lookup<scalar>("ks"))
+#else
+    B_(constDict_.lookupType<scalar>("B")),
+    ks_(constDict_.lookupType<scalar>("ks"))
+#endif
+#else
     B_(constDict_.get<scalar>("B")),
     ks_(constDict_.get<scalar>("ks"))
+#endif
 {
     if (debug)
     {        
