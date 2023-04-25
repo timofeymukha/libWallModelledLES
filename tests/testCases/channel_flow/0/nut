@@ -45,6 +45,7 @@ boundaryField
        sampler Crawling;
        interpolationType cellPointFace;
        hIsIndex false;
+       silent false;
 
        
 
