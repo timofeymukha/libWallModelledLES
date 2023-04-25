@@ -1,4 +1,5 @@
 #! /bin/bash
+. "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
 
 echo "Current OpenFOAM version is $WM_PROJECT_VERSION."
 if [ -e foamVersionThisIsCompiledFor ]; then
