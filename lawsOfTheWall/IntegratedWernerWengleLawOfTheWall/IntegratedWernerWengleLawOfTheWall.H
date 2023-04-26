@@ -28,8 +28,7 @@ Description
 
     \f{eqnarray*}{
         u^+ &=& y^+ \quad y+ \leq 11.81\\
-        u^+ &=& A(y^+)^B \quad y+ > 11.81
-
+        u^+ &=& A(y^+)^B \quad y^+ > 11.81
     \f}    
 
     Usage:
