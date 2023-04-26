@@ -23,8 +23,7 @@ If you use the library, please cite the following publication:
    grid_construction
    sampling
    zzreferences
-   api/class_view_hierarchy.rst
-   api/file_view_hierarchy.rst
+   api/library_root
 
 
 .. important::

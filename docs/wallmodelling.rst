@@ -54,9 +54,10 @@ A multitude of laws of the wall are implemented:
 
 - Spalding's law, :code:`SpaldingLawOfTheWall.H`
 - Reichard's law, :code:`ReichardtLawOfTheWall.H`.
-- Werner & Wengel's law, :code:`WernerWengleLawOfTheWall`.
+- Werner & Wengel's law, :code:`WernerWengleLawOfTheWall.H`.
 - Integrated Reichard's law, :code:`IntegratedReichardtLawOfTheWall.H`.
-- Integrated Werner & Wengel's law, :code:`IntegratedWernerWengleLawOfTheWall`.
+- Integrated Werner & Wengel's law, :code:`IntegratedWernerWengleLawOfTheWall.H`.
+- Log law for rough walls, :code:`RoughLogLawOfTheWall.H`.
 
 The integrated versions are preferable if you use the wall-adjacent cell for sampling.
 Otherwise, there is no large difference in what law to use, and Spalding's law is a reasonable default choice.

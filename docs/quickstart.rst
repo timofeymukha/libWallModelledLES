@@ -33,8 +33,8 @@ The settings above are not optimal, but should get your case running.
 Of course, you should never run your WMLES on a wall-resolving mesh.
 Instead, we recommend using a meshing strategy presented in :ref:`Grid construction`.
 
-Miscellaneous tips
-------------------
+Miscellaneous tips and troubleshooting
+--------------------------------------
 
 * In regions where the TBL is attached, set :code:`h` to be the distance to the second consecutive off-the-wall cell centre.
   In other regions, set it to 0, i.e. sample from the wall-adjacent cell.
