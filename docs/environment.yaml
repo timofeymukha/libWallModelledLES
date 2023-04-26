@@ -4,9 +4,9 @@ channels:
   - defaults
 dependencies:
   - doxygen==1.9.6
+  - sphinx==4.5.0
   - pip:
     - black==20.8b1
     - exhale>=0.3.0
     - sphinxcontrib.bibtex
     - docutils==0.16
-    - sphinx==4.5.0
