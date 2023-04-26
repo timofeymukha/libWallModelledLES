@@ -25,6 +25,7 @@ License
 #include "SingleCellSampler.H"
 #include "codeRules.H"
 
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
     defineTypeNameAndDebug(RoughLogLawOfTheWall, 0);
@@ -32,6 +33,7 @@ namespace Foam
     addToRunTimeSelectionTable(LawOfTheWall, RoughLogLawOfTheWall, TypeAndDictionary);
 
 }
+#endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
