@@ -69,12 +69,12 @@ ODE-based models
 These models are based on an ODE formulation, yet the ODE is integrated, and the model therefore only performs
 numerical integration using the trapezoidal rule, and does not solve and ODE directly.
 The models differ in the treatment of the right-hand side of the underlying ODE.
-For more details see the :code:`ODEWallModelFvPatchScalarField` class.
+For more details see the :class:`Foam::ODEWallModelFvPatchScalarField` class.
 
 The following models are available
 
-- Equilibrium ODE model, :code:`EquilibriumODEWallModelFvPatchScalarField.H`. Right-hand side of the ODE is set to 0.
-- Pressure gradient ODE model, :code:`PGradODEWallModelFvPatchScalarField.H` the right-hand side is set equal to the pressure gradient.
+- Equilibrium ODE model, :class:`Foam::EquilibriumODEWallModelFvPatchScalarField`. Right-hand side of the ODE is set to 0.
+- Pressure gradient ODE model, :class:`Foam::PGradODEWallModelFvPatchScalarField` the right-hand side is set equal to the pressure gradient.
 
 
 Further reading
