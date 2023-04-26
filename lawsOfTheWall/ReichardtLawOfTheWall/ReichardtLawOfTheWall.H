@@ -19,7 +19,7 @@ License
 Class
     Foam::ReichardtLawOfTheWall
 
-Description
+@brief
     The law of the wall proposed by Reichardt.
 
     \f[

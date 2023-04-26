@@ -19,7 +19,7 @@ License
 Class
     Foam::wallModelFvPatchScalarField
 
-Description
+@brief
     Base abstract class for LES wall models.
     
     Handles creating and storing fields used by the wall models.

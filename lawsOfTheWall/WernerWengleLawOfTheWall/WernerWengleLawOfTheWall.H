@@ -19,7 +19,7 @@ License
 Class
     Foam::WernerWengleLawOfTheWall
 
-Description
+@brief
     The law of the wall proposed by Werner and Wengle. Note that the model in
     the reference uses the integrated version of this law, also present in the
     library.

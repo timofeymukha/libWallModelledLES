@@ -19,7 +19,7 @@ License
 Class
     Foam::LawOfTheWall
 
-Description
+@brief
     Base abstract class for laws of the wall.
  
     It is to be used in conjuction

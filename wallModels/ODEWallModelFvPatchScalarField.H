@@ -19,7 +19,7 @@ License
 Class
     Foam::ODEWallModelFvPatchScalarField
 
-Description
+@brief
     Base abstract class for ODE-based wall models.
   
     All the models are based on the following equation

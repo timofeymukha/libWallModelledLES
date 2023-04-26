@@ -19,7 +19,7 @@ License
 Class
     Foam::IntegratedReichardtLawOfTheWall
 
-Description
+@brief
     Model based on integrating the law of the wall proposed by Reichardt.
 
     \f[

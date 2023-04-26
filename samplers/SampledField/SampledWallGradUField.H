@@ -19,7 +19,7 @@ License
 Class
     Foam::SampledWallGradUField
 
-Description
+@brief
     Class for the sampled velocity gradient field at the wall.
 
 Contributors/Copyright:

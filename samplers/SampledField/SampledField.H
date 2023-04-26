@@ -19,7 +19,7 @@ License
 Class
     Foam::SampledField
 
-Description
+@brief
     Base class for a sampled field. Handles sampling of and recomputing a 
     specific field. Also registers the field to the object registry
     under the sub-registry wallModelSampling -- patch-name.

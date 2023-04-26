@@ -19,7 +19,7 @@ License
 Class
     Foam::NewtonRootFinder
 
-Description
+@brief
     Root finder based on Newton's method.
 
     Controlled by two parameters: the max number of iterations and the relative

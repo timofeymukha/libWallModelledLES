@@ -16,7 +16,7 @@ License
     along with libWallModelledLES. 
     If not, see <http://www.gnu.org/licenses/>.
 
-Description
+@brief
     Various helper functions for testing the software.
     
 Contributors/Copyright:

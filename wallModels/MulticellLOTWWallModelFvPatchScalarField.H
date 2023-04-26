@@ -19,7 +19,7 @@ License
 Class
     Foam::MulticellLOTWWallModelFvPatchScalarField
 
-Description
+@brief
     Class for the wall models based on a law of the wall, sampling data
     from multiple cells. Currently hardcoded to use the integrated
     Reichardt law.

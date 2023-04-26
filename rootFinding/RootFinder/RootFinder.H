@@ -19,7 +19,7 @@ License
 Class
     Foam::RootFinder
 
-Description
+@brief
     Base abstract class for finding roots of non-linear algebraic equations.
 
     In the context of wall modelling the latter are provided by laws of the

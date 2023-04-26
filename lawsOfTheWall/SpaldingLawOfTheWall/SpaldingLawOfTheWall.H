@@ -19,7 +19,7 @@ License
 Class
     Foam::SpaldingLawOfTheWall
 
-Description
+@brief
     The law of the wall proposed by Spalding.
 
     \f[

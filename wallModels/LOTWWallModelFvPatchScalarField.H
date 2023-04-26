@@ -19,7 +19,7 @@ License
 Class
     Foam::LOTWWallModelFvPatchScalarField
 
-Description
+@brief
     Class for the wall models based on a law of the wall.
  
     Needs a root finder and a law of the wall to be defined.

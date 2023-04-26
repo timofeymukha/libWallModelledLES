@@ -53,7 +53,6 @@ extensions = [
     'exhale',
     'sphinx_rtd_theme',
     'sphinxcontrib.bibtex',
-    'sphinx.ext.autosectionlabel'
 ]
 
 bibtex_bibfiles = ['bibl.bib']
@@ -204,7 +203,7 @@ exhale_args = {
     "rootFileTitle":         "Library API",
     "doxygenStripFromPath":  "..",
     # Suggested optional arguments
-    "createTreeView":        True,
+    "createTreeView":        False,
     # TIP: if using the sphinx-bootstrap-theme, you need
     # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": True,

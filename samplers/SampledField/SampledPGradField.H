@@ -19,7 +19,7 @@ License
 Class
     Foam::SampledPGradField
 
-Description
+@brief
     Class for the sampled pressure gradient field.
 
 Contributors/Copyright:

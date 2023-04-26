@@ -19,7 +19,7 @@ License
 Class
     Foam::EddyViscosity
 
-Description
+@brief
     Base abstract class for 1D turbulence models based on eddy viscosity.
 
     Meant to be used with ODE based wall models that need the distribution

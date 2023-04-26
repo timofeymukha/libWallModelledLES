@@ -24,14 +24,14 @@ following:
     type         Spalding;
   }
 
-* In your :code:`0` directory, you should add a new volScalarField, :code:`h`, see the :ref:`Sampling` section for details.
+* In your :code:`0` directory, you should add a new volScalarField, :code:`h`, see the :ref:`sampling` section for details.
   For a quick start, set the value of :code:`h` to :code:`uniform 0` at the wall, and use :code:`zeroGradient` at all
   non-wall patch boundaries.
   This will lead to sampling from the wall adjacent-cell, which is very robust, but inaccurate.
 
 The settings above are not optimal, but should get your case running.
 Of course, you should never run your WMLES on a wall-resolving mesh.
-Instead, we recommend using a meshing strategy presented in :ref:`Grid construction`.
+Instead, we recommend using a meshing strategy presented in :ref:`grid-construction`.
 
 Miscellaneous tips and troubleshooting
 --------------------------------------

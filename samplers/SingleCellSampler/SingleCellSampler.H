@@ -19,7 +19,7 @@ License
 Class
     Foam::SingleCellSampler
 
-Description
+@brief
     Class for sampling data to the wall models for a single cell per face.
 
 Contributors/Copyright:

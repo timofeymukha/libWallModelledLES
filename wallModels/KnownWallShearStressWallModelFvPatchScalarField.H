@@ -19,7 +19,7 @@ License
 Class
     Foam::KnownWallShearStressWallModelFvPatchScalarField
 
-Description
+@brief
     Wall model that uses the values of the magnitude of the mean wall shear
     stress known a priori, for example, from a RANS precursor or an analytical
     solution.

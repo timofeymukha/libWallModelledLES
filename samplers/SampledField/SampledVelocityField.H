@@ -19,7 +19,7 @@ License
 Class
     Foam::SampledVelocityField
 
-Description
+@brief
     Class for the sampled velocity field.
 
 Contributors/Copyright:

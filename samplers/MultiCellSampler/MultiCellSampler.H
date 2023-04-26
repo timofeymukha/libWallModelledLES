@@ -19,7 +19,7 @@ License
 Class
     Foam::MultiCellSampler
 
-Description
+@brief
     Class for sampling from several consecutive cells per wall face.
 
 Contributors/Copyright:

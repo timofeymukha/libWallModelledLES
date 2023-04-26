@@ -19,7 +19,7 @@ License
 Class
     Foam::RoughLogLawOfTheWall
 
-Description
+@brief
     A log-law, in which the wall-normal distance is scaled by roughness
     length-scale.
 

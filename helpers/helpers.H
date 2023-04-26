@@ -19,7 +19,7 @@ License
 Class
     Foam::PatchProjector
 
-Description
+@brief
     Class for projecting fields and lists onto a patch.
 
 Contributors/Copyright:

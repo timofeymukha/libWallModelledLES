@@ -19,7 +19,7 @@ License
 Class
     Foam::Sampler
 
-Description
+@brief
     Class for sampling data to the wall models.
 
 Contributors/Copyright:

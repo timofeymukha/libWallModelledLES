@@ -24,7 +24,7 @@ boundaryField
     bottomWall
     {
 /* * * * * * * * * Law of the wall wall model * * * * * * */                  
-         type           LOTWWallModel;
+         type           MulticellLOTWWallModel;
          //type           LSQRWallModel;
   //       value            uniform 0;  //redundant
   //
@@ -43,7 +43,7 @@ boundaryField
        }
 
        sampler Crawling;
-       interpolationType cellPointFace;
+       interpolationType cell;
        hIsIndex false;
        silent false;
 
