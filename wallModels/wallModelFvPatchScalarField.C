@@ -66,6 +66,10 @@ void Foam::wallModelFvPatchScalarField::createFields() const
     {
         Info<< "wallModelFvPatchScalarField creating fields" << nl;
     }
+    
+    // Name of the h field, default to hSampler
+    word hName = "hSampler";
+
     // Check if hSampler exists
     IOobject hHeader
     (
@@ -77,7 +81,6 @@ void Foam::wallModelFvPatchScalarField::createFields() const
     
     bool foundhSampler = hHeader.typeHeaderOk<volScalarField>();
     db().checkOut("hSampler");
-    word hName;
 
     if (debug)
     {
@@ -85,39 +88,42 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             << nl;
     }
 
-    if (!db().found("hSampler") && foundhSampler)
-    {
-        db().store
-        (
-            new volScalarField
-            (
-                IOobject
-                (
-                    "hSampler",
-                    db().time().timeName(),
-                    db(),
-                    IOobject::MUST_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                patch().boundaryMesh().mesh()
-            )
-        );
-        hName = "hSampler";
-    }
-    
-    if (!db().found("h") && !foundhSampler)
+
+    if (!foundhSampler)
     {
         Warning
             << "The hSampler field is not found, will try to find h. "
             << "Please note that h will not work with compressible solvers. "
             << "It is recommended to use hSampler in new cases." << nl; 
+
+        IOobject hHeader
+        (
+            "h",
+            db().time().timeName(),
+            db(),
+            IOobject::NO_READ
+        );
+        
+        if (hHeader.typeHeaderOk<volScalarField>())
+        {
+            hName = "h";
+            if (debug)
+            {
+                Info<< "wallModelFvPatchScalarField: Found field h" << nl;
+            }
+        }
+        db().checkOut("h");
+    }
+    
+    if (!db().found(hName))
+    {
         db().store
         (
             new volScalarField
             (
                 IOobject
                 (
-                    "h",
+                    hName,
                     db().time().timeName(),
                     db(),
                     IOobject::MUST_READ,
@@ -126,7 +132,6 @@ void Foam::wallModelFvPatchScalarField::createFields() const
                 patch().boundaryMesh().mesh()
             )
         );
-        hName = "h";
     }
       
     const volScalarField & h = db().lookupObject<volScalarField>(hName);
