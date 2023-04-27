@@ -130,10 +130,6 @@ void Foam::Sampler::createFields()
     }
     else
     {
-        Warning
-            << "The hSampler field is not found, will try to find h. "
-            << "Please note that h will not work with compressible solvers. "
-            << "It is recommended to use hSampler in new cases." << nl; 
         hName = "h";
     }
 
