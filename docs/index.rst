@@ -21,6 +21,7 @@ If you use the library, please cite the following publication:
    quickstart
    wallmodelling
    grid_construction
+   configuration
    sampling
    troubleshooting
    zzreferences
