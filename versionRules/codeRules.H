@@ -19,7 +19,7 @@ License
 Class
 
 
-Description
+@brief
     Based on the OpenFOAM version, generates macros that can be used to make
     the code support multiple versions via #ifdef statements.
     The file is adopted with minor changes from swak4foam, see list of
@@ -31,7 +31,7 @@ Contributors/Copyright:
     2012-2018 Bernhard F.W. Gschaider <bgschaid@hfd-research.com>
     2015-2016 Bruno Santos <wyldckat@gmail.com>
     2016-2018 Mark Olesen <Mark.Olesen@esi-group.com>
-    2019-2021 Timofey Mukha
+    2019-2023 Timofey Mukha
 
 \*---------------------------------------------------------------------------*/
 
@@ -169,6 +169,22 @@ Contributors/Copyright:
 
 #if (defined(FOAM_VERSION4WMLES_IS_ORG) && FOAM_VERSION4WMLES>=VERSION_NR(9,0,0))
 #define FOAM_FVPATCHFIELD_NO_COPY
+#endif
+
+#if (defined(FOAM_VERSION4WMLES_IS_ORG))
+#define FOAM_DICTIONARY_NO_GET
+#endif
+
+#if (defined(FOAM_VERSION4WMLES_IS_ORG) && FOAM_VERSION4WMLES>=VERSION_NR(8,0,0))
+#define FOAM_DICTIONARY_HAS_LOOKUP
+#endif
+
+#if (defined(FOAM_VERSION4SWAK_IS_ORG) && FOAM_VERSION4SWAK >= VERSION_NR(9, 0, 0))
+#define FOAM_FLUID_MOMENTUM_TRANSPORT_IS_NOW_DYNAMIC
+#endif
+
+#if (defined(FOAM_VERSION4SWAK_IS_ORG) && FOAM_VERSION4SWAK >= VERSION_NR(10, 0, 0))
+#define FOAM_FLUID_MOMENTUM_TRANSPORT_IS_NO_LONGER_DYNAMIC
 #endif
 
 #endif

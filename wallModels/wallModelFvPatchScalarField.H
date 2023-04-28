@@ -19,7 +19,7 @@ License
 Class
     Foam::wallModelFvPatchScalarField
 
-Description
+@brief
     Base abstract class for LES wall models.
     
     Handles creating and storing fields used by the wall models.
@@ -48,7 +48,6 @@ SourceFiles
 #define wallModelFvPatchScalarField_H
 
 #include "fixedValueFvPatchFields.H"
-#include "Sampler.H"
 #include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -72,6 +71,9 @@ private:
     //- Switch to copy data to wall-adjacent cells
     bool copyToPatchInternalField_;
     
+    //- Wether to suppress most output to the log file
+    bool silent_;
+    
 protected:
 
     // Protected data
@@ -86,6 +88,13 @@ protected:
 
         //- Check that the patch is a wall
         virtual void checkType();
+        
+        //- Return the laminar viscosity
+        //  Note: this is the internal field
+        tmp<volScalarField> nu() const;
+        
+        //- Return laminar viscosity on patchi
+        tmp<scalarField> nu(const label patchi) const;
 
         //- Calculate the turbulence viscosity
         virtual tmp<scalarField> calcNut() const = 0;
@@ -156,6 +165,11 @@ public:
         scalar consumedTime() const
         {
             return consumedTime_;
+        }
+
+        bool silent() const
+        {
+            return silent_;
         }
 
         bool copyToPatchInternalField() const

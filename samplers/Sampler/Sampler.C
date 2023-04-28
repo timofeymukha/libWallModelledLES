@@ -49,7 +49,9 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
-    bool hIsIndex
+    const word lengthScaleType,
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 {
     auto cstrIter =
@@ -75,7 +77,9 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         averagingTime,
         interpolationType,
         cellFinderType,
-        hIsIndex
+        lengthScaleType,
+        hIsIndex,
+        excludeWallAdjacent
     );
 }  
 
@@ -91,8 +95,12 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         dict.lookupOrDefault<word>("interpolationType", "cell");
     word cellFinderType =
         dict.lookupOrDefault<word>("sampler", "Tree");
+    word lengthScaleType =
+        dict.lookupOrDefault<word>("lengthScale", "CubeRootVol");
     bool hIsIndex =
         dict.lookupOrDefault<bool>("hIsIndex", false);
+    bool excludeWallAdjacent =
+        dict.lookupOrDefault<bool>("excludeWallAdjacent", false);
 
     return Foam::Sampler::New
     (
@@ -101,7 +109,9 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         averagingTime,
         interpolationType,
         cellFinderType,
-        hIsIndex
+        lengthScaleType,
+        hIsIndex,
+        excludeWallAdjacent
     );
 }  
 
@@ -110,8 +120,21 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
 
 void Foam::Sampler::createFields()
 {
+    bool foundhSampler = mesh_.foundObject<volScalarField>("hSampler");
+    word hName;
 
-    const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
+    // Grab h for the current patch
+    if (foundhSampler)
+    {
+        hName = "hSampler";
+    }
+    else
+    {
+        hName = "h";
+    }
+
+    const volScalarField & h = mesh_.lookupObject<volScalarField> (hName);
+
     // Field that marks cells that are used for sampling
     if (!mesh_.thisDb().found("samplingCells"))
     {
@@ -149,7 +172,9 @@ Foam::Sampler::Sampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
-    bool hIsIndex
+    const word lengthScaleType,
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 :
     patch_(p),
@@ -158,7 +183,9 @@ Foam::Sampler::Sampler
     sampledFields_(0),
     interpolationType_(interpolationType),
     cellFinderType_(cellFinderType),
-    hIsIndex_(hIsIndex)
+    lengthScaleType_(lengthScaleType),
+    hIsIndex_(hIsIndex),
+    excludeWallAdjacent_(excludeWallAdjacent)
 {
     if (debug)
     {
@@ -213,10 +240,21 @@ Foam::Sampler::Sampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
-    bool hIsIndex
+    const word lengthScaleType,
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 :
-    Sampler(p, averagingTime, interpolationType, cellFinderType, hIsIndex)
+    Sampler
+    (
+        p,
+        averagingTime,
+        interpolationType,
+        cellFinderType,
+        lengthScaleType,
+        hIsIndex,
+        excludeWallAdjacent
+    )
 {
 }
 
@@ -228,7 +266,9 @@ Foam::Sampler::Sampler(const Sampler & copy)
     sampledFields_(copy.sampledFields_),
     interpolationType_(copy.interpolationType_),
     cellFinderType_(copy.cellFinderType_),
-    hIsIndex_(copy.hIsIndex_)
+    lengthScaleType_(copy.lengthScaleType_),
+    hIsIndex_(copy.hIsIndex_),
+    excludeWallAdjacent_(copy.excludeWallAdjacent_)
 {
     if (debug)
     {

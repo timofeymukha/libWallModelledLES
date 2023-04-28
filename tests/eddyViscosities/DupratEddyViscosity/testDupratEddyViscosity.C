@@ -138,7 +138,8 @@ TEST_F(DupratEddyViscosityTest, AddFieldsToSampler)
         patch,
         3.0,
         "cell",
-        "Tree",
+        "Tree", 
+        "CubeRootVol",
         false
     );
 

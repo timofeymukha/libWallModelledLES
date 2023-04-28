@@ -19,7 +19,7 @@ License
 Class
     Foam::EquilibriumODEWallModelFvPatchScalarField
 
-Description
+@brief
     ODE model with a zero source-term.
   
     Physically, this means that the total shear stress is assumed to be constant

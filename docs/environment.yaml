@@ -1,0 +1,12 @@
+name: rtd
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - doxygen==1.9.6
+  - sphinx==4.5.0
+  - pip:
+    - exhale==0.3.6
+    - breathe==4.35.0
+    - sphinxcontrib.bibtex
+    - docutils==0.16

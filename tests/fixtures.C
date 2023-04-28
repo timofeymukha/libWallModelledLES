@@ -8,7 +8,7 @@ void createSamplingHeightField(const Foam::fvMesh & mesh)
         (
             IOobject
             (
-                "h",
+                "hSampler",
                 mesh.time().timeName(),
                 mesh,
                 IOobject::MUST_READ,
@@ -43,7 +43,7 @@ void createVelocityField(const Foam::fvMesh & mesh)
 void createPGradField(const Foam::fvMesh & mesh)
 {
     // Grab h to copy bcs from it.
-    const volScalarField & h = mesh.lookupObject<volScalarField>("h");
+    const volScalarField & h = mesh.lookupObject<volScalarField>("hSampler");
     
     if (!mesh.foundObject<volVectorField>("pGrad"))
     {

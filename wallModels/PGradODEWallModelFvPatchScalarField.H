@@ -19,7 +19,7 @@ License
 Class
     Foam::PGradODEWallModelFvPatchScalarField
 
-Description
+@brief
     ODE wall model with the source term equal to the wall-parallel pressure
     gradient.
 

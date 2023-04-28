@@ -19,7 +19,7 @@ License
 Class
     Foam::TreeCellFinder
 
-Description
+@brief
     Class for searching for sampling cells using.
 
 Contributors/Copyright:

@@ -512,8 +512,21 @@ Foam::TreeCellFinder::findCandidateCellLabels
 Foam::tmp<Foam::volScalarField> Foam::TreeCellFinder::distanceField() const
 {
     
+
+    word hName;
+
     // Grab h for the current patch
-    const volScalarField & h = mesh_.lookupObject<volScalarField> ("h");
+    if (mesh_.foundObject<volScalarField>("hSampler"))
+    {
+        hName = "hSampler";
+    }
+    else
+    {
+        hName = "h";
+    }
+    const volScalarField & h = mesh_.lookupObject<volScalarField>(hName);
+
+
     if (debug)
     {
         Info<< "CellFinder: Creating dist field" << nl;

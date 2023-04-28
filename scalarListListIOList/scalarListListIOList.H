@@ -19,7 +19,7 @@ License
 Class
     Foam::SingleCellSampler
 
-Description
+@brief
     
 
 Contributors/Copyright:

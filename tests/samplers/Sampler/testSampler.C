@@ -22,12 +22,14 @@ namespace Foam
                 scalar averagingTime,
                 const word interpolationType,
                 const word cellFinderType,
-                bool hIsIndex
+                const word lengthScaleType,
+                bool hIsIndex,
+                bool excludeWallAdjacent
 
             )
             :
                 Sampler(p, averagingTime, interpolationType, cellFinderType,
-                        hIsIndex)
+                        lengthScaleType, hIsIndex, excludeWallAdjacent)
             {}
 
             DummySampler
@@ -37,11 +39,13 @@ namespace Foam
                 scalar averagingTime,
                 const word interpolationType,
                 const word cellFinderType,
-                bool hIsIndex
+                const word lengthScaleType,
+                bool hIsIndex,
+                bool excludeWallAdjacent
             )
             :
                 Sampler(p, averagingTime, interpolationType, cellFinderType,
-                        hIsIndex)
+                        lengthScaleType, hIsIndex, excludeWallAdjacent)
             {}
             
             DummySampler(const DummySampler &) = default;
@@ -83,6 +87,8 @@ TEST_F(SamplerTest, FullConstructor)
         3.0,
         "cell",
         "crawling",
+        "CubeRootVol",
+        false,
         false
     );
 
@@ -90,9 +96,11 @@ TEST_F(SamplerTest, FullConstructor)
     ASSERT_EQ(sampler.Sampler::averagingTime(), 3.0);
     ASSERT_EQ(sampler.Sampler::interpolationType(), "cell");
     ASSERT_EQ(sampler.Sampler::cellFinderType(), "crawling");
+    ASSERT_EQ(sampler.Sampler::lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.Sampler::hIsIndex(), false);
     ASSERT_EQ(&sampler.Sampler::mesh(), &mesh);
     ASSERT_EQ(sampler.Sampler::nSampledFields(), 0);
+    ASSERT_EQ(sampler.Sampler::excludeWallAdjacent(), false);
     ASSERT_TRUE(mesh.foundObject<objectRegistry>("wallModelSampling"));
     ASSERT_TRUE
     (
@@ -121,6 +129,8 @@ TEST_F(SamplerTest, NewNamePatchAveragingTime)
             3.0,
             "cell",
             "crawling",
+            "CubeRootVol",
+            false,
             false
         )
     );
@@ -130,9 +140,11 @@ TEST_F(SamplerTest, NewNamePatchAveragingTime)
     ASSERT_EQ(sampler().Sampler::averagingTime(), 3.0);
     ASSERT_EQ(sampler().Sampler::interpolationType(), "cell");
     ASSERT_EQ(sampler().Sampler::cellFinderType(), "crawling");
+    ASSERT_EQ(sampler().Sampler::lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler().Sampler::hIsIndex(), false);
     ASSERT_EQ(&sampler().Sampler::mesh(), &mesh);
     ASSERT_EQ(sampler().Sampler::nSampledFields(), 0);
+    ASSERT_EQ(sampler().Sampler::excludeWallAdjacent(), false);
     ASSERT_TRUE(mesh.foundObject<objectRegistry>("wallModelSampling"));
     ASSERT_TRUE
     (
@@ -156,6 +168,7 @@ TEST_F(SamplerTest, NewDictionaryPatch)
     dict.lookupOrAddDefault(word("interpolationType"), word("cell"));
     dict.lookupOrAddDefault(word("sampler"), word("Crawling"));
     dict.lookupOrAddDefault(word("hIsIndex"), false);
+    dict.lookupOrAddDefault(word("excludeWallAdjacent"), true);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
     autoPtr<Sampler> sampler(Sampler::New(dict, patch));
@@ -168,6 +181,7 @@ TEST_F(SamplerTest, NewDictionaryPatch)
     ASSERT_EQ(sampler().Sampler::hIsIndex(), false);
     ASSERT_EQ(&sampler().Sampler::mesh(), &mesh);
     ASSERT_EQ(sampler().Sampler::nSampledFields(), 0);
+    ASSERT_EQ(sampler().Sampler::excludeWallAdjacent(), true);
     ASSERT_TRUE(mesh.foundObject<objectRegistry>("wallModelSampling"));
     ASSERT_TRUE
     (
@@ -193,6 +207,8 @@ TEST_F(SamplerTest, CreateFields)
         3.0,
         "cell",
         "crawling",
+        "CubeRootVol",
+        false,
         false
     );
 
@@ -217,6 +233,8 @@ TEST_F(SamplerTest, Copy)
         3.0,
         "cell",
         "crawling",
+        "CubeRootVol",
+        false,
         false
     );
     sampler.addField(new SampledVelocityField(patch));
@@ -231,6 +249,7 @@ TEST_F(SamplerTest, Copy)
     ASSERT_EQ(sampler.hIsIndex(), sampler2.hIsIndex());
     ASSERT_EQ(&sampler.mesh(), &sampler2.mesh());
     ASSERT_EQ(sampler.nSampledFields(), sampler2.nSampledFields());
+    ASSERT_EQ(sampler.excludeWallAdjacent(), sampler2.excludeWallAdjacent());
 }
 
 
@@ -272,6 +291,8 @@ TEST_F(SamplerTest, AddField)
         3.0,
         "cell",
         "crawling",
+        "CubeRootVol",
+        false,
         false
     );
     

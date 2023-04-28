@@ -19,6 +19,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "wallModelFvPatchScalarField.H"
+#include "turbulenceModel.H"
 #include "meshSearch.H"
 #include "wallFvPatch.H"
 #include "codeRules.H"
@@ -55,11 +56,66 @@ void Foam::wallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
         << averagingTime_ << token::END_STATEMENT << nl;
     os.writeKeyword("copyToPatchInternalField")
         << copyToPatchInternalField_ << token::END_STATEMENT << nl;
+    os.writeKeyword("silent")
+        << silent_ << token::END_STATEMENT << nl;
 }
 
 void Foam::wallModelFvPatchScalarField::createFields() const
 {
-    if (!db().found("h"))
+    if (debug)
+    {
+        Info<< "wallModelFvPatchScalarField creating fields" << nl;
+    }
+    
+    // Name of the h field, default to hSampler
+    word hName = "hSampler";
+
+    // Check if hSampler exists
+    IOobject hHeader
+    (
+        "hSampler",
+        db().time().timeName(),
+        db(),
+        IOobject::NO_READ
+    );
+    
+    bool foundhSampler = hHeader.typeHeaderOk<volScalarField>();
+    db().checkOut("hSampler");
+
+    if (debug)
+    {
+        Info<< "wallModelFvPatchScalarField: Found hSampler? " << foundhSampler
+            << nl;
+    }
+
+
+    if (!foundhSampler)
+    {
+        Warning
+            << "The hSampler field is not found, will try to find h. "
+            << "Please note that h will not work with compressible solvers. "
+            << "It is recommended to use hSampler in new cases." << nl; 
+
+        IOobject hHeader
+        (
+            "h",
+            db().time().timeName(),
+            db(),
+            IOobject::NO_READ
+        );
+        
+        if (hHeader.typeHeaderOk<volScalarField>())
+        {
+            hName = "h";
+            if (debug)
+            {
+                Info<< "wallModelFvPatchScalarField: Found field h" << nl;
+            }
+        }
+        db().checkOut("h");
+    }
+    
+    if (!db().found(hName))
     {
         db().store
         (
@@ -67,7 +123,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             (
                 IOobject
                 (
-                    "h",
+                    hName,
                     db().time().timeName(),
                     db(),
                     IOobject::MUST_READ,
@@ -78,7 +134,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         );
     }
       
-    const volScalarField & h = db().lookupObject<volScalarField>("h");
+    const volScalarField & h = db().lookupObject<volScalarField>(hName);
     
     // Create and register wallShearStress field, if not there already.
     if (!db().found("wallShearStress"))
@@ -155,6 +211,34 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             )
         );  
     }
+    if (debug)
+    {
+        Info<< "wallModelFvPatchScalarField finished creating fields" << nl;
+    }
+}
+
+Foam::tmp<Foam::volScalarField> Foam::wallModelFvPatchScalarField::nu() const
+{
+    const turbulenceModel& turbModel =
+            db().lookupObject<turbulenceModel>
+            (
+                turbulenceModel::propertiesName
+            );
+    return turbModel.nu();
+}
+
+
+Foam::tmp<Foam::scalarField> Foam::wallModelFvPatchScalarField::nu
+(
+    const label patchi
+) const
+{
+    const turbulenceModel& turbModel =
+            db().lookupObject<turbulenceModel>
+            (
+                turbulenceModel::propertiesName
+            );
+    return turbModel.nu(patchi);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -168,6 +252,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(p, iF),
     consumedTime_(0),
     copyToPatchInternalField_(false),
+    silent_(false),
     averagingTime_(0)
 {
     if (debug)
@@ -193,6 +278,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(orig, p, iF, mapper),
     consumedTime_(0),
     copyToPatchInternalField_(orig.copyToPatchInternalField_),
+    silent_(orig.silent_),
     averagingTime_(orig.averagingTime_)
 {
     if (debug)
@@ -219,6 +305,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     (
         dict.lookupOrDefault<bool>("copyToPatchInternalField", false)
     ),
+    silent_(dict.lookupOrDefault<bool>("silent", false)),
     averagingTime_(dict.lookupOrDefault<scalar>("averagingTime", 0))
 {
     if (debug)
@@ -243,6 +330,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(orig),
     consumedTime_(orig.consumedTime_),
     copyToPatchInternalField_(orig.copyToPatchInternalField_),
+    silent_(orig.silent_),
     averagingTime_(orig.averagingTime_)
 {
     if (debug)
@@ -265,6 +353,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     fixedValueFvPatchScalarField(orig, iF),       
     consumedTime_(orig.consumedTime_),
     copyToPatchInternalField_(orig.copyToPatchInternalField_),
+    silent_(orig.silent_),
     averagingTime_(orig.averagingTime_)
 {
     if (debug)
@@ -303,7 +392,8 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     
     const vectorField & wallGradU = wallGradUField.boundaryField()[pI];
     
-    const volScalarField & nu = db().lookupObject<volScalarField>("nu");
+    tmp<scalarField> tnuw = this->nu(pI);
+    const scalarField& nuw = tnuw();
 
     // Compute nut and assign
     scalarField nut(calcNut());
@@ -333,15 +423,19 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     wss.boundaryField()[pI]
 #endif
     ==
-        (nut + nu.boundaryField()[pI])*wallGradU;
+        (nut + nuw)*wallGradU;
 
     consumedTime_ += (db().time().elapsedClockTime() - startCPUTime);
 
     // Take the max consumed time across all procs
     reduce(consumedTime_, maxOp<scalar>());
-    Info<< "Wall modelling time consumption = " << consumedTime_ 
-        << "s "  << 100*consumedTime_/(db().time().elapsedClockTime() + SMALL)
-        << "% of total " << nl;
+    
+    if (!silent_)
+    {
+        Info<< "Wall modelling time consumption = " << consumedTime_ 
+            << "s "  << 100*consumedTime_/(db().time().elapsedClockTime() + SMALL)
+            << "% of total " << nl;
+    }
 }
 
 

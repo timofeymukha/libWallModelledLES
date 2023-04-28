@@ -19,11 +19,11 @@ License
 Class
     Foam::SampledWallGradUField
 
-Description
+@brief
     Class for the sampled velocity gradient field at the wall.
 
 Contributors/Copyright:
-    2019-2021 Timofey Mukha
+    2019-2023 Timofey Mukha
 
 SourceFiles
     SampledWallGradUField.C
@@ -51,6 +51,10 @@ class SampledWallGradUField
 {
    
 public:
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+    //- Runtime type information
+        TypeName("SampledWallGradUField");
+#endif
 
     // Constructors
 
@@ -64,19 +68,13 @@ public:
             SampledField(patch, interpolationType)
         {
             createField();
-            setInterpolator(interpolationType);
         }
 
         //- Copy constructor
         SampledWallGradUField(const SampledWallGradUField & orig)
         :
             SampledField(orig)
-        {
-            if (orig.interpolator_.valid())
-            {
-                setInterpolator(orig.interpolator_().type());
-            }
-        }
+        {}
 
         //- Clone the object
         autoPtr<SampledField> clone() const override
@@ -129,10 +127,6 @@ public:
 
         //- Recompute the field
         void recompute() const override;
-
-        //- Set interpolator. Redundant, no interpolation for this field.
-        void setInterpolator(const word interpolationType) override
-        {}
 
         //- Create the global wallGrad gradient field that will be sampled
         virtual void createField() const override;

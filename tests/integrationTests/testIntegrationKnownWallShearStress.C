@@ -7,18 +7,18 @@ class ChannelFlow : public ::testing::Test
     public:
         ChannelFlow()
         {
-            std::system("cp -r ../testCases/channel_flow/system .");
-            std::system("cp -r ../testCases/channel_flow/constant .");
-            std::system("cp -r ../testCases/channel_flow/0 .");
+            auto code = std::system("cp -r ../testCases/channel_flow/system .");
+            code = std::system("cp -r ../testCases/channel_flow/constant .");
+            code = std::system("cp -r ../testCases/channel_flow/0 .");
         }
 
         virtual ~ChannelFlow()
         {
-            std::system("rm -r system");
-            std::system("rm -r constant");
-            std::system("rm -r 0");
-            std::system("rm -r 0.01");
-            std::system("rm -r processor*");
+            auto code = std::system("rm -r system");
+            code = std::system("rm -r constant");
+            code = std::system("rm -r 0");
+            code = std::system("rm -r 0.01");
+            code = std::system("rm -r processor*");
         }
 };
 

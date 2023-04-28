@@ -1,3 +1,5 @@
+.. _sampling:
+
 Sampling
 ========
 
@@ -42,19 +44,19 @@ We encourage the users to examine :code:`SamplingCells` to confirm that the cell
 Prescribing :math:`h`
 ---------------------
 
-The values of :math:`h` should be set in a field called :code:`h`.
+The values of :math:`h` should be set in a field called :code:`hSampler`.
 The setting of appropriate values is done in the same way as for any other solution field.
-To that end, at the wall boundaries, the boundary condition for :code:`h` should be set to :code:`fixedValue`.
+To that end, at the wall boundaries, the boundary condition for :code:`hSampler` should be set to :code:`fixedValue`.
 The desired values are then either set for the whole patch using the :code:`uniform` keyword or alternatively prescribed
 on a face-by-face basis using an OpenFOAM list.
 On other boundaries of type :code:`patch`, the :code:`zeroGradient` boundary condition can be used.
 
-When the :code:`Tree` sampler is used, the values in the :code:`h` will be interpreted as the desired distance to the
+When the :code:`Tree` sampler is used, the values in the :code:`hSampler` will be interpreted as the desired distance to the
 sampling point.
 Note, that the value 0 is reserved for sampling from the wall-adjacent cell. 
 By default, the same will be done by the :code:`Crawling` sampler, however alternatively one can let the sampler interpret
 the set values as the index of the consecutive off-wall cell, from which to do the sampling.
-So, for example, :code:`h` equal to 2 will refer to sampling from the second off-wall cell. 
+So, for example, :code:`hSampler` equal to 2 will refer to sampling from the second off-wall cell. 
 In order to do this, the :code:`hIsIndex` keyword should be set to :code:`yes` in the dictionary of the wall model in
 :code:`nut`.
 

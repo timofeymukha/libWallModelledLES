@@ -24,6 +24,15 @@ License
 #include "List.H"
 #include "helpers.H"
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+namespace Foam
+{
+    defineTypeNameAndDebug(SampledPGradField, 0);
+}
+#endif
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::SampledPGradField::sample
@@ -33,18 +42,29 @@ void Foam::SampledPGradField::sample
     const Foam::scalarField & h
 ) const
 {
-    Info<< "Sampling pressure gradient for patch " << patch_.name() << nl;
+    if (debug)
+    {
+        Info<< "Sampling pressure gradient for patch " << patch_.name() << nl;
+    }
 
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField & faceNormals = tfaceNormals();
     
+    const volVectorField & pGradField =
+        mesh().lookupObject<volVectorField>("pGrad");
+    autoPtr<interpolation<vector> > interpolator;
+    interpolator.operator=
+    (
+        interpolation<vector>::New(interpolationType(), pGradField)
+    );
+
     vectorField sampledPGrad(indexList.size());
     
     for (int i=0; i<indexList.size(); i++)
     {
         point p = faceCentres[i] - h[i]*faceNormals[i];
-        const vector interp = interpolator_->interpolate(p, indexList[i]);
+        const vector interp = interpolator->interpolate(p, indexList[i]);
         sampledPGrad[i] = interp;
         scalarList temp(3, 0.0);
         
@@ -205,37 +225,23 @@ void Foam::SampledPGradField::recompute() const
 }
 
 
-void Foam::SampledPGradField::setInterpolator
-(
-    const word interpolationType
-)
-{
-    if (mesh().foundObject<volVectorField>("pGrad"))
-    {
-        const volVectorField & pGrad =
-            mesh().lookupObject<volVectorField>("pGrad");
-        interpolator_.operator=
-        (
-            interpolation<vector>::New(interpolationType, pGrad)
-        );
-    }
-    else
-    {
-        interpolator_.reset(nullptr);
-        // WarningIn("SampledPGradField::setInterpolator()")
-        //     << "No pGrad field is present, attempting to sample will lead "
-        //     << "to a crash."
-        //     << nl;
-    }
-}
-
-
 void Foam::SampledPGradField::createField
 (
 ) const
 {
-    // Grab h to copy bcs from it.
-    const volScalarField & h = mesh().lookupObject<volScalarField>("h");
+    word hName;
+
+    // Grab h for the current patch
+    if (mesh_.foundObject<volScalarField>("hSampler"))
+    {
+        hName = "hSampler";
+    }
+    else
+    {
+        hName = "h";
+    }
+
+    const volScalarField & h = mesh_.lookupObject<volScalarField> (hName);
     
     if (!mesh().foundObject<volVectorField>("pGrad"))
     {

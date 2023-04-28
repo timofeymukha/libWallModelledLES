@@ -24,26 +24,22 @@ following:
     type         Spalding;
   }
 
-* In your :code:`0` directory, you should add a new volScalarField, :code:`h`, see the :ref:`Sampling` section for details.
-  For a quick start, set the value of :code:`h` to :code:`uniform 0` at the wall, and use :code:`zeroGradient` at all
+* In your :code:`0` directory, you should add a new volScalarField, :code:`hSampler`, see the :ref:`sampling` section for details.
+  For a quick start, set the value of :code:`hSampler` to :code:`uniform 0` at the wall, and use :code:`zeroGradient` at all
   non-wall patch boundaries.
   This will lead to sampling from the wall adjacent-cell, which is very robust, but inaccurate.
 
 The settings above are not optimal, but should get your case running.
 Of course, you should never run your WMLES on a wall-resolving mesh.
-Instead, we recommend using a meshing strategy presented in :ref:`Grid construction`.
+Instead, we recommend using a meshing strategy presented in :ref:`grid-construction`.
 
 Miscellaneous tips
 ------------------
 
-* In regions where the TBL is attached, set :code:`h` to be the distance to the second consecutive off-the-wall cell centre.
+* In regions where the TBL is attached, set :code:`hSampler` to be the distance to the second consecutive off-the-wall cell centre.
   In other regions, set it to 0, i.e. sample from the wall-adjacent cell.
 * Use a mildly diffusive numerical scheme, e.g. :code:`LUST`. Tips regarding what other schemes worked well are welcome :).
 * The WALE model is a good first choice for SGS modelling. Don't use implicit LES on a WMLES mesh.
-* If your simulation crashes because of the wall model (you can usually see that in the log), make sure you have a good
-  initial condition.
-* If your simulation crashed anyway, use :math:`h = 0`, this is pretty much guaranteed to be stable.
-* Large values of :math:`h` are known to sometimes lead to a crash, in particular, if the grid below :math:`h` is refined.
 * If you use :math:`h = 0`, use an algebraic wall model in integral formulation, i.e. the :code:`LOTWWallModel` with e.g.
   the :code:`IntegratedReichardt` law.
 

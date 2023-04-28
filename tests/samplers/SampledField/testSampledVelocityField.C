@@ -119,7 +119,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsZeroMultiCell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 
@@ -131,8 +131,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsZeroMultiCell)
             patch,
             3.0,
             "cell",
-            "Crawling",
-            true
+            "Crawling"
         )
     );
 
@@ -240,7 +239,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitializeMultiCell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 3;
 
@@ -253,6 +252,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsInitializeMultiCell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -337,14 +337,16 @@ TEST_F(SampledVelocityTest, RegisterFieldsRead)
 }
 
 
-TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
+TEST_F(SampledVelocityTest, RegisterFieldsReadMultiCell)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
     Time runTime(Foam::Time::controlDictName, args);
 
     // Make previously sampled data readable
-    system("cp -r 0/wallModelSamplingMulti 0/wallModelSampling");
+    auto code = system("cp -r 0/wallModelSamplingMulti 0/wallModelSampling");
+    ASSERT_EQ(code, 0);
+
 
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
@@ -353,14 +355,14 @@ TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
     volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
 
     // Init U to something varying
-    U.primitiveFieldRef() = mesh.C();
+    //U.primitiveFieldRef() = mesh.C();
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 
@@ -373,6 +375,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -393,6 +396,7 @@ TEST_F(SampledVelocityTest, RegisterFieldsReadMulticell)
     const scalarListListIOList & sampledFieldIOobject =
         sampledField.db().lookupObject<scalarListListIOList>("U");
 
+    // The mesh has 3 cells in x, 3 in z and 10 in y
     forAll(sampledFieldIOobject, i)
     {
         forAll(sampledFieldIOobject[i], j)
@@ -470,7 +474,7 @@ TEST_F(SampledVelocityTest, SampleMulticell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 
@@ -483,6 +487,7 @@ TEST_F(SampledVelocityTest, SampleMulticell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true,
             false
         )
@@ -573,8 +578,7 @@ TEST_F(SampledVelocityTest, CheckInterpolationWorks)
                 ASSERT_EQ(sampledValues[i][j], 0);
             }
             else
-            { // Here we just check that pointMVC gives us a different value
-              // Than stored in the U field cell centres
+            { 
                 ASSERT_FLOAT_EQ
                 (
                     sampledValues[i][j],
@@ -613,8 +617,10 @@ TEST_F(SampledVelocityTest, CheckInterpolationPointOutside)
 
     SampledVelocityField sampledField(patch, "cellPointFace");
 
-    labelList indexList(patch.faceCells());
 
+    // we sample from near-wall cell which ends at 0.2
+    // but set h to 0.5
+    labelList indexList(patch.faceCells());
     scalarField h(patch.size(), 0.5);
 
 
@@ -631,12 +637,11 @@ TEST_F(SampledVelocityTest, CheckInterpolationPointOutside)
                 ASSERT_EQ(sampledValues[i][j], 0);
             }
             else
-            { // Here we just check that pointMVC gives us a different value
-              // Than stored in the U field cell centres
+            { 
                 ASSERT_FLOAT_EQ
                 (
                     sampledValues[i][j],
-                    0.2
+                    0.2 // the top value of the cell we sample from
                 );
             }
         }

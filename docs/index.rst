@@ -22,9 +22,9 @@ If you use the library, please cite the following publication:
    wallmodelling
    grid_construction
    sampling
+   troubleshooting
    zzreferences
-   api/class_view_hierarchy.rst
-   api/file_view_hierarchy.rst
+   api/library_root
 
 
 .. important::

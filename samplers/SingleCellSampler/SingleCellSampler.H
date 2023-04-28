@@ -19,7 +19,7 @@ License
 Class
     Foam::SingleCellSampler
 
-Description
+@brief
     Class for sampling data to the wall models for a single cell per face.
 
 Contributors/Copyright:
@@ -66,9 +66,15 @@ protected:
                     
         //- Create list of cell-indices from where data is sampled
         void createIndexList() override;
-        
+
         //- Compute the length-scales
-        void createLengthList() override;
+        void createLengthList(const word lengthScaleType) override;
+        
+        //- Compute length-scales as cubic root of the volume
+        void createLengthListCubeRootVol();
+        
+        //- Compute length-scales as distance across wall-normal direction
+        void createLengthListWallNormalDistance();
         
 public:
 
@@ -79,17 +85,17 @@ public:
 
     // Constructors
 
-        //- Construct from patch and averaging time
         SingleCellSampler
         (
             const fvPatch&,
             scalar averagingTime,
             const word interpolationType="cell",
             const word cellFinderType="Tree",
-            bool hIsIndex=false
+            const word lengthScaleType="CubeRootVol",
+            bool hIsIndex=false,
+            bool excludeWallAdjacent=false
         );
 
-        //- Construct from type, patch and averaging time
         SingleCellSampler
         (
             const word & samplerName,
@@ -97,7 +103,9 @@ public:
             scalar averagingTime,
             const word interpolationType="cell",
             const word cellFinderType="Tree",
-            bool hIsIndex=false
+            const word lengthScaleType="CubeRootVol",
+            bool hIsIndex=false,
+            bool excludeWallAdjacent=false
         );
         
         SingleCellSampler(const SingleCellSampler &) = default;

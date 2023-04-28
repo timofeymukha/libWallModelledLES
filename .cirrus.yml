@@ -1,0 +1,33 @@
+latest_task:
+  container:
+    image: opencfd/openfoam-dev:latest
+    cpu: 4
+    memory: 10G
+  test_script:
+    - apt-get update
+    - apt-get install -y python3 python-is-python3
+    - /usr/bin/openfoam ./Allwmake -j
+v2206_task:
+  container:
+    image: opencfd/openfoam-dev:2206
+    cpu: 1
+  test_script:
+    - apt-get update
+    - apt-get install -y python3 python-is-python3
+    - /usr/bin/openfoam ./Allwmake
+v2112_task:
+  container:
+    cpu: 1
+    image: opencfd/openfoam-dev:2112
+  test_script: 
+    - apt-get update
+    - apt-get install -y python3 python-is-python3
+    - /usr/bin/openfoam ./Allwmake
+v2106_task:
+  container:
+    cpu: 1
+    image: opencfd/openfoam-dev:2106
+  test_script: 
+    - apt-get update
+    - apt-get install -y python3 python-is-python3
+    - /usr/bin/openfoam ./Allwmake

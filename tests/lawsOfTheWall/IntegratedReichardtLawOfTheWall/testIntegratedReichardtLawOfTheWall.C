@@ -189,6 +189,56 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, ValueSampler)
     ASSERT_FLOAT_EQ(value, -0.20040621277606402);
 }
 
+
+TEST_F(IntegratedReichardtLawOfTheWallTest, ValueMulticellSampler)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
+    );
+
+    createVelocityField(mesh);
+    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
+
+    // Init U to something varying
+    for (int i=0; i< U.size(); i++)
+    {
+        U.primitiveFieldRef()[i] = vector(5, 0, 0);
+    }
+
+    h.boundaryFieldRef()[patch.index()] == 2;
+    MultiCellSampler sampler
+    (
+        patch,
+        3.0,
+        "cell",
+        "Crawling",
+        "WallNormalDistance",
+        true,
+        false
+    );
+    IntegratedReichardtLawOfTheWall law =
+        IntegratedReichardtLawOfTheWall(0.4, 11, 3, 7.8);
+
+    // label index = 5;
+    // const scalarListList & sampledU =
+    //     sampler.db().lookupObject<scalarListListIOList>("U")[index];
+    // scalarList samplerh = sampler.h()[index];
+    // scalarList samplerl = sampler.lengthList()[index];
+    
+    scalar value = law.valueMulticell(sampler, 5, 0.04, 8e-6);
+    ASSERT_FLOAT_EQ(value, 1.6481687);
+}
+
 TEST_F(IntegratedReichardtLawOfTheWallTest, DerivativeSampler)
 {
     extern argList * mainArgs;
@@ -206,6 +256,7 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, DerivativeSampler)
         3.0,
         "cell",
         "Tree",
+        "CubeRootVol",
         false
     );
     IntegratedReichardtLawOfTheWall law =

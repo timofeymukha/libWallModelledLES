@@ -19,7 +19,7 @@ License
 Class
     Foam::DupratEddyViscosity
 
-Description
+@brief
     Eddy viscosity model based on the work of Duprat et al. [Duprat].
 
     \f[

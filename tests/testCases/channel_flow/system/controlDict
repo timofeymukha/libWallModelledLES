@@ -61,6 +61,8 @@ DebugSwitches
 //   ODEWallModel  2;
 //   EquilibriumODEWallModel  2;
 //   JohnsonKing 1;
+//     SampledVelocityField 0;
+//     SampledWallGradUField 1;
 }
 
 

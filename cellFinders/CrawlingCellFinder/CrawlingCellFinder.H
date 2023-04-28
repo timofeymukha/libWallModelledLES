@@ -19,7 +19,7 @@ License
 Class
     Foam::CrawlingCellFinder
 
-Description
+@brief
     Class for searching for sampling cells by crawling through opposite faces.
 
 Contributors/Copyright:

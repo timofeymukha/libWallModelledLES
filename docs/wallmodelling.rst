@@ -48,15 +48,16 @@ Algebraic models
 
 These are essentially wall functions: some law of the wall is used to connect the sampled LES solution to the wall shear
 stress.
-Implemented in the library as the :code:`LOTWWallModelFvPatchScalarField` class, see its documentation for further
+Implemented in the library as the :class:`Foam::LOTWWallModelFvPatchScalarField` class, see its documentation for further
 details.
 A multitude of laws of the wall are implemented:
 
-- Spalding's law, :code:`SpaldingLawOfTheWall.H`
-- Reichard's law, :code:`ReichardtLawOfTheWall.H`.
-- Werner & Wengel's law, :code:`WernerWengleLawOfTheWall`.
-- Integrated Reichard's law, :code:`IntegratedReichardtLawOfTheWall.H`.
-- Integrated Werner & Wengel's law, :code:`IntegratedWernerWengleLawOfTheWall`.
+- Spalding's law, :class:`Foam::SpaldingLawOfTheWall`
+- Reichard's law, :class:`Foam::ReichardtLawOfTheWall`.
+- Werner & Wengel's law, :class:`Foam::WernerWengleLawOfTheWall`.
+- Integrated Reichard's law, :class:`Foam::IntegratedReichardtLawOfTheWall`.
+- Integrated Werner & Wengel's law, :class:`Foam::IntegratedWernerWengleLawOfTheWall`.
+- Log law for rough walls, :class:`Foam::RoughLogLawOfTheWall`.
 
 The integrated versions are preferable if you use the wall-adjacent cell for sampling.
 Otherwise, there is no large difference in what law to use, and Spalding's law is a reasonable default choice.
@@ -68,12 +69,12 @@ ODE-based models
 These models are based on an ODE formulation, yet the ODE is integrated, and the model therefore only performs
 numerical integration using the trapezoidal rule, and does not solve and ODE directly.
 The models differ in the treatment of the right-hand side of the underlying ODE.
-For more details see the :code:`ODEWallModelFvPatchScalarField` class.
+For more details see the :class:`Foam::ODEWallModelFvPatchScalarField` class.
 
 The following models are available
 
-- Equilibrium ODE model, :code:`EquilibriumODEWallModelFvPatchScalarField.H`. Right-hand side of the ODE is set to 0.
-- Pressure gradient ODE model, :code:`PGradODEWallModelFvPatchScalarField.H` the right-hand side is set equal to the pressure gradient.
+- Equilibrium ODE model, :class:`Foam::EquilibriumODEWallModelFvPatchScalarField`. Right-hand side of the ODE is set to 0.
+- Pressure gradient ODE model, :class:`Foam::PGradODEWallModelFvPatchScalarField` the right-hand side is set equal to the pressure gradient.
 
 
 Further reading

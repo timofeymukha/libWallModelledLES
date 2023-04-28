@@ -16,7 +16,7 @@ License
     along with libWallModelledLES. 
     If not, see <http://www.gnu.org/licenses/>.
 
-Description
+@brief
     Various helper functions for testing the software.
     
 Contributors/Copyright:
@@ -65,17 +65,17 @@ class ChannelFlow : public ::testing::Test
     public:
         ChannelFlow()
         {
-            system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/system .");
-            system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/constant .");
-            system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/0 .");
+            auto code = system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/system .");
+            code = system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/constant .");
+            code = system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/0 .");
 
         }
 
         virtual ~ChannelFlow()
         {
-            system("rm -r system");
-            system("rm -r constant");
-            system("rm -r 0");
+            auto code = system("rm -r system");
+            code = system("rm -r constant");
+            code = system("rm -r 0");
         }
 };
 

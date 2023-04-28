@@ -19,7 +19,7 @@ License
 Class
     Foam::VanDriestEddyViscosity
 
-Description
+@brief
     A mixing-length based eddy viscosity model using a van Driest damping
     function.
     Corresponds to the formulation used by Cabot in [Cabot].

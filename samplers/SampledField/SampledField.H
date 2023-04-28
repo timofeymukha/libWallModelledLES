@@ -19,7 +19,7 @@ License
 Class
     Foam::SampledField
 
-Description
+@brief
     Base class for a sampled field. Handles sampling of and recomputing a 
     specific field. Also registers the field to the object registry
     under the sub-registry wallModelSampling -- patch-name.
@@ -61,9 +61,14 @@ protected:
         //- The mesh
         const fvMesh & mesh_;
 
-        //- Pointer to the interpolator
-        autoPtr<interpolation<vector> > interpolator_;
+        //- Interpolation type
+        const word interpolationType_;
 public:
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+    //- Runtime type information
+        TypeName("SampledField");
+#endif
 
     // Constructors
 
@@ -76,7 +81,7 @@ public:
         :
             patch_(patch),
             mesh_(patch_.boundaryMesh().mesh()),
-            interpolator_(nullptr)
+            interpolationType_(interpolationType)
         {
         }
       
@@ -89,7 +94,7 @@ public:
             patch_(orig.patch()),
             mesh_(orig.mesh()),
 // #ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
-            interpolator_(nullptr)
+            interpolationType_(orig.interpolationType())
 // #else
 //             interpolator_(orig.interpolator_, false)
 // #endif
@@ -158,11 +163,14 @@ public:
         //- Recompute the values of the field
         virtual void recompute() const = 0;
 
-        //- Set interplator
-        virtual void setInterpolator(const word interpolationType) = 0;
-
         //- Create the global field that will be sampled
         virtual void createField() const = 0;
+        
+        //- Get interpolation type
+        word interpolationType() const
+        {
+            return interpolationType_;
+        }
 };
 
 

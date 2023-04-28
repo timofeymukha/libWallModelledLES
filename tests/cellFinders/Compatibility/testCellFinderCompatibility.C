@@ -22,7 +22,7 @@ TEST_F(CellFinderCompatibilityTest, ExactDistance)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
@@ -104,7 +104,7 @@ TEST_F(CellFinderCompatibilityTest, NegativeDistance)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
@@ -149,7 +149,7 @@ TEST_F(CellFinderCompatibilityTest, TooLargeDistance)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
@@ -193,7 +193,7 @@ TEST_F(CellFinderCompatibilityTest, InexactDistance)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
@@ -293,7 +293,7 @@ TEST_F(CellFinderCompatibilityTest, ExactDistanceMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
@@ -391,7 +391,7 @@ TEST_F(CellFinderCompatibilityTest, ExactDistanceExcludeMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
@@ -490,7 +490,7 @@ TEST_F(CellFinderCompatibilityTest, NegativeDistanceMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
@@ -540,7 +540,7 @@ TEST_F(CellFinderCompatibilityTest, TooLargeDistanceMulticell)
 
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 

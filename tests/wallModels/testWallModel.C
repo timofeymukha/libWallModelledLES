@@ -72,7 +72,7 @@ namespace Foam
     (
         fvPatchScalarField,
         DummyWallModel
-    )
+    );
 }
 
 class WallModelTest : public ChannelFlow
@@ -108,7 +108,7 @@ TEST_F(WallModelTest, ConstructorW1)
     ASSERT_FLOAT_EQ(model.averagingTime(), 0.0);
     ASSERT_FLOAT_EQ(model.consumedTime(), 0.0);
     ASSERT_EQ(model.copyToPatchInternalField(), false);
-    ASSERT_TRUE(mesh.foundObject<volScalarField>("h"));
+    ASSERT_TRUE(mesh.foundObject<volScalarField>("hSampler"));
     ASSERT_TRUE(mesh.foundObject<volVectorField>("wallShearStress"));
     ASSERT_TRUE(mesh.foundObject<volScalarField>("uTauPredicted"));
     ASSERT_TRUE(mesh.foundObject<volVectorField>("wallGradU"));
@@ -169,7 +169,7 @@ TEST_F(WallModelTest, ConstructorW3)
     ASSERT_FLOAT_EQ(model.consumedTime(), 0.0);
     ASSERT_EQ(model.copyToPatchInternalField(), true);
 
-    ASSERT_TRUE(mesh.foundObject<volScalarField>("h"));
+    ASSERT_TRUE(mesh.foundObject<volScalarField>("hSampler"));
     ASSERT_TRUE(mesh.foundObject<volVectorField>("wallShearStress"));
     ASSERT_TRUE(mesh.foundObject<volScalarField>("uTauPredicted"));
     ASSERT_TRUE(mesh.foundObject<volVectorField>("wallGradU"));

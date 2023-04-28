@@ -32,6 +32,7 @@ License
 #include "scalarListIOList.H"
 #include "CrawlingCellFinder.H"
 #include "TreeCellFinder.H"
+#include "surfaceMesh.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -51,9 +52,21 @@ void Foam::SingleCellSampler::createIndexList()
 {
     const label patchIndex = patch().index();
 
+    word hName;
+
+    // Grab h for the current patch
+    if (mesh_.foundObject<volScalarField>("hSampler"))
+    {
+        hName = "hSampler";
+    }
+    else
+    {
+        hName = "h";
+    }
+
     // Grab h for the current patch
     volScalarField & h = 
-        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
+        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> (hName));
 
     
     scalarField hPatch = h.boundaryField()[patchIndex];
@@ -160,7 +173,21 @@ void Foam::SingleCellSampler::createIndexList()
 }
 
 
-void Foam::SingleCellSampler::createLengthList()
+void Foam::SingleCellSampler::createLengthList(const word lengthScaleType)
+{
+    if (lengthScaleType == "CubeRootVol")
+    {
+        createLengthListCubeRootVol();
+    }
+    else if (lengthScaleType == "WallNormalDistance")
+    {
+        createLengthListWallNormalDistance(); 
+    }
+
+}
+
+
+void Foam::SingleCellSampler::createLengthListCubeRootVol()
 {
     // Cell volumes
     const scalarField & V = mesh_.V();
@@ -169,7 +196,47 @@ void Foam::SingleCellSampler::createLengthList()
     {
         lengthList_[i] = pow(V[indexList_[i]], 1.0/3.0);
     }
-    
+}
+
+
+void Foam::SingleCellSampler::createLengthListWallNormalDistance()
+{
+
+    const vectorField & faceCentres = mesh().Cf().primitiveField();
+    const List<cell> & cells = mesh().cells();
+    const vectorField & patchFaceCentres = patch().Cf();
+    const List<face> & faces = mesh().faces();
+
+    forAll(lengthList_, i)
+    {
+        const label index = indexList_[i];
+        const cell cellI = cells[index];
+        
+        const vector patchFaceI = patchFaceCentres[i];
+
+        // Find face with min distance from the wall face
+        scalar minDist = GREAT;
+        label minDistFace = 0;
+        for (int j=0; j<cellI.nFaces(); j++)
+        {
+            const vector faceJ = faceCentres[cellI[j]];
+
+            const scalar dist = mag(faceJ - patchFaceI);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                minDistFace = cellI[j];
+            }
+        }
+        
+        label opposingFace = 
+            cellI.opposingFaceLabel(minDistFace, faces);
+        vector opposingFaceCentre = faceCentres[opposingFace];
+        vector minDistFaceCentre = faceCentres[minDistFace];
+
+        lengthList_[i] = mag(opposingFaceCentre - minDistFaceCentre); 
+
+    }
 }
 
 
@@ -181,16 +248,19 @@ Foam::SingleCellSampler::SingleCellSampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
-    bool hIsIndex
+    const word lengthScaleType,
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 :
-    Sampler(p, averagingTime, interpolationType, cellFinderType, hIsIndex),
+    Sampler(p, averagingTime, interpolationType, cellFinderType,
+            lengthScaleType, hIsIndex, excludeWallAdjacent),
     indexList_(p.size()),
     lengthList_(p.size()),
     h_(p.size(), 0)
 {
     createIndexList();
-    createLengthList();
+    createLengthList(lengthScaleType);
     
     addField
     (
@@ -211,7 +281,9 @@ Foam::SingleCellSampler::SingleCellSampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
-    bool hIsIndex
+    const word lengthScaleType,
+    bool hIsIndex,
+    bool excludeWallAdjacent
 )
 :
     SingleCellSampler
@@ -220,7 +292,9 @@ Foam::SingleCellSampler::SingleCellSampler
         averagingTime,
         interpolationType,
         cellFinderType,
-        hIsIndex
+        lengthScaleType,
+        hIsIndex,
+        excludeWallAdjacent
     )
 {
 }
@@ -275,7 +349,6 @@ void Foam::SingleCellSampler::addField(SampledField * field)
 {
     Sampler::addField(field);
     field->registerFields(indexList());
-    field->setInterpolator(interpolationType_);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

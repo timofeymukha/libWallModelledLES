@@ -19,7 +19,7 @@ License
 Class
     Foam::CellFinder
 
-Description
+@brief
     Class for searching for sampling cells.
 
 Contributors/Copyright:

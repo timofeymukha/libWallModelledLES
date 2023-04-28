@@ -1,3 +1,5 @@
+.. _grid-construction:
+
 Grid construction
 =================
 

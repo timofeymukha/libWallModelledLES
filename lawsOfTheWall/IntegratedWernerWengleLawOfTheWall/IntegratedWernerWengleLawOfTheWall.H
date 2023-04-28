@@ -19,7 +19,7 @@ License
 Class
     Foam::IntegratedWernerWengleLawOfTheWall
 
-Description
+@brief
     The integrated version of the wall proposed by Werner and Wengle.
     Explicitely couples shear stress with the wall-normal-averaged velocity.
     Derived assuming that the sampling is from the wall-adjacent cell.
@@ -28,8 +28,7 @@ Description
 
     \f{eqnarray*}{
         u^+ &=& y^+ \quad y+ \leq 11.81\\
-        u^+ &=& A(y^+)^B \quad y+ > 11.81
-
+        u^+ &=& A(y^+)^B \quad y^+ > 11.81
     \f}    
 
     Usage:

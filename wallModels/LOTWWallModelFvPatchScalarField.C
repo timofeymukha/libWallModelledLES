@@ -50,11 +50,8 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
 
     const label patchi = patch().index();
 
-    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
+    tmp<scalarField> nuw = this->nu(patchi);
     
-    // Velocity and viscosity on boundary
-    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
-
     const scalarListIOList & wallGradU =
         sampler_->db().lookupObject<scalarListIOList>("wallGradU");
 
@@ -74,10 +71,8 @@ calcUTau(const scalarField & magGradU) const
     const label patchi = patch().index();
     const label patchSize = patch().size();
     
-    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
-    
-    // Velocity and viscosity on boundary
-    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
+    tmp<scalarField> tnuw = this->nu(patchi);
+    const scalarField& nuw = tnuw();
        
     // Turbulent viscosity
     const scalarField & nutw = *this;
@@ -211,6 +206,7 @@ LOTWWallModelFvPatchScalarField
             averagingTime(),
             dict.lookupOrDefault<word>("interpolationType", "cell"),
             dict.lookupOrDefault<word>("sampler", "Tree"),
+            dict.lookupOrDefault<word>("lengthScale", "CubeRootVol"),
             dict.lookupOrDefault<bool>("hIsIndex", false)
         )
     )

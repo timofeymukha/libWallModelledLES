@@ -126,7 +126,7 @@ TEST_F(SampledWallGradUTest, RegisterFieldsZeroMultiCell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 
@@ -139,6 +139,7 @@ TEST_F(SampledWallGradUTest, RegisterFieldsZeroMultiCell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -237,7 +238,7 @@ TEST_F(SampledWallGradUTest, RegisterInitializeMultiCell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 
@@ -250,6 +251,7 @@ TEST_F(SampledWallGradUTest, RegisterInitializeMultiCell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -356,7 +358,7 @@ TEST_F(SampledWallGradUTest, RegisterReadFieldsMultiCell)
     createSamplingHeightField(mesh);
     volScalarField & h = const_cast<volScalarField &>
     (
-        mesh.thisDb().lookupObject<volScalarField>("h")
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
     );
     h.boundaryFieldRef()[patch.index()] == 2;
 
@@ -369,6 +371,7 @@ TEST_F(SampledWallGradUTest, RegisterReadFieldsMultiCell)
             3.0,
             "cell",
             "Crawling",
+            "CubeRootVol",
             true
         )
     );
@@ -416,7 +419,7 @@ TEST_F(SampledWallGradUTest, Sample)
     labelList indexList(patch.size(), -1);
 
     // Create wallGradU field
-    const volScalarField & h = mesh.lookupObject<volScalarField>("h");
+    const volScalarField & h = mesh.lookupObject<volScalarField>("hSampler");
 
     volVectorField & wallGradU =
         mesh.lookupObjectRef<volVectorField>("wallGradU");

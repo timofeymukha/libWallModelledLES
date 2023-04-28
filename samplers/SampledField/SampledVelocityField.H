@@ -19,11 +19,11 @@ License
 Class
     Foam::SampledVelocityField
 
-Description
+@brief
     Class for the sampled velocity field.
 
 Contributors/Copyright:
-    2019-2021 Timofey Mukha
+    2019-2023 Timofey Mukha
 
 SourceFiles
     SampledVelocityField.C
@@ -52,6 +52,10 @@ class SampledVelocityField
 {
 
 public:
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+    //- Runtime type information
+        TypeName("SampledVelocityField");
+#endif
 
     // Constructors
 
@@ -65,18 +69,12 @@ public:
             SampledField(patch, interpolationType)
         {
             createField();
-            setInterpolator(interpolationType);
         }
 
         SampledVelocityField(const SampledVelocityField & orig)
         :
             SampledField(orig)
-        {
-            if (orig.interpolator_.valid())
-            {
-                setInterpolator(orig.interpolator_().type());
-            }
-        }
+        {}
         //- Clone the object
         autoPtr<SampledField> clone() const override
         {
@@ -132,9 +130,6 @@ public:
         
         //- Recompute the field
         void recompute() const override {}
-
-        //- Set the inerpolator
-        void setInterpolator(const word interpolationType) override;
 
         //- Create the field. Redunant, U should be created by the solver.
         void createField() const override {}

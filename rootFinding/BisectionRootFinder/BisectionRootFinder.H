@@ -19,7 +19,7 @@ License
 Class
     Foam::BisectionRootFinder
 
-Description
+@brief
     Root finder based on the bisection method. 
  
    Controlled by three paramters:

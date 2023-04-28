@@ -22,6 +22,15 @@ License
 #include "volFields.H"
 #include "helpers.H"
 #include "interpolation.H"
+//
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#if !defined(DOXYGEN_SHOULD_SKIP_THIS)
+namespace Foam
+{
+    defineTypeNameAndDebug(SampledVelocityField, 0);
+}
+#endif
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -33,7 +42,10 @@ void Foam::SampledVelocityField::sample
     const Foam::scalarField & h
 ) const
 {
-    Info<< "Sampling velocity for patch " << patch_.name() << nl;
+    if (debug)
+    {
+        Info<< "Sampling velocity for patch " << patch_.name() << nl;
+    }
 
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();
@@ -44,11 +56,17 @@ void Foam::SampledVelocityField::sample
 
     vectorField sampledU(indexList.size());
 
+    autoPtr<interpolation<vector> > interpolator;
+    interpolator.operator=
+    (
+        interpolation<vector>::New(interpolationType(), UField)
+    );
+
     for (int i=0; i<indexList.size(); i++)
     {
 
         point p = faceCentres[i] - h[i]*faceNormals[i];
-        const vector interp = interpolator_->interpolate(p, indexList[i]);
+        const vector interp = interpolator->interpolate(p, indexList[i]);
         sampledU[i] = interp - Uwall[i];
         scalarList temp(3, 0.0);
         
@@ -82,7 +100,6 @@ void Foam::SampledVelocityField::sample
         {
             scalarList temp(3, 0.0);
 
-            //Info << i << " " << j << " " << UField[indexList[i][j]] - Uwall[i] << nl
             for (int k=0; k<3; k++)
             {
                 temp[k] = 
@@ -194,32 +211,6 @@ void Foam::SampledVelocityField::registerFields
                 sampledU
             )
         );
-    }
-
-}
-
-
-void Foam::SampledVelocityField::setInterpolator
-(
-    word interpolationType
-)
-{
-    if (mesh().foundObject<volVectorField>("U"))
-    {
-        const volVectorField & U =
-            mesh().lookupObject<volVectorField>("U");
-        interpolator_.operator=
-        (
-            interpolation<vector>::New(interpolationType, U)
-        );
-    }
-    else
-    {
-        interpolator_.reset(nullptr);
-        // WarningIn("SampledVelocityField::setInterpolator()")
-        //     << "No U field is present, attempting to sample will lead "
-        //     << "to a crash."
-        //     << nl;
     }
 
 }

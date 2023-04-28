@@ -35,6 +35,8 @@ License
 #include "scalarListListIOList.H"
 #include "TreeCellFinder.H"
 #include "CrawlingCellFinder.H"
+#include "Sampler.H"
+#include "surfaceMesh.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -52,10 +54,21 @@ namespace Foam
 void Foam::MultiCellSampler::createIndexList()
 {
     const label patchIndex = patch().index();
-    
+
+    word hName;
+
     // Grab h for the current patch
+    if (mesh_.foundObject<volScalarField>("hSampler"))
+    {
+        hName = "hSampler";
+    }
+    else
+    {
+        hName = "h";
+    }
+    
     volScalarField & hField = 
-        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> ("h"));
+        const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> (hName));
 
     scalarField hPatch = hField.boundaryField()[patchIndex];
 
@@ -150,7 +163,20 @@ void Foam::MultiCellSampler::createIndexList()
     }
 }
 
-void Foam::MultiCellSampler::createLengthList()
+void Foam::MultiCellSampler::createLengthList(const word lengthScaleType)
+{
+    if (lengthScaleType == "CubeRootVol")
+    {
+        createLengthListCubeRootVol();
+    }
+    else if (lengthScaleType == "WallNormalDistance")
+    {
+        createLengthListWallNormalDistance(); 
+    }
+    
+}
+
+void Foam::MultiCellSampler::createLengthListCubeRootVol()
 {
     // Cell volumes
     const scalarField & V = mesh_.V();
@@ -164,7 +190,48 @@ void Foam::MultiCellSampler::createLengthList()
             lengthList_[i][j] = pow(V[indexList_[i][j]], 1.0/3.0);
         }
     }
-    
+}
+
+void Foam::MultiCellSampler::createLengthListWallNormalDistance()
+{
+    const vectorField & faceCentres = mesh().Cf().primitiveField();
+    const List<cell> & cells = mesh().cells();
+    const vectorField & patchFaceCentres = patch().Cf();
+    const List<face> & faces = mesh().faces();
+    forAll(lengthList_, i)
+    {
+        lengthList_[i] = scalarList(indexList_[i].size());
+        const vector patchFaceI = patchFaceCentres[i];
+
+        forAll(lengthList_[i], j)
+        {
+            const label index = indexList_[i][j];
+            const cell cellI = cells[index];
+
+            scalar minDist = GREAT;
+            label minDistFace = 0;
+
+            for (int k=0; k<cellI.nFaces(); k++)
+            {
+                const vector faceK = faceCentres[cellI[k]];
+
+                const scalar dist = mag(faceK - patchFaceI);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    minDistFace = cellI[k];
+                }
+            }
+            
+            label opposingFace = 
+                cellI.opposingFaceLabel(minDistFace, faces);
+            vector opposingFaceCentre = faceCentres[opposingFace];
+            vector minDistFaceCentre = faceCentres[minDistFace];
+
+            lengthList_[i][j] = mag(opposingFaceCentre - minDistFaceCentre); 
+        }
+
+    }
 }
 
 
@@ -176,15 +243,16 @@ Foam::MultiCellSampler::MultiCellSampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
+    const word lengthScaleType,
     bool hIsIndex,
     bool excludeWallAdjacent
 )
 :
-    Sampler(p, averagingTime, interpolationType, cellFinderType, hIsIndex),
+    Sampler(p, averagingTime, interpolationType, cellFinderType,
+            lengthScaleType, hIsIndex, excludeWallAdjacent),
     indexList_(p.size()),
     h_(p.size()),
-    lengthList_(p.size()),
-    excludeWallAdjacent_(excludeWallAdjacent)
+    lengthList_(p.size())
 {
 
     if (interpolationType != "cell")
@@ -193,12 +261,12 @@ Foam::MultiCellSampler::MultiCellSampler
         (
             "MultiCellSampler::MultiCellSampler"
         )   << "MulticellSmapler: interpolation is not supported "
-            << " for multcell sampling. Use 'cell'"
+            << " for multicell sampling. Use 'cell'"
             << exit(FatalError); 
     }
 
     createIndexList();
-    createLengthList();
+    createLengthList(lengthScaleType);
     
     addField
     (
@@ -219,6 +287,7 @@ Foam::MultiCellSampler::MultiCellSampler
     scalar averagingTime,
     const word interpolationType,
     const word cellFinderType,
+    const word lengthScaleType,
     bool hIsIndex,
     bool excludeWallAdjacent
 )
@@ -229,6 +298,7 @@ Foam::MultiCellSampler::MultiCellSampler
         averagingTime,
         interpolationType,
         cellFinderType,
+        lengthScaleType,
         hIsIndex,
         excludeWallAdjacent
     )
@@ -252,7 +322,6 @@ void Foam::MultiCellSampler::sample() const
         eps = mesh_.time().deltaTValue()/averagingTime_;
     }
 
-    Info << "Sampling" << nl;
     forAll(sampledFields_, fieldI)
     {
 
