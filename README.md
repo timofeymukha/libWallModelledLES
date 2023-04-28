@@ -11,7 +11,7 @@ https://doi.org/10.1016/j.cpc.2019.01.016
 
 ## News ##
 
-- **2023-04-25** Version 0.7.0 released.
+- **2023-04-28** Version 0.7.0 released.
 - **2023-04-25** Development moves to [Github](https://github.com/timofeymukha/libWallModelledLES/), Bitbucket remains as a mirror.
 - **2023-01-05** Version 0.6.1 released.
 - **2021-08-30** Version 0.6.0 released.
