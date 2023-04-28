@@ -15,7 +15,7 @@ The alternatives are :code:`Tree` and :code:`Crawling`, the former being the def
 The :code:`Tree` sampler uses the :code:`indexedOctree` class available in OpenFOAM in order to search for the cell
 containing any given point.
 For each face, the point to search for is computed by following the face normal for a distance :math:`h` prescribed by
-the user for this face. 
+the user for this face.
 The advantage of the :code:`Tree` sampler is that it does not rely on mesh structure in any way.
 **NB**: the :code:`Tree` sampler is known to crash :code:`reconstructPar`, when :code:`cyclicAMI` boundaries are present
 in the case.

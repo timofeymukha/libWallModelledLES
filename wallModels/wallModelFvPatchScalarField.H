@@ -24,15 +24,16 @@ Class
     
     Handles creating and storing fields used by the wall models.
     The following fields are created and stored in the registry.
-    - h, the patch fields of which hold the distance to the cells used for
-    sampling. This field is read and must be present for the simulation to run.
+    - hSampler or h, the patch fields of which hold the distance to the cells 
+    used for sampling. This field is read and must be present for the simulation
+    to run.
     - samplingCells, which marks the cells used for sampling with a value
     corresponding to the index of the patch that uses them.
     - uTauPredicted, the patch fields of which hold the value of uTau as
     predicted by the wall model.
     - wallShearStress, the patch fields of which hold the value of the wall 
     shear stress.
-    - wallGradU, the patch fields of which store the wall-nromal of the velocity
+    - wallGradU, the patch fields of which store the wall-normal of the velocity
     gradient.
 
 
