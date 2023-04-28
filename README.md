@@ -28,7 +28,8 @@ See "Installation" section on the documentation portal. In short: the latest ESI
 
 ## Getting help
 
-Please open [an issue on Github](https://github.com/timofeymukha/libWallModelledLES/issues)!
+Please first read the troubleshooting section in the documentation.
+If that does not help, please open [an issue on Github](https://github.com/timofeymukha/libWallModelledLES/issues)!
 
 ## Where this code lives
 This code is available on several public repositories:

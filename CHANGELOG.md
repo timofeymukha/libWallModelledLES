@@ -25,6 +25,8 @@
 
 - As a beta release, multi-cell sampling is implemented.
   No simulations have been run using it as of yet.
+  
+- The online documentation is improved.
 
 ### For developers
 - The SampledField classes now have `TypeName`.

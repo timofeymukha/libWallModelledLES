@@ -22,6 +22,7 @@ If you use the library, please cite the following publication:
    wallmodelling
    grid_construction
    sampling
+   troubleshooting
    zzreferences
    api/library_root
 
