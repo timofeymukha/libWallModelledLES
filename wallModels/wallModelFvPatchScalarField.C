@@ -376,6 +376,7 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     }
 
 
+
     scalar startCPUTime = db().time().elapsedClockTime();
     
     label pI = patch().index();
@@ -391,14 +392,22 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
         db().lookupObject<volVectorField>("wallGradU");
     
     const vectorField & wallGradU = wallGradUField.boundaryField()[pI];
-    
-    tmp<scalarField> tnuw = this->nu(pI);
-    const scalarField& nuw = tnuw();
 
     // Compute nut and assign
     scalarField nut(calcNut());
 
     operator==(nut);
+
+    // Grab muEff to compute the wall stress in a universal way for comp and 
+    // incomp.
+    const turbulenceModel & turbModel =
+            db().lookupObject<turbulenceModel>
+            (
+                turbulenceModel::propertiesName
+            );
+
+    tmp<scalarField> tmuEff = turbModel.muEff(pI);
+    const scalarField& muEff = tmuEff();
 
 
     // Assign to the near-wall cells
@@ -417,13 +426,14 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
         }
     }
 
+
 #ifdef FOAM_NEW_GEOMFIELD_RULES
     wss.boundaryFieldRef()[pI]
 #else        
     wss.boundaryField()[pI]
 #endif
     ==
-        (nut + nuw)*wallGradU;
+        muEff*wallGradU;
 
     consumedTime_ += (db().time().elapsedClockTime() - startCPUTime);
 
