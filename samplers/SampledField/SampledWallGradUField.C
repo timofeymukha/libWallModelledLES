@@ -224,6 +224,9 @@ void Foam::SampledWallGradUField::recompute() const
     const fvPatchVectorField & Uwall = U.boundaryField()[pI];
       
     vectorField Udiff(Uwall.patchInternalField() - Uwall);
+
+    Helpers::projectOnPatch(patch().nf(), Udiff);
+
 #ifdef FOAM_NEW_GEOMFIELD_RULES
     wallGradU.boundaryFieldRef()[pI]
 #else        
