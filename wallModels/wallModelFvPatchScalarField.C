@@ -386,8 +386,6 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     // Compute nut and assign
     scalarField nut(calcNut());
 
-    nut = 0;
-
     operator==(nut);
 
     // Assign to the near-wall cells
