@@ -74,7 +74,6 @@ private:
     
     //- Wether to suppress most output to the log file
     bool silent_;
-    
 protected:
 
     // Protected data
@@ -102,6 +101,9 @@ protected:
 
         //- Write local wall function variables
         virtual void writeLocalEntries(Ostream&) const;
+
+        //- Set the wallShearStress field
+        void setShearStress(const volSymmTensorField &);
 
 
 public:

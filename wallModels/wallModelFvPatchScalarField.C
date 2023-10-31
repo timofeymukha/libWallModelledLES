@@ -23,6 +23,10 @@ License
 #include "meshSearch.H"
 #include "wallFvPatch.H"
 #include "codeRules.H"
+#include "IncompressibleTurbulenceModel.H"
+#include "transportModel.H"
+#include "turbulentFluidThermoModel.H"
+
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -375,40 +379,16 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
         return;
     }
 
-
-
     scalar startCPUTime = db().time().elapsedClockTime();
     
     label pI = patch().index();
-    
-    // Compute uTau
-    volVectorField & wss = 
-        const_cast<volVectorField &>
-        (
-            db().lookupObject<volVectorField>("wallShearStress")
-        );
-    
-    const volVectorField & wallGradUField =
-        db().lookupObject<volVectorField>("wallGradU");
-    
-    const vectorField & wallGradU = wallGradUField.boundaryField()[pI];
 
     // Compute nut and assign
     scalarField nut(calcNut());
 
+    nut = 0;
+
     operator==(nut);
-
-    // Grab muEff to compute the wall stress in a universal way for comp and 
-    // incomp.
-    const turbulenceModel & turbModel =
-            db().lookupObject<turbulenceModel>
-            (
-                turbulenceModel::propertiesName
-            );
-
-    tmp<scalarField> tmuEff = turbModel.muEff(pI);
-    const scalarField& muEff = tmuEff();
-
 
     // Assign to the near-wall cells
     if (copyToPatchInternalField())
@@ -426,14 +406,56 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
         }
     }
 
+/*    volVectorField & wss = 
+        const_cast<volVectorField &>
+        (
+            db().lookupObject<volVectorField>("wallShearStress")
+        );
+    
+    const volVectorField & wallGradUField =
+        db().lookupObject<volVectorField>("wallGradU");
+    
+    const vectorField & wallGradU = wallGradUField.boundaryField()[pI];
 
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-    wss.boundaryFieldRef()[pI]
-#else        
-    wss.boundaryField()[pI]
-#endif
-    ==
-        muEff*wallGradU;
+    // Grab muEff to compute the wall stress in a universal way for comp and 
+    // incomp.
+    const turbulenceModel & turbModel =
+            db().lookupObject<turbulenceModel>
+            (
+                turbulenceModel::propertiesName
+            );
+
+    tmp<scalarField> tmuEff = turbModel.muEff(pI);
+    const scalarField& muEff = tmuEff();
+
+*/
+    // Compressible
+    {
+        typedef compressible::turbulenceModel turbType;
+
+        const turbType* modelPtr =
+            db().findObject<turbType>(turbulenceModel::propertiesName);
+
+        if (modelPtr)
+        {
+            setShearStress(modelPtr->devRhoReff());
+        }
+
+    }
+
+    // Incompressible
+    {
+        typedef IncompressibleTurbulenceModel<transportModel> turbType;
+
+        const turbType* modelPtr =
+            db().findObject<turbType>(turbulenceModel::propertiesName);
+
+        if (modelPtr)
+        {
+            setShearStress(modelPtr->devReff());
+        }
+
+    }
 
     consumedTime_ += (db().time().elapsedClockTime() - startCPUTime);
 
@@ -447,6 +469,42 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
             << "% of total " << nl;
     }
 }
+
+
+void Foam::wallModelFvPatchScalarField::setShearStress
+(
+    const volSymmTensorField& Reff
+)
+{
+    volVectorField & wss = 
+        const_cast<volVectorField &>
+        (
+            db().lookupObject<volVectorField>("wallShearStress")
+        );
+
+    wss.dimensions().reset(Reff.dimensions());
+
+    int patchi = patch().index();
+
+    const fvMesh & mesh = patch().boundaryMesh().mesh();
+    vectorField& ssp = wss.boundaryFieldRef()[patchi];
+    const vectorField& Sfp = mesh.Sf().boundaryField()[patchi];
+    const scalarField& magSfp = mesh.magSf().boundaryField()[patchi];
+    const vectorField normals = -Sfp/magSfp;
+
+    const symmTensorField& Reffp = Reff.boundaryField()[patchi];
+
+    ssp = normals & Reffp;
+//    Info <<  Reffp << nl;
+//    Info <<  Sfp/magSfp << nl;
+//    Info << "before " << ssp << nl;
+    ssp -= normals * (normals & ssp);
+//    Info << "after "<<  ssp << nl;
+
+}
+
+
+
 
 
 void Foam::wallModelFvPatchScalarField::write(Ostream& os) const
