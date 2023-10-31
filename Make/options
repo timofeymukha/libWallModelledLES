@@ -5,8 +5,11 @@ EXE_INC = \
 -I$(LIB_SRC)/OpenFOAM/lnInclude \
 -I$(LIB_SRC)/meshTools/lnInclude \
 -I$(LIB_SRC)/sampling/lnInclude \
+-I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
 $(INCOMPRESSIBLE_TURB_INC) \
+$(COMPRESSIBLE_TURB_INC) \
 $(INCOMPRESSIBLE_TRANSPORT_INC) \
+$(COMPRESSIBLE_TRANSPORT_INC) \
 -IversionRules \
 -IrootFinding/RootFinder \
 -IlawsOfTheWall/LawOfTheWall \
@@ -22,7 +25,9 @@ LIB_LIBS = \
 -lOpenFOAM \
 -lmeshTools \
 -lsampling \
+$(FUILDTHERMO_LIB) \
 $(INCOMPRESSIBLE_TURB_LIB) \
+$(COMPRESSIBLE_TURB_LIB) \
 $(INCOMPRESSIBLE_TURB_ALL_LIBS)
 
 
