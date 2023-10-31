@@ -90,12 +90,7 @@ calcUTau(const scalarField & magGradU) const
 
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
-    scalarField & uTau =
-#ifdef FOAM_NEW_TMP_RULES
-        tuTau.ref();
-#else        
-        tuTau();
-#endif
+    scalarField & uTau = tuTau.ref();
     
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
@@ -138,13 +133,7 @@ calcUTau(const scalarField & magGradU) const
     }
     
     // Assign computed uTau to the boundary field of the global field
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-    uTauField.boundaryFieldRef()[patchi]
-#else        
-    uTauField.boundaryField()[patchi]
-#endif
-    ==
-        uTau;
+    uTauField.boundaryFieldRef()[patchi] == uTau;
     return tuTau;
 }
 

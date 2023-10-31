@@ -26,15 +26,23 @@ License
 void Foam::Helpers::projectOnPatch
 (
     tmp<vectorField> normals,
-    vectorField & field
+    vectorField & field,
+    bool inward
 )
 {
     const vectorField faceNormals = normals();
 
+    label sign = -1;
+
+    if (!inward)
+    {
+        sign = 1;
+    }
+
     forAll(field, i)
     {    
         // Normal component as dot product with (inwards) face normal
-        vector normal = -faceNormals[i]*(field[i] & -faceNormals[i]);
+        vector normal = sign*faceNormals[i]*(field[i] & sign*faceNormals[i]);
         
         // Subtract normal component to get the parallel one
         field[i] -= normal;
@@ -101,12 +109,7 @@ void Foam::Helpers::projectOnPatch
 Foam::tmp<Foam::scalarField> Foam::Helpers::mag(const scalarListList & list)
 {
     tmp<scalarField> tField(new scalarField(list.size(), 0.0));
-
-#ifdef FOAM_NEW_TMP_RULES
     scalarField & field = tField.ref();
-#else
-    scalarField & field = tField();
-#endif
     
     forAll(list, i)
     {

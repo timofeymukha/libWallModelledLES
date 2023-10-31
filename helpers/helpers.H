@@ -47,7 +47,8 @@ namespace Foam
 namespace Helpers
 {
 
-    void projectOnPatch(tmp<vectorField> normals, vectorField & field);
+    void projectOnPatch(tmp<vectorField> normals, vectorField & field,
+                        bool inward=true);
 
     void projectOnPatch(tmp<vectorField> normals, scalarListListList & field);
 
@@ -65,11 +66,7 @@ namespace Helpers
             new Field<Type>(list.size(), pTraits<Type>::zero)
         );
 
-#ifdef FOAM_NEW_TMP_RULES
         Field<Type> & field = tField.ref();
-#else
-        Field<Type> & field = tField();
-#endif
         
         forAll(list, i)
         {

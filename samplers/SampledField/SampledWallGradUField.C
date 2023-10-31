@@ -227,13 +227,7 @@ void Foam::SampledWallGradUField::recompute() const
 
     Helpers::projectOnPatch(patch().nf(), Udiff);
 
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-    wallGradU.boundaryFieldRef()[pI]
-#else        
-    wallGradU.boundaryField()[pI]
-#endif
-    ==
-        patch().deltaCoeffs()*Udiff;  
+    wallGradU.boundaryFieldRef()[pI] == patch().deltaCoeffs()*Udiff;  
 }
 
 

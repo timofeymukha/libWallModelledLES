@@ -124,13 +124,7 @@ void Foam::MultiCellSampler::createIndexList()
     // If the h field holds the distance, reassign the real distance used
     if (!hIsIndex())
     {
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-        hField.boundaryFieldRef()[patch().index()]
-#else
-        hField.boundaryField()[patch().index()]
-#endif
-        ==
-            hTop;
+        hField.boundaryFieldRef()[patch().index()] == hTop;
     }
     
     // Grab samplingCells field

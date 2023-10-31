@@ -152,12 +152,7 @@ calcUTau(const scalarField & magGradU) const
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     
-    scalarField & uTau =
-#ifdef FOAM_NEW_TMP_RULES
-        tuTau.ref();
-#else        
-        tuTau();
-#endif
+    scalarField & uTau = tuTau.ref();
     
     // Compute uTau for each face
     forAll(uTau, faceI)
@@ -235,13 +230,7 @@ calcUTau(const scalarField & magGradU) const
         );
      
     // Assign computed uTau to the boundary field of the global field
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-    uTauField.boundaryFieldRef()[patch().index()]
-#else        
-    uTauField.boundaryField()[patch().index()]
-#endif
-    ==
-        uTau;
+    uTauField.boundaryFieldRef()[patch().index()] == uTau;
     
     return tuTau;
 }
