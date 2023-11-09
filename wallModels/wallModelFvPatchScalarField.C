@@ -462,8 +462,9 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     
     if (!silent_)
     {
-        Info<< "Wall modelling time consumption = " << consumedTime_ 
-            << "s "  << 100*consumedTime_/(db().time().elapsedClockTime() + SMALL)
+        Info<< "Wall modelling time consumption for patch " 
+            << patch().name() << " = " << consumedTime_ << "s, "
+            << 100*consumedTime_/(db().time().elapsedClockTime() + SMALL)
             << "% of total " << nl;
     }
 }
