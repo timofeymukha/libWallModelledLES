@@ -18,6 +18,7 @@ $(COMPRESSIBLE_TRANSPORT_INC) \
 -Ihelpers \
 -Isamplers/SampledField \
 -IcellFinders/CellFinder \
+-IThirdParty/Adaptive-Integrator \
 -I$(LIB_SRC)/lagrangian/basic/lnInclude
 
 LIB_LIBS = \
