@@ -13,9 +13,9 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
- 
+
 \*---------------------------------------------------------------------------*/
 
 #include "LOTWWallModelFvPatchScalarField.H"
@@ -40,18 +40,18 @@ void Foam::LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
     sampler_->write(os);
 }
 
-Foam::tmp<Foam::scalarField> 
+Foam::tmp<Foam::scalarField>
 Foam::LOTWWallModelFvPatchScalarField::calcNut() const
 {
     if (debug)
     {
-        Info<< "Updating nut for patch " << patch().name() << nl;        
+        Info<< "Updating nut for patch " << patch().name() << nl;
     }
 
     const label patchi = patch().index();
 
     tmp<scalarField> nuw = this->nu(patchi);
-    
+
     const scalarListIOList & wallGradU =
         sampler_->db().lookupObject<scalarListIOList>("wallGradU");
 
@@ -64,29 +64,29 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     );
 }
 
-Foam::tmp<Foam::scalarField> 
+Foam::tmp<Foam::scalarField>
 Foam::LOTWWallModelFvPatchScalarField::
 calcUTau(const scalarField & magGradU) const
-{  
+{
     const label patchi = patch().index();
     const label patchSize = patch().size();
-    
+
     tmp<scalarField> tnuw = this->nu(patchi);
     const scalarField& nuw = tnuw();
-       
+
     // Turbulent viscosity
     const scalarField & nutw = *this;
 
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     scalarField & uTau = tuTau.ref();
-    
+
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
     std::function<scalar(scalar)> derivValue;
-    
+
     // Grab global uTau field
-    volScalarField & uTauField = 
+    volScalarField & uTauField =
         const_cast<volScalarField &>
         (
             db().lookupObject<volScalarField>("uTauPredicted")
@@ -97,7 +97,7 @@ calcUTau(const scalarField & magGradU) const
     {
         // Starting guess using old values
         scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
-        
+
         if (ut > ROOTVSMALL)
         {
 
@@ -105,7 +105,7 @@ calcUTau(const scalarField & magGradU) const
             // from functions given by the law of the wall
             value = std::bind(&LawOfTheWall::value, &law_(), std::ref(sampler_()), faceI,
                               _1, nuw[faceI]);
-            
+
             derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
                                    std::ref(sampler_), faceI, _1, nuw[faceI]);
 
@@ -118,7 +118,7 @@ calcUTau(const scalarField & magGradU) const
 
         }
     }
-    
+
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryFieldRef()[patchi] == uTau;
     return tuTau;
@@ -231,7 +231,7 @@ LOTWWallModelFvPatchScalarField
     if (debug)
     {
         Info<< "Constructing LOTWWallModelFvPatchScalarField (lotw4)"
-            << "from copy for patch " << patch().name() << nl;           
+            << "from copy for patch " << patch().name() << nl;
     }
     law_->addFieldsToSampler(sampler());
 }
