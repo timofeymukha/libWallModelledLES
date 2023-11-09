@@ -225,8 +225,6 @@ void Foam::SampledWallGradUField::recompute() const
       
     vectorField Udiff(Uwall.patchInternalField() - Uwall);
 
-    Helpers::projectOnPatch(patch().nf(), Udiff);
-
     wallGradU.boundaryFieldRef()[pI] == patch().deltaCoeffs()*Udiff;  
 }
 
