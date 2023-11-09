@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
@@ -23,7 +23,7 @@ Class
     Eddy viscosity model based on the work of Duprat et al. [Duprat].
 
     \f[
-        \nu_t = \nu \kappa y^* [\alpha + y^*(1 - \alpha)^{3/2}]^\beta 
+        \nu_t = \nu \kappa y^* [\alpha + y^*(1 - \alpha)^{3/2}]^\beta
                 (1 - \exp(-y^* /(1 + A \alpha^3)))^2
     \f]
 
@@ -45,7 +45,7 @@ Class
         Congedo, P. M., & Brugiere, O. (2011).
         A wall-layer model for large-eddy simulations of turbulent flows
         with/out pressure gradient.
-        Physics of Fluids, 
+        Physics of Fluids,
         23(1), 15101.
     \endverbatim
 
@@ -78,29 +78,29 @@ namespace Foam
 
 class DupratEddyViscosity: public EddyViscosity
 {
-    
+
     // Private data
-        
+
         //- The kappa model constant
         scalar kappa_;
 
         //- The A+ model constant
         scalar APlus_;
-               
+
         //- The beta model cosntant
         scalar beta_;
-        
+
 public:
-    
+
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("Duprat");
 #endif
 
     // Constructors
-        
+
         //- Construct provided dictionary and sampler
         DupratEddyViscosity(const dictionary &);
-        
+
         //- Construct provided name, dictionary and sampler
         DupratEddyViscosity(const word &, const dictionary &);
 
@@ -134,22 +134,22 @@ public:
 
         //- Add necessary sampled fields to the sampler
         virtual void addFieldsToSampler(Sampler & sampler) const override;
-        
+
         scalar APlus() const
         {
             return APlus_;
         }
-        
+
         scalar kappa() const
         {
             return kappa_;
         }
-        
+
         scalar beta() const
         {
             return beta_;
         }
-        
+
         //- Print info
         virtual void printCoeffs() const override;
 
@@ -160,6 +160,14 @@ public:
             const SingleCellSampler & sampler,
             const label index,
             const scalarList & y,
+            const scalar uTau,
+            const scalar nu
+        ) const override;
+
+        virtual std::function<scalar(const scalar)> value
+        (
+            const SingleCellSampler & sampler,
+            const label index,
             const scalar uTau,
             const scalar nu
         ) const override;

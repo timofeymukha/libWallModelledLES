@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -47,10 +47,10 @@ Foam::DupratEddyViscosity::DupratEddyViscosity
     beta_(constDict_.lookupOrAddDefault<scalar>("beta", 0.78))
 {
     if (debug)
-    {        
+    {
         printCoeffs();
     }
-    
+
 }
 
 Foam::DupratEddyViscosity::DupratEddyViscosity
@@ -80,7 +80,7 @@ Foam::DupratEddyViscosity::DupratEddyViscosity
     constDict_.add("beta", beta);
 
     if (debug)
-    {        
+    {
         printCoeffs();
     }
 
@@ -116,7 +116,7 @@ Foam::scalarList Foam::DupratEddyViscosity::value
     const scalar uTau,
     const scalar nu
 ) const
-{  
+{
     const scalarListList & pGrad =
         sampler.db().lookupObject<scalarListIOList>("pGrad");
 
@@ -126,6 +126,38 @@ Foam::scalarList Foam::DupratEddyViscosity::value
     return value(y, magPGrad, uTau, nu);
 }
 
+std::function<Foam::scalar(const Foam::scalar)>
+Foam::DupratEddyViscosity::value
+(
+    const SingleCellSampler & sampler,
+    const label index,
+    const scalar uTau,
+    const scalar nu
+) const
+{
+    const scalarListList & pGrad =
+        sampler.db().lookupObject<scalarListIOList>("pGrad");
+
+    scalarList pGradI = pGrad[index];
+    scalar magPGrad = mag(vector(pGradI[0], pGradI[1], pGradI[2]));
+
+    const scalar uP = pow(nu*magPGrad, 1./3);
+    const scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
+    const scalar alpha = sqr(uTau)/sqr(uTauP);
+
+    const scalar kappa = kappa_;
+    const scalar APlus = APlus_;
+    const scalar beta = beta_;
+
+    return [kappa, APlus, uTauP, nu, alpha, beta](const scalar y) {
+          scalar yStar = y*uTauP/nu;
+          return  nu * kappa * yStar *
+              Foam::pow(alpha + yStar*Foam::pow(1 - alpha, 1.5), beta)*
+              Foam::sqr(1 - Foam::exp(-yStar/(1 + APlus*Foam::pow(alpha, 3))));
+    };
+
+}
+
 Foam::scalarList Foam::DupratEddyViscosity::value
 (
     const scalarList & y,
@@ -133,16 +165,16 @@ Foam::scalarList Foam::DupratEddyViscosity::value
     const scalar uTau,
     const scalar nu
 ) const
-{  
+{
 
     const scalar uP = pow(nu*magPGrad, 1./3);
     const scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
     const scalar alpha = sqr(uTau)/sqr(uTauP);
-        
+
     const scalarList yStar = y*uTauP/nu;
-    
+
     scalarList values(y.size(), 0.0);
-     
+
     forAll(values, i)
     {
         values[i] = nu*kappa_*yStar[i]*

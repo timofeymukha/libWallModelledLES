@@ -381,7 +381,7 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
 
     scalar startCPUTime = db().time().elapsedClockTime();
     
-    label pI = patch().index();
+//    label pI = patch().index();
 
     // Compute nut and assign
     scalarField nut(calcNut());

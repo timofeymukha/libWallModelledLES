@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
@@ -40,6 +40,7 @@ SourceFiles
 #include "refCount.H"
 #include "Field.H"
 #include "SingleCellSampler.H"
+#include <functional>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,23 +54,23 @@ namespace Foam
 class EddyViscosity
 {
 protected:
-    
+
     //- Dictionary holding the model constants
     dictionary constDict_;
-    
+
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("EddyViscosity");
 #endif
-    
+
     // Constructors
-    
+
         EddyViscosity(const dictionary & dict)
         :
         constDict_(dict)
         {}
-        
+
         EddyViscosity
         (
             const word& modelName,
@@ -93,27 +94,27 @@ public:
     // Destructor
         virtual ~EddyViscosity() {}
 
-    
+
     // Selectors
-        static autoPtr<EddyViscosity> New 
+        static autoPtr<EddyViscosity> New
         (
             const dictionary & dict
         );
 
-        static autoPtr<EddyViscosity> New 
+        static autoPtr<EddyViscosity> New
         (
             const word & modelName,
             const dictionary & dict
         );
-        
+
     // Member Functions
 
         //- Add necessary sampled fields to the sampler
         virtual void addFieldsToSampler(Sampler & sampler) const
         {}
-    
+
         //- Print info
-        virtual void printCoeffs() const = 0; 
+        virtual void printCoeffs() const = 0;
 
         //- Return the value of nut
         virtual scalarList
@@ -125,20 +126,28 @@ public:
             const scalar uTau,
             const scalar nu
         ) const = 0;
-        
+
+        virtual std::function<scalar(const scalar)> value
+        (
+            const SingleCellSampler & sampler,
+            const label index,
+            const scalar uTau,
+            const scalar nu
+        ) const = 0;
+
         //- Write information about the law to stream
-        virtual void write(Ostream & os) const; 
-        
+        virtual void write(Ostream & os) const;
+
         //- Get the dictionary with the constants
         dictionary constDict() const
         {
             return constDict_;
         }
-        
+
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
      // RTS tables
 
-        // RTS table "Dictionary"    
+        // RTS table "Dictionary"
         declareRunTimeSelectionTable
         (
             autoPtr,
@@ -150,7 +159,7 @@ public:
             (dict)
         );
 
-        // RTS table "TypeAndDictionary"    
+        // RTS table "TypeAndDictionary"
         declareRunTimeSelectionTable
         (
             autoPtr,
@@ -161,7 +170,7 @@ public:
                 const dictionary & dict
             ),
             (modelName, dict)
-        ); 
+        );
 #endif
 
 };

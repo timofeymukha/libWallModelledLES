@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
@@ -73,27 +73,27 @@ namespace Foam
 
 class VanDriestEddyViscosity: public EddyViscosity
 {
-    
+
     // Private data
-        
+
         //- The kappa model constant
         scalar kappa_;
 
         //- The A+ model constant
         scalar APlus_;
 
-        
+
 public:
-    
+
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("VanDriest");
 #endif
 
     // Constructors
-      
+
         //- Construct provided dictionary and sampler
         VanDriestEddyViscosity(const dictionary &);
-        
+
         //- Construct provided name, dictionary and sampler
         VanDriestEddyViscosity(const word &, const dictionary &);
 
@@ -122,17 +122,17 @@ public:
         virtual ~VanDriestEddyViscosity() {};
 
     // Member Functions
-        
+
         scalar APlus() const
         {
             return APlus_;
         }
-        
+
         scalar kappa() const
         {
             return kappa_;
         }
-        
+
         //- Print info
         virtual void printCoeffs() const override;
 
@@ -143,6 +143,14 @@ public:
             const SingleCellSampler & sampler,
             const label index,
             const scalarList & y,
+            const scalar uTau,
+            const scalar nu
+        ) const override;
+
+        virtual std::function<scalar(const scalar)> value
+        (
+            const SingleCellSampler & sampler,
+            const label index,
             const scalar uTau,
             const scalar nu
         ) const override;

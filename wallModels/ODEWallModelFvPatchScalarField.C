@@ -13,9 +13,9 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
- 
+
 \*---------------------------------------------------------------------------*/
 
 #include "ODEWallModelFvPatchScalarField.H"
@@ -23,7 +23,10 @@ License
 #include "codeRules.H"
 #include "scalarListIOList.H"
 #include "helpers.H"
+#include "AdaptiveIntegrator.hpp"
+#include <functional>
 
+typedef std::function<Foam::scalar(const Foam::scalar)> IntegrandFunc;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -45,22 +48,22 @@ void Foam::ODEWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
     os.writeKeyword("eps") << eps_ << token::END_STATEMENT << endl;
     os.writeKeyword("maxIter") << maxIter_ << token::END_STATEMENT << endl;
     os.writeKeyword("nMeshY") << nMeshY_ << token::END_STATEMENT << endl;
-}    
+}
 
 
-Foam::scalar 
+Foam::scalar
 Foam::ODEWallModelFvPatchScalarField::
 integrate(const scalarList & y, const scalarList & v) const
 {
-    
+
     // trapezoidal rule for now
     scalar integral = 0;
-    
+
     for (int i=0; i<y.size()-1; i++)
     {
         integral += (y[i+1] - y[i])*(v[i+1] + v[i]);
     }
-    
+
     return 0.5*integral;
 }
 
@@ -75,7 +78,7 @@ void Foam::ODEWallModelFvPatchScalarField::createMeshes()
 
     // Number of points in the mesh normal to the wall
      label n=nMeshY_;
-           
+
     forAll(patch(), faceI)
     {
         scalar dx = sampler().h()[faceI]/(n -1);
@@ -92,7 +95,7 @@ void Foam::ODEWallModelFvPatchScalarField::createMeshes()
     {
         Info<< " Done" << nl;;
     }
-    
+
 }
 
 
@@ -101,14 +104,14 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
 {
     if (debug)
     {
-        Info<< "Updating nut for patch " << patch().name() << nl;        
+        Info<< "Updating nut for patch " << patch().name() << nl;
     }
 
-    
+
     const label patchi = patch().index();
 
     tmp<scalarField> nuw = this->nu(patchi);
-    
+
     const scalarListIOList & wallGradU =
         sampler_->db().lookupObject<scalarListIOList>("wallGradU");
 
@@ -125,19 +128,20 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
 Foam::tmp<Foam::scalarField>
 Foam::ODEWallModelFvPatchScalarField::
 calcUTau(const scalarField & magGradU) const
-{   
+{
+
     const label patchi = patch().index();
     const label patchSize = patch().size();
-    
+
     tmp<scalarField> tnuw = this->nu(patchi);
     const scalarField& nuw = tnuw();
-    
+
     // vectorField for storing the source term
     vectorField sourceField(patchSize, vector(0, 0, 0));
-    
+
     // Compute the source term
     source(sourceField);
-    
+
     const scalarListIOList & U = sampler().db().lookupObject<scalarListIOList>("U");
     scalarField magU(patch().size());
 
@@ -145,35 +149,57 @@ calcUTau(const scalarField & magGradU) const
     {
         magU[i] = mag(vector(U[i][0], U[i][1], U[i][2]));
     }
- 
+
     // Turbulent viscosity
     const scalarField & nutw = *this;
 
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
-    
+
     scalarField & uTau = tuTau.ref();
-    
+
+    AdaptiveIntegrator<scalar (scalar)> quad;
+
+
     // Compute uTau for each face
     forAll(uTau, faceI)
     {
         // Points of the 1d wall-normal mesh
-        const scalarList & y = meshes_[faceI]; 
+        const scalarList & y = meshes_[faceI];
 
         // Starting guess using definition
         scalar tau = (nutw[faceI] + nuw[faceI])*magGradU[faceI];
-        
+
+
         if (tau > ROOTVSMALL)
         {
             for (int iterI=0; iterI<maxIter_; iterI++)
             {
-                scalarList nutValues = 
+                IntegrandFunc eddyViscosity =
+                    eddyViscosity_->value(sampler(), faceI, sqrt(tau), nuw[faceI]);
+
+                scalar nuwI = nuw[faceI];
+
+                IntegrandFunc integrand1 = [eddyViscosity, nuwI](const scalar y){
+                    return 1.0/(nuwI + eddyViscosity(y));
+                };
+
+                IntegrandFunc integrand2 = [eddyViscosity, nuwI](const scalar y){
+                    return y/(nuwI + eddyViscosity(y));
+                };
+
+                scalarList nutValues =
                     eddyViscosity_->value(sampler(), faceI, y, sqrt(tau), nuw[faceI]);
 
-                scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
-                scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));
-                
-                if (mag(integral) < VSMALL )
+                scalar integral1 = quad.integrate(integrand1, 0.0, sampler().h()[faceI], 1e-3);
+                scalar integral2 = quad.integrate(integrand2, 0.0, sampler().h()[faceI], 1e-3);
+
+//                scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
+//                scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));
+
+//                Info << "TEST " << test1 << " " << integral << " "<< test2 << " " << integral2 << nl;
+
+/*                if (mag(integral1) < VSMALL )
                 {
                     WarningIn
                     (
@@ -182,19 +208,19 @@ calcUTau(const scalarField & magGradU) const
                         << "When calculating newTau, division by zero occurred."
                         << nl;
                 };
-                
-                
+*/
+
                 vector UFaceI(U[faceI][0], U[faceI][1], U[faceI][2]);
-                
-                scalar newTau = 
+
+                scalar newTau =
                         sqr(magU[faceI]) + sqr(mag(sourceField[faceI])*integral2) -
                         2*(UFaceI & sourceField[faceI])*integral2;
-                
-                newTau  = sqrt(newTau)/integral;
-                
+
+                newTau  = sqrt(newTau)/(integral1 + VSMALL);
+
                 scalar error = mag(tau - newTau)/tau;
                 tau = newTau;
-                
+
                 if (error < eps_)
                 {
                     if (debug > 1)
@@ -202,11 +228,11 @@ calcUTau(const scalarField & magGradU) const
                         Info<< "tau_w converged after " << iterI + 1
                             << " iterations." << nl;
                     }
-                    break;                            
+                    break;
                 }
-                
 
-                
+
+
                 if ((debug > 1) && (iterI == maxIter_-1))
                 {
                     WarningIn
@@ -217,21 +243,21 @@ calcUTau(const scalarField & magGradU) const
                         << eps_ << ". Error value: " << error << nl;
                 }
             }
-            
+
             uTau[faceI] = max(0.0, sqrt(tau));
         }
     }
 
     // Grab global uTau field
-    volScalarField & uTauField = 
+    volScalarField & uTauField =
         const_cast<volScalarField &>
         (
             db().lookupObject<volScalarField>("uTauPredicted")
         );
-     
+
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryFieldRef()[patch().index()] == uTau;
-    
+
     return tuTau;
 }
 
@@ -353,7 +379,7 @@ ODEWallModelFvPatchScalarField
     maxIter_(orig.maxIter_),
     eps_(orig.eps_),
     nMeshY_(orig.nMeshY_)
-    
+
 {
 
     if (debug)

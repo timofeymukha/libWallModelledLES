@@ -13,13 +13,14 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 
 #include "VanDriestEddyViscosity.H"
 #include "addToRunTimeSelectionTable.H"
+#include <functional>
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
@@ -43,10 +44,10 @@ Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
 {
 
     if (debug)
-    {        
+    {
         printCoeffs();
     }
-    
+
 }
 
 Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
@@ -73,7 +74,7 @@ Foam::VanDriestEddyViscosity::VanDriestEddyViscosity
     constDict_.add("APlus", APlus);
 
     if (debug)
-    {        
+    {
         printCoeffs();
     }
 
@@ -93,13 +94,32 @@ void Foam::VanDriestEddyViscosity::printCoeffs() const
 Foam::scalarList Foam::VanDriestEddyViscosity::value
 (
     const SingleCellSampler & sampler,
-    const label index, 
+    const label index,
     const scalarList & y,
     const scalar uTau,
     const scalar nu
 ) const
-{  
+{
     return value(y, uTau, nu);
+}
+
+
+std::function<Foam::scalar(const Foam::scalar)>
+Foam::VanDriestEddyViscosity::value
+(
+    const SingleCellSampler & sampler,
+    const label index,
+    const scalar uTau,
+    const scalar nu
+) const
+{
+    scalar kappa = kappa_;
+    scalar APlus = APlus_;
+    return [kappa, APlus, uTau, nu](const scalar y) {
+          scalar yPlus = y*uTau/nu;
+          return kappa*uTau*y*Foam::sqr(1 - Foam::exp(-yPlus/APlus));
+    };
+
 }
 
 
@@ -109,11 +129,11 @@ Foam::scalarList Foam::VanDriestEddyViscosity::value
     const scalar uTau,
     const scalar nu
 ) const
-{  
+{
     const scalarList yPlus = y*uTau/nu;
-    
+
     scalarList values(y.size(), 0.0);
-     
+
     forAll(values, i)
     {
         values[i] = kappa_*uTau*y[i]*sqr(1 - exp(-yPlus[i]/APlus_));
