@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -48,21 +48,21 @@ Foam::SampledWallGradUField::sample
         Info<< "Sampling wall-normal velocity gradient for patch "
             << patch_.name() << nl;
     }
-    
+
     label pI = patch().index();
-   
+
     const volVectorField & wallGradU =
         mesh().lookupObject<volVectorField>("wallGradU");
-    
+
     const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
-    
+
     for (int i=0; i<sampledValues.size(); i++)
     {
         scalarList temp(3, 0.0);
-        
+
         for (int j=0; j<3; j++)
         {
-            temp[j] = boundaryValues[i][j]; 
+            temp[j] = boundaryValues[i][j];
         }
         sampledValues[i] = temp;
     }
@@ -80,22 +80,22 @@ Foam::SampledWallGradUField::sample
 {
     Info<< "Sampling wall-normal velocity gradient for patch "
         << patch_.name() << nl;
-    
+
     label pI = patch().index();
-   
+
     const volVectorField & wallGradU =
         mesh().lookupObject<volVectorField>("wallGradU");
-    
+
     const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
-    
+
     for (int i=0; i<indexListList.size(); i++)
     {
         sampledValues[i] = scalarListList(1);
         sampledValues[i][0] = scalarList(3);
-        
+
         for (int j=0; j<3; j++)
         {
-            sampledValues[i][0][j] = boundaryValues[i][j]; 
+            sampledValues[i][0][j] = boundaryValues[i][j];
         }
     }
 
@@ -117,9 +117,9 @@ void Foam::SampledWallGradUField::registerFields
 
     if (mesh().foundObject<volVectorField>("wallGradU"))
     {
-        const volVectorField & wallGradU = 
+        const volVectorField & wallGradU =
             mesh().lookupObject<volVectorField>("wallGradU");
-        
+
         label pI = patch().index();
         const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
 
@@ -134,11 +134,11 @@ void Foam::SampledWallGradUField::registerFields
         Helpers::projectOnPatch(patch().nf(), sampledWallGradU);
     }
 
-    
+
     if (!db().foundObject<scalarListIOList>("wallGradU"))
     {
         mesh().time().store
-        (        
+        (
             new IOList<scalarList>
             (
                 IOobject
@@ -172,9 +172,9 @@ void Foam::SampledWallGradUField::registerFields
 
     if (mesh().foundObject<volVectorField>("wallGradU"))
     {
-        const volVectorField & wallGradU = 
+        const volVectorField & wallGradU =
             mesh().lookupObject<volVectorField>("wallGradU");
-        
+
         label pI = patch().index();
         const vectorField & boundaryValues = wallGradU.boundaryField()[pI];
 
@@ -189,11 +189,11 @@ void Foam::SampledWallGradUField::registerFields
         Helpers::projectOnPatch(patch().nf(), sampledWallGradU);
     }
 
-    
+
     if (!db().foundObject<scalarListListIOList>("wallGradU"))
     {
         mesh().time().store
-        (        
+        (
             new scalarListListIOList
             (
                 IOobject
@@ -213,19 +213,19 @@ void Foam::SampledWallGradUField::registerFields
 
 void Foam::SampledWallGradUField::recompute() const
 {
-    label pI = patch().index(); 
-    
+    label pI = patch().index();
+
     volVectorField & wallGradU = const_cast<volVectorField &>
     (
             mesh().lookupObject<volVectorField>("wallGradU")
     );
-    
+
     const volVectorField & U = mesh().lookupObject<volVectorField>("U");
     const fvPatchVectorField & Uwall = U.boundaryField()[pI];
-      
+
     vectorField Udiff(Uwall.patchInternalField() - Uwall);
 
-    wallGradU.boundaryFieldRef()[pI] == patch().deltaCoeffs()*Udiff;  
+    wallGradU.boundaryFieldRef()[pI] == patch().deltaCoeffs()*Udiff;
 }
 
 
@@ -245,11 +245,11 @@ void Foam::SampledWallGradUField::createField() const
     }
 
     const volScalarField & h = mesh_.lookupObject<volScalarField> (hName);
-    
+
     if (!mesh().foundObject<volVectorField>("wallGradU"))
     {
         mesh().time().store
-        (     
+        (
             new volVectorField
             (
                 IOobject
@@ -269,7 +269,7 @@ void Foam::SampledWallGradUField::createField() const
                 ),
                 h.boundaryField().types()
             )
-        );  
+        );
     }
 
     if (mesh().foundObject<volVectorField>("U"))
