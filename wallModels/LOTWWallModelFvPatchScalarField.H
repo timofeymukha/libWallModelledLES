@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
@@ -21,7 +21,7 @@ Class
 
 @brief
     Class for the wall models based on a law of the wall.
- 
+
     Needs a root finder and a law of the wall to be defined.
 
     Usage
@@ -57,6 +57,7 @@ SourceFiles
 #define LOTWWallModelFvPatchScalarField_H
 
 #include "wallModelFvPatchScalarField.H"
+#include <boost/math/tools/roots.hpp>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -67,6 +68,7 @@ class RootFinder;
 class LawOfTheWall;
 class SingleCellSampler;
 
+
 /*---------------------------------------------------------------------------*\
           Class LOTWWallModelPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
@@ -76,30 +78,30 @@ class LOTWWallModelFvPatchScalarField
     public wallModelFvPatchScalarField
 {
 protected:
-    
+
     // Protected Data
-    
+
         //- Pointer to the root finder
         autoPtr<RootFinder> rootFinder_;
-    
+
         //- Pointer to the LOTW to be used
         autoPtr<LawOfTheWall> law_;
 
         //- The sampler
         autoPtr<SingleCellSampler> sampler_;
-    
+
     // Protected Member Functions
         //- Write root finder and LOTW properties to stream
         virtual void writeLocalEntries(Ostream &) const;
-        
+
         //- Calculate the turbulence viscosity
         virtual tmp<scalarField> calcNut() const;
 
         //- Calculate the friction velocity
         virtual tmp<scalarField> calcUTau(const scalarField & magGradU) const;
-        
 
-        
+
+
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
@@ -135,7 +137,7 @@ public:
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
-                
+
         #ifdef FOAM_FVPATCHFIELD_NO_COPY
         #else
         //- Construct as copy

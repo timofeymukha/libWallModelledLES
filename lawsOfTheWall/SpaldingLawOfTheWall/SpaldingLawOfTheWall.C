@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
  \*---------------------------------------------------------------------------*/
@@ -46,7 +46,7 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
     B_(constDict_.lookupOrAddDefault<scalar>("B", 5.5))
 {
     if (debug)
-    {        
+    {
         printCoeffs();
     }
 }
@@ -77,7 +77,7 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
     constDict_.add("B", B);
 
     if (debug)
-    {        
+    {
         printCoeffs();
     }
 
@@ -88,7 +88,7 @@ Foam::SpaldingLawOfTheWall::SpaldingLawOfTheWall
 
 void Foam::SpaldingLawOfTheWall::printCoeffs() const
 {
-    Info<< nl << "Spalding law of the wall" << nl;     
+    Info<< nl << "Spalding law of the wall" << nl;
     Info<< token::BEGIN_BLOCK << incrIndent << nl;
     Info<< indent << "kappa" << indent << kappa_ << nl;
     Info<< indent << "B" << indent <<  B_ << nl;
@@ -131,7 +131,7 @@ Foam::scalar Foam::SpaldingLawOfTheWall::derivative
     const SingleCellSampler & sampler,
     label index,
     scalar uTau,
-    scalar nu        
+    scalar nu
 ) const
 {
     const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
@@ -146,7 +146,7 @@ Foam::scalar Foam::SpaldingLawOfTheWall::derivative
     scalar u,
     scalar y,
     scalar uTau,
-    scalar nu        
+    scalar nu
 ) const
 {
     scalar uPlus = u/uTau;
