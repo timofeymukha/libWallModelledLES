@@ -13,15 +13,15 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
     Foam::BisectionRootFinder
 
 @brief
-    Root finder based on the bisection method. 
- 
+    Root finder based on the bisection method.
+
    Controlled by three paramters:
     the max number of iterations, the relative error tolerance and the bracket.
     The latter is used to define the initial size of the search interval in
@@ -38,8 +38,6 @@ Class
     {
         type       Bisection;
         maxIter    value; (default 10)
-        eps        value; (default 0.01)
-        bracket    value; (default 3)
     }
     \endverbatim
 
@@ -68,18 +66,21 @@ namespace Foam
 
 class BisectionRootFinder : public RootFinder
 {
-    // Private data
-    
+private:
+
     //- The bracket defining the interval where the root will be searched
     //  [1/bracket*guess; bracket*guess]
     scalar bracket_;
+
+    label getDigits_ =
+        static_cast<int>(std::numeric_limits<scalar>::digits - 4);
 
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     TypeName("Bisection");
 #endif
-    
+
     // Constructors
 
         //- Construct given a function and its derivative
@@ -88,7 +89,6 @@ public:
             const word & rootFinderName,
             std::function<scalar(scalar)>,
             std::function<scalar(scalar)>,
-            const scalar eps,
             const label maxIter
         );
 
@@ -99,7 +99,7 @@ public:
             std::function<scalar(scalar)>,
             const dictionary & dict
         );
-        
+
         //- Construct given dictionary
         BisectionRootFinder
         (
@@ -127,20 +127,20 @@ public:
         {
             return bracket_;
         }
-        
+
         //- Return root
-        scalar root(scalar guess) const;
-        
+        scalar root(scalar guess, scalar lowerBound, scalar upperBound) const;
+
         //- Write parameters to stream
         virtual void write(Ostream& os) const
         {
             RootFinder::write(os);
-            os.writeKeyword("bracket") 
-                << bracket_ << token::END_STATEMENT << nl;   
+            os.writeKeyword("bracket")
+                << bracket_ << token::END_STATEMENT << nl;
             os  << decrIndent;
             os.writeKeyword("}")
                 << endl;
-        }       
+        }
 };
 
 

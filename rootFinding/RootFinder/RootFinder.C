@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -33,14 +33,13 @@ namespace Foam
 #endif
 
 
-// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
+// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New 
+Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
 (
     const word & rootFinderName,
     std::function<scalar(scalar)> f,
     std::function<scalar(scalar)> d,
-    const scalar eps,
     const label maxIter
 )
 {
@@ -52,7 +51,7 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
         FatalErrorIn
         (
             "RootFinder::New(const word&, std::function<scalar(scalar)> f,"
-                "std::function<scalar(scalar)> d, const scalar eps,"
+                "std::function<scalar(scalar)> d,"
                 "const label maxIter)"
         )   << "Unknown RootFinder type "
             << rootFinderName << nl << nl
@@ -61,11 +60,11 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
             << exit(FatalError);
     }
 
-    return cstrIter()(rootFinderName, f, d, eps, maxIter);
-}  
+    return cstrIter()(rootFinderName, f, d, maxIter);
+}
 
 
-Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New 
+Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
 (
     std::function<scalar(scalar)> f,
     std::function<scalar(scalar)> d,
@@ -97,7 +96,7 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
 }
 
 
-Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New 
+Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
 (
     const Foam::dictionary & dict
 )
@@ -131,10 +130,8 @@ void Foam::RootFinder::write(Foam::Ostream & os) const
         << incrIndent << nl;
     os.writeKeyword("type")
         << type() << token::END_STATEMENT << nl;
-    os.writeKeyword("eps")
-        << eps_ << token::END_STATEMENT << nl;
     os.writeKeyword("maxIter")
-        << maxIter_ << token::END_STATEMENT << nl; 
+        << maxIter_ << token::END_STATEMENT << nl;
 }
-    
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

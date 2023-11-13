@@ -17,34 +17,32 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::NewtonRootFinder
+    Foam::TOMS748RootFinder
 
 @brief
-    Root finder based on Newton's method.
+    Root finder wrapping Boost's toms748 algorithm.
 
-    Controlled by two parameters: the max number of iterations and the relative
-    error tolerance.
+    Controlled by on parameter: the max number of iterations.
 
     Usage
     \verbatim
     RootFinder
     {
-        type       Newton;
+        type       TOMS748;
         maxIter    value; (default 30)
     }
     \endverbatim
 
 Contributors/Copyright:
-    2016-2019 Timofey Mukha
-    2017      Saleh Rezaeiravesh
+    2023 Timofey Mukha
 
 SourceFiles
-    NewtonRootFinder.C
+    TOMS748RootFinder.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef NewtonRootFinder_H
-#define NewtonRootFinder_H
+#ifndef TOMS748RootFinder_H
+#define TOMS748RootFinder_H
 
 #include "RootFinder.H"
 
@@ -54,27 +52,27 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                      Class NewtonRoot Declaration
+                      Class TOMS748Root Declaration
 \*---------------------------------------------------------------------------*/
 
-class NewtonRootFinder : public RootFinder
+class TOMS748RootFinder : public RootFinder
 {
 private:
     //- Number of correct digits in the solution
     label getDigits_ =
-        static_cast<int>(std::numeric_limits<scalar>::digits * 0.6);
+        static_cast<int>(std::numeric_limits<scalar>::digits - 5);
 
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-    TypeName("Newton");
+    TypeName("TOMS748");
 #endif
 
     // Constructors
 
         //- Construct given name, function, its derivative, tolerance and
         //  maximum number of iterations
-        NewtonRootFinder
+        TOMS748RootFinder
         (
             const word & rootFinderName,
             std::function<scalar(scalar)> f,
@@ -86,7 +84,7 @@ public:
         {}
 
         //- Construct given a function, its derivative, and dictionary
-        NewtonRootFinder
+        TOMS748RootFinder
         (
             std::function<scalar(scalar)> f,
             std::function<scalar(scalar)> d,
@@ -99,7 +97,7 @@ public:
 
 
         //- Construct given  dictionary
-        NewtonRootFinder
+        TOMS748RootFinder
         (
             const dictionary & dict
         )
@@ -108,20 +106,20 @@ public:
         {}
 
         //- Copy constructor
-        NewtonRootFinder(const NewtonRootFinder &) = default;
+        TOMS748RootFinder(const TOMS748RootFinder &) = default;
 
         //- Clone the object
         virtual autoPtr<RootFinder> clone() const
         {
             return autoPtr<RootFinder>
             (
-                new NewtonRootFinder(*this)
+                new TOMS748RootFinder(*this)
             );
         }
 
 
     //- Destructor
-        virtual ~NewtonRootFinder(){};
+        virtual ~TOMS748RootFinder(){};
 
     // Member Functions
 

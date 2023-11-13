@@ -18,20 +18,21 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "NewtonRootFinder.H"
+#include "TOMS748RootFinder.H"
 #include "addToRunTimeSelectionTable.H"
 
 using namespace boost::math::policies;
+using namespace boost::math::tools;
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
-    defineTypeNameAndDebug(NewtonRootFinder, 0);
-    addToRunTimeSelectionTable(RootFinder, NewtonRootFinder, Word);
-    addToRunTimeSelectionTable(RootFinder, NewtonRootFinder, Dictionary);
-    addToRunTimeSelectionTable(RootFinder, NewtonRootFinder, DictionaryOnly);
+    defineTypeNameAndDebug(TOMS748RootFinder, 0);
+    addToRunTimeSelectionTable(RootFinder, TOMS748RootFinder, Word);
+    addToRunTimeSelectionTable(RootFinder, TOMS748RootFinder, Dictionary);
+    addToRunTimeSelectionTable(RootFinder, TOMS748RootFinder, DictionaryOnly);
 }
 #endif
 
@@ -42,39 +43,20 @@ typedef policy<
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar Foam::NewtonRootFinder::root(
+Foam::scalar Foam::TOMS748RootFinder::root(
     scalar guess,
     scalar lowerBound,
     scalar upperBound
 ) const
 {
-    // Maximum possible binary digits accuracy for the scalar type.
-    //const int digits = std::numeric_limits<scalar>::digits;
-    //int get_digits = static_cast<int>(digits * 0.4);
-
-    auto funcTuple = [this](scalar uTau)
-    {
-        return std::make_tuple(this->f_(uTau), this->d_(uTau));
-    };
 
     auto maxIter = static_cast<boost::uintmax_t>(maxIter_);
+    eps_tolerance<scalar> tol(getDigits_);
 
-    scalar result = boost::math::tools::newton_raphson_iterate(
-        funcTuple,
-        guess,
-        lowerBound,
-        upperBound,
-        getDigits_,
-        maxIter
-    );
+    std::pair<scalar, scalar> result =
+        toms748_solve(f_, lowerBound, upperBound, tol, maxIter, myPolicy());
 
-    if (debug)
-    {
-        WarningIn("Foam::NewtonRootFinder::root()")
-            << "The method did not converge to desired tolerance." << nl;
-    }
-
-    return result;
+    return 0.5*(result.first + result.second);
 }
 
 // ************************************************************************* //

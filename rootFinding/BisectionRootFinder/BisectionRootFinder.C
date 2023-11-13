@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -37,14 +37,13 @@ namespace Foam
 
 Foam::BisectionRootFinder::BisectionRootFinder
 (
-    const word & rootFinderName, 
+    const word & rootFinderName,
     std::function<scalar(scalar)> f,
     std::function<scalar(scalar)> d,
-    const scalar eps,
     const label maxIter
 )
 :
-    RootFinder(rootFinderName, f, d, eps, maxIter),
+    RootFinder(rootFinderName, f, d, maxIter),
     bracket_(3.0)
 {}
 
@@ -74,16 +73,18 @@ Foam::BisectionRootFinder::BisectionRootFinder
 // This one probably needs some work
 Foam::scalar Foam::BisectionRootFinder::root
 (
-    scalar guess
+    scalar guess,
+    scalar lowerBound,
+    scalar upperBound
 ) const
 {
     label i = 1;
-   
+
     scalar a = 1/bracket_*guess;
     scalar b  = bracket_*guess;
     scalar c = 0;
     scalar fC = 0;
-    
+
     if (f_(a)*f_(b) >= 0)
     {
         // Increase interval range towards the wall
@@ -101,28 +102,28 @@ Foam::scalar Foam::BisectionRootFinder::root
         )   << "Root is not bracketed.  f(a) = " << f_(a) << " f(b) = " << f_(b)
             << abort(FatalError);
     }
-    
+
     while (i <= maxIter_)
     {
        c = 0.5*(a + b);
        fC = f_(c);
-       
-       if ( (fC < SMALL) && (0.5*(b - a) < eps_) )
+
+       if ( (fC < SMALL) && (0.5*(b - a) < 1e-3) )
        {
            return c;
        }
        i++;
-       
+
        if (sign(fC) == sign(f_(a)) )
        {
-           a = c;          
+           a = c;
        }
        else
        {
-           b = c;     
+           b = c;
        }
     }
-   
+
     if (debug)
     {
         WarningIn
@@ -133,7 +134,7 @@ Foam::scalar Foam::BisectionRootFinder::root
             ") const"
         )   << "Maximum number of iterations exceeded";
     }
-   
+
    return c;
 }
 
