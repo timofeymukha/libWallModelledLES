@@ -13,9 +13,9 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
- 
+
 \*---------------------------------------------------------------------------*/
 
 #include "MulticellLOTWWallModelFvPatchScalarField.H"
@@ -40,18 +40,18 @@ void Foam::MulticellLOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& 
     sampler_->write(os);
 }
 
-Foam::tmp<Foam::scalarField> 
+Foam::tmp<Foam::scalarField>
 Foam::MulticellLOTWWallModelFvPatchScalarField::calcNut() const
 {
     if (debug)
     {
-        Info<< "Updating nut for patch " << patch().name() << nl;        
+        Info<< "Updating nut for patch " << patch().name() << nl;
     }
 
     const label patchi = patch().index();
 
     const auto & nuField = db().lookupObject<volScalarField>("nu");
-    
+
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
 
@@ -73,65 +73,79 @@ Foam::MulticellLOTWWallModelFvPatchScalarField::calcNut() const
     );
 }
 
-Foam::tmp<Foam::scalarField> 
+Foam::tmp<Foam::scalarField>
 Foam::MulticellLOTWWallModelFvPatchScalarField::
 calcUTau(const scalarField & magGradU) const
-{  
+{
     const label patchi = patch().index();
     const label patchSize = patch().size();
-    
+
     const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
-    
+
     // Velocity and viscosity on boundary
     const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
-       
+
     // Turbulent viscosity
     const scalarField & nutw = *this;
 
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     scalarField & uTau = tuTau.ref();
-    
+
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
     std::function<scalar(scalar)> derivValue;
-    
+
     // Grab global uTau field
-    volScalarField & uTauField = 
+    volScalarField & uTauField =
         const_cast<volScalarField &>
         (
             db().lookupObject<volScalarField>("uTauPredicted")
         );
 
     // Compute uTau for each face
+    const scalarListListIOList & sampledU =
+        sampler_().db().lookupObject<scalarListListIOList>("U");
     forAll(uTau, faceI)
     {
         // Starting guess using old values
         scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
-        
+
+        label ny = sampledU[faceI].size();
+
         if (ut > ROOTVSMALL)
         {
+            scalar sampledUI = mag(vector(
+                sampledU[faceI][ny - 1][0],
+                sampledU[faceI][ny - 1][1],
+                sampledU[faceI][ny - 1][2])
+            );
+
+            scalar lowerBound = 0.9*sqrt(nuw[faceI]*magGradU[faceI]);
+
+            scalar upperBound = sampledUI / 0.05;
 
             // Construct functions dependant on a single parameter (uTau)
             // from functions given by the law of the wall
-            value = 
+            value =
                 std::bind(&IntegratedReichardtLawOfTheWall::valueMulticell,
                 &law_(), std::ref(sampler_()), faceI, _1, nuw[faceI]);
-            
+
             derivValue =
                 std::bind(&IntegratedReichardtLawOfTheWall::derivativeMulticell,
                           &law_(), std::ref(sampler_()), faceI, _1, nuw[faceI]);
-            
+
             // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(value);
             const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
 
             // Compute root to get uTau
-            uTau[faceI] = max(0.0, rootFinder_->root(ut));
+            uTau[faceI] =
+                max(0.0, rootFinder_->root(ut, lowerBound, upperBound));
 
         }
     }
-    
+
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryFieldRef()[patchi] == uTau;
     return tuTau;
@@ -247,7 +261,7 @@ MulticellLOTWWallModelFvPatchScalarField
     if (debug)
     {
         Info<< "Constructing MulticellLOTWWallModelFvPatchScalarField (lotw4)"
-            << "from copy for patch " << patch().name() << nl;           
+            << "from copy for patch " << patch().name() << nl;
     }
     law_->addFieldsToSampler(sampler());
 }

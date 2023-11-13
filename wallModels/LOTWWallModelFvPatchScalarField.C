@@ -93,29 +93,61 @@ calcUTau(const scalarField & magGradU) const
         );
 
     // Compute uTau for each face
+    const scalarListIOList & sampledU =
+        sampler_().db().lookupObject<scalarListIOList>("U");
+
     forAll(uTau, faceI)
     {
         // Starting guess using old values
-        scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
+        scalar ut = sqrt((nuw[faceI] + nutw[faceI]) * magGradU[faceI]);
 
         if (ut > ROOTVSMALL)
         {
+            scalar sampledUI = mag(vector(
+                sampledU[faceI][0],
+                sampledU[faceI][1],
+                sampledU[faceI][2])
+            );
 
-            // Construct functions dependant on a single parameter (uTau)
-            // from functions given by the law of the wall
-            value = std::bind(&LawOfTheWall::value, &law_(), std::ref(sampler_()), faceI,
-                              _1, nuw[faceI]);
+            scalar nuwI = nuw[faceI];
 
-            derivValue = std::bind(&LawOfTheWall::derivative, &law_(),
-                                   std::ref(sampler_), faceI, _1, nuw[faceI]);
+            // Solution corresponding to nut = 0
+            // Since nut is strictly positive, we cannot predict a lower stress
+            // Provide 0.9 factor as a margin
+            scalar lowerBound = 0.9*sqrt(nuw[faceI]*magGradU[faceI]);
+
+            // We consider u+ >= 0.05, which in a classical TBl corresponds to
+            // y+ = 0.05, so very very close to the wall.
+            scalar upperBound = sampledUI / 0.05;
+
+            std::function<scalar(scalar)> func =
+                [nuwI, faceI, this](const scalar & uTau)
+                {
+                    return this->law_().value(
+                        this->sampler_(),
+                         faceI,
+                         uTau,
+                         nuwI
+                    );
+                };
+            std::function<scalar(scalar)> deriv =
+                [nuwI, faceI, this](const scalar & uTau)
+                {
+                    return this->law_().derivative(
+                        this->sampler_(),
+                        faceI,
+                        uTau,
+                        nuwI
+                    );
+                };
 
             // Supply the functions to the root finder
-            const_cast<RootFinder &>(rootFinder_()).setFunction(value);
-            const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
+            const_cast<RootFinder &>(rootFinder_()).setFunction(func);
+            const_cast<RootFinder &>(rootFinder_()).setDerivative(deriv);
 
             // Compute root to get uTau
-            uTau[faceI] = max(0.0, rootFinder_->root(ut));
-
+            uTau[faceI] =
+                max(0.0, rootFinder_->root(ut, lowerBound, upperBound));
         }
     }
 
