@@ -1,4 +1,5 @@
 include $(OBJECTS_DIR)/../../versionRules/libraryRules
+include $(GENERAL_RULES)/module-path-user
 
 EXE_INC = \
 -I$(LIB_SRC)/finiteVolume/lnInclude \
@@ -6,6 +7,7 @@ EXE_INC = \
 -I$(LIB_SRC)/meshTools/lnInclude \
 -I$(LIB_SRC)/sampling/lnInclude \
 -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+-I$(BOOST_ARCH_PATH)/include \
 $(INCOMPRESSIBLE_TURB_INC) \
 $(COMPRESSIBLE_TURB_INC) \
 $(INCOMPRESSIBLE_TRANSPORT_INC) \
