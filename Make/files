@@ -13,6 +13,7 @@ samplers/MultiCellSampler/MultiCellSampler.C
 rootFinding/RootFinder/RootFinder.C
 rootFinding/NewtonRootFinder/NewtonRootFinder.C
 rootFinding/BisectionRootFinder/BisectionRootFinder.C
+rootFinding/TOMS748RootFinder/TOMS748RootFinder.C
 lawsOfTheWall/LawOfTheWall/LawOfTheWall.C
 lawsOfTheWall/SpaldingLawOfTheWall/SpaldingLawOfTheWall.C
 lawsOfTheWall/WernerWengleLawOfTheWall/WernerWengleLawOfTheWall.C
@@ -31,4 +32,4 @@ wallModels/EquilibriumODEWallModelFvPatchScalarField.C
 wallModels/ODEWallModelFvPatchScalarField.C
 wallModels/PGradODEWallModelFvPatchScalarField.C
 
-LIB = $(FOAM_USER_LIBBIN)/libWallModelledLES
+LIB = $(FOAM_MODULE_LIBBIN)/libWallModelledLES
