@@ -31,4 +31,4 @@ wallModels/EquilibriumODEWallModelFvPatchScalarField.C
 wallModels/ODEWallModelFvPatchScalarField.C
 wallModels/PGradODEWallModelFvPatchScalarField.C
 
-LIB = $(FOAM_USER_LIBBIN)/libWallModelledLES
+LIB = $(FOAM_MODULE_LIBBIN)/libWallModelledLES

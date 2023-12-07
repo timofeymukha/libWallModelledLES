@@ -1,19 +1,36 @@
 #! /bin/bash
 . "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
 
-echo "Current OpenFOAM version is $WM_PROJECT_VERSION."
+moduleName="libWallModelledLES"
+
+if [ "$FOAM_MODULE_PREFIX" = false ]
+then
+    echo "Compilation of $moduleName is disabled (prefix=false)"
+    exit 0
+fi
+
+date "+%Y-%m-%d %H:%M:%S %z" 2>/dev/null || echo "date is unknown"
+echo "Starting compile of $moduleName"
+echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
+echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
+echo "  prefix = ${FOAM_MODULE_PREFIX:-default (user)}"
+echo
+
+
+
+echo "  Current OpenFOAM version is $WM_PROJECT_VERSION."
 if [ -e foamVersionThisIsCompiledFor ]; then
     prevVersion=$(<foamVersionThisIsCompiledFor)
-    echo "Previously compiled for OpenFOAM ($prevVersion)"
+    echo "  Previously compiled for OpenFOAM ($prevVersion)"
     if [ "$WM_PROJECT_VERSION" != "$prevVersion" ]
     then
-        echo "Different than current OpenFOAM ($WM_PROJECT_VERSION) version."
-        echo "   Use ./Allwclean before compiling"
+        echo "  Different than current OpenFOAM ($WM_PROJECT_VERSION) version."
+        echo "     Use ./Allwclean before compiling"
         exit 42
     fi
         unset prevVersion
 else
-        echo "This is a clean install"
+        echo "  This is a clean install"
         echo $WM_PROJECT_VERSION >foamVersionThisIsCompiledFor
 fi
 
@@ -22,29 +39,29 @@ versionFile=versionRules/foamVersion4wmles.H
 versionRules/makeFoamVersionHeader.py $WM_PROJECT_VERSION >$versionFile.tmp
 
 
-if [ -e $versionFile ]; then                                                    
-    nrDiff=$(diff $versionFile.tmp $versionFile | wc -l | tr -d " ")            
-    if [[ $nrDiff > 0 ]]; then                                                  
-    echo "$versionFile changed"                                                 
-    mv $versionFile.tmp $versionFile                                            
-    else                                                                        
-    # Make sure that not a complete recompilation is triggered                  
-    echo "No change to $versionFile"                                            
-    rm $versionFile.tmp                                                         
-    fi                                                                          
-else                                                                            
-    echo "No $versionFile. Generating!"                                           
-    mv $versionFile.tmp $versionFile                                            
-fi                                          
+if [ -e $versionFile ]; then
+    nrDiff=$(diff $versionFile.tmp $versionFile | wc -l | tr -d " ")
+    if [[ $nrDiff > 0 ]]; then
+    echo "  $versionFile changed"
+    mv $versionFile.tmp $versionFile
+    else
+    # Make sure that not a complete recompilation is triggered
+    echo "  No change to $versionFile"
+    rm $versionFile.tmp
+    fi
+else
+    echo "  No $versionFile. Generating!"
+    mv $versionFile.tmp $versionFile
+fi
 
-# Ensure consistent definition of OPENFOAM_COM without relying anything else.   
+# Ensure consistent definition of OPENFOAM_COM without relying anything else.
 # This may be available from the regular wmake rules, but use our own convention
 sed -ne 's/.*WMLES_IS_COM \([0-9][0-9]*\)/OPENFOAM_COM=\1/p' < $versionFile > versionRules/foamVersion
-sed -ne 's/.*WMLES_IS_ORG \([0-9][0-9]*\)/OPENFOAM_ORG=\1/p' < $versionFile > versionRules/foamVersion
+sed -ne 's/.*WMLES_IS_ORG \([0-9][0-9]*\)/OPENFOAM_ORG=\1/p' < $versionFile >> versionRules/foamVersion
 
-                                                                                
-echo                                                                            
-echo "Please include the output above when reporting a problem in the compilation. It helps diagnosing the problem    "
-echo                                                                            
+
+echo
+echo "  Please include the output above when reporting a problem in the compilation. It helps diagnosing the problem    "
+echo
 
 wmake libso
