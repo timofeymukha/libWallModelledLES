@@ -1,4 +1,15 @@
-include $(OBJECTS_DIR)/../../versionRules/libraryRules
+sinclude $(GENERAL_RULES)/module-path-user
+
+/* Failsafe - user location */
+ifeq (,$(strip $(FOAM_MODULE_APPBIN)))
+    FOAM_MODULE_APPBIN = $(FOAM_USER_APPBIN)
+endif
+ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
+    FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
+endif
+
+
+include ./versionRules/libraryRules
 include $(GENERAL_RULES)/module-path-user
 
 EXE_INC = \
@@ -32,5 +43,3 @@ $(FUILDTHERMO_LIB) \
 $(INCOMPRESSIBLE_TURB_LIB) \
 $(COMPRESSIBLE_TURB_LIB) \
 $(INCOMPRESSIBLE_TURB_ALL_LIBS)
-
-
