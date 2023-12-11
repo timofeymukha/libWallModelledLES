@@ -1,4 +1,4 @@
-include $(OBJECTS_DIR)/../../versionRules/libraryRules
+include ./versionRules/libraryRules
 include $(GENERAL_RULES)/module-path-user
 
 EXE_INC = \
