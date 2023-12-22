@@ -165,13 +165,7 @@ KnownWallShearStressWallModelFvPatchScalarField
         db().lookupObject<volScalarField>("uTauPredicted")
     );
    
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-    uTauField.boundaryFieldRef()[patchI]
-#else        
-    uTauField.boundaryField()[patchI]
-#endif
-    ==
-        sqrt(tauWall.boundaryField()[patchI]);
+    uTauField.boundaryFieldRef()[patchI] == sqrt(tauWall.boundaryField()[patchI]);
 }
 
 

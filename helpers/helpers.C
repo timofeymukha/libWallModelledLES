@@ -102,11 +102,7 @@ Foam::tmp<Foam::scalarField> Foam::Helpers::mag(const scalarListList & list)
 {
     tmp<scalarField> tField(new scalarField(list.size(), 0.0));
 
-#ifdef FOAM_NEW_TMP_RULES
     scalarField & field = tField.ref();
-#else
-    scalarField & field = tField();
-#endif
     
     forAll(list, i)
     {

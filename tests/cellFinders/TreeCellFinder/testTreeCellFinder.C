@@ -312,12 +312,7 @@ TEST_F(TreeCellFinderTest, FindCandidateCellLabelsBottom)
     h = 0.0;
     tmp<Foam::volScalarField> distField(finderBottom.distanceField());
 
-    const scalarField & dist =
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-        distField().primitiveField();
-#else
-        distField().internalField();
-#endif
+    const scalarField & dist = distField().primitiveField();
     tmp<labelField> tCellLabelsBottom =
         finderBottom.findCandidateCellLabels(dist, h);
     ASSERT_EQ(tCellLabelsBottom().size(), 0);
@@ -352,12 +347,7 @@ TEST_F(TreeCellFinderTest, FindCandidateCellLabelsTop)
     scalarField h(finderTop.patch().size());
 
     tmp<Foam::volScalarField> distField = finderTop.distanceField();
-    const scalarField & dist =
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-        distField().primitiveField();
-#else
-        distField().internalField();
-#endif
+    const scalarField & dist = distField().primitiveField();
 
     h = 0.0;
     tmp<labelField> tCellLabelsTop = finderTop.findCandidateCellLabels(dist, h);

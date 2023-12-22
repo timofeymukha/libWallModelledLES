@@ -65,11 +65,7 @@ namespace Helpers
             new Field<Type>(list.size(), pTraits<Type>::zero)
         );
 
-#ifdef FOAM_NEW_TMP_RULES
         Field<Type> & field = tField.ref();
-#else
-        Field<Type> & field = tField();
-#endif
         
         forAll(list, i)
         {

@@ -80,11 +80,7 @@ calcUTau(const scalarField & magGradU) const
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     scalarField & uTau =
-#ifdef FOAM_NEW_TMP_RULES
-        tuTau.ref();
-#else        
-        tuTau();
-#endif
+    tuTau.ref();
     
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
@@ -125,13 +121,7 @@ calcUTau(const scalarField & magGradU) const
     }
     
     // Assign computed uTau to the boundary field of the global field
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-    uTauField.boundaryFieldRef()[patchi]
-#else        
-    uTauField.boundaryField()[patchi]
-#endif
-    ==
-        uTau;
+    uTauField.boundaryFieldRef()[patchi] == uTau;
     return tuTau;
 }
 
@@ -169,13 +159,8 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig, p, iF, mapper),
-#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     rootFinder_(orig.rootFinder_.clone()),
     law_(orig.law_.clone()),
-#else
-    rootFinder_(orig.rootFinder_, false),
-    law_(orig.law_, false),
-#endif
     sampler_(new SingleCellSampler(orig.sampler()))
 {
     if (debug)
@@ -230,13 +215,8 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig),
-#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     rootFinder_(orig.rootFinder_.clone()),
     law_(orig.law_.clone()),
-#else
-    rootFinder_(orig.rootFinder_, false),
-    law_(orig.law_, false),
-#endif
     sampler_(new SingleCellSampler(orig.sampler_()))
 {
     if (debug)
@@ -257,13 +237,8 @@ LOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig, iF),
-#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     rootFinder_(orig.rootFinder_.clone()),
     law_(orig.law_.clone()),
-#else
-    rootFinder_(orig.rootFinder_, false),
-    law_(orig.law_, false),
-#endif
     sampler_(new SingleCellSampler(orig.sampler_()))
 {
 

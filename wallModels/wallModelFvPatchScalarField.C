@@ -417,13 +417,7 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
         }
     }
 
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-    wss.boundaryFieldRef()[pI]
-#else        
-    wss.boundaryField()[pI]
-#endif
-    ==
-        (nut + nuw)*wallGradU;
+    wss.boundaryFieldRef()[pI] == (nut + nuw)*wallGradU;
 
     consumedTime_ += (db().time().elapsedClockTime() - startCPUTime);
 

@@ -99,11 +99,7 @@ void Foam::TreeCellFinder::findCellIndices
     tmp<Foam::volScalarField> distField(distanceField());
 
     const scalarField & dist =
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-        distField().primitiveField();
-#else
-        distField().internalField();
-#endif
+    distField().primitiveField();
     
 
     tmp<labelField> tSearchCellLabels = findCandidateCellLabels(dist, h);
@@ -259,11 +255,7 @@ void Foam::TreeCellFinder::findCellIndices
     tmp<Foam::volScalarField> distField(distanceField());
 
     const scalarField & dist =
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-        distField().primitiveField();
-#else
-        distField().internalField();
-#endif
+    distField().primitiveField();
     
 
     tmp<labelField> tSearchCellLabels = findCandidateCellLabels(dist, h);
@@ -475,11 +467,7 @@ Foam::TreeCellFinder::findCandidateCellLabels
     }
 
     tmp<labelField> tCandidates(new labelField(mesh().nCells()));
-#ifdef FOAM_NEW_TMP_RULES
     labelField & candidates = tCandidates.ref();
-#else
-    labelField & candidates = tCandidates();
-#endif
 
     label nCandidates = 0;
 
@@ -551,11 +539,7 @@ Foam::tmp<Foam::volScalarField> Foam::TreeCellFinder::distanceField() const
     );
 
     bool precomputedDist = 
-    #ifdef FOAM_NEW_GEOMFIELD_RULES
-        mag(max(dist().primitiveField())) > VSMALL;
-    #else
-        mag(max(dist().internalField())) > VSMALL;
-    #endif
+    mag(max(dist().primitiveField())) > VSMALL;
     
     if (debug)
     {
@@ -589,11 +573,7 @@ Foam::tmp<Foam::volScalarField> Foam::TreeCellFinder::distanceField() const
         {
             Info<< "CellFinder: Computing dist field" << nl;
         }
-#ifdef FOAM_NEW_TMP_RULES
         pdm->correct(dist.ref());
-#else
-        pdm->correct(dist());
-#endif
     }
 
     return dist;

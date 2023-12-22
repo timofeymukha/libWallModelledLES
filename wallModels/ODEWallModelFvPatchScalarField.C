@@ -153,11 +153,7 @@ calcUTau(const scalarField & magGradU) const
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     
     scalarField & uTau =
-#ifdef FOAM_NEW_TMP_RULES
-        tuTau.ref();
-#else        
-        tuTau();
-#endif
+    tuTau.ref();
     
     // Compute uTau for each face
     forAll(uTau, faceI)
@@ -235,13 +231,7 @@ calcUTau(const scalarField & magGradU) const
         );
      
     // Assign computed uTau to the boundary field of the global field
-#ifdef FOAM_NEW_GEOMFIELD_RULES
-    uTauField.boundaryFieldRef()[patch().index()]
-#else        
-    uTauField.boundaryField()[patch().index()]
-#endif
-    ==
-        uTau;
+    uTauField.boundaryFieldRef()[patch().index()] == uTau;
     
     return tuTau;
 }
@@ -283,11 +273,7 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig, p, iF, mapper),
-#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     eddyViscosity_(orig.eddyViscosity_.clone()),
-#else
-    eddyViscosity_(orig.eddyViscosity_, false),
-#endif
     sampler_(new SingleCellSampler(orig.sampler())),
     meshes_(orig.meshes_),
     maxIter_(orig.maxIter_),
@@ -354,11 +340,7 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig),
-#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     eddyViscosity_(orig.eddyViscosity_.clone()),
-#else
-    eddyViscosity_(orig.eddyViscosity_, false),
-#endif
     sampler_(new SingleCellSampler(orig.sampler())),
     meshes_(orig.meshes_),
     maxIter_(orig.maxIter_),
@@ -386,11 +368,7 @@ ODEWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig, iF),
-#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     eddyViscosity_(orig.eddyViscosity_.clone()),
-#else
-    eddyViscosity_(orig.eddyViscosity_, false),
-#endif
     sampler_(new SingleCellSampler(orig.sampler_())),
     meshes_(orig.meshes_),
     maxIter_(orig.maxIter_),
