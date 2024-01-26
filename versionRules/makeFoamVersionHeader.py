@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # This script processses $WM_PRJECT_VERSION and outputs the result to 
 # foamVersion4wmles.H
