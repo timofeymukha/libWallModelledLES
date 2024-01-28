@@ -19,26 +19,40 @@ echo "  prefix = ${FOAM_MODULE_PREFIX:-default (user)}"
 echo
 
 
-
-echo "  Current OpenFOAM version is $WM_PROJECT_VERSION."
-if [ -e foamVersionThisIsCompiledFor ]; then
+unset prevVersion
+if [ -e foamVersionThisIsCompiledFor ]
+then
     prevVersion=$(<foamVersionThisIsCompiledFor)
-    echo "  Previously compiled for OpenFOAM ($prevVersion)"
-    if [ "$WM_PROJECT_VERSION" != "$prevVersion" ]
+fi
+
+if [ -n "$prevVersion" ]
+then
+    if [ "$prevVersion" = "$WM_PROJECT_VERSION" ]
     then
-        echo "  Different than current OpenFOAM ($WM_PROJECT_VERSION) version."
+        echo "  Rebuilding for OpenFOAM = $WM_PROJECT_VERSION ($FOAM_API)."
+        echo
+    else
+        echo "  Previously compiled for OpenFOAM = $prevVersion"
+        echo "  but now using OpenFOAM = $WM_PROJECT_VERSION ($FOAM_API)."
         echo "     Use ./Allwclean before compiling"
+        echo
         exit 42
     fi
-    unset prevVersion
 else
-    echo "  This is a clean install"
-    echo $WM_PROJECT_VERSION >foamVersionThisIsCompiledFor
+    echo "  Building for OpenFOAM = $WM_PROJECT_VERSION ($FOAM_API)."
+    echo
+    echo "${WM_PROJECT_VERSION:-unknown}" >| foamVersionThisIsCompiledFor
 fi
 
 versionFile=versionRules/foamVersion4wmles.H
 
-versionRules/makeFoamVersionHeader.py $WM_PROJECT_VERSION >$versionFile.tmp
+if versionRules/createVersionRules.sh >| "$versionFile.tmp"
+then
+    :  # Generated with script from WM_PROJECT_DIR information
+else
+    # Fallback to python and generate from WM_PROJECT_VERSION information
+    versionRules/makeFoamVersionHeader.py $WM_PROJECT_VERSION >| $versionFile.tmp
+fi
 
 
 if [ -e "$versionFile" ]; then
@@ -49,7 +63,7 @@ if [ -e "$versionFile" ]; then
     else
     # Make sure that not a complete recompilation is triggered
     echo "No change to $versionFile"
-    rm $versionFile.tmp
+    rm -f "$versionFile.tmp"
     fi
 else
     echo "No $versionFile. Generating!"
@@ -58,7 +72,7 @@ fi
 
 # Ensure consistent definition of OPENFOAM_COM without relying anything else.
 # This may be available from the regular wmake rules, but use our own convention
-sed -ne 's/.*WMLES_IS_COM \([0-9][0-9]*\)/OPENFOAM_COM=\1/p' < $versionFile > versionRules/foamVersion
+sed -ne 's/.*WMLES_IS_COM \([0-9][0-9]*\)/OPENFOAM_COM=\1/p' < $versionFile >| versionRules/foamVersion
 sed -ne 's/.*WMLES_IS_ORG \([0-9][0-9]*\)/OPENFOAM_ORG=\1/p' < $versionFile >> versionRules/foamVersion
 
 
