@@ -13,9 +13,9 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
- 
+
 \*---------------------------------------------------------------------------*/
 
 #include "KnownWallShearStressWallModelFvPatchScalarField.H"
@@ -25,47 +25,39 @@ License
 #include "dictionary.H"
 #include "codeRules.H"
 #include "scalarListIOList.H"
+#include "SingleCellSampler.H"
+#include "helpers.H"
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
 void Foam::KnownWallShearStressWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
     wallModelFvPatchScalarField::writeLocalEntries(os);
-}    
-    
+    sampler_->write(os);
+}
+
 
 Foam::tmp<Foam::scalarField>
 Foam::KnownWallShearStressWallModelFvPatchScalarField::calcNut() const
 {
     if (debug)
     {
-        Info<< "Updating nut for patch " << patch().name() << nl;        
+        Info<< "Updating nut for patch " << patch().name() << nl;
     }
 
-    
+
     const label patchi = patch().index();
-    tmp<scalarField> deltas = patch().deltaCoeffs(); 
-    const labelList & faceCells = patch().faceCells(); 
 
+    tmp<scalarField> nuw = this->nu(patchi);
 
-    // Velocity at the boundary
-    const volVectorField & UField = db().lookupObject<volVectorField>("U");
-    const fvPatchVectorField& Uw = UField.boundaryField()[patchi];
-    
-    // Magnitude of wall-normal velocity gradient
-    scalarField magGradU(patch().size());
-    forAll(magGradU, i)
-    {
-        magGradU[i] = mag((UField[faceCells[i]] - Uw[i])*deltas()[i]);
-    }
-    
-    // Viscosity
-    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
-    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
-    
+    const scalarListIOList & wallGradU =
+        sampler_->db().lookupObject<scalarListIOList>("wallGradU");
+
+    scalarField magGradU(Helpers::mag(wallGradU));
+
     const volScalarField& tauWallField = db().lookupObject<volScalarField>("tauWall");
     const fvPatchScalarField & tauWall = tauWallField.boundaryField()[patchi];
-    
+
     return max
     (
         scalar(0),
@@ -83,7 +75,8 @@ KnownWallShearStressWallModelFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    wallModelFvPatchScalarField(p, iF)
+    wallModelFvPatchScalarField(p, iF),
+    sampler_(nullptr)
 {
 
     if (debug)
@@ -95,7 +88,6 @@ KnownWallShearStressWallModelFvPatchScalarField
 
 }
 
-//constructor when running deomposePar/reconstructPar
 Foam::KnownWallShearStressWallModelFvPatchScalarField::
 KnownWallShearStressWallModelFvPatchScalarField
 (
@@ -105,7 +97,8 @@ KnownWallShearStressWallModelFvPatchScalarField
     const fvPatchFieldMapper& mapper
 )
 :
-    wallModelFvPatchScalarField(orig, p, iF, mapper)
+    wallModelFvPatchScalarField(orig, p, iF, mapper),
+    sampler_(new SingleCellSampler(orig.sampler()))
 {
 
     if (debug)
@@ -117,7 +110,6 @@ KnownWallShearStressWallModelFvPatchScalarField
 }
 
 
-//s this is the constructor when running the code
 Foam::KnownWallShearStressWallModelFvPatchScalarField::
 KnownWallShearStressWallModelFvPatchScalarField
 (
@@ -126,7 +118,19 @@ KnownWallShearStressWallModelFvPatchScalarField
     const dictionary& dict
 )
 :
-    wallModelFvPatchScalarField(p, iF, dict)
+    wallModelFvPatchScalarField(p, iF, dict),
+    sampler_
+    (
+        new SingleCellSampler
+        (
+            p,
+            averagingTime(),
+            dict.lookupOrDefault<word>("interpolationType", "cell"),
+            dict.lookupOrDefault<word>("sampler", "Tree"),
+            dict.lookupOrDefault<word>("lengthScale", "CubeRootVol"),
+            dict.lookupOrDefault<bool>("hIsIndex", false)
+        )
+    )
 {
     if (debug)
     {
@@ -153,30 +157,30 @@ KnownWallShearStressWallModelFvPatchScalarField
             )
         );
     }
-    
-    
+
+
     label patchI = patch().index();
-    
+
     const volScalarField& tauWall = db().lookupObject<volScalarField>("tauWall");
-    
-    volScalarField & uTauField = 
+
+    volScalarField & uTauField =
     const_cast<volScalarField &>
     (
         db().lookupObject<volScalarField>("uTauPredicted")
     );
-   
+
     uTauField.boundaryFieldRef()[patchI] == sqrt(tauWall.boundaryField()[patchI]);
 }
 
 
-//constructor when running deomposePar/reconstructPar
 Foam::KnownWallShearStressWallModelFvPatchScalarField::
 KnownWallShearStressWallModelFvPatchScalarField
 (
     const KnownWallShearStressWallModelFvPatchScalarField& orig
 )
 :
-    wallModelFvPatchScalarField(orig)
+    wallModelFvPatchScalarField(orig),
+    sampler_(new SingleCellSampler(orig.sampler_()))
 {
 
     if (debug)
@@ -188,7 +192,6 @@ KnownWallShearStressWallModelFvPatchScalarField
 }
 
 
-//constructor when running deomposePar/reconstructPar
 Foam::KnownWallShearStressWallModelFvPatchScalarField::
 KnownWallShearStressWallModelFvPatchScalarField
 (
@@ -196,7 +199,8 @@ KnownWallShearStressWallModelFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    wallModelFvPatchScalarField(orig, iF)
+    wallModelFvPatchScalarField(orig, iF),
+    sampler_(new SingleCellSampler(orig.sampler_()))
 {
 
     if (debug)

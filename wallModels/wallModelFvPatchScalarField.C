@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -66,7 +66,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
     {
         Info<< "wallModelFvPatchScalarField creating fields" << nl;
     }
-    
+
     // Name of the h field, default to hSampler
     word hName = "hSampler";
 
@@ -78,7 +78,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         db(),
         IOobject::NO_READ
     );
-    
+
     bool foundhSampler = hHeader.typeHeaderOk<volScalarField>();
     db().checkOut("hSampler");
 
@@ -94,7 +94,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         Warning
             << "The hSampler field is not found, will try to find h. "
             << "Please note that h will not work with compressible solvers. "
-            << "It is recommended to use hSampler in new cases." << nl; 
+            << "It is recommended to use hSampler in new cases." << nl;
 
         IOobject hHeader
         (
@@ -103,7 +103,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             db(),
             IOobject::NO_READ
         );
-        
+
         if (hHeader.typeHeaderOk<volScalarField>())
         {
             hName = "h";
@@ -114,7 +114,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         }
         db().checkOut("h");
     }
-    
+
     if (!db().found(hName))
     {
         db().store
@@ -133,9 +133,9 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             )
         );
     }
-      
+
     const volScalarField & h = db().lookupObject<volScalarField>(hName);
-    
+
     // Create and register wallShearStress field, if not there already.
     if (!db().found("wallShearStress"))
     {
@@ -162,7 +162,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             )
         );
     }
-    
+
     // Field with uTau as predicted by the wall model.
     if ((!db().found("uTauPredicted")))
     {
@@ -183,13 +183,13 @@ void Foam::wallModelFvPatchScalarField::createFields() const
                 h.boundaryField().types()
             )
         );
-    }    
+    }
 
     // wall-normal gradient field
     if (!db().foundObject<volVectorField>("wallGradU"))
     {
         db().store
-        (     
+        (
             new volVectorField
             (
                 IOobject
@@ -209,7 +209,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
                 ),
                 h.boundaryField().types()
             )
-        );  
+        );
     }
     if (debug)
     {
@@ -261,7 +261,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
             << "from fvPatch and DimensionedField for patch " << patch().name()
             <<  nl;
     }
-    
+
     checkType();
     createFields();
 }
@@ -288,7 +288,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
             << " for patch " << patch().name() << nl;
     }
 
-    checkType();   
+    checkType();
 }
 
 
@@ -314,7 +314,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
             << "from fvPatch, DimensionedField, and dictionary for patch "
             << patch().name() << nl;
     }
-    
+
     checkType();
     createFields();
 }
@@ -324,7 +324,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 #else
 Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
 (
-    const wallModelFvPatchScalarField& orig 
+    const wallModelFvPatchScalarField& orig
 )
 :
     fixedValueFvPatchScalarField(orig),
@@ -336,7 +336,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     if (debug)
     {
         Info<< "Constructing wallModelFvPatchScalarField (w4)"
-            << "using the copy constructor" << nl;           
+            << "using the copy constructor" << nl;
     }
 
     checkType();
@@ -350,7 +350,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    fixedValueFvPatchScalarField(orig, iF),       
+    fixedValueFvPatchScalarField(orig, iF),
     consumedTime_(orig.consumedTime_),
     copyToPatchInternalField_(orig.copyToPatchInternalField_),
     silent_(orig.silent_),
@@ -362,7 +362,7 @@ Foam::wallModelFvPatchScalarField::wallModelFvPatchScalarField
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
-    
+
     checkType();
 }
 
@@ -377,21 +377,21 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
 
 
     scalar startCPUTime = db().time().elapsedClockTime();
-    
+
     label pI = patch().index();
-    
+
     // Compute uTau
-    volVectorField & wss = 
+    volVectorField & wss =
         const_cast<volVectorField &>
         (
             db().lookupObject<volVectorField>("wallShearStress")
         );
-    
+
     const volVectorField & wallGradUField =
         db().lookupObject<volVectorField>("wallGradU");
-    
+
     const vectorField & wallGradU = wallGradUField.boundaryField()[pI];
-    
+
     tmp<scalarField> tnuw = this->nu(pI);
     const scalarField& nuw = tnuw();
 
@@ -404,7 +404,7 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     // Assign to the near-wall cells
     if (copyToPatchInternalField())
     {
-        volScalarField & nutField = 
+        volScalarField & nutField =
             const_cast<volScalarField &>
             (
                 db().lookupObject<volScalarField>("nut")
@@ -423,10 +423,10 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
 
     // Take the max consumed time across all procs
     reduce(consumedTime_, maxOp<scalar>());
-    
+
     if (!silent_)
     {
-        Info<< "Wall modelling time consumption = " << consumedTime_ 
+        Info<< "Wall modelling time consumption = " << consumedTime_
             << "s "  << 100*consumedTime_/(db().time().elapsedClockTime() + SMALL)
             << "% of total " << nl;
     }
@@ -440,7 +440,7 @@ void Foam::wallModelFvPatchScalarField::write(Ostream& os) const
 #ifdef FOAM_NEW_WRITEENTRY
     writeEntry(os, "value", *this);
 #else
-    writeEntry("value", os);  
+    writeEntry("value", os);
 #endif
 }
 
