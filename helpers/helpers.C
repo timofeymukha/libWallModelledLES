@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -40,10 +40,10 @@ void Foam::Helpers::projectOnPatch
     }
 
     forAll(field, i)
-    {    
+    {
         // Normal component as dot product with (inwards) face normal
         vector normal = sign*faceNormals[i]*(field[i] & sign*faceNormals[i]);
-        
+
         // Subtract normal component to get the parallel one
         field[i] -= normal;
     }
@@ -110,7 +110,7 @@ Foam::tmp<Foam::scalarField> Foam::Helpers::mag(const scalarListList & list)
 {
     tmp<scalarField> tField(new scalarField(list.size(), 0.0));
     scalarField & field = tField.ref();
-    
+
     forAll(list, i)
     {
         scalar element = 0;

@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -87,7 +87,7 @@ void Foam::TreeCellFinder::findCellIndices
     }
 
     treeBoundBox boundBox(mesh().bounds());
-    Random rndGen(261782);    
+    Random rndGen(261782);
 #ifdef FOAM_TREEBOUNDBOX_DOES_NOT_ACCEPT_RNG
     boundBox.extend(1e-4);
 #else
@@ -99,7 +99,7 @@ void Foam::TreeCellFinder::findCellIndices
     tmp<Foam::volScalarField> distField(distanceField());
 
     const scalarField & dist = distField().primitiveField();
-    
+
 
     tmp<labelField> tSearchCellLabels = findCandidateCellLabels(dist, h);
     const labelField & searchCellLabels = tSearchCellLabels();
@@ -127,7 +127,7 @@ void Foam::TreeCellFinder::findCellIndices
         Warning
             << "TreeCellFinder: max(h) is " << maxH << " but no cell centres within "
             << "distance 2*max(h) were found. "
-            << "Will sample from wall-adjacent cells." << nl; 
+            << "Will sample from wall-adjacent cells." << nl;
     }
 
 
@@ -166,8 +166,8 @@ void Foam::TreeCellFinder::findCellIndices
     const vectorField faceNormals = tfaceNormals();
     const tmp<vectorField> tcellCentres = patch().Cn();
     const vectorField cellCentres = tcellCentres();
-    
-    // Grab the global indices of adjacent cells 
+
+    // Grab the global indices of adjacent cells
     const UList<label> & faceCells = patch().faceCells();
 
     vector point;
@@ -177,7 +177,7 @@ void Foam::TreeCellFinder::findCellIndices
     {
         Info << "TreeCellFinder: Starting search for sampling cells" << nl;
     }
-    
+
     forAll(faceCentres, i)
     {
         // Grab the point h away along the face normal
@@ -185,7 +185,7 @@ void Foam::TreeCellFinder::findCellIndices
 
         // If h is zero, or the point is outside the domain,
         // grab the wall-adjacent cell
-        bool inside = 
+        bool inside =
 #ifdef FOAM_VOLUMETYPE_NOT_CAPITAL
             boundaryTreePtr->getVolumeType(point) == volumeType::inside;
 #else
@@ -213,7 +213,7 @@ void Foam::TreeCellFinder::findCellIndices
                 << "Will fall back to wall-adjacent cell for face "
                 <<  i << " on patch " << patch().name() << nl;
                 indexList[i] = faceCells[i];
-        }    
+        }
         else
         {
 
@@ -242,7 +242,7 @@ void Foam::TreeCellFinder::findCellIndices
     }
 
     treeBoundBox boundBox(mesh_.bounds());
-    Random rndGen(261782);    
+    Random rndGen(261782);
 #ifdef FOAM_TREEBOUNDBOX_DOES_NOT_ACCEPT_RNG
     boundBox.extend(1e-4);
 #else
@@ -254,7 +254,7 @@ void Foam::TreeCellFinder::findCellIndices
     tmp<Foam::volScalarField> distField(distanceField());
 
     const scalarField & dist = distField().primitiveField();
-    
+
 
     tmp<labelField> tSearchCellLabels = findCandidateCellLabels(dist, h);
     const labelField & searchCellLabels = tSearchCellLabels();
@@ -282,7 +282,7 @@ void Foam::TreeCellFinder::findCellIndices
         Warning
             << "TreeCellFinder: max(h) is " << maxH << " but no cell centres within "
             << "distance 2*max(h) were found. "
-            << "Will sample from wall-adjacent cells." << nl; 
+            << "Will sample from wall-adjacent cells." << nl;
     }
 
 
@@ -319,8 +319,8 @@ void Foam::TreeCellFinder::findCellIndices
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField & faceNormals = tfaceNormals();
     const volVectorField & C = mesh_.C();
-    
-    // Grab the global indices of adjacent cells 
+
+    // Grab the global indices of adjacent cells
     const UList<label> & faceCells = patch().faceCells();
 
     // Point 2h away from the face
@@ -388,7 +388,7 @@ void Foam::TreeCellFinder::findCellIndices
                         Info<< "Hit face: " << hitP << nl;
                         Info<< "CC: " << C[searchCellLabels[cellI]] << nl;
                     }
-                   
+
                     n++;
 
                     // If we are now inside the last cell
@@ -414,7 +414,7 @@ void Foam::TreeCellFinder::findCellIndices
                              << "wall-adjacent cell" << nl;
                         indexList[i].setSize(1, faceCells[i]);
                         break;
-                    
+
                     }
                     else
                     {
@@ -497,7 +497,7 @@ Foam::TreeCellFinder::findCandidateCellLabels
 
 Foam::tmp<Foam::volScalarField> Foam::TreeCellFinder::distanceField() const
 {
-    
+
 
     word hName;
 
@@ -519,7 +519,7 @@ Foam::tmp<Foam::volScalarField> Foam::TreeCellFinder::distanceField() const
     }
 
     tmp<volScalarField> dist
-    ( 
+    (
         new volScalarField
         (
             IOobject
@@ -537,7 +537,7 @@ Foam::tmp<Foam::volScalarField> Foam::TreeCellFinder::distanceField() const
     );
 
     bool precomputedDist = mag(max(dist().primitiveField())) > VSMALL;
-    
+
     if (debug)
     {
         Info<<"CellFinder: using precumputed distance field" << nl;

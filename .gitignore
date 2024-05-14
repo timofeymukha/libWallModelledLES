@@ -53,6 +53,7 @@ lnInclude/
 !**/Make/options
 versionRules/foamVersion4wmles.H
 versionRules/foamVersion
+versionRules/foamVersionThisIsCompiledFor
 foamVersionThisIsCompiledFor
 .vscode/
 

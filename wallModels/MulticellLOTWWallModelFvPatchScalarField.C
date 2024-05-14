@@ -185,14 +185,8 @@ MulticellLOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig, p, iF, mapper),
-#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     rootFinder_(orig.rootFinder_.clone()),
     law_(new IntegratedReichardtLawOfTheWall()),
-#else
-    rootFinder_(orig.rootFinder_, false),
-    //law_(orig.law_, false),
-    law_(new IntegratedReichardtLawOfTheWall()),
-#endif
     sampler_(new MultiCellSampler(orig.sampler()))
 {
     if (debug)
@@ -248,14 +242,8 @@ MulticellLOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig),
-#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     rootFinder_(orig.rootFinder_.clone()),
     law_(new IntegratedReichardtLawOfTheWall()),
-#else
-    rootFinder_(orig.rootFinder_, false),
-    //law_(orig.law_, false),
-    law_(new IntegratedReichardtLawOfTheWall()),
-#endif
     sampler_(new MultiCellSampler(orig.sampler_()))
 {
     if (debug)
@@ -276,14 +264,8 @@ MulticellLOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(orig, iF),
-#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
     rootFinder_(orig.rootFinder_.clone()),
     law_(new IntegratedReichardtLawOfTheWall()),
-#else
-    rootFinder_(orig.rootFinder_, false),
-    //law_(orig.law_, false),
-    law_(new IntegratedReichardtLawOfTheWall()),
-#endif
     sampler_(new MultiCellSampler(orig.sampler_()))
 {
 

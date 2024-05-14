@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
@@ -23,12 +23,12 @@ Class
     Wall model that uses the values of the magnitude of the mean wall shear
     stress known a priori, for example, from a RANS precursor or an analytical
     solution.
-    
+
     Requires field tauWall with the values of the magnitude of the mean wall
     shear stress to be present.
 
 Contributors/Copyright:
-    2016-2018 Timofey Mukha
+    2016-2024 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -46,6 +46,8 @@ SourceFiles
 namespace Foam
 {
 
+class SingleCellSampler;
+
 /*---------------------------------------------------------------------------*\
         Class KnownWallShearStressWallModelPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
@@ -55,14 +57,17 @@ class KnownWallShearStressWallModelFvPatchScalarField
     public wallModelFvPatchScalarField
 {
 protected:
-    
+
     // Protected Member Functions
         //- Write model properties to stream
         virtual void writeLocalEntries(Ostream &) const;
-        
+
         //- Calculate the turbulence viscosity at the wall
         virtual tmp<scalarField> calcNut() const;
-               
+
+        //- The sampler, for the wallGradU
+        autoPtr<SingleCellSampler> sampler_;
+
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
@@ -109,13 +114,22 @@ public:
             const KnownWallShearStressWallModelFvPatchScalarField &,
             const DimensionedField<scalar, volMesh> &
         );
-        
+
 
     // Member functions
 
+        SingleCellSampler & sampler()
+        {
+            return sampler_();
+        }
+
+        const SingleCellSampler & sampler() const
+        {
+            return sampler_();
+        }
 
         //- Write
-        virtual void write(Ostream& os) const;            
+        virtual void write(Ostream& os) const;
 };
 
 
