@@ -120,6 +120,12 @@ calcUTau(const scalarField & magGradU) const
             // y+ = 0.05, so very very close to the wall.
             scalar upperBound = sampledUI / 0.05;
 
+            // Fall back if our estimates give an invalid interval
+            if (lowerBound >= upperBound)
+            {
+                lowerBound = SMALL;
+            }
+
             std::function<scalar(scalar)> func =
                 [nuwI, faceI, this](const scalar & uTau)
                 {
