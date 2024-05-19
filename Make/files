@@ -31,6 +31,8 @@ eddyViscosities/EddyViscosity/EddyViscosity.C
 eddyViscosities/VanDriest/VanDriestEddyViscosity.C
 eddyViscosities/Duprat/DupratEddyViscosity.C
 
+indicators/Indicator.C
+
 wallModels/wallModelFvPatchScalarField.C
 wallModels/KnownWallShearStressWallModelFvPatchScalarField.C
 wallModels/LOTWWallModelFvPatchScalarField.C
