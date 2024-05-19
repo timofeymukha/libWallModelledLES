@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
@@ -21,24 +21,24 @@ Class
 
 @brief
     Base abstract class for LES wall models.
-    
+
     Handles creating and storing fields used by the wall models.
     The following fields are created and stored in the registry.
-    - hSampler or h, the patch fields of which hold the distance to the cells 
+    - hSampler or h, the patch fields of which hold the distance to the cells
     used for sampling. This field is read and must be present for the simulation
     to run.
     - samplingCells, which marks the cells used for sampling with a value
     corresponding to the index of the patch that uses them.
     - uTauPredicted, the patch fields of which hold the value of uTau as
     predicted by the wall model.
-    - wallShearStress, the patch fields of which hold the value of the wall 
+    - wallShearStress, the patch fields of which hold the value of the wall
     shear stress.
     - wallGradU, the patch fields of which store the wall-normal of the velocity
     gradient.
 
 
 Contributors/Copyright:
-    2018-2019 Timofey Mukha
+    2018-2024 Timofey Mukha
 
 SourceFiles
     wallModelFvPatchScalarField.C
@@ -71,13 +71,13 @@ private:
 
     //- Switch to copy data to wall-adjacent cells
     bool copyToPatchInternalField_;
-    
+
     //- Wether to suppress most output to the log file
     bool silent_;
 protected:
 
     // Protected data
-           
+
         //- Timescale of the averaging
         scalar averagingTime_;
 
@@ -88,11 +88,11 @@ protected:
 
         //- Check that the patch is a wall
         virtual void checkType();
-        
+
         //- Return the laminar viscosity
         //  Note: this is the internal field
         tmp<volScalarField> nu() const;
-        
+
         //- Return laminar viscosity on patchi
         tmp<scalarField> nu(const label patchi) const;
 
@@ -159,7 +159,7 @@ public:
 
 
     // Member functions
-      
+
         scalar averagingTime() const
         {
             return averagingTime_;
@@ -179,7 +179,7 @@ public:
         {
             return copyToPatchInternalField_;
         }
-        
+
         //- Update the boundary values
         virtual void updateCoeffs();
 

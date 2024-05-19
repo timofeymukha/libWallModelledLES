@@ -26,6 +26,7 @@ License
 #include "IncompressibleTurbulenceModel.H"
 #include "transportModel.H"
 #include "turbulentFluidThermoModel.H"
+#include "Indicator.H"
 
 
 
@@ -215,6 +216,9 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             )
         );
     }
+
+    Indicator indicator(patch());
+
     if (debug)
     {
         Info<< "wallModelFvPatchScalarField finished creating fields" << nl;
@@ -386,6 +390,8 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
     // Compute nut and assign
     scalarField nut(calcNut());
 
+    Indicator indicator(patch());
+
     operator==(nut);
 
     // Assign to the near-wall cells
@@ -404,7 +410,10 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
         }
     }
 
-/*    volVectorField & wss =
+/*  Old way of setting stress instead of using the stress computation
+    in the turbulence model.
+
+    volVectorField & wss =
         const_cast<volVectorField &>
         (
             db().lookupObject<volVectorField>("wallShearStress")
@@ -494,11 +503,7 @@ void Foam::wallModelFvPatchScalarField::setShearStress
     const symmTensorField& Reffp = Reff.boundaryField()[patchi];
 
     ssp = normals & Reffp;
-//    Info <<  Reffp << nl;
-//    Info <<  Sfp/magSfp << nl;
-//    Info << "before " << ssp << nl;
     ssp -= normals * (normals & ssp);
-//    Info << "after "<<  ssp << nl;
 
 }
 

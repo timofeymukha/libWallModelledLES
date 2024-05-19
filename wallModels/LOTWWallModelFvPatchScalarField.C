@@ -27,6 +27,7 @@ License
 #include "LawOfTheWall.H"
 #include "RootFinder.H"
 #include "SingleCellSampler.H"
+#include "Indicator.H"
 
 using namespace std::placeholders;
 
@@ -50,6 +51,24 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
 
     const label patchi = patch().index();
 
+    // Grab indicator field
+    volScalarField & indicatorField =
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("wmlesIndicator")
+        );
+
+    Indicator indicator(patch());
+    indicator.compute(this->nu());
+    scalarField patchIndicator(patch().size());
+
+    const labelList & indexList = sampler().indexList();
+
+    forAll(indexList, i)
+    {
+        patchIndicator[i] = indicatorField[indexList[i]];
+    }
+
     tmp<scalarField> nuw = this->nu(patchi);
 
     const scalarListIOList & wallGradU =
@@ -60,7 +79,7 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     return max
     (
         scalar(0),
-        sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw
+        (sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw) * patchIndicator
     );
 }
 
