@@ -26,6 +26,7 @@ lawsOfTheWall/IntegratedWernerWengleLawOfTheWall/IntegratedWernerWengleLawOfTheW
 lawsOfTheWall/IntegratedReichardtLawOfTheWall/IntegratedReichardtLawOfTheWall.C
 lawsOfTheWall/ReichardtLawOfTheWall/ReichardtLawOfTheWall.C
 lawsOfTheWall/RoughLogLawOfTheWall/RoughLogLawOfTheWall.C
+lawsOfTheWall/CaiSagautLawOfTheWall/CaiSagautLawOfTheWall.C
 
 eddyViscosities/EddyViscosity/EddyViscosity.C
 eddyViscosities/VanDriest/VanDriestEddyViscosity.C
