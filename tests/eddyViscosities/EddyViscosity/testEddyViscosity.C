@@ -34,7 +34,7 @@ public:
     {
         return autoPtr<EddyViscosity>
         (
-            new DummyEddyViscosity(*this) 
+            new DummyEddyViscosity(*this)
         );
     }
 
@@ -54,7 +54,21 @@ public:
     {
         return scalarList(1, 0.0);
     }
-};
+
+    virtual std::function<scalar(const scalar)> value
+    (
+        const SingleCellSampler & sampler,
+        const label index,
+        const scalar uTau,
+        const scalar nu
+    ) const override
+    {
+        return [](const scalar y) {
+            return y;
+        };
+
+    }
+    };
 
     defineTypeNameAndDebug(DummyEddyViscosity, 0);
     addToRunTimeSelectionTable
@@ -93,7 +107,7 @@ TEST_F(EddyViscosityTest, CopyConstructor)
     dict.add("Test1", 0.395);
     dict.add("Test2", 4);
     DummyEddyViscosity law = DummyEddyViscosity(dict);
-    DummyEddyViscosity law2(law);    
+    DummyEddyViscosity law2(law);
 
     dict = law2.constDict();
     ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("Test1", 0.0), 0.395);

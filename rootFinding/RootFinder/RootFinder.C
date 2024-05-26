@@ -72,9 +72,6 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
 )
 {
     Foam::word rootFinderName(dict.lookup("type"));
-    //const entry* ePtr = dict.lookupEntryPtr("type", false, false);
-    //word rootFinderName(ePtr->stream());
-    //ePtr->stream() >> rootFinderName;
 
     auto cstrIter =
     DictionaryConstructorTablePtr_->find(rootFinderName);

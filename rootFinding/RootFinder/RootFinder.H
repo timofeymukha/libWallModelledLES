@@ -27,7 +27,7 @@ Class
     wall model.
 
 Contributors/Copyright:
-    2016-2023 Timofey Mukha
+    2016-2024 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 

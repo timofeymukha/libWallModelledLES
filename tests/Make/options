@@ -2,7 +2,7 @@ ifeq ($(findstring clang, $(CC)), clang)
     FLAGS = -Wno-inconsistent-missing-override
 endif
 
-EXE_INC = -std=c++14 $(FLAGS) \
+EXE_INC = -std=c++17 $(FLAGS) \
 -I$(LIB_SRC)/finiteVolume/lnInclude \
 -I$(LIB_SRC)/OpenFOAM/lnInclude \
 -I$(LIB_SRC)/meshTools/lnInclude \
@@ -11,6 +11,7 @@ EXE_INC = -std=c++14 $(FLAGS) \
 -I$(GTEST_DIR)/googletest/include \
 -I$(GTEST_DIR)/googlemock/include/gmock \
 -I$(GTEST_DIR)/googlemock/include \
+-I$(BOOST_ARCH_PATH)/include \
 -I../lnInclude
 
 

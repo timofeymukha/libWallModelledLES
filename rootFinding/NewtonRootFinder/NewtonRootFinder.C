@@ -48,9 +48,6 @@ Foam::scalar Foam::NewtonRootFinder::root(
     scalar upperBound
 ) const
 {
-    // Maximum possible binary digits accuracy for the scalar type.
-    //const int digits = std::numeric_limits<scalar>::digits;
-    //int get_digits = static_cast<int>(digits * 0.4);
 
     auto funcTuple = [this](scalar uTau)
     {
