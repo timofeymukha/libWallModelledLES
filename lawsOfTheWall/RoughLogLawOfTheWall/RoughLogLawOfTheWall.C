@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
  \*---------------------------------------------------------------------------*/
@@ -44,21 +44,21 @@ Foam::RoughLogLawOfTheWall::RoughLogLawOfTheWall
 :
     LawOfTheWall(dict),
     kappa_(constDict_.lookupOrAddDefault<scalar>("kappa", 0.4)),
-#ifdef FOAM_DICTIONARY_NO_GET
-#ifdef FOAM_DICTIONARY_HAS_LOOKUP
-    B_(constDict_.lookup<scalar>("B")),
-    ks_(constDict_.lookup<scalar>("ks"))
-#else
-    B_(constDict_.lookupType<scalar>("B")),
-    ks_(constDict_.lookupType<scalar>("ks"))
-#endif
-#else
+//#ifdef FOAM_DICTIONARY_NO_GET
+//#ifdef FOAM_DICTIONARY_HAS_LOOKUP
+//    B_(constDict_.lookup<scalar>("B")),
+//    ks_(constDict_.lookup<scalar>("ks"))
+//#else
+//    B_(constDict_.lookupType<scalar>("B")),
+//    ks_(constDict_.lookupType<scalar>("ks"))
+//#endif
+//#else
     B_(constDict_.get<scalar>("B")),
     ks_(constDict_.get<scalar>("ks"))
-#endif
+//#endif
 {
     if (debug)
-    {        
+    {
         printCoeffs();
     }
 }
@@ -92,7 +92,7 @@ Foam::RoughLogLawOfTheWall::RoughLogLawOfTheWall
     constDict_.add("ks", ks_);
 
     if (debug)
-    {        
+    {
         printCoeffs();
     }
 
@@ -103,7 +103,7 @@ Foam::RoughLogLawOfTheWall::RoughLogLawOfTheWall
 
 void Foam::RoughLogLawOfTheWall::printCoeffs() const
 {
-    Info<< nl << "RoughLogLaw law of the wall" << nl;     
+    Info<< nl << "RoughLogLaw law of the wall" << nl;
     Info<< token::BEGIN_BLOCK << incrIndent << nl;
     Info<< indent << "kappa" << indent << kappa_ << nl;
     Info<< indent << "B" << indent <<  B_ << nl;
@@ -143,7 +143,7 @@ Foam::scalar Foam::RoughLogLawOfTheWall::derivative
     const SingleCellSampler & sampler,
     label index,
     scalar uTau,
-    scalar nu        
+    scalar nu
 ) const
 {
     return  1;
