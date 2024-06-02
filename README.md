@@ -36,7 +36,7 @@ If that does not help, please open [an issue on Github](https://github.com/timof
 This code is available on several public repositories:
 - [Github](https://github.com/timofeymukha/libWallModelledLES) --- the main repository, where all the development happens, and where you should open issues to get help.
 - [Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/) --- mirror, which only gets update upon new releases.
- 
+
 - [Gitlab](https://gitlab.com/chalmers-marine-technology/libwallmodelledles) --- mirror, which only gets updated upon new releases.
 
 ## Published works using the library
@@ -56,3 +56,4 @@ If your works is missing from this glorious list and you want it here, [open an 
 - Mukha, T. (2019) The effect of numerical dissipation on the predictive accuracy of wall-modelled large-eddy simulation. Trudy ISP RAN/Proc. ISP RAS. DOI: 10.15514/ISPRAS-2019-31(6)-11
 - Malkus, T., &  Belloni, C. (2020) Wall-modeled large-eddy simulations of airfoil trailing edge noise. In proceedings of the 8th ESI OpenFOAM Conference. URL: https://www.esi-group.com/sites/default/files/resource/other/1682/8th_OpenFOAM_Conference_Ohio_State_University_Malkus.pdf
 - Mukha, T., Bensow, R.E., Liefvendahl, M., 2021. Predictive accuracy of wall-modelled large-eddy simulation on unstructured grids. Comput. Fluids 221, 104885. https://doi.org/10.1016/j.compfluid.2021.104885 (Open access)
+- Fazeli, M., Emdad, H., Alishahi, M. M., Rezaeiravesh, S. (2024) Wall-modeled large eddy simulation of 90° bent pipe flows with/without particles: A comparative study. International Journal of Heat and Fluid Flow, https://doi.org/10.1016/j.ijheatfluidflow.2023.109268.
