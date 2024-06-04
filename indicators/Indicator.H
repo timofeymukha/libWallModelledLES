@@ -120,7 +120,11 @@ public:
         }
 
         //- Compute the indicator field
-        void compute(const volScalarField & nu) const;
+        void compute
+        (
+            const volScalarField &,
+            const labelList &
+        ) const;
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     // RTS tables

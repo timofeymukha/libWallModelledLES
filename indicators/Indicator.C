@@ -98,7 +98,7 @@ void Foam::Indicator::createFields() const
                     IOobject::AUTO_WRITE
                 ),
                 mesh_,
-                dimensionedScalar(dimless, Zero)
+                dimensionedScalar(dimless, 1.0)
             )
         );
     }
@@ -227,24 +227,63 @@ void sigma_indicator(const volTensorField & gradU)
 }
 */
 
-void Foam::Indicator::compute(const volScalarField & nu) const
+void Foam::Indicator::compute
+(
+    const volScalarField & nu,
+    const labelList & inds
+) const
 {
 
+    const auto & cellCells = mesh_.cellCells();
 
-    auto & nut = mesh().thisDb().lookupObject<volScalarField>("nut");
+    const auto & nut = mesh().thisDb().lookupObject<volScalarField>("nut");
     auto & indicator =
         const_cast<volScalarField &>
         (
             mesh().thisDb().lookupObject<volScalarField>("wmlesIndicator")
         );
 
+    scalarField & boundaryValues = indicator.boundaryFieldRef()[patch_.index()];
     scalar C1 = 75;
     scalar C2 = 6;
 
     forAll(indicator, i)
     {
-        indicator[i] =  pow(C1 * Foam::tanh(nut[i] / nu[i]), C2);
-        // indicator[i] = 1.0;
+        indicator[i] =  pow(Foam::tanh(C1 * nut[i] / nu[i]), C2);
+    }
+    scalarField avrg(inds.size(), 0.0);
+
+    forAll(inds, i)
+    {
+        label ind = inds[i];
+        const labelList& neighbour = cellCells[ind];
+
+        avrg[i] = 0;
+
+        forAll(neighbour, ni)
+        {
+            avrg[i] += indicator[neighbour[ni]];
+        }
+        avrg[i] /= neighbour.size();
+    }
+
+    forAll(inds, i)
+    {
+        label ind = inds[i];
+        indicator[ind] = avrg[i];
+    }
+
+    const scalar threshold = 0.1;
+    forAll(boundaryValues, i)
+    {
+        if (indicator[inds[i]] < threshold)
+        {
+            boundaryValues[i] = 0.0;
+        }
+        else
+        {
+            boundaryValues[i] = 1.0;
+        }
     }
 }
 
