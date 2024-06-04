@@ -50,24 +50,16 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     }
 
     const label patchi = patch().index();
-
-    // Grab indicator field
-    volScalarField & indicatorField =
-        const_cast<volScalarField &>
-        (
-            db().lookupObject<volScalarField>("wmlesIndicator")
-        );
-
-    Indicator indicator(patch());
-    indicator.compute(this->nu());
-    scalarField patchIndicator(patch().size());
-
     const labelList & indexList = sampler().indexList();
 
-    forAll(indexList, i)
-    {
-        patchIndicator[i] = indicatorField[indexList[i]];
-    }
+    // Grab indicator field
+    const auto & indicatorField =
+        db().lookupObject<volScalarField>("wmlesIndicator");
+
+    Indicator indicator(patch());
+    indicator.compute(this->nu(), indexList);
+
+    const scalarField & patchIndicator = indicatorField.boundaryField()[patchi];
 
     tmp<scalarField> nuw = this->nu(patchi);
 
@@ -339,7 +331,6 @@ void Foam::LOTWWallModelFvPatchScalarField::updateCoeffs()
 
     sampler().recomputeFields();
     sampler().sample();
-
     wallModelFvPatchScalarField::updateCoeffs();
 }
 

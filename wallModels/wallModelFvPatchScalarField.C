@@ -385,12 +385,9 @@ void Foam::wallModelFvPatchScalarField::updateCoeffs()
 
     scalar startCPUTime = db().time().elapsedClockTime();
 
-//    label pI = patch().index();
-
     // Compute nut and assign
     scalarField nut(calcNut());
 
-    Indicator indicator(patch());
 
     operator==(nut);
 
@@ -515,11 +512,7 @@ void Foam::wallModelFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
     writeLocalEntries(os);
-#ifdef FOAM_NEW_WRITEENTRY
-    writeEntry(os, "value", *this);
-#else
     writeEntry("value", os);
-#endif
 }
 
 
