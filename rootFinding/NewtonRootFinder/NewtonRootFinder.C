@@ -67,8 +67,6 @@ std::pair<Foam::scalar, Foam::label> Foam::NewtonRootFinder::root(
         maxIter
     );
 
-    Info << iterations << nl;
-
     if (debug)
     {
         WarningIn("Foam::NewtonRootFinder::root()")
