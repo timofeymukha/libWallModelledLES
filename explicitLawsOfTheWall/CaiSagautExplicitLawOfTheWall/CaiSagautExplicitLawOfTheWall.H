@@ -17,15 +17,16 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::CaiSagautLawOfTheWall
+    Foam::CaiSagautExplicitLawOfTheWall
 
 @brief
     The explicit law of the wall proposed by Cai and Sagaut. This is "model 2"
-    in the paper.
+    in the paper. Uses the Lmabert W function to explicitly represent the
+    log-law.
 
     \f[
-    u^+ = \frac{1}{\kappa } \ln (1 + \kappa y^+) + C \left( 1 - \exp (-y^+/B_1)-
-          \frac{y^+}{B_1} \exp(-y^+/B_2) \right)
+    u^+ = \exp(-Re_y / s)^p \sqrt(Re_y) +
+          (1 - \exp(-Re_y /s))^p W(Re_y \kappa E) / \kappa
     \f]
 
     Usage:
@@ -34,7 +35,9 @@ Class
     {
         type      CaiSagaut;
         kappa     value; (default 0.4)
-        B        value; (default 5.5)
+        B         value; (default 5.5)
+        p         value; (default 1.138)
+        s         value; (default 217.8)
     }
     \endverbatim
 
@@ -50,17 +53,17 @@ Contributors/Copyright:
 
 
 SourceFiles
-    CaiSagautLawOfTheWall.C
+    CaiSagautExplicitLawOfTheWall.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef CaiSagautLawOfTheWall_H
-#define CaiSagautLawOfTheWall_H
+#ifndef CaiSagautExplicitLawOfTheWall_H
+#define CaiSagautExplicitLawOfTheWall_H
 
 #include "scalar.H"
 #include "typeInfo.H"
 #include "dictionary.H"
-#include "LawOfTheWall.H"
+#include "ExplicitLawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -68,10 +71,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class CaiSagautLawOfTheWall Declaration
+                    Class CaiSagautExplicitLawOfTheWall Declaration
 \*---------------------------------------------------------------------------*/
 
-class CaiSagautLawOfTheWall: public LawOfTheWall
+class CaiSagautExplicitLawOfTheWall: public ExplicitLawOfTheWall
 {
 
     // Private data
@@ -82,6 +85,12 @@ class CaiSagautLawOfTheWall: public LawOfTheWall
         //- The B model constant
         scalar B_;
 
+        //- The p model constant
+        scalar p_;
+
+        //- The s model constant
+        scalar s_;
+
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
@@ -91,59 +100,73 @@ public:
     // Constructors
 
         //- Construct provided dictionary
-        CaiSagautLawOfTheWall(const dictionary &);
+        CaiSagautExplicitLawOfTheWall(const dictionary &);
 
         //- Construct provided TypeName and dictionary
-        CaiSagautLawOfTheWall
+        CaiSagautExplicitLawOfTheWall
         (
             const word & lawname,
             const dictionary &
         );
 
         //- Construct from model constants
-        CaiSagautLawOfTheWall
+        CaiSagautExplicitLawOfTheWall
         (
             const scalar kappa,
-            const scalar B
+            const scalar B,
+            const scalar p,
+            const scalar s
         );
 
 
         //- Copy constructor
-        CaiSagautLawOfTheWall
+        CaiSagautExplicitLawOfTheWall
         (
-            const CaiSagautLawOfTheWall &
+            const CaiSagautExplicitLawOfTheWall &
         ) = default;
 
         //- Assignment
-        CaiSagautLawOfTheWall & operator=
+        CaiSagautExplicitLawOfTheWall & operator=
         (
-            const CaiSagautLawOfTheWall &
+            const CaiSagautExplicitLawOfTheWall &
         ) = default;
 
         //- Clone
-        virtual autoPtr<LawOfTheWall> clone() const override
+        virtual autoPtr<ExplicitLawOfTheWall> clone() const override
         {
-            return autoPtr<LawOfTheWall>
+            return autoPtr<ExplicitLawOfTheWall>
             (
-                new CaiSagautLawOfTheWall(*this)
+                new CaiSagautExplicitLawOfTheWall(*this)
             );
         }
 
     // Destructor
-        virtual ~CaiSagautLawOfTheWall() {};
+        virtual ~CaiSagautExplicitLawOfTheWall() {};
 
     // Member Functions
 
-        //- Return the kappa constant
+        // Return kappa
         scalar kappa() const
         {
             return kappa_;
         }
 
-        //- Return the B1 constant
+        // Return B
         scalar B() const
         {
             return B_;
+        }
+
+        // Return j
+        scalar p() const
+        {
+            return p_;
+        }
+
+        // Return s
+        scalar s() const
+        {
+            return s_;
         }
 
 
@@ -151,39 +174,13 @@ public:
         virtual void printCoeffs() const override;
 
         //- Return the value of the implicit function defining the law
-        virtual scalar value
+        virtual scalar uTau
         (
             const SingleCellSampler & sampler,
             label index,
-            scalar uTau,
             scalar nu
         ) const override;
 
-        scalar value
-        (
-            scalar u,
-            scalar y,
-            scalar uTau,
-            scalar nu
-        ) const;
-
-        //- Return the value of the derivative of the implicit function
-        //  defining the law
-        virtual scalar derivative
-        (
-            const SingleCellSampler & sampler,
-            label index,
-            scalar uTau,
-            scalar nu
-        ) const override;
-
-        scalar derivative
-        (
-            scalar u,
-            scalar y,
-            scalar uTau,
-            scalar nu
-        ) const;
 };
 
 

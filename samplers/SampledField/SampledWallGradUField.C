@@ -78,8 +78,11 @@ Foam::SampledWallGradUField::sample
     const Foam::labelListList & indexListList
 ) const
 {
-    Info<< "Sampling wall-normal velocity gradient for patch "
-        << patch_.name() << nl;
+    if (debug)
+    {
+        Info<< "Sampling wall-normal velocity gradient for patch "
+            << patch_.name() << nl;
+    }
 
     label pI = patch().index();
 

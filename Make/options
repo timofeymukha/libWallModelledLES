@@ -26,12 +26,14 @@ $(COMPRESSIBLE_TRANSPORT_INC) \
 -IversionRules \
 -IrootFinding/RootFinder \
 -IlawsOfTheWall/LawOfTheWall \
+-IexplicitLawsOfTheWall/ExplicitLawOfTheWall \
 -IeddyViscosities/EddyViscosity \
 -Isamplers/Sampler \
 -Iindicators \
 -Ihelpers \
 -Isamplers/SampledField \
 -IcellFinders/CellFinder \
+-IwallModels \
 -IThirdParty/Adaptive-Integrator \
 -I$(LIB_SRC)/lagrangian/basic/lnInclude
 

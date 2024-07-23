@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
@@ -67,7 +67,7 @@ namespace Helpers
         );
 
         Field<Type> & field = tField.ref();
-        
+
         forAll(list, i)
         {
             Type element;
@@ -79,6 +79,13 @@ namespace Helpers
         }
         return tField;
     }
+
+    Foam::scalar gaussian(
+        const Foam::scalar scale,
+        const Foam::scalar mu,
+        const Foam::scalar sigma,
+        const Foam::scalar x
+    );
 
 } // End namespace Foam
 

@@ -4,4 +4,5 @@
 !/tests/testCases/channelFlow/system
 !/tests/testCases/channelFlow/constant
 !/tests/testCases/channelFlow/0
+/tests/testCases/channelFlow/0.05
 logs

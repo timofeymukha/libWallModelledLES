@@ -18,37 +18,45 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CaiSagautLawOfTheWall.H"
+#include "ReichardtExplicitLawOfTheWall.H"
 #include "dictionary.H"
 #include "error.H"
 #include "addToRunTimeSelectionTable.H"
 #include "scalarListIOList.H"
 #include "SingleCellSampler.H"
 #include <boost/math/special_functions/lambert_w.hpp>
+#include "helpers.H"
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
-    defineTypeNameAndDebug(CaiSagautLawOfTheWall, 0);
-    addToRunTimeSelectionTable(LawOfTheWall, CaiSagautLawOfTheWall, Dictionary);
-    addToRunTimeSelectionTable(LawOfTheWall, CaiSagautLawOfTheWall, TypeAndDictionary);
+    defineTypeNameAndDebug(ReichardtExplicitLawOfTheWall, 0);
+    addToRunTimeSelectionTable(ExplicitLawOfTheWall, ReichardtExplicitLawOfTheWall, Dictionary);
+    addToRunTimeSelectionTable(ExplicitLawOfTheWall, ReichardtExplicitLawOfTheWall, TypeAndDictionary);
 }
 #endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::CaiSagautLawOfTheWall::CaiSagautLawOfTheWall
+Foam::ReichardtExplicitLawOfTheWall::ReichardtExplicitLawOfTheWall
 (
     const scalar kappa,
-    const scalar B
+    const scalar B1,
+    const scalar B2,
+    const scalar C
 )
 :
-    LawOfTheWall(),
+    ExplicitLawOfTheWall(),
     kappa_(kappa),
-    B_(B)
+    B1_(B1),
+    B2_(B2),
+    C_(C),
+    CaiSagaut_(kappa, C + Foam::log(kappa)/kappa, 1.24115752, 117.36295084)
 {
     constDict_.add("kappa", kappa);
-    constDict_.add("B", B);
+    constDict_.add("B1", B1);
+    constDict_.add("B2", B2);
+    constDict_.add("C", C);
 
     if (debug)
     {
@@ -57,103 +65,75 @@ Foam::CaiSagautLawOfTheWall::CaiSagautLawOfTheWall
 
 }
 
-Foam::CaiSagautLawOfTheWall::CaiSagautLawOfTheWall
+Foam::ReichardtExplicitLawOfTheWall::ReichardtExplicitLawOfTheWall
 (
     const dictionary & dict
 )
 :
-    LawOfTheWall(dict),
+    ExplicitLawOfTheWall(dict),
     kappa_(constDict_.lookupOrAddDefault<scalar>("kappa", 0.4)),
-    B_(constDict_.lookupOrAddDefault<scalar>("B", 5.5))
+    B1_(constDict_.lookupOrAddDefault<scalar>("B1", 11)),
+    B2_(constDict_.lookupOrAddDefault<scalar>("B2", 3)),
+    C_(constDict_.lookupOrAddDefault<scalar>("C", 7.8)),
+    CaiSagaut_(kappa_, C_ + Foam::log(kappa_)/kappa_, 1.24115752, 117.36295084)
+
 {
     if (debug)
     {
         printCoeffs();
     }
-
 }
 
-Foam::CaiSagautLawOfTheWall::CaiSagautLawOfTheWall
+Foam::ReichardtExplicitLawOfTheWall::ReichardtExplicitLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict
 )
 :
-    CaiSagautLawOfTheWall(dict)
+    ReichardtExplicitLawOfTheWall(dict)
 {
 }
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::CaiSagautLawOfTheWall::printCoeffs() const
+void Foam::ReichardtExplicitLawOfTheWall::printCoeffs() const
 {
-    Info<< nl << "CaiSagaut law of the wall" << nl;
+    Info<< nl << "Reichardt law of the wall" << nl;
     Info<< token::BEGIN_BLOCK << incrIndent << nl;
     Info<< indent << "kappa" << indent << kappa_ << nl;
-    Info<< indent << "B" << indent <<  B_ << nl;
+    Info<< indent << "B1" << indent <<  B1_ << nl;
+    Info<< indent << "B2" << indent <<  B2_ << nl;
+    Info<< indent << "C" << indent <<  C_ << nl;
     Info<< token::END_BLOCK << nl << nl;
 }
 
 
-Foam::scalar Foam::CaiSagautLawOfTheWall::value
+Foam::scalar Foam::ReichardtExplicitLawOfTheWall::uTau
 (
     const SingleCellSampler & sampler,
     label index,
-    scalar uTau,
     scalar nu
 ) const
 {
     const scalarListIOList & U = sampler.db().lookupObject<scalarListIOList>("U");
-    scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
-    scalar y = sampler.h()[index];
-
-    return value(u, y, uTau, nu);
-}
-
-Foam::scalar Foam::CaiSagautLawOfTheWall::value
-(
-    scalar u,
-    scalar y,
-    scalar uTau,
-    scalar nu
-) const
-{
-    const scalar p = 1.138;
-    const scalar s = 217.8;
+    const scalar u = mag(vector(U[index][0], U[index][1], U[index][2]));
+    const scalar y = sampler.h()[index];
     const scalar re = u * y / nu;
-    const scalar f = exp(-re / s);
-    const scalar E = exp(kappa_ * B_);
 
-    scalar uPlus = Foam::pow(f, p) * Foam::sqrt(re) ;
-    uPlus += Foam::pow(1 - f, p) / kappa_ * boost::math::lambert_w0(kappa_*E*re);
+    scalar uPlus = CaiSagaut_.uTau(sampler, index, nu);
+    uPlus += Helpers::gaussian(2.21217354, 0.51791062, -0.17108678, Foam::log10(re));
+    uPlus += Helpers::gaussian(2.16739418, 0.88976565, 0.22467868, Foam::log10(re));
+    uPlus += Helpers::gaussian(2.99178237, 0.20894151, 0.02020086, Foam::log10(re));
 
-    return uTau - u / (uPlus + VSMALL);
-}
-
-
-Foam::scalar Foam::CaiSagautLawOfTheWall::derivative
-(
-    const SingleCellSampler & sampler,
-    label index,
-    scalar uTau,
-    scalar nu
-) const
-{
-    return 1.0;
-}
+    Info << CaiSagaut_.B() << nl;
 
 
-Foam::scalar Foam::CaiSagautLawOfTheWall::derivative
-(
-    scalar u,
-    scalar y,
-    scalar uTau,
-    scalar nu
-) const
-{
+//    scalar uPlus = Foam::pow(f, p_) * Foam::sqrt(re) ;
+//    uPlus += Foam::pow(1 - f, p_) / kappa_ * boost::math::lambert_w0(kappa_*E*re);
 
-    return 1;
+    return u / uPlus;
+
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

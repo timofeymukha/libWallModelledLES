@@ -18,30 +18,30 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "MulticellLOTWWallModelFvPatchScalarField.H"
+#include "ExplicitLOTWWallModelFvPatchScalarField.H"
 #include "fvPatchFieldMapper.H"
 #include "addToRunTimeSelectionTable.H"
 #include "codeRules.H"
 #include "scalarListIOList.H"
 #include "helpers.H"
-#include "IntegratedReichardtLawOfTheWall.H"
+#include "ExplicitLawOfTheWall.H"
 #include "RootFinder.H"
-#include "MultiCellSampler.H"
+#include "SingleCellSampler.H"
+#include "Indicator.H"
 
 using namespace std::placeholders;
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
-void Foam::MulticellLOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
+void Foam::ExplicitLOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
     wallModelFvPatchScalarField::writeLocalEntries(os);
-    rootFinder_->write(os);
     law_->write(os);
     sampler_->write(os);
 }
 
 Foam::tmp<Foam::scalarField>
-Foam::MulticellLOTWWallModelFvPatchScalarField::calcNut() const
+Foam::ExplicitLOTWWallModelFvPatchScalarField::calcNut() const
 {
     if (debug)
     {
@@ -49,42 +49,40 @@ Foam::MulticellLOTWWallModelFvPatchScalarField::calcNut() const
     }
 
     const label patchi = patch().index();
+    const labelList & indexList = sampler().indexList();
 
-    const auto & nuField = db().lookupObject<volScalarField>("nu");
+    // Grab indicator field
+    const auto & indicatorField =
+        db().lookupObject<volScalarField>("wmlesIndicator");
 
-    // Velocity and viscosity on boundary
-    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
+    Indicator indicator(patch());
+    indicator.compute(this->nu(), indexList);
 
-    const auto & wallGradUField =
-        db().lookupObject<volVectorField>("wallGradU");
+    const scalarField & patchIndicator = indicatorField.boundaryField()[patchi];
 
-    const vectorField & wallGradU =
-        wallGradUField.boundaryField()[patch().index()];
+    tmp<scalarField> nuw = this->nu(patchi);
 
-//    const scalarListIOList & wallGradU =
-//        sampler_->db().lookupObject<scalarListIOList>("wallGradU");
+    const scalarListIOList & wallGradU =
+        sampler_->db().lookupObject<scalarListIOList>("wallGradU");
 
-//    scalarField magGradU(Helpers::mag(wallGradU));
-    scalarField magGradU(mag(wallGradU));
+    scalarField magGradU(Helpers::mag(wallGradU));
 
     return max
     (
         scalar(0),
-        sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw
+        (sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw) * patchIndicator
     );
 }
 
 Foam::tmp<Foam::scalarField>
-Foam::MulticellLOTWWallModelFvPatchScalarField::
+Foam::ExplicitLOTWWallModelFvPatchScalarField::
 calcUTau(const scalarField & magGradU) const
 {
     const label patchi = patch().index();
     const label patchSize = patch().size();
 
-    const volScalarField & nuField = db().lookupObject<volScalarField>("nu");
-
-    // Velocity and viscosity on boundary
-    const fvPatchScalarField & nuw = nuField.boundaryField()[patchi];
+    tmp<scalarField> tnuw = this->nu(patchi);
+    const scalarField& nuw = tnuw();
 
     // Turbulent viscosity
     const scalarField & nutw = *this;
@@ -105,22 +103,23 @@ calcUTau(const scalarField & magGradU) const
         );
 
     // Compute uTau for each face
-    const scalarListListIOList & sampledU =
-        sampler_().db().lookupObject<scalarListListIOList>("U");
+    const scalarListIOList & sampledU =
+        sampler_().db().lookupObject<scalarListIOList>("U");
+
     forAll(uTau, faceI)
     {
         // Starting guess using old values
-        scalar ut = sqrt((nuw[faceI] + nutw[faceI])*magGradU[faceI]);
-
-        label ny = sampledU[faceI].size();
+        scalar ut = sqrt((nuw[faceI] + nutw[faceI]) * magGradU[faceI]);
 
         if (ut > ROOTVSMALL)
         {
             scalar sampledUI = mag(vector(
-                sampledU[faceI][ny - 1][0],
-                sampledU[faceI][ny - 1][1],
-                sampledU[faceI][ny - 1][2])
+                sampledU[faceI][0],
+                sampledU[faceI][1],
+                sampledU[faceI][2])
             );
+
+            scalar nuwI = nuw[faceI];
 
             // Solution corresponding to nut = 0
             // Since nut is strictly positive, we cannot predict a lower stress
@@ -137,24 +136,9 @@ calcUTau(const scalarField & magGradU) const
                 lowerBound = SMALL;
             }
 
-            // Construct functions dependant on a single parameter (uTau)
-            // from functions given by the law of the wall
-            value =
-                std::bind(&IntegratedReichardtLawOfTheWall::valueMulticell,
-                &law_(), std::ref(sampler_()), faceI, _1, nuw[faceI]);
-
-            derivValue =
-                std::bind(&IntegratedReichardtLawOfTheWall::derivativeMulticell,
-                          &law_(), std::ref(sampler_()), faceI, _1, nuw[faceI]);
-
-            // Supply the functions to the root finder
-            const_cast<RootFinder &>(rootFinder_()).setFunction(value);
-            const_cast<RootFinder &>(rootFinder_()).setDerivative(derivValue);
-
             // Compute root to get uTau
             uTau[faceI] =
-                max(0.0, rootFinder_->root(ut, lowerBound, upperBound));
-
+                max(0.0, law_().uTau(sampler_(), faceI, nuwI));
         }
     }
 
@@ -166,52 +150,54 @@ calcUTau(const scalarField & magGradU) const
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::MulticellLOTWWallModelFvPatchScalarField::
-MulticellLOTWWallModelFvPatchScalarField
+Foam::ExplicitLOTWWallModelFvPatchScalarField::
+ExplicitLOTWWallModelFvPatchScalarField
 (
     const fvPatch & p,
     const DimensionedField<scalar, volMesh> & iF
 )
 :
     wallModelFvPatchScalarField(p, iF),
-    rootFinder_(),
     law_(),
     sampler_(nullptr)
 {
     if (debug)
     {
-        Info<< "Constructing MulticellLOTWwallModelFvPatchScalarField (lotw1) "
+        Info<< "Constructing ExplicitLOTWwallModelFvPatchScalarField (lotw1) "
             << "from fvPatch and DimensionedField for patch " << patch().name()
             <<  nl;
     }
 }
 
 
-Foam::MulticellLOTWWallModelFvPatchScalarField::
-MulticellLOTWWallModelFvPatchScalarField
+Foam::ExplicitLOTWWallModelFvPatchScalarField::
+ExplicitLOTWWallModelFvPatchScalarField
 (
-    const MulticellLOTWWallModelFvPatchScalarField & orig,
+    const ExplicitLOTWWallModelFvPatchScalarField & orig,
     const fvPatch & p,
     const DimensionedField<scalar, volMesh> & iF,
     const fvPatchFieldMapper & mapper
 )
 :
     wallModelFvPatchScalarField(orig, p, iF, mapper),
-    rootFinder_(orig.rootFinder_.clone()),
-    law_(new IntegratedReichardtLawOfTheWall()),
-    sampler_(new MultiCellSampler(orig.sampler()))
+#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
+    law_(orig.law_.clone()),
+#else
+    law_(orig.law_, false),
+#endif
+    sampler_(new SingleCellSampler(orig.sampler()))
 {
     if (debug)
     {
-        Info<< "Constructing MulticellLOTWWallModelFvPatchScalarField (lotw2) "
+        Info<< "Constructing ExplicitLOTWWallModelFvPatchScalarField (lotw2) "
             << "from copy, fvPatch, DimensionedField, and fvPatchFieldMapper"
             << " for patch " << patch().name() << nl;
     }
     law_->addFieldsToSampler(sampler());
 }
 
-Foam::MulticellLOTWWallModelFvPatchScalarField::
-MulticellLOTWWallModelFvPatchScalarField
+Foam::ExplicitLOTWWallModelFvPatchScalarField::
+ExplicitLOTWWallModelFvPatchScalarField
 (
     const fvPatch & p,
     const DimensionedField<scalar, volMesh> & iF,
@@ -219,25 +205,23 @@ MulticellLOTWWallModelFvPatchScalarField
 )
 :
     wallModelFvPatchScalarField(p, iF, dict),
-    rootFinder_(RootFinder::New(dict.subDict("RootFinder"))),
-    law_(new IntegratedReichardtLawOfTheWall()),
+    law_(ExplicitLawOfTheWall::New(dict.subDict("Law"))),
     sampler_
     (
-        new MultiCellSampler
+        new SingleCellSampler
         (
             p,
             averagingTime(),
             dict.lookupOrDefault<word>("interpolationType", "cell"),
             dict.lookupOrDefault<word>("sampler", "Tree"),
             dict.lookupOrDefault<word>("lengthScale", "CubeRootVol"),
-            dict.lookupOrDefault<bool>("hIsIndex", false),
-            dict.lookupOrDefault<bool>("excludeAdjacent", false)
+            dict.lookupOrDefault<bool>("hIsIndex", false)
         )
     )
 {
     if (debug)
     {
-        Info<< "Constructing MulticellLOTWWallModelFvPatchScalarField (lotw3) "
+        Info<< "Constructing ExplicitLOTWWallModelFvPatchScalarField (lotw3) "
             << "from fvPatch, DimensionedField, and dictionary for patch "
             << patch().name() << nl;
     }
@@ -247,20 +231,23 @@ MulticellLOTWWallModelFvPatchScalarField
 
 #ifdef FOAM_FVPATCHFIELD_NO_COPY
 #else
-Foam::MulticellLOTWWallModelFvPatchScalarField::
-MulticellLOTWWallModelFvPatchScalarField
+Foam::ExplicitLOTWWallModelFvPatchScalarField::
+ExplicitLOTWWallModelFvPatchScalarField
 (
-    const MulticellLOTWWallModelFvPatchScalarField & orig
+    const ExplicitLOTWWallModelFvPatchScalarField & orig
 )
 :
     wallModelFvPatchScalarField(orig),
-    rootFinder_(orig.rootFinder_.clone()),
-    law_(new IntegratedReichardtLawOfTheWall()),
-    sampler_(new MultiCellSampler(orig.sampler_()))
+#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
+    law_(orig.law_.clone()),
+#else
+    law_(orig.law_, false),
+#endif
+    sampler_(new SingleCellSampler(orig.sampler_()))
 {
     if (debug)
     {
-        Info<< "Constructing MulticellLOTWWallModelFvPatchScalarField (lotw4)"
+        Info<< "Constructing ExplicitLOTWWallModelFvPatchScalarField (lotw4)"
             << "from copy for patch " << patch().name() << nl;
     }
     law_->addFieldsToSampler(sampler());
@@ -268,22 +255,25 @@ MulticellLOTWWallModelFvPatchScalarField
 #endif
 
 
-Foam::MulticellLOTWWallModelFvPatchScalarField::
-MulticellLOTWWallModelFvPatchScalarField
+Foam::ExplicitLOTWWallModelFvPatchScalarField::
+ExplicitLOTWWallModelFvPatchScalarField
 (
-    const MulticellLOTWWallModelFvPatchScalarField & orig,
+    const ExplicitLOTWWallModelFvPatchScalarField & orig,
     const DimensionedField<scalar, volMesh> & iF
 )
 :
     wallModelFvPatchScalarField(orig, iF),
-    rootFinder_(orig.rootFinder_.clone()),
-    law_(new IntegratedReichardtLawOfTheWall()),
-    sampler_(new MultiCellSampler(orig.sampler_()))
+#ifdef FOAM_AUTOPTR_HAS_CLONE_METHOD
+    law_(orig.law_.clone()),
+#else
+    law_(orig.law_, false),
+#endif
+    sampler_(new SingleCellSampler(orig.sampler_()))
 {
 
     if (debug)
     {
-        Info<< "Constructing MulticellLOTWModelFvPatchScalarField (lotw5) "
+        Info<< "Constructing ExplicitLOTWModelFvPatchScalarField (lotw5) "
             << "from copy and DimensionedField for patch " << patch().name()
             << nl;
     }
@@ -292,13 +282,13 @@ MulticellLOTWWallModelFvPatchScalarField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::MulticellLOTWWallModelFvPatchScalarField::write(Ostream& os) const
+void Foam::ExplicitLOTWWallModelFvPatchScalarField::write(Ostream& os) const
 {
     wallModelFvPatchScalarField::write(os);
 }
 
 
-void Foam::MulticellLOTWWallModelFvPatchScalarField::updateCoeffs()
+void Foam::ExplicitLOTWWallModelFvPatchScalarField::updateCoeffs()
 {
     if (updated())
     {
@@ -307,7 +297,6 @@ void Foam::MulticellLOTWWallModelFvPatchScalarField::updateCoeffs()
 
     sampler().recomputeFields();
     sampler().sample();
-
     wallModelFvPatchScalarField::updateCoeffs();
 }
 
@@ -319,7 +308,7 @@ namespace Foam
     makePatchTypeField
     (
         fvPatchScalarField,
-        MulticellLOTWWallModelFvPatchScalarField
+        ExplicitLOTWWallModelFvPatchScalarField
     );
 }
 #endif
