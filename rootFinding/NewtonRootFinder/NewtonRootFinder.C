@@ -42,16 +42,18 @@ typedef policy<
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar Foam::NewtonRootFinder::root(
+std::pair<Foam::scalar, Foam::label> Foam::NewtonRootFinder::root(
     scalar guess,
     scalar lowerBound,
     scalar upperBound
 ) const
 {
 
-    auto funcTuple = [this](scalar uTau)
+    label iterations = 0;
+    auto funcTuple = [this, &iterations](scalar uTau)
     {
-        return std::make_tuple(this->f_(uTau), this->d_(uTau));
+        iterations++;
+        return std::make_pair(this->f_(uTau), this->d_(uTau));
     };
 
     auto maxIter = static_cast<boost::uintmax_t>(maxIter_);
@@ -65,13 +67,15 @@ Foam::scalar Foam::NewtonRootFinder::root(
         maxIter
     );
 
+    Info << iterations << nl;
+
     if (debug)
     {
         WarningIn("Foam::NewtonRootFinder::root()")
             << "The method did not converge to desired tolerance." << nl;
     }
 
-    return result;
+    return std::make_pair(result, iterations);
 }
 
 // ************************************************************************* //

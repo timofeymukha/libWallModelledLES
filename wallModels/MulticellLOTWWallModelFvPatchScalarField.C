@@ -153,7 +153,7 @@ calcUTau(const scalarField & magGradU) const
 
             // Compute root to get uTau
             uTau[faceI] =
-                max(0.0, rootFinder_->root(ut, lowerBound, upperBound));
+                max(0.0, rootFinder_->root(ut, lowerBound, upperBound).first);
 
         }
     }

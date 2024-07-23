@@ -43,7 +43,7 @@ typedef policy<
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar Foam::TOMS748RootFinder::root(
+std::pair<Foam::scalar, Foam::label> Foam::TOMS748RootFinder::root(
     scalar guess,
     scalar lowerBound,
     scalar upperBound
@@ -53,10 +53,17 @@ Foam::scalar Foam::TOMS748RootFinder::root(
     auto maxIter = static_cast<boost::uintmax_t>(maxIter_);
     eps_tolerance<scalar> tol(getDigits_);
 
-    std::pair<scalar, scalar> result =
-        toms748_solve(f_, lowerBound, upperBound, tol, maxIter, myPolicy());
+    label iterations = 0;
+    auto wrapper = [this, &iterations](scalar uTau)
+    {
+        iterations++;
+        return f_(uTau);
+    };
 
-    return 0.5*(result.first + result.second);
+    std::pair<scalar, scalar> result =
+        toms748_solve(wrapper, lowerBound, upperBound, tol, maxIter, myPolicy());
+
+    return std::make_pair(0.5*(result.first + result.second), iterations);
 }
 
 // ************************************************************************* //

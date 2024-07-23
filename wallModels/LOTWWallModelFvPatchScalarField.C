@@ -92,6 +92,10 @@ calcUTau(const scalarField & magGradU) const
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     scalarField & uTau = tuTau.ref();
 
+    // Iterations of the non-linear solver
+    tmp<scalarField> tIterations(new scalarField(patchSize, 0));
+    scalarField & iterations = tIterations.ref();
+
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
     std::function<scalar(scalar)> derivValue;
@@ -101,6 +105,13 @@ calcUTau(const scalarField & magGradU) const
         const_cast<volScalarField &>
         (
             db().lookupObject<volScalarField>("uTauPredicted")
+        );
+
+    // Grab iterations field
+    auto & iterationsField =
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("solverIterations")
         );
 
     // Compute uTau for each face
@@ -162,14 +173,18 @@ calcUTau(const scalarField & magGradU) const
             const_cast<RootFinder &>(rootFinder_()).setFunction(func);
             const_cast<RootFinder &>(rootFinder_()).setDerivative(deriv);
 
+            std::pair<scalar, label> sol =
+                 rootFinder_->root(ut, lowerBound, upperBound);
+
             // Compute root to get uTau
-            uTau[faceI] =
-                max(0.0, rootFinder_->root(ut, lowerBound, upperBound));
+            uTau[faceI] = max(0.0, sol.first);
+            iterations[faceI] = sol.second;
         }
     }
 
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryFieldRef()[patchi] == uTau;
+    iterationsField.boundaryFieldRef()[patchi] == iterations;
     return tuTau;
 }
 
@@ -193,6 +208,27 @@ LOTWWallModelFvPatchScalarField
         Info<< "Constructing LOTWwallModelFvPatchScalarField (lotw1) "
             << "from fvPatch and DimensionedField for patch " << patch().name()
             <<  nl;
+    }
+
+    if (!db().found("NewtonIterations"))
+    {
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "solverIterations",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                scalar(0),
+                dimless
+            )
+        );
     }
 }
 
@@ -256,6 +292,27 @@ LOTWWallModelFvPatchScalarField
             << patch().name() << nl;
     }
     law_->addFieldsToSampler(sampler());
+
+    if (!db().found("NewtonIterations"))
+    {
+        db().store
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "solverIterations",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                scalar(0),
+                dimless
+            )
+        );
+    }
 }
 
 

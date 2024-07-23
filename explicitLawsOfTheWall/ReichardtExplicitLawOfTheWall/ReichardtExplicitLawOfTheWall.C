@@ -126,12 +126,6 @@ Foam::scalar Foam::ReichardtExplicitLawOfTheWall::uTau
     uPlus += Helpers::gaussian(2.16739418, 0.88976565, 0.22467868, Foam::log10(re));
     uPlus += Helpers::gaussian(2.99178237, 0.20894151, 0.02020086, Foam::log10(re));
 
-    Info << CaiSagaut_.B() << nl;
-
-
-//    scalar uPlus = Foam::pow(f, p_) * Foam::sqrt(re) ;
-//    uPlus += Foam::pow(1 - f, p_) / kappa_ * boost::math::lambert_w0(kappa_*E*re);
-
     return u / uPlus;
 
 }

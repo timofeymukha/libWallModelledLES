@@ -124,7 +124,12 @@ public:
     // Member Functions
 
         //- Compute and return root
-        scalar root(scalar guess, scalar lowerBound, scalar upperBound) const;
+        std::pair<scalar, label> root
+        (
+            scalar guess,
+            scalar lowerBound,
+            scalar upperBound
+        ) const;
 
         //- Write
         virtual void write(Ostream& os) const

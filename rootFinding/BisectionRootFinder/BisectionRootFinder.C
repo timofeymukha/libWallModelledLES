@@ -71,7 +71,7 @@ Foam::BisectionRootFinder::BisectionRootFinder
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 // This one probably needs some work
-Foam::scalar Foam::BisectionRootFinder::root
+std::pair<Foam::scalar, Foam::label> Foam::BisectionRootFinder::root
 (
     scalar guess,
     scalar lowerBound,
@@ -110,7 +110,7 @@ Foam::scalar Foam::BisectionRootFinder::root
 
        if ( (fC < SMALL) && (0.5*(b - a) < 1e-3) )
        {
-           return c;
+           return std::make_pair(c, i);
        }
        i++;
 
@@ -135,7 +135,7 @@ Foam::scalar Foam::BisectionRootFinder::root
         )   << "Maximum number of iterations exceeded";
     }
 
-   return c;
+   return std::make_pair(c, i);
 }
 
 

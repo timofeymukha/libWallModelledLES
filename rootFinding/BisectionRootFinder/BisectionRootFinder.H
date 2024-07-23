@@ -42,7 +42,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2016-2018 Timofey Mukha
+    2016-2024 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -128,8 +128,13 @@ public:
             return bracket_;
         }
 
-        //- Return root
-        scalar root(scalar guess, scalar lowerBound, scalar upperBound) const;
+        //- Compute and return root
+        std::pair<scalar, label> root
+        (
+            scalar guess,
+            scalar lowerBound,
+            scalar upperBound
+        ) const;
 
         //- Write parameters to stream
         virtual void write(Ostream& os) const

@@ -149,7 +149,7 @@ public:
     // Member Functions
 
         //- Return root
-        virtual scalar root(scalar, scalar, scalar) const = 0;
+        virtual std::pair<scalar, label> root(scalar, scalar, scalar) const = 0;
 
         //- Set the implicit function defining the equation
         void setFunction(std::function<scalar(scalar)> f)
