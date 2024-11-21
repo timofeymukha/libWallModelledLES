@@ -51,7 +51,7 @@ Foam::ReichardtExplicitLawOfTheWall::ReichardtExplicitLawOfTheWall
     B1_(B1),
     B2_(B2),
     C_(C),
-    CaiSagaut_(kappa, C + Foam::log(kappa)/kappa, 1.24115752, 117.36295084)
+    CaiSagaut_(kappa_, C_ + Foam::log(kappa_)/kappa_, 1.24852589e+00, 1.34278368e+02)
 {
     constDict_.add("kappa", kappa);
     constDict_.add("B1", B1);
@@ -75,7 +75,7 @@ Foam::ReichardtExplicitLawOfTheWall::ReichardtExplicitLawOfTheWall
     B1_(constDict_.lookupOrAddDefault<scalar>("B1", 11)),
     B2_(constDict_.lookupOrAddDefault<scalar>("B2", 3)),
     C_(constDict_.lookupOrAddDefault<scalar>("C", 7.8)),
-    CaiSagaut_(kappa_, C_ + Foam::log(kappa_)/kappa_, 1.24115752, 117.36295084)
+    CaiSagaut_(kappa_, C_ + Foam::log(kappa_)/kappa_, 1.24852589e+00, 1.34278368e+02)
 
 {
     if (debug)
@@ -121,10 +121,10 @@ Foam::scalar Foam::ReichardtExplicitLawOfTheWall::uTau
     const scalar y = sampler.h()[index];
     const scalar re = u * y / nu;
 
-    scalar uPlus = CaiSagaut_.uTau(sampler, index, nu);
-    uPlus += Helpers::gaussian(2.21217354, 0.51791062, -0.17108678, Foam::log10(re));
-    uPlus += Helpers::gaussian(2.16739418, 0.88976565, 0.22467868, Foam::log10(re));
-    uPlus += Helpers::gaussian(2.99178237, 0.20894151, 0.02020086, Foam::log10(re));
+    scalar uPlus = u / CaiSagaut_.uTau(sampler, index, nu);
+    uPlus += Helpers::gaussian(1.11225348e+00, 6.19082579e-01, -2.92553754e-03, Foam::log10(re));
+    uPlus += Helpers::gaussian(2.38372657e+00, 2.38238821e+00,  1.33891323e-01, Foam::log10(re));
+    uPlus += Helpers::gaussian(2.39499352e+00, 8.36537522e-01,  7.94324847e-02, Foam::log10(re));
 
     return u / uPlus;
 
