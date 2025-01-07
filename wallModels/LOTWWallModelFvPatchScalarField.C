@@ -28,9 +28,6 @@ License
 #include "RootFinder.H"
 #include "SingleCellSampler.H"
 #include "Indicator.H"
-#include "ReichardtExplicitLawOfTheWall.H"
-#include "SpaldingExplicitLawOfTheWall.H"
-#include "CaiSagautExplicitLawOfTheWall.H"
 
 using namespace std::placeholders;
 
@@ -136,11 +133,6 @@ calcUTau(const scalarField & magGradU) const
     const scalarListIOList & sampledU =
         sampler_().db().lookupObject<scalarListIOList>("U");
 
-    ReichardtExplicitLawOfTheWall explicitRH(0.387, 11, 3, 6.66305061);
-    SpaldingExplicitLawOfTheWall explicitSP(0.387, 4.21);
-    CaiSagautExplicitLawOfTheWall explicitCS(0.387, 4.21, 1.24852589, 134.27);
-
-
     const scalarListIOList & samplerU =
         sampler_().db().lookupObject<scalarListIOList>("U");
 
@@ -148,15 +140,12 @@ calcUTau(const scalarField & magGradU) const
     {
         scalar ut = sqrt((nuw[faceI] + nutw[faceI]) * magGradU[faceI]);
         scalar ut_lin = ut;
+
         // Starting guess using old values
         if (wallModellingInfo[faceI][0] > VSMALL)
         {
-
- //           Pout << "USING LAST TIMESTEP " << wallModellingInfo[faceI][0] << nl;
             ut = sqrt(wallModellingInfo[faceI][0]);
         }
-
-        wallModellingInfo[faceI] = tensor(0,0,0,0,0,0,0,0,0);
 
         if (ut > ROOTVSMALL)
         {
@@ -210,36 +199,8 @@ calcUTau(const scalarField & magGradU) const
             std::pair<scalar, label> sol =
                  rootFinder_->root(ut, VSMALL, upperBound);
 
-            wallModellingInfo[faceI][0] = sqr(sol.first);
-            iterations[faceI][0] = sol.second;
-
-            // Guess from explicit RH
-            scalar ut_rh = explicitRH.uTau(sampler_, faceI, nuwI);
-            // Guess from explicit Sp
-            scalar ut_sp = explicitSP.uTau(sampler_, faceI, nuwI);
-
-            sol = rootFinder_->root(ut_sp, VSMALL, upperBound);
-
-
-            wallModellingInfo[faceI][1] = sqr(sol.first);
-            wallModellingInfo[faceI][2] = (wallModellingInfo[faceI][0] - sqr(ut_sp)) / wallModellingInfo[faceI][0] * 100;
-
-//            Pout << wallModellingInfo[faceI][0] << " " << sqr(ut_sp) << " "  << sqr(ut) << " " << sqr(ut_lin) << " " << iterations[faceI][0] << " " << sol.second << " " << wallModellingInfo[faceI][2] << nl;
-
-            const scalar Ui =
-                mag(vector(samplerU[faceI][0], samplerU[faceI][1], samplerU[faceI][2]));
-            const scalar yi = sampler_().h()[faceI];
-            const scalar re_y = Ui * yi / nuwI;
-
-            wallModellingInfo[faceI][5] = Ui / sol.first;
-            wallModellingInfo[faceI][6] = yi * sol.first / nuwI;
-            wallModellingInfo[faceI][7] = re_y;
-
             // Compute root to get uTau
             uTau[faceI] = max(0.0, sol.first);
-            iterations[faceI][1] = sol.second;
-/*
-*/
 
         }
 
@@ -248,8 +209,6 @@ calcUTau(const scalarField & magGradU) const
 
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryFieldRef()[patchi] == uTau;
-    iterationsField.boundaryFieldRef()[patchi] == iterations;
-    wallModellingInfoField.boundaryFieldRef()[patchi] == wallModellingInfo;
     return tuTau;
 }
 
