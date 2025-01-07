@@ -17,35 +17,35 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::CaiSagautExplicitLawOfTheWall
+    Foam::SpaldingExplicitLawOfTheWall
 
 @brief
-    The explicit law of the wall proposed by Cai and Sagaut. This is "model 2"
-    in the paper. Uses the Lmabert W function to explicitly represent the
-    log-law.
+    An explicit approximation of Spalding's law.
 
     \f[
-    u^+ = \exp(-Re_y / s)^p \sqrt(Re_y) +
-          (1 - \exp(-Re_y /s))^p W(Re_y \kappa E) / \kappa
+    y^+ = u^+ +  \exp(-\kappa B) \left( \exp (\kappa B) - 1 - \kappa u^+ -
+             \frac{1}{2}(\kappa u^+)^2 - \frac{1}{6}(\kappa u^+)^3 \right)
     \f]
+
+    The approximation is constructed as a modification to the law of Cai
+    and Sagaut.
 
     Usage:
     \verbatim
     Law
     {
-        type      CaiSagaut;
+        type      ExplicitSpalding;
         kappa     value; (default 0.4)
-        B         value; (default 5.5)
-        p         value; (default 1.138)
-        s         value; (default 217.8)
+        B         value; (default 5)
     }
     \endverbatim
 
-    Reference:
+    Reference for the original law:
     \verbatim
-        Cai and Sagaut. (2021).
-        Explicit wall models for large eddy simulation
-        Physics of Fluids, 33 (4), 41703
+        Spalding, D. B. (1961).
+        A single formula for the 'law of the wall'.
+        Journal of Applied Mechanics,
+        28(3), 455-458.
     \endverbatim
 
 Contributors/Copyright:
@@ -53,17 +53,18 @@ Contributors/Copyright:
 
 
 SourceFiles
-    CaiSagautExplicitLawOfTheWall.C
+    SpaldingExplicitLawOfTheWall.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef CaiSagautExplicitLawOfTheWall_H
-#define CaiSagautExplicitLawOfTheWall_H
+#ifndef SpaldingExplicitLawOfTheWall_H
+#define SpaldingExplicitLawOfTheWall_H
 
 #include "scalar.H"
 #include "typeInfo.H"
 #include "dictionary.H"
 #include "ExplicitLawOfTheWall.H"
+#include "CaiSagautExplicitLawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -71,10 +72,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class CaiSagautExplicitLawOfTheWall Declaration
+                    Class SpaldingExplicitLawOfTheWall Declaration
 \*---------------------------------------------------------------------------*/
 
-class CaiSagautExplicitLawOfTheWall: public ExplicitLawOfTheWall
+class SpaldingExplicitLawOfTheWall: public ExplicitLawOfTheWall
 {
 
     // Private data
@@ -85,50 +86,44 @@ class CaiSagautExplicitLawOfTheWall: public ExplicitLawOfTheWall
         //- The B model constant
         scalar B_;
 
-        //- The p model constant
-        scalar p_;
-
-        //- The s model constant
-        scalar s_;
+        CaiSagautExplicitLawOfTheWall CaiSagaut_;
 
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-    TypeName("CaiSagaut");
+    TypeName("Spalding");
 #endif
 
     // Constructors
 
         //- Construct provided dictionary
-        CaiSagautExplicitLawOfTheWall(const dictionary &);
+        SpaldingExplicitLawOfTheWall(const dictionary &);
 
         //- Construct provided TypeName and dictionary
-        CaiSagautExplicitLawOfTheWall
+        SpaldingExplicitLawOfTheWall
         (
             const word & lawname,
             const dictionary &
         );
 
         //- Construct from model constants
-        CaiSagautExplicitLawOfTheWall
+        SpaldingExplicitLawOfTheWall
         (
             const scalar kappa,
-            const scalar B,
-            const scalar p,
-            const scalar s
+            const scalar B
         );
 
 
         //- Copy constructor
-        CaiSagautExplicitLawOfTheWall
+        SpaldingExplicitLawOfTheWall
         (
-            const CaiSagautExplicitLawOfTheWall &
+            const SpaldingExplicitLawOfTheWall &
         ) = default;
 
         //- Assignment
-        CaiSagautExplicitLawOfTheWall & operator=
+        SpaldingExplicitLawOfTheWall & operator=
         (
-            const CaiSagautExplicitLawOfTheWall &
+            const SpaldingExplicitLawOfTheWall &
         ) = default;
 
         //- Clone
@@ -136,45 +131,26 @@ public:
         {
             return autoPtr<ExplicitLawOfTheWall>
             (
-                new CaiSagautExplicitLawOfTheWall(*this)
+                new SpaldingExplicitLawOfTheWall(*this)
             );
         }
 
     // Destructor
-        virtual ~CaiSagautExplicitLawOfTheWall() {};
+        virtual ~SpaldingExplicitLawOfTheWall() {};
 
     // Member Functions
 
-        // Return kappa
+        //- Return the kappa constant
         scalar kappa() const
         {
             return kappa_;
         }
 
-        // Return B
+        //- Return the B constant
         scalar B() const
         {
             return B_;
         }
-
-        // Return j
-        scalar p() const
-        {
-            return p_;
-        }
-
-        // Return s
-        scalar s() const
-        {
-            return s_;
-        }
-        
-        // Set B
-        void set_B(const scalar B)
-        {
-            this->B_ = B;
-        }
-
 
         //- Print info to terminal
         virtual void printCoeffs() const override;

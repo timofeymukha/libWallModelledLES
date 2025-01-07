@@ -67,12 +67,6 @@ std::pair<Foam::scalar, Foam::label> Foam::NewtonRootFinder::root(
         maxIter
     );
 
-    if (debug)
-    {
-        WarningIn("Foam::NewtonRootFinder::root()")
-            << "The method did not converge to desired tolerance." << nl;
-    }
-
     return std::make_pair(result, iterations);
 }
 

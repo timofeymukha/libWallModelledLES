@@ -24,6 +24,7 @@ License
 #include "scalarListIOList.H"
 #include "helpers.H"
 #include "AdaptiveIntegrator.hpp"
+#include "EquilibriumODEExplicitLawOfTheWall.H"
 #include <functional>
 
 typedef std::function<Foam::scalar(const Foam::scalar)> IntegrandFunc;
@@ -108,6 +109,7 @@ Foam::ODEWallModelFvPatchScalarField::calcNut() const
     }
 
 
+
     const label patchi = patch().index();
 
     tmp<scalarField> nuw = this->nu(patchi);
@@ -133,8 +135,34 @@ calcUTau(const scalarField & magGradU) const
     const label patchi = patch().index();
     const label patchSize = patch().size();
 
+
     tmp<scalarField> tnuw = this->nu(patchi);
     const scalarField& nuw = tnuw();
+    
+    // Grab iterations field
+    auto & iterationsField =
+        const_cast<volVectorField &>
+        (
+            db().lookupObject<volVectorField>("solverIterations")
+        );
+
+    // Grab wm info
+    auto & wallModellingInfoField =
+        const_cast<volTensorField &>
+        (
+            db().lookupObject<volTensorField>("wallModellingInfo")
+        );
+    
+    // Iterations of the non-linear solver
+//    tmp<vectorField> tIterations(new vectorField(patchSize, vector(0,0,0)));
+//    vectorField & iterations = tIterations.ref();
+    vectorField iterations = vectorField(patchSize, vector(0,0,0));
+    iterations = vector(0, 0, 0);
+
+    // Store diagonstics stuff about explicit wall modelling
+    tmp<tensorField> twallModellingInfo(new  tensorField(patchSize));
+    tensorField & wallModellingInfo = twallModellingInfo.ref();
+    wallModellingInfo = wallModellingInfoField.boundaryFieldRef()[patchi];
 
     // vectorField for storing the source term
     vectorField sourceField(patchSize, vector(0, 0, 0));
@@ -160,21 +188,146 @@ calcUTau(const scalarField & magGradU) const
 
     AdaptiveIntegrator<scalar (scalar)> quad;
 
+    scalar kappa = 0.387;
+    scalar Aplus = 15.2516;
+
+    EquilibriumODEExplicitLawOfTheWall EqOde(kappa, Aplus);
+
+    if (patchSize)
+    {
+//        Pout << "Rrank " << Pstream::myProcNo() << " " << max(iterations) << endl;
+    }
+
 
     // Compute uTau for each face
     forAll(uTau, faceI)
     {
+
         // Points of the 1d wall-normal mesh
         const scalarList & y = meshes_[faceI];
 
         // Starting guess using definition
         scalar tau = (nutw[faceI] + nuw[faceI])*magGradU[faceI];
 
-
-        if (tau > ROOTVSMALL)
+        // Starting guess using old values
+        if (wallModellingInfo[faceI][0] > VSMALL)
         {
+//            tau = wallModellingInfo[faceI][0];
+        }
+        scalar old_tau = tau;
+
+
+        scalar utau_exp = EqOde.uTau(sampler_, faceI, nuw[faceI]);
+
+        wallModellingInfo[faceI] = tensor(0,0,0,0,0,0,0,0,0);
+
+        //if (tau > ROOTVSMALL)
+
+        bool flag = false;
+        iterations[faceI][0] = 0;
+
+        for (int iterI=0; iterI<maxIter_; iterI++)
+        {
+            iterations[faceI][0] = iterI + 1;
+
+            IntegrandFunc eddyViscosity =
+                eddyViscosity_->value(sampler(), faceI, sqrt(tau), nuw[faceI]);
+
+            scalar nuwI = nuw[faceI];
+
+            IntegrandFunc integrand1 = [eddyViscosity, nuwI](const scalar y){
+                return 1.0/(nuwI + eddyViscosity(y));
+            };
+
+            IntegrandFunc integrand2 = [eddyViscosity, nuwI](const scalar y){
+                return y/(nuwI + eddyViscosity(y));
+            };
+
+            scalarList nutValues =
+                eddyViscosity_->value(sampler(), faceI, y, sqrt(tau), nuw[faceI]);
+
+            scalar integral1 = quad.integrate(integrand1, 0.0, sampler().h()[faceI], 1e-6);
+            scalar integral2 = quad.integrate(integrand2, 0.0, sampler().h()[faceI], 1e-6);
+
+            vector UFaceI(U[faceI][0], U[faceI][1], U[faceI][2]);
+
+            scalar newTau =
+                    sqr(magU[faceI]) + sqr(mag(sourceField[faceI])*integral2) -
+                    2*(UFaceI & sourceField[faceI])*integral2;
+
+            newTau  = sqrt(newTau)/(integral1 + VSMALL);
+
+            scalar error = mag((tau - newTau) / tau);
+
+            tau = newTau;
+            
+
+            if (iterI == maxIter_-1)
+            {
+                Pout << "havent converged" << nl;
+                Pout << "Rank " << Pstream::myProcNo() << " Havent converged " << endl;
+                WarningIn
+                (
+                    "Foam::ODEWallModelFvPatchScalarField::calcUTau()"
+                )
+                    << "tau_w did not converge to desired tolerance "
+                    << eps_ << ". Error value: " << error << nl;
+            }
+
+            if (error < eps_)
+            {
+                flag = true;
+                if (debug > 1)
+                {
+                    Info<< "tau_w converged after " << iterI + 1
+                        << " iterations." << nl;
+                }
+                break;
+            }
+
+        }
+        if (!flag)
+        {
+            Pout << "havent convergeed" << nl;
+        }
+            scalar tau_orig = tau;
+            tau = old_tau;
+            scalar tau_alt = 0;
+            scalar up_alt = 0;
+
             for (int iterI=0; iterI<maxIter_; iterI++)
             {
+                iterations[faceI][2] = iterI + 1;
+
+                // New stuff
+                IntegrandFunc nut_func = [kappa, Aplus](const Foam::scalar yPlus)
+                {
+                    return kappa * yPlus * Foam::sqr(1 - Foam::exp(-yPlus / Aplus));
+                };
+
+                IntegrandFunc integrand = [nut_func](const Foam::scalar yPlus)
+                {
+                    return 1.0 / (1.0 + nut_func(yPlus));
+                };
+
+                up_alt = quad.integrate(integrand, 0.0, sampler().h()[faceI] * sqrt(tau) / nuw[faceI], 1e-6);
+                tau_alt = sqr(magU[faceI] / up_alt);
+
+                scalar error = mag(tau - tau_alt)/tau;
+
+                tau = tau_alt;
+                
+                if (error < eps_)
+                {
+                    break;
+                }
+            }
+
+            tau = sqr(utau_exp);
+            for (int iterI=0; iterI<maxIter_; iterI++)
+            {
+                iterations[faceI][1] = iterI + 1;
+
                 IntegrandFunc eddyViscosity =
                     eddyViscosity_->value(sampler(), faceI, sqrt(tau), nuw[faceI]);
 
@@ -191,24 +344,8 @@ calcUTau(const scalarField & magGradU) const
                 scalarList nutValues =
                     eddyViscosity_->value(sampler(), faceI, y, sqrt(tau), nuw[faceI]);
 
-                scalar integral1 = quad.integrate(integrand1, 0.0, sampler().h()[faceI], 1e-3);
-                scalar integral2 = quad.integrate(integrand2, 0.0, sampler().h()[faceI], 1e-3);
-
-//                scalar integral = integrate(y, 1/(nuw[faceI] + nutValues));
-//                scalar integral2 = integrate(y, y/(nuw[faceI] + nutValues));
-
-//                Info << "TEST " << test1 << " " << integral << " "<< test2 << " " << integral2 << nl;
-
-/*                if (mag(integral1) < VSMALL )
-                {
-                    WarningIn
-                    (
-                        "Foam::ODEWallModelFvPatchScalarField::calcUTau()"
-                    )
-                        << "When calculating newTau, division by zero occurred."
-                        << nl;
-                };
-*/
+                scalar integral1 = quad.integrate(integrand1, 0.0, sampler().h()[faceI], 1e-6);
+                scalar integral2 = quad.integrate(integrand2, 0.0, sampler().h()[faceI], 1e-6);
 
                 vector UFaceI(U[faceI][0], U[faceI][1], U[faceI][2]);
 
@@ -244,9 +381,26 @@ calcUTau(const scalarField & magGradU) const
                 }
             }
 
-            uTau[faceI] = max(0.0, sqrt(tau));
-        }
+            //Pout << magU[faceI] << " " << sqrt(old_tau) << " " << sqrt(tau_alt) << " " << sqrt(tau_orig) << " " << utau_exp << " " << iterations[faceI][0] << " " << iterations[faceI][1] << " " << iterations[faceI][2] <<" " << (tau - sqr(utau_exp)) / tau * 100 << nl;
+
+            uTau[faceI] = max(0.0, sqrt(tau_orig));
+
+            wallModellingInfo[faceI][0] = tau_orig;
+            wallModellingInfo[faceI][1] = sqr(utau_exp);
+            wallModellingInfo[faceI][2] = tau_alt;
+
+//        tau =  utau_exp;
+
     }
+
+    if (patchSize)
+    {
+//        Pout << "Rrank " << Pstream::myProcNo() << " " << max(iterations) << endl;
+    }
+
+    //Pout << "iterations" << gMax(iterations) << gMin(iterations) << nl;
+
+
 
     // Grab global uTau field
     volScalarField & uTauField =
@@ -257,6 +411,11 @@ calcUTau(const scalarField & magGradU) const
 
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryFieldRef()[patch().index()] == uTau;
+
+    iterationsField.boundaryFieldRef()[patchi] == iterations;
+
+//    Pout << gMax(iterationsField.boundaryFieldRef()[patchi]) << gMin(iterations) << nl;
+    wallModellingInfoField.boundaryFieldRef()[patchi] == wallModellingInfo;
 
     return tuTau;
 }
@@ -357,6 +516,48 @@ ODEWallModelFvPatchScalarField
 
     createMeshes();
     eddyViscosity_->addFieldsToSampler(sampler());
+
+    if (!db().found("solverIterations"))
+    {
+        db().store
+        (
+            new volVectorField
+            (
+                IOobject
+                (
+                    "solverIterations",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                vector(0,0,0),
+                dimless
+            )
+        );
+    }
+
+    if (!db().found("wallModellingInfo"))
+    {
+        db().store
+        (
+            new volTensorField
+            (
+                IOobject
+                (
+                    "wallModellingInfo",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                tensor(0,0,0,0,0,0,0,0,0),
+                dimless
+            )
+        );
+    }
 }
 
 
@@ -437,6 +638,7 @@ void Foam::ODEWallModelFvPatchScalarField::updateCoeffs()
     {
         return;
     }
+
 
     sampler().recomputeFields();
     sampler().sample();

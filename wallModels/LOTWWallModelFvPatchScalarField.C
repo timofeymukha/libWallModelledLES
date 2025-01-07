@@ -28,6 +28,9 @@ License
 #include "RootFinder.H"
 #include "SingleCellSampler.H"
 #include "Indicator.H"
+#include "ReichardtExplicitLawOfTheWall.H"
+#include "SpaldingExplicitLawOfTheWall.H"
+#include "CaiSagautExplicitLawOfTheWall.H"
 
 using namespace std::placeholders;
 
@@ -71,7 +74,8 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     return max
     (
         scalar(0),
-        (sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw) * patchIndicator
+        //(sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw) * patchIndicator
+        (sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw)
     );
 }
 
@@ -93,8 +97,13 @@ calcUTau(const scalarField & magGradU) const
     scalarField & uTau = tuTau.ref();
 
     // Iterations of the non-linear solver
-    tmp<scalarField> tIterations(new scalarField(patchSize, 0));
-    scalarField & iterations = tIterations.ref();
+    tmp<vectorField> tIterations(new vectorField(patchSize, vector(0,0,0)));
+    vectorField & iterations = tIterations.ref();
+    iterations = vector(0,0,0);
+
+    // Store diagonstics stuff about explicit wall modelling
+    tmp<tensorField> twallModellingInfo(new  tensorField(patchSize));
+    tensorField & wallModellingInfo = twallModellingInfo.ref();
 
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
@@ -109,19 +118,45 @@ calcUTau(const scalarField & magGradU) const
 
     // Grab iterations field
     auto & iterationsField =
-        const_cast<volScalarField &>
+        const_cast<volVectorField &>
         (
-            db().lookupObject<volScalarField>("solverIterations")
+            db().lookupObject<volVectorField>("solverIterations")
         );
+
+    // Grab wm info
+    auto & wallModellingInfoField =
+        const_cast<volTensorField &>
+        (
+            db().lookupObject<volTensorField>("wallModellingInfo")
+        );
+
+    wallModellingInfo = wallModellingInfoField.boundaryFieldRef()[patchi];
 
     // Compute uTau for each face
     const scalarListIOList & sampledU =
         sampler_().db().lookupObject<scalarListIOList>("U");
 
+    ReichardtExplicitLawOfTheWall explicitRH(0.387, 11, 3, 6.66305061);
+    SpaldingExplicitLawOfTheWall explicitSP(0.387, 4.21);
+    CaiSagautExplicitLawOfTheWall explicitCS(0.387, 4.21, 1.24852589, 134.27);
+
+
+    const scalarListIOList & samplerU =
+        sampler_().db().lookupObject<scalarListIOList>("U");
+
     forAll(uTau, faceI)
     {
-        // Starting guess using old values
         scalar ut = sqrt((nuw[faceI] + nutw[faceI]) * magGradU[faceI]);
+        scalar ut_lin = ut;
+        // Starting guess using old values
+        if (wallModellingInfo[faceI][0] > VSMALL)
+        {
+
+ //           Pout << "USING LAST TIMESTEP " << wallModellingInfo[faceI][0] << nl;
+            ut = sqrt(wallModellingInfo[faceI][0]);
+        }
+
+        wallModellingInfo[faceI] = tensor(0,0,0,0,0,0,0,0,0);
 
         if (ut > ROOTVSMALL)
         {
@@ -136,11 +171,11 @@ calcUTau(const scalarField & magGradU) const
             // Solution corresponding to nut = 0
             // Since nut is strictly positive, we cannot predict a lower stress
             // Provide 0.9 factor as a margin
-            scalar lowerBound = 0.9*sqrt(nuw[faceI]*magGradU[faceI]);
+            scalar lowerBound = 0.1*sqrt(nuw[faceI]*magGradU[faceI]);
 
             // We consider u+ >= 0.05, which in a classical TBl corresponds to
             // y+ = 0.05, so very very close to the wall.
-            scalar upperBound = sampledUI / 0.05;
+            scalar upperBound = sampledUI / 0.025;
 
             // Fall back if our estimates give an invalid interval
             if (lowerBound >= upperBound)
@@ -172,19 +207,49 @@ calcUTau(const scalarField & magGradU) const
             // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(func);
             const_cast<RootFinder &>(rootFinder_()).setDerivative(deriv);
-
             std::pair<scalar, label> sol =
-                 rootFinder_->root(ut, lowerBound, upperBound);
+                 rootFinder_->root(ut, VSMALL, upperBound);
+
+            wallModellingInfo[faceI][0] = sqr(sol.first);
+            iterations[faceI][0] = sol.second;
+
+            // Guess from explicit RH
+            scalar ut_rh = explicitRH.uTau(sampler_, faceI, nuwI);
+            // Guess from explicit Sp
+            scalar ut_sp = explicitSP.uTau(sampler_, faceI, nuwI);
+
+            sol = rootFinder_->root(ut_sp, VSMALL, upperBound);
+
+
+            wallModellingInfo[faceI][1] = sqr(sol.first);
+            wallModellingInfo[faceI][2] = (wallModellingInfo[faceI][0] - sqr(ut_sp)) / wallModellingInfo[faceI][0] * 100;
+
+//            Pout << wallModellingInfo[faceI][0] << " " << sqr(ut_sp) << " "  << sqr(ut) << " " << sqr(ut_lin) << " " << iterations[faceI][0] << " " << sol.second << " " << wallModellingInfo[faceI][2] << nl;
+
+            const scalar Ui =
+                mag(vector(samplerU[faceI][0], samplerU[faceI][1], samplerU[faceI][2]));
+            const scalar yi = sampler_().h()[faceI];
+            const scalar re_y = Ui * yi / nuwI;
+
+            wallModellingInfo[faceI][5] = Ui / sol.first;
+            wallModellingInfo[faceI][6] = yi * sol.first / nuwI;
+            wallModellingInfo[faceI][7] = re_y;
 
             // Compute root to get uTau
             uTau[faceI] = max(0.0, sol.first);
-            iterations[faceI] = sol.second;
+            iterations[faceI][1] = sol.second;
+/*
+*/
+
         }
+
     }
+
 
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryFieldRef()[patchi] == uTau;
     iterationsField.boundaryFieldRef()[patchi] == iterations;
+    wallModellingInfoField.boundaryFieldRef()[patchi] == wallModellingInfo;
     return tuTau;
 }
 
@@ -226,6 +291,27 @@ LOTWWallModelFvPatchScalarField
                 ),
                 patch().boundaryMesh().mesh(),
                 scalar(0),
+                dimless
+            )
+        );
+    }
+
+    if (!db().found("wallModellingInfo"))
+    {
+        db().store
+        (
+            new volTensorField
+            (
+                IOobject
+                (
+                    "wallModellingInfo",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                tensor(0,0,0,0,0,0,0,0,0),
                 dimless
             )
         );
@@ -293,11 +379,11 @@ LOTWWallModelFvPatchScalarField
     }
     law_->addFieldsToSampler(sampler());
 
-    if (!db().found("NewtonIterations"))
+    if (!db().found("solverIterations"))
     {
         db().store
         (
-            new volScalarField
+            new volVectorField
             (
                 IOobject
                 (
@@ -308,7 +394,28 @@ LOTWWallModelFvPatchScalarField
                     IOobject::AUTO_WRITE
                 ),
                 patch().boundaryMesh().mesh(),
-                scalar(0),
+                vector(0,0,0),
+                dimless
+            )
+        );
+    }
+
+    if (!db().found("wallModellingInfo"))
+    {
+        db().store
+        (
+            new volTensorField
+            (
+                IOobject
+                (
+                    "wallModellingInfo",
+                    db().time().timeName(),
+                    db(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                patch().boundaryMesh().mesh(),
+                tensor(0,0,0,0,0,0,0,0,0),
                 dimless
             )
         );

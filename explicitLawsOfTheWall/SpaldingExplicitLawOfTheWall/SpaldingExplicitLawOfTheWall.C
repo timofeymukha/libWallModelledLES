@@ -18,7 +18,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "ReichardtExplicitLawOfTheWall.H"
+#include "SpaldingExplicitLawOfTheWall.H"
 #include "dictionary.H"
 #include "error.H"
 #include "addToRunTimeSelectionTable.H"
@@ -30,33 +30,27 @@ License
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 namespace Foam
 {
-    defineTypeNameAndDebug(ReichardtExplicitLawOfTheWall, 0);
-    addToRunTimeSelectionTable(ExplicitLawOfTheWall, ReichardtExplicitLawOfTheWall, Dictionary);
-    addToRunTimeSelectionTable(ExplicitLawOfTheWall, ReichardtExplicitLawOfTheWall, TypeAndDictionary);
+    defineTypeNameAndDebug(SpaldingExplicitLawOfTheWall, 0);
+    addToRunTimeSelectionTable(ExplicitLawOfTheWall, SpaldingExplicitLawOfTheWall, Dictionary);
+    addToRunTimeSelectionTable(ExplicitLawOfTheWall, SpaldingExplicitLawOfTheWall, TypeAndDictionary);
 }
 #endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::ReichardtExplicitLawOfTheWall::ReichardtExplicitLawOfTheWall
+Foam::SpaldingExplicitLawOfTheWall::SpaldingExplicitLawOfTheWall
 (
     const scalar kappa,
-    const scalar B1,
-    const scalar B2,
-    const scalar C
+    const scalar B
 )
 :
     ExplicitLawOfTheWall(),
     kappa_(kappa),
-    B1_(B1),
-    B2_(B2),
-    C_(C),
-    CaiSagaut_(kappa_, C_ + Foam::log(kappa_)/kappa_, 1.24852589e+00, 1.34278368e+02)
+    B_(B),
+    CaiSagaut_(kappa_, B_, 1.1764, 206.0388)
 {
     constDict_.add("kappa", kappa);
-    constDict_.add("B1", B1);
-    constDict_.add("B2", B2);
-    constDict_.add("C", C);
+    constDict_.add("B", B);
 
     if (debug)
     {
@@ -64,18 +58,15 @@ Foam::ReichardtExplicitLawOfTheWall::ReichardtExplicitLawOfTheWall
     }
 
 }
-
-Foam::ReichardtExplicitLawOfTheWall::ReichardtExplicitLawOfTheWall
+Foam::SpaldingExplicitLawOfTheWall::SpaldingExplicitLawOfTheWall
 (
     const dictionary & dict
 )
 :
     ExplicitLawOfTheWall(dict),
     kappa_(constDict_.lookupOrAddDefault<scalar>("kappa", 0.4)),
-    B1_(constDict_.lookupOrAddDefault<scalar>("B1", 11)),
-    B2_(constDict_.lookupOrAddDefault<scalar>("B2", 3)),
-    C_(constDict_.lookupOrAddDefault<scalar>("C", 7.8)),
-    CaiSagaut_(kappa_, C_ + Foam::log(kappa_)/kappa_, 1.24852589e+00, 1.34278368e+02)
+    B_(constDict_.lookupOrAddDefault<scalar>("B", 5.5)),
+    CaiSagaut_(kappa_, B_, 1.1764, 206.0388)
 
 {
     if (debug)
@@ -84,32 +75,30 @@ Foam::ReichardtExplicitLawOfTheWall::ReichardtExplicitLawOfTheWall
     }
 }
 
-Foam::ReichardtExplicitLawOfTheWall::ReichardtExplicitLawOfTheWall
+Foam::SpaldingExplicitLawOfTheWall::SpaldingExplicitLawOfTheWall
 (
     const word & lawName,
     const dictionary & dict
 )
 :
-    ReichardtExplicitLawOfTheWall(dict)
+    SpaldingExplicitLawOfTheWall(dict)
 {
 }
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::ReichardtExplicitLawOfTheWall::printCoeffs() const
+void Foam::SpaldingExplicitLawOfTheWall::printCoeffs() const
 {
-    Info<< nl << "Reichardt law of the wall" << nl;
+    Info<< nl << "Explicit Spalding law of the wall" << nl;
     Info<< token::BEGIN_BLOCK << incrIndent << nl;
     Info<< indent << "kappa" << indent << kappa_ << nl;
-    Info<< indent << "B1" << indent <<  B1_ << nl;
-    Info<< indent << "B2" << indent <<  B2_ << nl;
-    Info<< indent << "C" << indent <<  C_ << nl;
+    Info<< indent << "B" << indent <<  B_ << nl;
     Info<< token::END_BLOCK << nl << nl;
 }
 
 
-Foam::scalar Foam::ReichardtExplicitLawOfTheWall::uTau
+Foam::scalar Foam::SpaldingExplicitLawOfTheWall::uTau
 (
     const SingleCellSampler & sampler,
     label index,
@@ -122,9 +111,9 @@ Foam::scalar Foam::ReichardtExplicitLawOfTheWall::uTau
     const scalar re = u * y / nu;
 
     scalar uPlus = u / CaiSagaut_.uTau(sampler, index, nu);
-    uPlus += Helpers::gaussian(1.11225348e+00, 6.19082579e-01, -2.92553754e-03, Foam::log10(re));
-    uPlus += Helpers::gaussian(2.38372657e+00, 2.38238821e+00,  1.33891323e-01, Foam::log10(re));
-    uPlus += Helpers::gaussian(2.39499352e+00, 8.36537522e-01,  7.94324847e-02, Foam::log10(re));
+    uPlus += Helpers::gaussian(3.1133, 2.3485, -0.0864, Foam::log10(re));
+    uPlus += Helpers::gaussian(2.369, 2.274, -0.3484,  Foam::log10(re));
+    uPlus += Helpers::gaussian(2.9937, 0.5698, 0.0254, Foam::log10(re));
 
     return u / uPlus;
 

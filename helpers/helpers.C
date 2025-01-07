@@ -124,16 +124,13 @@ Foam::tmp<Foam::scalarField> Foam::Helpers::mag(const scalarListList & list)
 }
 
 Foam::scalar Foam::Helpers::gaussian(
-    const Foam::scalar scale,
     const Foam::scalar mu,
     const Foam::scalar sigma,
+    const Foam::scalar scale,
     const Foam::scalar x
 )
 {
-
-    const Foam::scalar pi = 3.14159265359;
-    return scale * Foam::exp(-0.5*Foam::sqr((x - mu) / sigma)) /
-        (sigma*Foam::sqrt(2*pi));
+    return scale * Foam::exp( -Foam::sqr( (x - mu) * sigma ) );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
