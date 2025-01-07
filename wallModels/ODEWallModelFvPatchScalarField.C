@@ -86,6 +86,14 @@ calcUTau(const scalarField & magGradU) const
     const label patchi = patch().index();
     const label patchSize = patch().size();
 
+    // Grab global uTau field
+    volScalarField & uTauField =
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("uTauPredicted")
+        );
+
+    const scalarField & uTauFieldBoundary = uTauField.boundaryFieldRef()[patchi];
 
     tmp<scalarField> tnuw = this->nu(patchi);
     const scalarField& nuw = tnuw();
@@ -117,8 +125,16 @@ calcUTau(const scalarField & magGradU) const
     // Compute uTau for each face
     forAll(uTau, faceI)
     {
-        // Starting guess using definition
-        scalar tau = (nutw[faceI] + nuw[faceI]) * magGradU[faceI];
+        // Starting guess using resolved wall gradient or last timestep
+        scalar tau;
+        if (uTauFieldBoundary[faceI] > 0)
+        {
+            tau = sqr(uTauFieldBoundary[faceI]);
+        }
+        else
+        {
+            tau = (nutw[faceI] + nuw[faceI]) * magGradU[faceI];
+        }
 
         for (int iterI=0; iterI<maxIter_; iterI++)
         {
@@ -151,7 +167,11 @@ calcUTau(const scalarField & magGradU) const
 
             tau = newTau;
 
-            if (error < eps()) break;
+            if (error < eps())
+            {
+                uTau[faceI] = tau;
+                break;
+            }
 
             if (iterI == maxIter_-1)
             {
@@ -166,13 +186,8 @@ calcUTau(const scalarField & magGradU) const
 
     }
 
-    // Grab global uTau field
-    volScalarField & uTauField =
-        const_cast<volScalarField &>
-        (
-            db().lookupObject<volScalarField>("uTauPredicted")
-        );
 
+    Info << uTau << nl;
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryFieldRef()[patch().index()] == uTau;
 
