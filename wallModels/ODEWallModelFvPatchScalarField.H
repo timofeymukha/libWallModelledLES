@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
@@ -21,7 +21,7 @@ Class
 
 @brief
     Base abstract class for ODE-based wall models.
-  
+
     All the models are based on the following equation
 
     \f[
@@ -32,14 +32,16 @@ Class
     where i corresponds to the two wall-parallel coordinates.
     If the source term F is not dependent on y this can be integrated to give
     \f[
-         \tau_{w,i} = 
+         \tau_{w,i} =
             \left(
                 U_i|_h -
                 F_i \int^h_0 \frac{y}{\nu + \nu_t}dy
             \right)
-            \bigg  / 
+            \bigg  /
             \int^h_0 \frac{dy}{\nu + \nu_t}
     \f]
+
+    The integration is performed using an adaptive quadrature.
 
     The magnitude of the wall shear stress can then be expressed through the
     magnitude of the the wall-parallel component of velocity and the source
@@ -52,8 +54,6 @@ Class
     shear stress and the eddy viscosity values.
     - eps, the relative error tolerance for the convergence of the wall shear
     stress.
-    - nMeshY, the amount of nodes in the 1D grid discretising the distance
-    between 0 and h.
 
 Contributors/Copyright:
     2016-2019 Timofey Mukha
@@ -83,47 +83,33 @@ class ODEWallModelFvPatchScalarField
     public wallModelFvPatchScalarField
 {
 protected:
-    
+
     // Protected Data
-        //- Pointer to an eddy viscosity model    
+        //- Pointer to an eddy viscosity model
         autoPtr<EddyViscosity> eddyViscosity_;
 
         //- The sampler
         autoPtr<SingleCellSampler> sampler_;
 
-        //- A list of lists of points each defining a 1d mesh between 0 and h
-        //  for a given face
-        scalarListList meshes_;
-        
         //- Maximum amount of iterations for coupling between uTau and nut
         label maxIter_;
-        
+
         //- Error for exiting the uTau and nut coupling loop
         scalar eps_;
- 
-        //- number of points in each mesh in meshes_
-        label nMeshY_;
 
-   
     // Protected Member Functions
         //- Write model properties to stream
         virtual void writeLocalEntries(Ostream &) const;
-        
+
         //- Calculate the turbulence viscosity at the wall
         virtual tmp<scalarField> calcNut() const;
 
         //- Calculate the friction velocity
         virtual tmp<scalarField> calcUTau(const scalarField & magGradU) const;
-        
-        //- Create a 1d mesh for each face
-        void createMeshes();
-        
-        //- Numerical integration
-        scalar integrate(const scalarList & y, const scalarList & v) const;
-        
+
         //- Source term defining the type of ODE model
         virtual void source(vectorField &) const = 0;
-        
+
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
@@ -157,7 +143,7 @@ public:
             const DimensionedField<scalar, volMesh> &,
             const fvPatchFieldMapper &
         );
-        
+
         #ifdef FOAM_FVPATCHFIELD_NO_COPY
         #else
         //- Construct as copy
@@ -173,14 +159,14 @@ public:
             const ODEWallModelFvPatchScalarField &,
             const DimensionedField<scalar, volMesh> &
         );
-        
+
 
     // Member functions
 
 
         //- Write
         virtual void write(Ostream& os) const;
-            
+
         virtual void updateCoeffs();
 
         //- Return the error tolerance
@@ -193,12 +179,6 @@ public:
         scalar maxIter() const
         {
             return maxIter_;
-        }
-
-        //- Return the size of the 1d meshes
-        scalar nMeshY() const
-        {
-            return nMeshY_;
         }
 
         SingleCellSampler & sampler()
