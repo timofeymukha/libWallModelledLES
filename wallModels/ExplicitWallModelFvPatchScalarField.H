@@ -17,38 +17,40 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::ExplicitLOTWWallModelFvPatchScalarField
+    Foam::ExplicitWallModelFvPatchScalarField
 
 @brief
-    Class for the wall models based on a an explicit law of the wall.
+    Class for the wall models based on a an explicit expression for the wall
+    stress.
 
-    Needs an explicit law of the wall to be defined.
+    Needs an explicit expression of the wall to be defined, which we refer to
+    as the "law" in similarity with algebraic models.
 
     Usage
     \verbatim
     patchName
     {
-        type                ExplicitLOTWWallModel;
+        type                ExpliciWallModel;
         value               uniform 0;
 
         Law
         {
-            type            LawOfTheWallType;
+            type            ExpressionType;
             otherParams     value;
         }
     }
     \endverbatim
 
 Contributors/Copyright:
-    2024 Timofey Mukha
+    2024-2025 Timofey Mukha
 
 SourceFiles
-    ExplicitLOTWWallModelFvPatchScalarField.C
+    ExplicitWallModelFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef ExplicitLOTWWallModelFvPatchScalarField_H
-#define ExplicitLOTWWallModelFvPatchScalarField_H
+#ifndef ExplicitWallModelFvPatchScalarField_H
+#define ExplicitWallModelFvPatchScalarField_H
 
 #include "wallModelFvPatchScalarField.H"
 #include <boost/math/tools/roots.hpp>
@@ -64,10 +66,10 @@ class SingleCellSampler;
 
 
 /*---------------------------------------------------------------------------*\
-          Class ExplicitLOTWWallModelPatchScalarField Declaration
+          Class ExplicitWallModelPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class ExplicitLOTWWallModelFvPatchScalarField
+class ExplicitWallModelFvPatchScalarField
 :
     public wallModelFvPatchScalarField
 {
@@ -97,21 +99,21 @@ public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
     //- Runtime type information
-    TypeName("ExplicitLOTWWallModel");
+    TypeName("ExplicitWallModel");
 #endif
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        ExplicitLOTWWallModelFvPatchScalarField
+        ExplicitWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        ExplicitLOTWWallModelFvPatchScalarField
+        ExplicitWallModelFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
@@ -119,11 +121,11 @@ public:
         );
 
         //- Construct by mapping given
-        //  ExplicitLOTWWallModelFvPatchScalarField
+        //  ExplicitWallModelFvPatchScalarField
         //  onto a new patch
-        ExplicitLOTWWallModelFvPatchScalarField
+        ExplicitWallModelFvPatchScalarField
         (
-            const ExplicitLOTWWallModelFvPatchScalarField&,
+            const ExplicitWallModelFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
@@ -132,9 +134,9 @@ public:
         #ifdef FOAM_FVPATCHFIELD_NO_COPY
         #else
         //- Construct as copy
-        ExplicitLOTWWallModelFvPatchScalarField
+        ExplicitWallModelFvPatchScalarField
         (
-            const ExplicitLOTWWallModelFvPatchScalarField&
+            const ExplicitWallModelFvPatchScalarField&
         );
         #endif
 
@@ -143,14 +145,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new ExplicitLOTWWallModelFvPatchScalarField(*this)
+                new ExplicitWallModelFvPatchScalarField(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        ExplicitLOTWWallModelFvPatchScalarField
+        ExplicitWallModelFvPatchScalarField
         (
-            const ExplicitLOTWWallModelFvPatchScalarField&,
+            const ExplicitWallModelFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -162,7 +164,7 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new ExplicitLOTWWallModelFvPatchScalarField(*this, iF)
+                new ExplicitWallModelFvPatchScalarField(*this, iF)
             );
         }
 

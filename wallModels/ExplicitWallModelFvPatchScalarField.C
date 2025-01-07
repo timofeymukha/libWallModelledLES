@@ -18,22 +18,19 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "ExplicitLOTWWallModelFvPatchScalarField.H"
+#include "ExplicitWallModelFvPatchScalarField.H"
 #include "fvPatchFieldMapper.H"
 #include "addToRunTimeSelectionTable.H"
 #include "codeRules.H"
 #include "scalarListIOList.H"
 #include "helpers.H"
 #include "ExplicitLawOfTheWall.H"
-#include "RootFinder.H"
 #include "SingleCellSampler.H"
 #include "Indicator.H"
 
-using namespace std::placeholders;
-
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
-void Foam::ExplicitLOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
+void Foam::ExplicitWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
     wallModelFvPatchScalarField::writeLocalEntries(os);
     law_->write(os);
@@ -41,7 +38,7 @@ void Foam::ExplicitLOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& o
 }
 
 Foam::tmp<Foam::scalarField>
-Foam::ExplicitLOTWWallModelFvPatchScalarField::calcNut() const
+Foam::ExplicitWallModelFvPatchScalarField::calcNut() const
 {
     if (debug)
     {
@@ -75,7 +72,7 @@ Foam::ExplicitLOTWWallModelFvPatchScalarField::calcNut() const
 }
 
 Foam::tmp<Foam::scalarField>
-Foam::ExplicitLOTWWallModelFvPatchScalarField::
+Foam::ExplicitWallModelFvPatchScalarField::
 calcUTau(const scalarField & magGradU) const
 {
     const label patchi = patch().index();
@@ -91,10 +88,6 @@ calcUTau(const scalarField & magGradU) const
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     scalarField & uTau = tuTau.ref();
 
-    // Function to give to the root finder
-    std::function<scalar(scalar)> value;
-    std::function<scalar(scalar)> derivValue;
-
     // Grab global uTau field
     volScalarField & uTauField =
         const_cast<volScalarField &>
@@ -102,44 +95,23 @@ calcUTau(const scalarField & magGradU) const
             db().lookupObject<volScalarField>("uTauPredicted")
         );
 
-    // Compute uTau for each face
     const scalarListIOList & sampledU =
         sampler_().db().lookupObject<scalarListIOList>("U");
 
+    // Compute uTau for each face
     forAll(uTau, faceI)
     {
-        // Starting guess using old values
-        scalar ut = sqrt((nuw[faceI] + nutw[faceI]) * magGradU[faceI]);
+        scalar sampledUI = mag(vector(
+            sampledU[faceI][0],
+            sampledU[faceI][1],
+            sampledU[faceI][2])
+        );
 
-        if (ut > ROOTVSMALL)
-        {
-            scalar sampledUI = mag(vector(
-                sampledU[faceI][0],
-                sampledU[faceI][1],
-                sampledU[faceI][2])
-            );
+        scalar nuwI = nuw[faceI];
 
-            scalar nuwI = nuw[faceI];
-
-            // Solution corresponding to nut = 0
-            // Since nut is strictly positive, we cannot predict a lower stress
-            // Provide 0.9 factor as a margin
-            scalar lowerBound = 0.9*sqrt(nuw[faceI]*magGradU[faceI]);
-
-            // We consider u+ >= 0.05, which in a classical TBl corresponds to
-            // y+ = 0.05, so very very close to the wall.
-            scalar upperBound = sampledUI / 0.05;
-
-            // Fall back if our estimates give an invalid interval
-            if (lowerBound >= upperBound)
-            {
-                lowerBound = SMALL;
-            }
-
-            // Compute root to get uTau
-            uTau[faceI] =
-                max(0.0, law_().uTau(sampler_(), faceI, nuwI));
-        }
+        // Compute uTau
+        uTau[faceI] =
+            max(0.0, law_().uTau(sampler_(), faceI, nuwI));
     }
 
     // Assign computed uTau to the boundary field of the global field
@@ -150,8 +122,8 @@ calcUTau(const scalarField & magGradU) const
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::ExplicitLOTWWallModelFvPatchScalarField::
-ExplicitLOTWWallModelFvPatchScalarField
+Foam::ExplicitWallModelFvPatchScalarField::
+ExplicitWallModelFvPatchScalarField
 (
     const fvPatch & p,
     const DimensionedField<scalar, volMesh> & iF
@@ -163,17 +135,17 @@ ExplicitLOTWWallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing ExplicitLOTWwallModelFvPatchScalarField (lotw1) "
+        Info<< "Constructing ExplicitWallModelFvPatchScalarField (lotw1) "
             << "from fvPatch and DimensionedField for patch " << patch().name()
             <<  nl;
     }
 }
 
 
-Foam::ExplicitLOTWWallModelFvPatchScalarField::
-ExplicitLOTWWallModelFvPatchScalarField
+Foam::ExplicitWallModelFvPatchScalarField::
+ExplicitWallModelFvPatchScalarField
 (
-    const ExplicitLOTWWallModelFvPatchScalarField & orig,
+    const ExplicitWallModelFvPatchScalarField & orig,
     const fvPatch & p,
     const DimensionedField<scalar, volMesh> & iF,
     const fvPatchFieldMapper & mapper
@@ -189,15 +161,15 @@ ExplicitLOTWWallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing ExplicitLOTWWallModelFvPatchScalarField (lotw2) "
+        Info<< "Constructing ExplicitWallModelFvPatchScalarField (lotw2) "
             << "from copy, fvPatch, DimensionedField, and fvPatchFieldMapper"
             << " for patch " << patch().name() << nl;
     }
     law_->addFieldsToSampler(sampler());
 }
 
-Foam::ExplicitLOTWWallModelFvPatchScalarField::
-ExplicitLOTWWallModelFvPatchScalarField
+Foam::ExplicitWallModelFvPatchScalarField::
+ExplicitWallModelFvPatchScalarField
 (
     const fvPatch & p,
     const DimensionedField<scalar, volMesh> & iF,
@@ -221,7 +193,7 @@ ExplicitLOTWWallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing ExplicitLOTWWallModelFvPatchScalarField (lotw3) "
+        Info<< "Constructing ExplicitWallModelFvPatchScalarField (lotw3) "
             << "from fvPatch, DimensionedField, and dictionary for patch "
             << patch().name() << nl;
     }
@@ -231,10 +203,10 @@ ExplicitLOTWWallModelFvPatchScalarField
 
 #ifdef FOAM_FVPATCHFIELD_NO_COPY
 #else
-Foam::ExplicitLOTWWallModelFvPatchScalarField::
-ExplicitLOTWWallModelFvPatchScalarField
+Foam::ExplicitWallModelFvPatchScalarField::
+ExplicitWallModelFvPatchScalarField
 (
-    const ExplicitLOTWWallModelFvPatchScalarField & orig
+    const ExplicitWallModelFvPatchScalarField & orig
 )
 :
     wallModelFvPatchScalarField(orig),
@@ -247,7 +219,7 @@ ExplicitLOTWWallModelFvPatchScalarField
 {
     if (debug)
     {
-        Info<< "Constructing ExplicitLOTWWallModelFvPatchScalarField (lotw4)"
+        Info<< "Constructing ExplicitWallModelFvPatchScalarField (lotw4)"
             << "from copy for patch " << patch().name() << nl;
     }
     law_->addFieldsToSampler(sampler());
@@ -255,10 +227,10 @@ ExplicitLOTWWallModelFvPatchScalarField
 #endif
 
 
-Foam::ExplicitLOTWWallModelFvPatchScalarField::
-ExplicitLOTWWallModelFvPatchScalarField
+Foam::ExplicitWallModelFvPatchScalarField::
+ExplicitWallModelFvPatchScalarField
 (
-    const ExplicitLOTWWallModelFvPatchScalarField & orig,
+    const ExplicitWallModelFvPatchScalarField & orig,
     const DimensionedField<scalar, volMesh> & iF
 )
 :
@@ -282,13 +254,13 @@ ExplicitLOTWWallModelFvPatchScalarField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::ExplicitLOTWWallModelFvPatchScalarField::write(Ostream& os) const
+void Foam::ExplicitWallModelFvPatchScalarField::write(Ostream& os) const
 {
     wallModelFvPatchScalarField::write(os);
 }
 
 
-void Foam::ExplicitLOTWWallModelFvPatchScalarField::updateCoeffs()
+void Foam::ExplicitWallModelFvPatchScalarField::updateCoeffs()
 {
     if (updated())
     {
@@ -308,7 +280,7 @@ namespace Foam
     makePatchTypeField
     (
         fvPatchScalarField,
-        ExplicitLOTWWallModelFvPatchScalarField
+        ExplicitWallModelFvPatchScalarField
     );
 }
 #endif

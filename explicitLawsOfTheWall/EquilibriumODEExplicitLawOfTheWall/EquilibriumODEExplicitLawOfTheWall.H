@@ -65,7 +65,7 @@ class EquilibriumODEExplicitLawOfTheWall: public ExplicitLawOfTheWall
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-    TypeName("EquilibriumODEExplicit");
+    TypeName("EquilibriumODE");
 #endif
 
     // Constructors
@@ -84,7 +84,7 @@ public:
         EquilibriumODEExplicitLawOfTheWall
         (
             const scalar kappa,
-            const scalar Aplus 
+            const scalar Aplus
         );
 
 

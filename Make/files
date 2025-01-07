@@ -42,7 +42,7 @@ indicators/Indicator.C
 wallModels/wallModelFvPatchScalarField.C
 wallModels/KnownWallShearStressWallModelFvPatchScalarField.C
 wallModels/LOTWWallModelFvPatchScalarField.C
-wallModels/ExplicitLOTWWallModelFvPatchScalarField.C
+wallModels/ExplicitWallModelFvPatchScalarField.C
 wallModels/MulticellLOTWWallModelFvPatchScalarField.C
 wallModels/EquilibriumODEWallModelFvPatchScalarField.C
 wallModels/ODEWallModelFvPatchScalarField.C
