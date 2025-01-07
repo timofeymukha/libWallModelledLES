@@ -130,9 +130,7 @@ Foam::scalar Foam::Helpers::gaussian(
     const Foam::scalar x
 )
 {
-
-    const Foam::scalar pi = 3.14159265359;
-    return scale * Foam::exp(-sigma*Foam::sqr((x - mu)));
+    return scale * Foam::exp( -Foam::sqr( (x - mu) * sigma ) );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

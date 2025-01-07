@@ -17,53 +17,28 @@ License
     If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::CaiSagautExplicitLawOfTheWall
+    Foam::EquilibriumODEExplicitLawOfTheWall
 
 @brief
-    The explicit law of the wall proposed by Cai and Sagaut. This is "model 2"
-    in the paper. Uses the Lmabert W function to explicitly represent the
-    log-law.
-
-    \f[
-    u^+ = \exp(-Re_y / s)^p \sqrt(Re_y) +
-          (1 - \exp(-Re_y /s))^p W(Re_y \kappa E) / \kappa
-    \f]
-
-    Usage:
-    \verbatim
-    Law
-    {
-        type      CaiSagaut;
-        kappa     value; (default 0.4)
-        B         value; (default 5.5)
-        p         value; (default 1.138)
-        s         value; (default 217.8)
-    }
-    \endverbatim
-
-    Reference:
-    \verbatim
-        Cai and Sagaut. (2021).
-        Explicit wall models for large eddy simulation
-        Physics of Fluids, 33 (4), 41703
-    \endverbatim
+    An explicit approximation of Equilibruim ODE model.
 
 Contributors/Copyright:
     2024 Timofey Mukha
 
 
 SourceFiles
-    CaiSagautExplicitLawOfTheWall.C
+    EquilibriumODEExplicitLawOfTheWall.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef CaiSagautExplicitLawOfTheWall_H
-#define CaiSagautExplicitLawOfTheWall_H
+#ifndef EquilibriumODEExplicitLawOfTheWall_H
+#define EquilibriumODEExplicitLawOfTheWall_H
 
 #include "scalar.H"
 #include "typeInfo.H"
 #include "dictionary.H"
 #include "ExplicitLawOfTheWall.H"
+#include "CaiSagautExplicitLawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -71,10 +46,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class CaiSagautExplicitLawOfTheWall Declaration
+                    Class EquilibriumODEExplicitLawOfTheWall Declaration
 \*---------------------------------------------------------------------------*/
 
-class CaiSagautExplicitLawOfTheWall: public ExplicitLawOfTheWall
+class EquilibriumODEExplicitLawOfTheWall: public ExplicitLawOfTheWall
 {
 
     // Private data
@@ -82,53 +57,47 @@ class CaiSagautExplicitLawOfTheWall: public ExplicitLawOfTheWall
         //- The kappa model constant
         scalar kappa_;
 
-        //- The B model constant
-        scalar B_;
+        //- The Aplus model constant
+        scalar Aplus_;
 
-        //- The p model constant
-        scalar p_;
-
-        //- The s model constant
-        scalar s_;
+        CaiSagautExplicitLawOfTheWall CaiSagaut_;
 
 public:
 
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
-    TypeName("CaiSagaut");
+    TypeName("EquilibriumODEExplicit");
 #endif
 
     // Constructors
 
         //- Construct provided dictionary
-        CaiSagautExplicitLawOfTheWall(const dictionary &);
+        EquilibriumODEExplicitLawOfTheWall(const dictionary &);
 
         //- Construct provided TypeName and dictionary
-        CaiSagautExplicitLawOfTheWall
+        EquilibriumODEExplicitLawOfTheWall
         (
             const word & lawname,
             const dictionary &
         );
 
         //- Construct from model constants
-        CaiSagautExplicitLawOfTheWall
+        EquilibriumODEExplicitLawOfTheWall
         (
             const scalar kappa,
-            const scalar B,
-            const scalar p,
-            const scalar s
+            const scalar Aplus 
         );
 
 
         //- Copy constructor
-        CaiSagautExplicitLawOfTheWall
+        EquilibriumODEExplicitLawOfTheWall
         (
-            const CaiSagautExplicitLawOfTheWall &
+            const EquilibriumODEExplicitLawOfTheWall &
         ) = default;
 
         //- Assignment
-        CaiSagautExplicitLawOfTheWall & operator=
+        EquilibriumODEExplicitLawOfTheWall & operator=
         (
-            const CaiSagautExplicitLawOfTheWall &
+            const EquilibriumODEExplicitLawOfTheWall &
         ) = default;
 
         //- Clone
@@ -136,50 +105,32 @@ public:
         {
             return autoPtr<ExplicitLawOfTheWall>
             (
-                new CaiSagautExplicitLawOfTheWall(*this)
+                new EquilibriumODEExplicitLawOfTheWall(*this)
             );
         }
 
     // Destructor
-        virtual ~CaiSagautExplicitLawOfTheWall() {};
+        virtual ~EquilibriumODEExplicitLawOfTheWall() {};
 
     // Member Functions
 
-        // Return kappa
+        //- Return the kappa constant
         scalar kappa() const
         {
             return kappa_;
         }
 
-        // Return B
-        scalar B() const
+        //- Return the Aplus constant
+        scalar Aplus() const
         {
-            return B_;
-        }
-
-        // Return j
-        scalar p() const
-        {
-            return p_;
-        }
-
-        // Return s
-        scalar s() const
-        {
-            return s_;
-        }
-        
-        // Set B
-        void set_B(const scalar B)
-        {
-            this->B_ = B;
+            return Aplus_;
         }
 
 
         //- Print info to terminal
         virtual void printCoeffs() const override;
 
-        //- Return the value of the implicit function defining the law
+        //- Return the value of the friction velocity
         virtual scalar uTau
         (
             const SingleCellSampler & sampler,
