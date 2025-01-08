@@ -68,6 +68,9 @@ class RootFinder;
 class LawOfTheWall;
 class SingleCellSampler;
 
+// Iteratively get a lower bound estimate for the root.
+scalar getLowerBound(scalar initial, scalar upperBound,
+    std::function<scalar(scalar)> func);
 
 /*---------------------------------------------------------------------------*\
           Class LOTWWallModelPatchScalarField Declaration

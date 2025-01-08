@@ -22,15 +22,10 @@ Class
 @brief
     Root finder based on the bisection method.
 
-   Controlled by three paramters:
-    the max number of iterations, the relative error tolerance and the bracket.
-    The latter is used to define the initial size of the search interval in
-    conjuction with an initial guess of the root value. If x0 is the guess then
-    the search interval is from x0/bracket to bracket*x0.
-
+   Controlled by two parameters:
+    the max number of iterations and the relative error tolerance.
     The bisection method is meant to be used with equations where the Jacobian
-    is not well defined. Currently, however, it appears to be problematic to
-    get a good initial interval size in the beginning of the simulation.
+    is not well defined.
 
     Usage
     \verbatim
@@ -42,7 +37,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2016-2024 Timofey Mukha
+    2016-2025 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -66,14 +61,6 @@ namespace Foam
 
 class BisectionRootFinder : public RootFinder
 {
-private:
-
-    //- The bracket defining the interval where the root will be searched
-    //  [1/bracket*guess; bracket*guess]
-    scalar bracket_;
-
-    label getDigits_ =
-        static_cast<int>(std::numeric_limits<scalar>::digits - 4);
 
 public:
 
@@ -122,12 +109,6 @@ public:
 
     // Member Functions
 
-        //- return the bracket
-        scalar bracket() const
-        {
-            return bracket_;
-        }
-
         //- Compute and return root
         std::pair<scalar, label> root
         (
@@ -140,8 +121,6 @@ public:
         virtual void write(Ostream& os) const
         {
             RootFinder::write(os);
-            os.writeKeyword("bracket")
-                << bracket_ << token::END_STATEMENT << nl;
             os  << decrIndent;
             os.writeKeyword("}")
                 << endl;

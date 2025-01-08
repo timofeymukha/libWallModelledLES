@@ -126,7 +126,7 @@ calcUTau(const scalarField & magGradU) const
     forAll(uTau, faceI)
     {
         // Starting guess using resolved wall gradient or last timestep
-        scalar tau;
+        scalar tau = 0;
         if (uTauFieldBoundary[faceI] > 0)
         {
             tau = sqr(uTauFieldBoundary[faceI]);
@@ -186,8 +186,6 @@ calcUTau(const scalarField & magGradU) const
 
     }
 
-
-    Info << uTau << nl;
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryFieldRef()[patch().index()] == uTau;
 

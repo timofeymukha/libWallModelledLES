@@ -36,11 +36,6 @@ namespace Foam
 }
 #endif
 
-typedef policy<
-      domain_error<ignore_error>,
-      overflow_error<ignore_error>
-      > myPolicy;
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 std::pair<Foam::scalar, Foam::label> Foam::TOMS748RootFinder::root(
@@ -61,7 +56,7 @@ std::pair<Foam::scalar, Foam::label> Foam::TOMS748RootFinder::root(
     };
 
     std::pair<scalar, scalar> result =
-        toms748_solve(wrapper, lowerBound, upperBound, tol, maxIter, myPolicy());
+        toms748_solve(wrapper, lowerBound, upperBound, tol, maxIter);
 
     return std::make_pair(0.5*(result.first + result.second), iterations);
 }

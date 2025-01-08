@@ -43,8 +43,7 @@ Foam::BisectionRootFinder::BisectionRootFinder
     const label maxIter
 )
 :
-    RootFinder(rootFinderName, f, d, maxIter),
-    bracket_(3.0)
+    RootFinder(rootFinderName, f, d, maxIter)
 {}
 
 Foam::BisectionRootFinder::BisectionRootFinder
@@ -54,8 +53,7 @@ Foam::BisectionRootFinder::BisectionRootFinder
             const dictionary & dict
 )
 :
-    RootFinder(f, d, dict),
-    bracket_(dict.lookupOrDefault<scalar>("bracket", 3.0))
+    RootFinder(f, d, dict)
 {}
 
 Foam::BisectionRootFinder::BisectionRootFinder
@@ -63,8 +61,7 @@ Foam::BisectionRootFinder::BisectionRootFinder
             const dictionary & dict
 )
 :
-    RootFinder(dict),
-    bracket_(dict.lookupOrDefault<scalar>("bracket", 3.0))
+    RootFinder(dict)
 {}
 
 
@@ -80,8 +77,8 @@ std::pair<Foam::scalar, Foam::label> Foam::BisectionRootFinder::root
 {
     label i = 1;
 
-    scalar a = 1/bracket_*guess;
-    scalar b  = bracket_*guess;
+    scalar a = lowerBound;
+    scalar b  = upperBound;
     scalar c = 0;
     scalar fC = 0;
 

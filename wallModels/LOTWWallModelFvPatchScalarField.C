@@ -29,8 +29,6 @@ License
 #include "SingleCellSampler.H"
 #include "Indicator.H"
 
-using namespace std::placeholders;
-
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
 void Foam::LOTWWallModelFvPatchScalarField::writeLocalEntries(Ostream& os) const
@@ -93,15 +91,6 @@ calcUTau(const scalarField & magGradU) const
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     scalarField & uTau = tuTau.ref();
 
-    // Iterations of the non-linear solver
-    tmp<vectorField> tIterations(new vectorField(patchSize, vector(0,0,0)));
-    vectorField & iterations = tIterations.ref();
-    iterations = vector(0,0,0);
-
-    // Store diagonstics stuff about explicit wall modelling
-    tmp<tensorField> twallModellingInfo(new  tensorField(patchSize));
-    tensorField & wallModellingInfo = twallModellingInfo.ref();
-
     // Function to give to the root finder
     std::function<scalar(scalar)> value;
     std::function<scalar(scalar)> derivValue;
@@ -113,38 +102,24 @@ calcUTau(const scalarField & magGradU) const
             db().lookupObject<volScalarField>("uTauPredicted")
         );
 
-    // Grab iterations field
-    auto & iterationsField =
-        const_cast<volVectorField &>
-        (
-            db().lookupObject<volVectorField>("solverIterations")
-        );
-
-    // Grab wm info
-    auto & wallModellingInfoField =
-        const_cast<volTensorField &>
-        (
-            db().lookupObject<volTensorField>("wallModellingInfo")
-        );
-
-    wallModellingInfo = wallModellingInfoField.boundaryFieldRef()[patchi];
+    const scalarField & uTauFieldBoundary = uTauField.boundaryFieldRef()[patchi];
 
     // Compute uTau for each face
     const scalarListIOList & sampledU =
         sampler_().db().lookupObject<scalarListIOList>("U");
 
-    const scalarListIOList & samplerU =
-        sampler_().db().lookupObject<scalarListIOList>("U");
-
     forAll(uTau, faceI)
     {
-        scalar ut = sqrt((nuw[faceI] + nutw[faceI]) * magGradU[faceI]);
-        scalar ut_lin = ut;
-
-        // Starting guess using old values
-        if (wallModellingInfo[faceI][0] > VSMALL)
+        // Starting guess using utau from the last timestep or an estimate
+        // using the current velocity gradient and nut value.
+        scalar ut = 0;
+        if (uTauFieldBoundary[faceI] > 0)
         {
-            ut = sqrt(wallModellingInfo[faceI][0]);
+            ut = uTauFieldBoundary[faceI];
+        }
+        else
+        {
+            ut = sqrt((nuw[faceI] + nutw[faceI]) * magGradU[faceI]);
         }
 
         if (ut > ROOTVSMALL)
@@ -157,20 +132,14 @@ calcUTau(const scalarField & magGradU) const
 
             scalar nuwI = nuw[faceI];
 
-            // Solution corresponding to nut = 0
+            // Initial guess for lower bound, solution corresponding to nut = 0
             // Since nut is strictly positive, we cannot predict a lower stress
-            // Provide 0.9 factor as a margin
-            scalar lowerBound = 0.1*sqrt(nuw[faceI]*magGradU[faceI]);
+            scalar lowerBound = sqrt(nuw[faceI]*magGradU[faceI]);
 
-            // We consider u+ >= 0.05, which in a classical TBl corresponds to
-            // y+ = 0.05, so very very close to the wall.
+            // We consider u+ >= 0.025, which in a classical TBl corresponds to
+            // y+ = 0.025, so very very close to the wall.
             scalar upperBound = sampledUI / 0.025;
 
-            // Fall back if our estimates give an invalid interval
-            if (lowerBound >= upperBound)
-            {
-                lowerBound = SMALL;
-            }
 
             std::function<scalar(scalar)> func =
                 [nuwI, faceI, this](const scalar & uTau)
@@ -193,11 +162,14 @@ calcUTau(const scalarField & magGradU) const
                     );
                 };
 
+            // Set lower bound so that we bracket the root.
+            lowerBound = getLowerBound(lowerBound, upperBound, func);
+
             // Supply the functions to the root finder
             const_cast<RootFinder &>(rootFinder_()).setFunction(func);
             const_cast<RootFinder &>(rootFinder_()).setDerivative(deriv);
             std::pair<scalar, label> sol =
-                 rootFinder_->root(ut, VSMALL, upperBound);
+                 rootFinder_->root(ut, lowerBound, upperBound);
 
             // Compute root to get uTau
             uTau[faceI] = max(0.0, sol.first);
@@ -210,6 +182,27 @@ calcUTau(const scalarField & magGradU) const
     // Assign computed uTau to the boundary field of the global field
     uTauField.boundaryFieldRef()[patchi] == uTau;
     return tuTau;
+}
+
+Foam::scalar Foam::getLowerBound(scalar initial, scalar upperBound,
+    std::function<scalar(scalar)> func)
+{
+    Foam::scalar lowerBound = initial;
+
+    for (int i=0; i<10; i++)
+    {
+        if (lowerBound >= upperBound || func(lowerBound)*func(upperBound) > 0)
+        {
+            lowerBound *= 0.1;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return lowerBound;
+
 }
 
 
@@ -234,47 +227,6 @@ LOTWWallModelFvPatchScalarField
             <<  nl;
     }
 
-    if (!db().found("NewtonIterations"))
-    {
-        db().store
-        (
-            new volScalarField
-            (
-                IOobject
-                (
-                    "solverIterations",
-                    db().time().timeName(),
-                    db(),
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                patch().boundaryMesh().mesh(),
-                scalar(0),
-                dimless
-            )
-        );
-    }
-
-    if (!db().found("wallModellingInfo"))
-    {
-        db().store
-        (
-            new volTensorField
-            (
-                IOobject
-                (
-                    "wallModellingInfo",
-                    db().time().timeName(),
-                    db(),
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                patch().boundaryMesh().mesh(),
-                tensor(0,0,0,0,0,0,0,0,0),
-                dimless
-            )
-        );
-    }
 }
 
 
