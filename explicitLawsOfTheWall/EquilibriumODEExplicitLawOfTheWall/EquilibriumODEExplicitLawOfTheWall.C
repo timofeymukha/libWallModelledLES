@@ -88,8 +88,6 @@ Foam::EquilibriumODEExplicitLawOfTheWall::EquilibriumODEExplicitLawOfTheWall
     const scalar B =  get_B(this->kappa(), this->Aplus());
     this->CaiSagaut_.set_B(4.21);
 
-    Info << "!!!!!!!!!!!!!!!!!!!!!!! B" << B << nl;
-
     if (debug)
     {
         printCoeffs();
