@@ -20,10 +20,32 @@ Class
     Foam::TreeCellFinder
 
 @brief
-    Class for searching for sampling cells using.
+    Class for searching for sampling cells using OpenFOAM indexed octrees.
+
+    For each wall face, the user-prescribed sampling height \f$h\f$ is
+    interpreted as a physical distance along the inward patch-normal direction.
+    The TreeCellFinder does not support interpreting \f$h\f$ as a consecutive
+    off-wall cell index.
+
+    The single-cell search constructs a point \f$h\f$ away from each wall-face
+    centre and uses an octree over candidate volume cells to find the nearest
+    cell to that point. If \f$h \le 0\f$, no candidate cells are found, or the
+    target point is outside the domain, the wall-adjacent cell is used instead.
+
+    The multi-cell search casts a wall-normal line from each wall face and
+    collects the cells intersected by that line up to the requested distance.
+    If the line exits the domain before reaching \f$h\f$, the cells intersected
+    before leaving the domain are retained. If no cells are intersected, the
+    wall-adjacent cell is used. The optional \c excludeWallAdjacent argument
+    removes the wall-adjacent cell only when at least one further cell remains.
+
+    Candidate cells are prefiltered using a wall-distance field, keeping cells
+    closer than \f$2\max(h)\f$ to the patch. The wall-distance field is read
+    from disk when available and otherwise computed with OpenFOAM's
+    \c patchDistMethod.
 
 Contributors/Copyright:
-    2019-2021 Timofey Mukha
+    2019-2026 Timofey Mukha
 
 
 SourceFiles
@@ -107,7 +129,7 @@ public:
             const bool excludeWallAdjacent
         ) const;
         
-        //- Find cells close than 2max(h) to the wall
+        //- Find cells closer than 2max(h) to the wall
         tmp<labelField> findCandidateCellLabels
         (
             const scalarField & dist,
@@ -124,4 +146,3 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
-

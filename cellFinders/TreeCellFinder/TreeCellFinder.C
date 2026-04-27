@@ -83,7 +83,7 @@ void Foam::TreeCellFinder::findCellIndices
 
     if (debug)
     {
-        Info<< "TreeCellSampler: Constructing mesh bounding box" << nl;
+        Info<< "TreeCellFinder: Constructing mesh bounding box" << nl;
     }
 
     treeBoundBox boundBox(mesh().bounds());
@@ -160,12 +160,10 @@ void Foam::TreeCellFinder::findCellIndices
     );
 
 
-    // Grab face centres, normal and adjacent cells' centres to each patch face
+    // Grab face centres and normals for each patch face
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField faceNormals = tfaceNormals();
-    const tmp<vectorField> tcellCentres = patch().Cn();
-    const vectorField cellCentres = tcellCentres();
 
     // Grab the global indices of adjacent cells
     const UList<label> & faceCells = patch().faceCells();
@@ -461,7 +459,7 @@ Foam::TreeCellFinder::findCandidateCellLabels
 
     if (debug)
     {
-        Info<< "TreeCellFinderSampler: Constructing mesh bounding box" << nl;
+        Info<< "TreeCellFinder: Constructing candidate cell list" << nl;
     }
 
     tmp<labelField> tCandidates(new labelField(mesh().nCells()));
@@ -538,13 +536,13 @@ Foam::tmp<Foam::volScalarField> Foam::TreeCellFinder::distanceField() const
 
     bool precomputedDist = mag(max(dist().primitiveField())) > VSMALL;
 
-    if (debug)
-    {
-        Info<<"CellFinder: using precumputed distance field" << nl;
-    }
-
     if (!precomputedDist)
     {
+        if (debug)
+        {
+            Info<< "CellFinder: no precomputed distance field found" << nl;
+        }
+
         labelHashSet patchIDs(1);
         patchIDs.insert(patch().index());
 
@@ -571,6 +569,10 @@ Foam::tmp<Foam::volScalarField> Foam::TreeCellFinder::distanceField() const
             Info<< "CellFinder: Computing dist field" << nl;
         }
         pdm->correct(dist.ref());
+    }
+    else if (debug)
+    {
+        Info<<"CellFinder: using precomputed distance field" << nl;
     }
 
     return dist;
