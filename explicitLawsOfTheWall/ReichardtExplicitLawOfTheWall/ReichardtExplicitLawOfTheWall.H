@@ -27,18 +27,40 @@ Class
           \frac{y^+}{B_1} \exp(-y^+/B_2) \right)
     \f]
 
-    The approximation is constructed as a modification to the law of Cai
-    and Sagaut.
+    Reichardt's law is explicit in \f$u^+(y^+)\f$ but implicit in the wall
+    stress when the sampled velocity and wall-normal distance are known. This
+    class replaces the resulting nonlinear wall-stress solve by the explicit
+    approximation of Nuca, Mukha, and Parsani. The approximation is constructed
+    by adding a Gaussian perturbation to the explicit law of Cai and Sagaut.
+
+    The approximation coefficients depend on the model constants. The
+    \c approximant entry controls which coefficient set is used:
+    \verbatim
+        auto       Select highRe for kappa=0.387, B1=11, B2=3 and
+                   C=6.663;
+                   select classical for kappa=0.41, B1=11, B2=3 and C=7.8;
+                   otherwise select global.
+        highRe     Fixed three-Gaussian fit for the high-Re constants above.
+                   The reported maximum relative error with respect to the
+                   original Reichardt law is below 0.04%.
+        classical  Fixed three-Gaussian fit for the classical constants above.
+                   The reported maximum relative error with respect to the
+                   original Reichardt law is below 0.04%.
+        global     One-Gaussian regression in kappa and C for B1=11, B2=3.
+                   This is the fallback for user-selected constants and is
+                   constructed to remain within the 1% relative-error target.
+    \endverbatim
 
     Usage:
     \verbatim
     Law
     {
-        type      ExplicitReichardt;
-        kappa     value; (default 0.4)
+        type      Reichardt;
+        kappa     value; (default 0.41)
         B1        value; (default 11)
         B2        value; (default 3)
         C         value; (default 7.8)
+        approximant auto; (default auto; highRe, classical or global)
     }
     \endverbatim
 
@@ -50,8 +72,17 @@ Class
         Zeitschrift fur Angewandte Mathematik und Mechanik 31(7) (pp. 208-219).
     \endverbatim
 
+    Reference for the explicit approximation:
+    \verbatim
+        Nuca, R., Mukha, T., and Parsani, M. (2025).
+        Explicit formulations of widely used wall models for large-eddy
+        simulation.
+        Physics of Fluids, 37, 035215.
+        https://doi.org/10.1063/5.0253882
+    \endverbatim
+
 Contributors/Copyright:
-    2024 Timofey Mukha
+    2024-2026 Timofey Mukha
 
 
 SourceFiles
@@ -66,7 +97,6 @@ SourceFiles
 #include "typeInfo.H"
 #include "dictionary.H"
 #include "ExplicitLawOfTheWall.H"
-#include "CaiSagautExplicitLawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -94,7 +124,33 @@ class ReichardtExplicitLawOfTheWall: public ExplicitLawOfTheWall
         //- The C model constant
         scalar C_;
 
-        CaiSagautExplicitLawOfTheWall CaiSagaut_;
+        //- Equivalent logarithmic intercept, C + log(kappa)/kappa
+        scalar B_;
+
+        //- Approximation family: auto, highRe, classical or global
+        word approximant_;
+
+        //- Cai-Sagaut blending parameters
+        scalar p_;
+        scalar s_;
+
+        //- Gaussian perturbation coefficients
+        label nGaussians_;
+        scalar mu_[3];
+        scalar sigma_[3];
+        scalar xi_[3];
+
+        //- Select and store the approximation coefficients
+        void setApproximantCoeffs(const word& approximant);
+
+        //- Return whether two constants should be considered matching
+        static bool approxEqual(const scalar a, const scalar b);
+
+        //- Compute the Cai-Sagaut component of u+
+        scalar CaiSagautUPlus(const scalar Re) const;
+
+        //- Compute the perturbation component of u+
+        scalar deltaUPlus(const scalar log10Re) const;
 
 public:
 
@@ -172,6 +228,30 @@ public:
         scalar C() const
         {
             return C_;
+        }
+
+        //- Return the equivalent log-law B constant
+        scalar B() const
+        {
+            return B_;
+        }
+
+        //- Return the selected approximant
+        word approximant() const
+        {
+            return approximant_;
+        }
+
+        //- Return the Cai-Sagaut p coefficient
+        scalar p() const
+        {
+            return p_;
+        }
+
+        //- Return the Cai-Sagaut s coefficient
+        scalar s() const
+        {
+            return s_;
         }
 
         //- Print info to terminal

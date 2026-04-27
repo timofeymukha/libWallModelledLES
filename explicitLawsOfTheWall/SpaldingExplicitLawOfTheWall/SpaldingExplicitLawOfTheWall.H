@@ -27,16 +27,44 @@ Class
              \frac{1}{2}(\kappa u^+)^2 - \frac{1}{6}(\kappa u^+)^3 \right)
     \f]
 
-    The approximation is constructed as a modification to the law of Cai
-    and Sagaut.
+    Spalding's law is implicit in the wall stress. In a wall model this means
+    that every wall face requires an iterative solve for \f$u_\tau\f$ at every
+    update. This class replaces that nonlinear solve by the explicit
+    approximation of Nuca, Mukha, and Parsani. The approximation is constructed
+    by adding a Gaussian perturbation to the explicit law of Cai and Sagaut,
+    which makes the wall-stress evaluation algebraic while retaining the
+    accuracy of the original implicit Spalding relation.
+
+    The approximation coefficients depend on the logarithmic-law constants.
+    The \c approximant entry controls which coefficient set is used:
+    \verbatim
+        auto       Select highRe for kappa=0.387, B=4.21;
+                   select classical for kappa=0.4, B=5.5;
+                   otherwise select global.
+        highRe     Fixed three-Gaussian fit for high-Re constants
+                   kappa=0.387, B=4.21. The reported maximum relative
+                   error with respect to the original Spalding law is
+                   below 0.04%.
+        classical  Fixed three-Gaussian fit for classical constants
+                   kappa=0.4, B=5.5. The reported maximum relative
+                   error with respect to the original Spalding law is
+                   below 0.04%.
+        global     One-Gaussian regression in kappa and B for other constants.
+                   This is the fallback for user-selected constants and is
+                   constructed to remain within the 1% relative-error target.
+    \endverbatim
+
+    The errors above are relative to the wall stress obtained from the original
+    implicit Spalding relation solved iteratively.
 
     Usage:
     \verbatim
     Law
     {
-        type      ExplicitSpalding;
+        type        Spalding;
         kappa     value; (default 0.4)
-        B         value; (default 5)
+        B         value; (default 5.5)
+        approximant auto; (default auto; highRe, classical or global)
     }
     \endverbatim
 
@@ -48,8 +76,17 @@ Class
         28(3), 455-458.
     \endverbatim
 
+    Reference for the explicit approximation:
+    \verbatim
+        Nuca, R., Mukha, T., and Parsani, M. (2025).
+        Explicit formulations of widely used wall models for large-eddy
+        simulation.
+        Physics of Fluids, 37, 035215.
+        https://doi.org/10.1063/5.0253882
+    \endverbatim
+
 Contributors/Copyright:
-    2024 Timofey Mukha
+    2024-2026 Timofey Mukha
 
 
 SourceFiles
@@ -64,7 +101,6 @@ SourceFiles
 #include "typeInfo.H"
 #include "dictionary.H"
 #include "ExplicitLawOfTheWall.H"
-#include "CaiSagautExplicitLawOfTheWall.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -86,7 +122,30 @@ class SpaldingExplicitLawOfTheWall: public ExplicitLawOfTheWall
         //- The B model constant
         scalar B_;
 
-        CaiSagautExplicitLawOfTheWall CaiSagaut_;
+        //- Approximation family: auto, highRe, classical or global
+        word approximant_;
+
+        //- Cai-Sagaut blending parameters
+        scalar p_;
+        scalar s_;
+
+        //- Gaussian perturbation coefficients
+        label nGaussians_;
+        scalar mu_[3];
+        scalar sigma_[3];
+        scalar xi_[3];
+
+        //- Select and store the approximation coefficients
+        void setApproximantCoeffs(const word& approximant);
+
+        //- Return whether two constants should be considered matching
+        static bool approxEqual(const scalar a, const scalar b);
+
+        //- Compute the Cai-Sagaut component of u+
+        scalar CaiSagautUPlus(const scalar Re) const;
+
+        //- Compute the perturbation component of u+
+        scalar deltaUPlus(const scalar log10Re) const;
 
 public:
 
@@ -150,6 +209,24 @@ public:
         scalar B() const
         {
             return B_;
+        }
+
+        //- Return the selected approximant
+        word approximant() const
+        {
+            return approximant_;
+        }
+
+        //- Return the Cai-Sagaut p coefficient
+        scalar p() const
+        {
+            return p_;
+        }
+
+        //- Return the Cai-Sagaut s coefficient
+        scalar s() const
+        {
+            return s_;
         }
 
         //- Print info to terminal

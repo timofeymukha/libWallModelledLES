@@ -53,19 +53,19 @@ Foam::EquilibriumODEExplicitLawOfTheWall::EquilibriumODEExplicitLawOfTheWall
     ExplicitLawOfTheWall(),
     kappa_(kappa),
     Aplus_(Aplus),
-    CaiSagaut_(kappa_, 0, 1.19072560e+00, 2.18729438e+02)
+    B_(get_B(kappa_, Aplus_)),
+    approximant_("auto"),
+    p_(0),
+    s_(0),
+    nGaussians_(0),
+    mu_{0, 0, 0},
+    sigma_{0, 0, 0},
+    xi_{0, 0, 0}
 {
     constDict_.add("kappa", kappa);
     constDict_.add("Aplus", Aplus);
-
-//            nutp = lambda yp, kappa, Aplus: kappa*yp*(1 - np.exp(-yp/Aplus))**2
-//        integrand = lambda yp, kappa, Aplus: 1/(1 + nutp(yp, kappa, Aplus))
-//        return np.array([quad(integrand, 0, val, args=(kappa, Aplus))[0] for val in yp])
-
-    const scalar B =  get_B(kappa, Aplus);
-    this->CaiSagaut_.set_B(4.21);
-
-    Info << "B" << B << nl;
+    setApproximantCoeffs(approximant_);
+    constDict_.add("approximant", approximant_);
 
     if (debug)
     {
@@ -82,11 +82,18 @@ Foam::EquilibriumODEExplicitLawOfTheWall::EquilibriumODEExplicitLawOfTheWall
     ExplicitLawOfTheWall(dict),
     kappa_(constDict_.lookupOrAddDefault<scalar>("kappa", 0.41)),
     Aplus_(constDict_.lookupOrAddDefault<scalar>("Aplus", 17)),
-    CaiSagaut_(kappa_, 0, 1.19072560e+00, 2.18729438e+02)
+    B_(get_B(kappa_, Aplus_)),
+    approximant_(constDict_.lookupOrAddDefault<word>("approximant", "auto")),
+    p_(0),
+    s_(0),
+    nGaussians_(0),
+    mu_{0, 0, 0},
+    sigma_{0, 0, 0},
+    xi_{0, 0, 0}
 
 {
-    const scalar B =  get_B(this->kappa(), this->Aplus());
-    this->CaiSagaut_.set_B(4.21);
+    setApproximantCoeffs(approximant_);
+    constDict_.set("approximant", approximant_);
 
     if (debug)
     {
@@ -107,12 +114,119 @@ Foam::EquilibriumODEExplicitLawOfTheWall::EquilibriumODEExplicitLawOfTheWall
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+bool Foam::EquilibriumODEExplicitLawOfTheWall::approxEqual
+(
+    const scalar a,
+    const scalar b
+)
+{
+    return mag(a - b) < 1e-6;
+}
+
+
+void Foam::EquilibriumODEExplicitLawOfTheWall::setApproximantCoeffs
+(
+    const word& approximant
+)
+{
+    word selected(approximant);
+
+    if (selected == "auto")
+    {
+        if (approxEqual(kappa_, 0.387) && approxEqual(Aplus_, 15.2516))
+        {
+            selected = "highRe";
+        }
+        else if (approxEqual(kappa_, 0.41) && approxEqual(Aplus_, 17))
+        {
+            selected = "classical";
+        }
+        else
+        {
+            selected = "global";
+        }
+    }
+
+    if (selected == "highRe")
+    {
+        nGaussians_ = 3;
+        mu_[0] = 2.747578886341323; sigma_[0] = 2.986331718406963; xi_[0] = 0.14158434859130883;
+        mu_[1] = 3.217234942007338; sigma_[1] = 0.5812144329347989; xi_[1] = 0.053147124312226554;
+        mu_[2] = 4.155551202580644; sigma_[2] = 0.945720164071122; xi_[2] = -0.03125681152478188;
+        p_ = 1.1907235645597454;
+        s_ = 218.72498935725267;
+    }
+    else if (selected == "classical")
+    {
+        nGaussians_ = 3;
+        mu_[0] = 2.712195304468856; sigma_[0] = 1.153331759918931; xi_[0] = 0.04253708716912398;
+        mu_[1] = 2.785538268044812; sigma_[1] = 3.1614868745529012; xi_[1] = 0.13731053348456193;
+        mu_[2] = 2.547620704489551; sigma_[2] = 0.6124242434703746; xi_[2] = 0.012277142724028153;
+        p_ = 1.2029211749614945;
+        s_ = 247.0697345675632;
+    }
+    else if (selected == "global")
+    {
+        nGaussians_ = 1;
+        mu_[0] = 3.498902867914008*kappa_ + 0.13030217331542102*Aplus_ - 0.9085784915858164;
+        sigma_[0] = -1.2191000776979632*kappa_ - 0.02844761945101745*Aplus_ + 1.5494923375953826;
+        xi_[0] = -0.39993239380818907*kappa_ - 0.0072855142653190505*Aplus_ + 0.3209799815846869;
+        mu_[1] = 0; sigma_[1] = 0; xi_[1] = 0;
+        mu_[2] = 0; sigma_[2] = 0; xi_[2] = 0;
+        p_ = 0.22127889108172996*kappa_ + 0.0052185898765612845*Aplus_ + 1.0616974939891426;
+        s_ = -130.48555166521916*kappa_ + 7.964453719974989*Aplus_ + 10.6631049793274;
+    }
+    else
+    {
+        FatalErrorInFunction
+            << "Unknown EquilibriumODE explicit approximant " << selected << nl
+            << "Valid options are auto, highRe, classical and global."
+            << abort(FatalError);
+    }
+
+    approximant_ = selected;
+}
+
+
+Foam::scalar Foam::EquilibriumODEExplicitLawOfTheWall::CaiSagautUPlus
+(
+    const scalar Re
+) const
+{
+    const scalar f = exp(-Re / s_);
+    const scalar E = exp(kappa_ * B_);
+
+    scalar uPlus = Foam::pow(f, p_) * Foam::sqrt(Re);
+    uPlus += Foam::pow(1 - f, p_) / kappa_
+        * boost::math::lambert_w0(kappa_*E*Re);
+
+    return uPlus;
+}
+
+
+Foam::scalar Foam::EquilibriumODEExplicitLawOfTheWall::deltaUPlus
+(
+    const scalar log10Re
+) const
+{
+    scalar delta = 0;
+
+    for (label i = 0; i < nGaussians_; i++)
+    {
+        delta += Helpers::gaussian(mu_[i], sigma_[i], xi_[i], log10Re);
+    }
+
+    return delta;
+}
+
+
 void Foam::EquilibriumODEExplicitLawOfTheWall::printCoeffs() const
 {
     Info<< nl << "EquilibriumODEExplicit law of the wall" << nl;
     Info<< token::BEGIN_BLOCK << incrIndent << nl;
     Info<< indent << "kappa" << indent << kappa_ << nl;
     Info<< indent << "Aplus" << indent <<  Aplus_ << nl;
+    Info<< indent << "approximant" << indent <<  approximant_ << nl;
     Info<< token::END_BLOCK << nl << nl;
 }
 
@@ -129,14 +243,9 @@ Foam::scalar Foam::EquilibriumODEExplicitLawOfTheWall::uTau
     const scalar y = sampler.h()[index];
     const scalar re = u * y / nu;
 
-    scalar uPlus = u / CaiSagaut_.uTau(sampler, index, nu);
-    scalar uPlusDelta = 0;
+    const scalar uPlus = CaiSagautUPlus(re) + deltaUPlus(Foam::log10(re));
 
-    uPlusDelta += Helpers::gaussian(2.74758381e+00, 2.98641869e+00,  1.41579957e-01, Foam::log10(re));
-    uPlusDelta += Helpers::gaussian(4.15537857e+00, 9.45524229e-01, -3.12760808e-02, Foam::log10(re));
-    uPlusDelta += Helpers::gaussian(3.21739839e+00, 5.81214845e-01,  5.31676710e-02, Foam::log10(re));
-
-    return u / (uPlus + uPlusDelta);
+    return u / uPlus;
 
 }
 

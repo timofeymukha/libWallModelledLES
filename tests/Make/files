@@ -7,7 +7,9 @@ fixtures.C
 ./samplers/SampledField/testSampledVelocityField.C
 ./samplers/SampledField/testSampledWallGradUField.C
 ./samplers/SampledField/testSampledPGradField.C
-./lawsOfTheWall/CaiSagautLawOfTheWall/testCaiSagautLawOfTheWall.C
+./explicitLawsOfTheWall/CaiSagautExplicitLawOfTheWall/testCaiSagautExplicitLawOfTheWall.C
+./explicitLawsOfTheWall/ReichardtExplicitLawOfTheWall/testReichardtExplicitLawOfTheWall.C
+./explicitLawsOfTheWall/EquilibriumODEExplicitLawOfTheWall/testEquilibriumODEExplicitLawOfTheWall.C
 ./lawsOfTheWall/RoughLogLawOfTheWall/testRoughLogLawOfTheWall.C
 ./lawsOfTheWall/SpaldingLawOfTheWall/testSpaldingLawOfTheWall.C
 ./lawsOfTheWall/ReichardtLawOfTheWall/testReichardtLawOfTheWall.C
@@ -15,6 +17,7 @@ fixtures.C
 ./lawsOfTheWall/IntegratedWernerWengleLawOfTheWall/testIntegratedWernerWengleLawOfTheWall.C
 ./lawsOfTheWall/IntegratedReichardtLawOfTheWall/testIntegratedReichardtLawOfTheWall.C
 ./lawsOfTheWall/LawOfTheWall/testLawOfTheWall.C
+./explicitLawsOfTheWall/SpaldingExplicitLawOfTheWall/testSpaldingExplicitLawOfTheWall.C
 ./eddyViscosities/VanDriestEddyViscosity/testVanDriestEddyViscosity.C
 ./eddyViscosities/DupratEddyViscosity/testDupratEddyViscosity.C
 ./eddyViscosities/EddyViscosity/testEddyViscosity.C
@@ -23,4 +26,3 @@ fixtures.C
 ./cellFinders/CrawlingCellFinder/testCrawlingCellFinder.C
 ./cellFinders/TreeCellFinder/testTreeCellFinder.C
 EXE=./testRunner
-
