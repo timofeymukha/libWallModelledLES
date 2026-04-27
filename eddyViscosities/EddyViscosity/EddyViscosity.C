@@ -90,23 +90,14 @@ Foam::autoPtr<Foam::EddyViscosity> Foam::EddyViscosity::New
 
 void Foam::EddyViscosity::write(Ostream & os) const
 {
-    
-    auto keys = constDict_.keys();
-    label dictSize = constDict_.keys().size();
-    
     os.writeKeyword("EddyViscosity")
         << nl;
-    os.writeKeyword("{") 
+    os.writeKeyword("{")
         << incrIndent << nl;
-    os.writeKeyword("type") 
-        << type() << token::END_STATEMENT << nl;
-   
-    for (int i=0; i<dictSize; i++)
-    {
-        os.writeKeyword(keys[i])
-            << constDict_[keys[i]][0] << token::END_STATEMENT << nl;
-    }
-   
+
+    os.writeEntry("type", type());
+    constDict_.writeEntries(os);
+
     os  << decrIndent;
     os.writeKeyword("}")
         << nl;

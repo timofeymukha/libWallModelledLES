@@ -32,7 +32,7 @@ Class
     EddyViscosity
     {
         type      Duprat;
-        APlus     value; (default 17)
+        APlus     value; (default 18)
         beta      value; (default 0.78)
         kappa     value; (default 0.4)
     }
@@ -41,7 +41,7 @@ Class
     References:
     \verbatim
         [Duprat]
-        Duprat, C., Balarac, G., Meetais, O.,
+        Duprat, C., Balarac, G., Metais, O.,
         Congedo, P. M., & Brugiere, O. (2011).
         A wall-layer model for large-eddy simulations of turbulent flows
         with/out pressure gradient.
@@ -50,7 +50,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2016-2019 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -87,7 +87,7 @@ class DupratEddyViscosity: public EddyViscosity
         //- The A+ model constant
         scalar APlus_;
 
-        //- The beta model cosntant
+        //- The beta model constant
         scalar beta_;
 
 public:

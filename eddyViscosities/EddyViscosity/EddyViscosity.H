@@ -26,11 +26,11 @@ Class
     of eddy viscosity on a wall-normal 1D mesh associated with each face.
 
 Contributors/Copyright:
-    2016-2019 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
-    LawOfTheWall.C
+    EddyViscosity.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -85,7 +85,7 @@ public:
         //- Copy constructor
         EddyViscosity(const EddyViscosity & orig) = default;
 
-        //- Assignemnt
+        //- Assignment
         EddyViscosity & operator=(const EddyViscosity &) = default;
 
         //- Clone

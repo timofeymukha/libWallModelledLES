@@ -166,6 +166,19 @@ TEST_F(DupratEddyViscosityTest, Value)
     ASSERT_DOUBLE_EQ(values[1], refValues[1]);
 }
 
+TEST_F(DupratEddyViscosityTest, ValueZeroShearAndPressureGradient)
+{
+    DupratEddyViscosity eddy = DupratEddyViscosity(dictionary());
+
+    scalarList y(2, 0.01);
+    y[1] = 0.1;
+
+    scalarList values = eddy.value(y, 0.0, 0.0, 8e-6);
+
+    ASSERT_DOUBLE_EQ(values[0], 0.0);
+    ASSERT_DOUBLE_EQ(values[1], 0.0);
+}
+
 TEST_F(DupratEddyViscosityTest, ValueSampler)
 {
     extern argList * mainArgs;
@@ -196,4 +209,3 @@ TEST_F(DupratEddyViscosityTest, ValueSampler)
     ASSERT_DOUBLE_EQ(values[0], refValues[0]);
     ASSERT_DOUBLE_EQ(values[1], refValues[1]);
 }
-

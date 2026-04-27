@@ -25,7 +25,7 @@ Class
     Corresponds to the formulation used by Cabot in [Cabot].
 
     \f[
-        \nu_t = \kappa u_\tau y (1 - \exp(- y^+/A))
+        \nu_t = \kappa u_\tau y (1 - \exp(- y^+/A^+))^2
     \f]
 
     Usage:
@@ -48,7 +48,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2016-2019 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -97,7 +97,7 @@ public:
         //- Construct provided name, dictionary and sampler
         VanDriestEddyViscosity(const word &, const dictionary &);
 
-        //- Construct from model cosntants
+        //- Construct from model constants
         VanDriestEddyViscosity(const scalar kappa, const scalar APlus);
 
         //- Copy constructor

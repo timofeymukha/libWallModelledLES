@@ -143,6 +143,12 @@ Foam::DupratEddyViscosity::value
 
     const scalar uP = pow(nu*magPGrad, 1./3);
     const scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
+
+    if (uTauP <= VSMALL)
+    {
+        return [](const scalar) { return scalar(0); };
+    }
+
     const scalar alpha = sqr(uTau)/sqr(uTauP);
 
     const scalar kappa = kappa_;
@@ -169,11 +175,17 @@ Foam::scalarList Foam::DupratEddyViscosity::value
 
     const scalar uP = pow(nu*magPGrad, 1./3);
     const scalar uTauP = sqrt(sqr(uTau) + sqr(uP));
+
+    scalarList values(y.size(), 0.0);
+
+    if (uTauP <= VSMALL)
+    {
+        return values;
+    }
+
     const scalar alpha = sqr(uTau)/sqr(uTauP);
 
     const scalarList yStar = y*uTauP/nu;
-
-    scalarList values(y.size(), 0.0);
 
     forAll(values, i)
     {
@@ -185,4 +197,3 @@ Foam::scalarList Foam::DupratEddyViscosity::value
 }
 
 // ************************************************************************* //
-
