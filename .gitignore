@@ -60,3 +60,4 @@ foamVersionThisIsCompiledFor
 tests/integrationTests/testIntegration
 tests/testCases/channel_flow/0.01
 
+.temp
