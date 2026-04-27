@@ -38,7 +38,8 @@ such that the desired stress is realized.
 ## Building
 
 - The `wmake` build system is used.
-- The Allwmake / Allwclean scripts build and clean up the build, respectively.
+- The `Allwmake` / `Allwclean` scripts build and clean up the build, respectively. Allways use these scripts and not `wmake` directly.
+- Pass `-j` to `Allwmake` to speed up compilation.
 
 ## Testing
 - `tests` contains unit tests structured in folders matching the code in the
