@@ -65,17 +65,16 @@ class ChannelFlow : public ::testing::Test
     public:
         ChannelFlow()
         {
-            auto code = system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/system .");
-            code = system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/constant .");
-            code = system("cp -r $LIBWMLES_DIR/tests/testCases/channel_flow/0 .");
+            system("cp -r testCases/channel_flow/system .");
+            system("cp -r testCases/channel_flow/constant .");
+            system("cp -r testCases/channel_flow/0 .");
 
         }
 
         virtual ~ChannelFlow()
         {
-            auto code = system("rm -r system");
-            code = system("rm -r constant");
-            code = system("rm -r 0");
+            system("rm -r system");
+            system("rm -r constant");
+            system("rm -r 0");
         }
 };
-

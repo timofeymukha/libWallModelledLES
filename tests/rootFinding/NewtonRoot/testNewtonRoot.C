@@ -80,7 +80,10 @@ TEST(NewtonRootFinder, Root)
     NewtonRootFinder rootFinder =
         NewtonRootFinder("Newton", value, deriv, maxIter);
 
-    ASSERT_NEAR(rootFinder.root(2., -1, 1), 0.0, 1e-10);
+    std::pair<scalar, label> result = rootFinder.root(2., -1, 1);
+
+    ASSERT_NEAR(result.first, 0.0, 1e-10);
+    ASSERT_GT(result.second, 0);
 
 
     // Now through the RTS
