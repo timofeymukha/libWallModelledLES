@@ -61,7 +61,10 @@ A multitude of laws of the wall are implemented:
 
 The integrated versions are preferable if you use the wall-adjacent cell for sampling.
 Otherwise, there is no large difference in what law to use, and Spalding's law is a reasonable default choice.
-The Newton root finder should be used to solve the associated non-linear algebraic equation.
+The Newton root finder should be used to solve the associated non-linear algebraic equation when a reliable derivative is
+available. TOMS748 and Bisection are bracketed derivative-free alternatives.
+Root finder dictionaries select the algorithm and may set :code:`maxIter`; all current algebraic root finders use the same
+fixed internal binary digit target for the root estimate, and the tolerance is not user-configurable.
 
 ODE-based models
 ----------------

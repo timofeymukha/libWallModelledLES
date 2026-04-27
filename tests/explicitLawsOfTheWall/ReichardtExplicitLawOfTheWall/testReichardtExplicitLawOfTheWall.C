@@ -17,7 +17,7 @@ class ReichardtExplicitLawOfTheWallChannelFlowTest : public ChannelFlow
 
 TEST_F(ReichardtExplicitLawOfTheWallTest, ConstructFromConstantsHighRe)
 {
-    ReichardtExplicitLawOfTheWall law(0.387, 11, 3, 6.663050609696008);
+    ReichardtExplicitLawOfTheWall law(0.387, 11, 3, 6.663);
 
     ASSERT_DOUBLE_EQ(law.kappa(), 0.387);
     ASSERT_DOUBLE_EQ(law.B1(), 11);

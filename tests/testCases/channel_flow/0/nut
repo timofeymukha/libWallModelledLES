@@ -32,7 +32,6 @@ boundaryField
          RootFinder
          {
              type    Newton;
-             eps     0.01;
              maxIter 10;
          }
          Law

@@ -22,22 +22,23 @@ Class
 @brief
     Root finder based on the bisection method.
 
-   Controlled by two parameters:
-    the max number of iterations and the relative error tolerance.
-    The bisection method is meant to be used with equations where the Jacobian
-    is not well defined.
+    Controlled by the maximum number of iterations. The bisection method is
+    meant to be used with equations where the Jacobian is not well defined.
+    The root must be bracketed by the supplied lower and upper bounds.
+    The convergence tolerance is fixed internally as a binary digit target for
+    the root estimate.
 
     Usage
     \verbatim
     RootFinder
     {
         type       Bisection;
-        maxIter    value; (default 10)
+        maxIter    value; (default 30)
     }
     \endverbatim
 
 Contributors/Copyright:
-    2016-2025 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -49,6 +50,7 @@ SourceFiles
 #define BisectionRootFinder_H
 
 #include "RootFinder.H"
+#include <limits>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -61,6 +63,11 @@ namespace Foam
 
 class BisectionRootFinder : public RootFinder
 {
+private:
+
+    //- Number of binary digits requested in the solution
+    label getDigits_ =
+        static_cast<int>(std::numeric_limits<scalar>::digits * 0.4);
 
 public:
 

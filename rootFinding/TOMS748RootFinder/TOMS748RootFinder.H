@@ -22,7 +22,8 @@ Class
 @brief
     Root finder wrapping Boost's toms748 algorithm.
 
-    Controlled by on parameter: the max number of iterations.
+    Controlled by the maximum number of iterations. The convergence tolerance is
+    fixed internally as a binary digit target for the root estimate.
 
     Usage
     \verbatim
@@ -34,7 +35,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2023 Timofey Mukha
+    2023-2026 Timofey Mukha
 
 SourceFiles
     TOMS748RootFinder.C
@@ -58,9 +59,9 @@ namespace Foam
 class TOMS748RootFinder : public RootFinder
 {
 private:
-    //- Number of correct digits in the solution
+    //- Number of binary digits requested in the solution
     label getDigits_ =
-        static_cast<int>(std::numeric_limits<scalar>::digits - 5);
+        static_cast<int>(std::numeric_limits<scalar>::digits * 0.4);
 
 public:
 
@@ -70,8 +71,8 @@ public:
 
     // Constructors
 
-        //- Construct given name, function, its derivative, tolerance and
-        //  maximum number of iterations
+        //- Construct given name, function, its derivative and maximum number
+        //  of iterations
         TOMS748RootFinder
         (
             const word & rootFinderName,

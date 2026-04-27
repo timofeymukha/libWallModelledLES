@@ -2,6 +2,7 @@
 #include "fvCFD.H"
 #include "EquilibriumODEExplicitLawOfTheWall.H"
 #include "SingleCellSampler.H"
+#include "TOMS748RootFinder.H"
 #include "scalarListIOList.H"
 #undef Log
 #include "gtest.h"
@@ -40,39 +41,6 @@ namespace
         return sum*h/3;
     }
 
-
-    scalar solveBisection
-    (
-        const std::function<scalar(scalar)>& f,
-        scalar lower,
-        scalar upper
-    )
-    {
-        scalar fLower = f(lower);
-
-        for (label i = 0; i < 200; i++)
-        {
-            const scalar mid = 0.5*(lower + upper);
-            const scalar fMid = f(mid);
-
-            if (mag(fMid) < 1e-12 || mag(upper - lower) < 1e-12)
-            {
-                return mid;
-            }
-
-            if (fLower*fMid > 0)
-            {
-                lower = mid;
-                fLower = fMid;
-            }
-            else
-            {
-                upper = mid;
-            }
-        }
-
-        return 0.5*(lower + upper);
-    }
 }
 
 
@@ -210,7 +178,15 @@ TEST_F
                     );
             };
 
-        const scalar implicitUTau = solveBisection(value, 0.001, 20.0);
+        std::function<scalar(scalar)> derivative =
+            [](const scalar)
+            {
+                return 0;
+            };
+
+        TOMS748RootFinder rootFinder("TOMS748", value, derivative, 100);
+        const scalar implicitUTau =
+            rootFinder.root(explicitUTau, 0.001, 20.0).first;
 
         const scalar relativeError =
             mag(explicitUTau - implicitUTau)/implicitUTau;

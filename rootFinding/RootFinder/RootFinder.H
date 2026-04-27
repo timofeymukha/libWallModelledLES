@@ -23,11 +23,17 @@ Class
     Base abstract class for finding roots of non-linear algebraic equations.
 
     In the context of wall modelling the latter are provided by laws of the
-    wall. The root finders are therefore used in conjuction with the LOTW
+    wall. The root finders are therefore used in conjunction with the LOTW
     wall model.
 
+    User dictionaries select the algorithm and can set \c maxIter. The
+    convergence tolerance is not user configurable. The current Newton,
+    TOMS748 and Bisection implementations use the same internal binary digit
+    target, corresponding to approximately single-precision relative accuracy
+    in the root estimate.
+
 Contributors/Copyright:
-    2016-2024 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 
@@ -148,7 +154,7 @@ public:
 
     // Member Functions
 
-        //- Return root
+        //- Return root and iteration count
         virtual std::pair<scalar, label> root(scalar, scalar, scalar) const = 0;
 
         //- Set the implicit function defining the equation

@@ -24,6 +24,10 @@ following:
     type         Spalding;
   }
 
+  The :code:`RootFinder` sub-dictionary controls the algorithm and optional
+  :code:`maxIter` only. Algebraic root-finder tolerances are fixed internally
+  and are not user-configurable.
+
 * In your :code:`0` directory, you should add a new volScalarField, :code:`hSampler`, see the :ref:`sampling` section for details.
   For a quick start, set the value of :code:`hSampler` to :code:`uniform 0` at the wall, and use :code:`zeroGradient` at all
   non-wall patch boundaries.
@@ -50,8 +54,8 @@ There is a number of cases that use the library available on the web.
 These can serve as good examples on how to setup your simulation!
 
 - WMLES of channel and flat-plate TBL flow on unstructured grids.
-  https://doi.org/10.6084/m9.figshare.12482438.v2 
+  https://doi.org/10.6084/m9.figshare.12482438.v2
 - WMLES of channel flow and flow over a backward-facing step.
-  https://doi.org/10.6084/m9.figshare.6790013.v1 
-- WMLES of a flat-plate TBL using unstructured grids. 
-  https://doi.org/10.6084/m9.figshare.6061298.v2 
+  https://doi.org/10.6084/m9.figshare.6790013.v1
+- WMLES of a flat-plate TBL using unstructured grids.
+  https://doi.org/10.6084/m9.figshare.6061298.v2

@@ -67,7 +67,6 @@ Foam::BisectionRootFinder::BisectionRootFinder
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-// This one probably needs some work
 std::pair<Foam::scalar, Foam::label> Foam::BisectionRootFinder::root
 (
     scalar guess,
@@ -75,64 +74,72 @@ std::pair<Foam::scalar, Foam::label> Foam::BisectionRootFinder::root
     scalar upperBound
 ) const
 {
-    label i = 1;
-
     scalar a = lowerBound;
-    scalar b  = upperBound;
-    scalar c = 0;
-    scalar fC = 0;
+    scalar b = upperBound;
+    scalar fA = f_(a);
+    scalar fB = f_(b);
 
-    if (f_(a)*f_(b) >= 0)
+    if (a > b)
     {
-        // Increase interval range towards the wall
-        a = SMALL;
+        Foam::Swap(a, b);
+        Foam::Swap(fA, fB);
     }
 
-    if (f_(a)*f_(b) >= 0)
+    if (mag(fA) <= ROOTVSMALL)
+    {
+        return std::make_pair(a, 0);
+    }
+
+    if (mag(fB) <= ROOTVSMALL)
+    {
+        return std::make_pair(b, 0);
+    }
+
+    if (sign(fA) == sign(fB))
     {
         FatalErrorIn
         (
-            "Foam::scalar Foam::BisectionRootFinder::root\n"
+            "Foam::BisectionRootFinder::root\n"
             "(\n"
-            "  scalar guess\n"
+            "    scalar guess,\n"
+            "    scalar lowerBound,\n"
+            "    scalar upperBound\n"
             ") const"
-        )   << "Root is not bracketed.  f(a) = " << f_(a) << " f(b) = " << f_(b)
+        )   << "Root is not bracketed. f(" << a << ") = " << fA
+            << " and f(" << b << ") = " << fB
             << abort(FatalError);
     }
 
-    while (i <= maxIter_)
+    boost::uintmax_t maxIter = static_cast<boost::uintmax_t>(maxIter_);
+    boost::math::tools::eps_tolerance<scalar> tolerance(getDigits_);
+
+    label evaluations = 0;
+    auto wrapper = [this, &evaluations](const scalar x)
     {
-       c = 0.5*(a + b);
-       fC = f_(c);
+        evaluations++;
+        return f_(x);
+    };
 
-       if ( (fC < SMALL) && (0.5*(b - a) < 1e-3) )
-       {
-           return std::make_pair(c, i);
-       }
-       i++;
-
-       if (sign(fC) == sign(f_(a)) )
-       {
-           a = c;
-       }
-       else
-       {
-           b = c;
-       }
-    }
+    std::pair<scalar, scalar> result =
+        boost::math::tools::bisect(wrapper, a, b, tolerance, maxIter);
 
     if (debug)
     {
-        WarningIn
-        (
-            "Foam::scalar Foam::BisectionRootFinder::root\n"
-            "(\n"
-            "    scalar guess,\n"
-            ") const"
-        )   << "Maximum number of iterations exceeded";
+        if (maxIter >= static_cast<boost::uintmax_t>(maxIter_))
+        {
+            WarningIn
+            (
+                "Foam::BisectionRootFinder::root\n"
+                "(\n"
+                "    scalar guess,\n"
+                "    scalar lowerBound,\n"
+                "    scalar upperBound\n"
+                ") const"
+            )   << "Maximum number of iterations exceeded";
+        }
     }
 
-   return std::make_pair(c, i);
+    return std::make_pair(0.5*(result.first + result.second), evaluations);
 }
 
 

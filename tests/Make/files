@@ -1,6 +1,7 @@
 testRunner.C
 fixtures.C
 ./rootFinding/NewtonRoot/testNewtonRoot.C
+./rootFinding/BisectionRoot/testBisectionRoot.C
 ./samplers/Sampler/testSampler.C
 ./samplers/SingleCellSampler/testSingleCellSampler.C
 ./samplers/MultiCellSampler/testMultiCellSampler.C

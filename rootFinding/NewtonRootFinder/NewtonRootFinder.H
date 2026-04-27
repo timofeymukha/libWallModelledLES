@@ -22,8 +22,8 @@ Class
 @brief
     Root finder based on Newton's method.
 
-    Controlled by two parameters: the max number of iterations and the relative
-    error tolerance.
+    Controlled by the maximum number of iterations. The convergence tolerance is
+    fixed internally as a binary digit target for the root estimate.
 
     Usage
     \verbatim
@@ -35,7 +35,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2016-2019 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -60,9 +60,9 @@ namespace Foam
 class NewtonRootFinder : public RootFinder
 {
 private:
-    //- Number of correct digits in the solution
+    //- Number of binary digits requested in the solution
     label getDigits_ =
-        static_cast<int>(std::numeric_limits<scalar>::digits * 0.6);
+        static_cast<int>(std::numeric_limits<scalar>::digits * 0.4);
 
 public:
 
@@ -72,8 +72,8 @@ public:
 
     // Constructors
 
-        //- Construct given name, function, its derivative, tolerance and
-        //  maximum number of iterations
+        //- Construct given name, function, its derivative and maximum number
+        //  of iterations
         NewtonRootFinder
         (
             const word & rootFinderName,
