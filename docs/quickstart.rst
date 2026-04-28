@@ -7,7 +7,8 @@ Case setup
 Assume that you've already set up a case for the classical wall-resolved LES. To
 convert it to WMLES you need to do the following:
 
-* Add :code:`libWallModelledLES.so` to the loaded libraries in the :code:`controlDict`.
+* Add :code:`libWallModelledLES.so` to the loaded libraries in the
+  :code:`controlDict`.
 * Go into the :code:`nut` file, and set up wall models as the boundary
   conditions at the walls. A minimalistic setup for an explicit Spalding
   law-based algebraic wall model is given below.
