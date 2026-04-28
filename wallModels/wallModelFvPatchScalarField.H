@@ -27,18 +27,16 @@ Class
     - hSampler or h, the patch fields of which hold the distance to the cells
     used for sampling. This field is read and must be present for the simulation
     to run.
-    - samplingCells, which marks the cells used for sampling with a value
-    corresponding to the index of the patch that uses them.
     - uTauPredicted, the patch fields of which hold the value of uTau as
     predicted by the wall model.
     - wallShearStress, the patch fields of which hold the value of the wall
     shear stress.
-    - wallGradU, the patch fields of which store the wall-normal of the velocity
+    - wallGradU, the patch fields of which store the wall-normal velocity
     gradient.
 
 
 Contributors/Copyright:
-    2018-2024 Timofey Mukha
+    2018-2026 Timofey Mukha
 
 SourceFiles
     wallModelFvPatchScalarField.C
@@ -72,7 +70,7 @@ private:
     //- Switch to copy data to wall-adjacent cells
     bool copyToPatchInternalField_;
 
-    //- Wether to suppress most output to the log file
+    //- Whether to suppress most output to the log file
     bool silent_;
 protected:
 
@@ -195,4 +193,3 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
-
