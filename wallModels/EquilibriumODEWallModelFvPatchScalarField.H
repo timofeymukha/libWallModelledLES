@@ -24,10 +24,8 @@ Class
   
     Physically, this means that the total shear stress is assumed to be constant
     from 0 to h. In practice, this model is equivalent to using an equilibrium
-    algebraic model, but using numerical integration intead of Newton's solver
-    to get the shear stress. The former is numerically stable, so this model
-    probably never crash. This is convenient, but also makes monitoring your
-    results as the simulation goes more important.
+    algebraic model, but uses numerical integration instead of a root finder to
+    compute the friction velocity.
 
     Usage
     \verbatim
@@ -37,7 +35,10 @@ Class
         value               uniform 0;
         maxIter             value; (default 10)
         eps                 value; (default 1e-3)
-        nMeshY              value; (default 30)
+        interpolationType   value; (default cell)
+        sampler             value; (default Tree)
+        lengthScale         value; (default CubeRootVol)
+        hIsIndex            value; (default false)
 
         EddyViscosity 
         {
@@ -48,7 +49,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2016-2018 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles

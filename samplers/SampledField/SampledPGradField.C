@@ -138,9 +138,9 @@ void Foam::SampledPGradField::registerFields
     }
 
     
-    if (!db().foundObject<scalarListListIOList>("pGrad"))
+    if (!db().foundObject<scalarListIOList>("pGrad"))
     {
-        mesh().thisDb().store
+        mesh().time().store
         (          
             new IOList<scalarList>
             (
@@ -194,9 +194,9 @@ void Foam::SampledPGradField::registerFields
         Helpers::projectOnPatch(patch().nf(), sampledPGrad);
     }
     
-    if (!db().foundObject<scalarListIOList>("pGrad"))
+    if (!db().foundObject<scalarListListIOList>("pGrad"))
     {
-        mesh().thisDb().store
+        mesh().time().store
         (          
             new scalarListListIOList
             (

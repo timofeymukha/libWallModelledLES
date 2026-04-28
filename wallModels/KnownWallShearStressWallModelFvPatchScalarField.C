@@ -58,6 +58,14 @@ Foam::KnownWallShearStressWallModelFvPatchScalarField::calcNut() const
     const volScalarField& tauWallField = db().lookupObject<volScalarField>("tauWall");
     const fvPatchScalarField & tauWall = tauWallField.boundaryField()[patchi];
 
+    volScalarField & uTauField =
+        const_cast<volScalarField &>
+        (
+            db().lookupObject<volScalarField>("uTauPredicted")
+        );
+
+    uTauField.boundaryFieldRef()[patchi] == sqrt(max(tauWall, scalar(0)));
+
     return max
     (
         scalar(0),
@@ -127,7 +135,11 @@ KnownWallShearStressWallModelFvPatchScalarField
             averagingTime(),
             dict.lookupOrDefault<word>("interpolationType", "cell"),
             dict.lookupOrDefault<word>("sampler", "Tree"),
-            dict.lookupOrDefault<word>("lengthScale", "CubeRootVol"),
+            dict.lookupOrDefault<word>
+            (
+                "lengthScale",
+                dict.lookupOrDefault<word>("lengthScaleType", "CubeRootVol")
+            ),
             dict.lookupOrDefault<bool>("hIsIndex", false)
         )
     )
@@ -139,8 +151,15 @@ KnownWallShearStressWallModelFvPatchScalarField
             << nl;
     }
 
-    if (!db().found("tauWall"))
+    if (!db().foundObject<volScalarField>("tauWall"))
     {
+        if (db().found("tauWall"))
+        {
+            FatalErrorInFunction
+                << "Object tauWall is registered, but is not a volScalarField"
+                << nl << abort(FatalError);
+        }
+
         db().store
         (
             new volScalarField
@@ -170,7 +189,7 @@ KnownWallShearStressWallModelFvPatchScalarField
     );
 
     uTauField.boundaryFieldRef()[patchI] ==
-        sqrt(tauWall.boundaryField()[patchI]);
+        sqrt(max(tauWall.boundaryField()[patchI], scalar(0)));
 }
 
 
@@ -218,6 +237,20 @@ KnownWallShearStressWallModelFvPatchScalarField
 void Foam::KnownWallShearStressWallModelFvPatchScalarField::write(Ostream& os) const
 {
     wallModelFvPatchScalarField::write(os);
+}
+
+
+void Foam::KnownWallShearStressWallModelFvPatchScalarField::updateCoeffs()
+{
+    if (updated())
+    {
+        return;
+    }
+
+    sampler().recomputeFields();
+    sampler().sample();
+
+    wallModelFvPatchScalarField::updateCoeffs();
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -43,7 +43,7 @@ Class
 
     The integration is performed using an adaptive quadrature.
 
-    The magnitude of the wall shear stress can then be expressed through the
+    The friction velocity can then be expressed through the
     magnitude of the the wall-parallel component of velocity and the source
     term.
     Note that no ODE is actually being solved, only numerical integration.
@@ -56,7 +56,7 @@ Class
     stress.
 
 Contributors/Copyright:
-    2016-2019 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles

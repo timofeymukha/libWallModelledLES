@@ -24,7 +24,9 @@ Class
     from multiple cells. Currently hardcoded to use the integrated
     Reichardt law.
  
-    Needs a root finder to be defined.
+    Needs a root finder to be defined. Unlike the single-cell law-of-the-wall
+    models, this model fits the integrated law to a wall-normal profile sampled
+    from several cells for each boundary face.
 
     Usage
     \verbatim
@@ -32,6 +34,12 @@ Class
     {
         type                MulticellLOTWWallModel;
         value               uniform 0;
+        interpolationType   value; (default cell)
+        sampler             value; (default Tree)
+        lengthScale         value; (default CubeRootVol)
+        hIsIndex            value; (default false)
+        excludeWallAdjacent value; (default false)
+
         RootFinder
         {
             type            RootFinderType;
@@ -41,7 +49,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2016-2019 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles

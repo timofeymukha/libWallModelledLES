@@ -45,7 +45,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2016-2019 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles

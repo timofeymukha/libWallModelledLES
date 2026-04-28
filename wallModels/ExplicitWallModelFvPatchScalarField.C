@@ -81,9 +81,6 @@ calcUTau(const scalarField & magGradU) const
     tmp<scalarField> tnuw = this->nu(patchi);
     const scalarField& nuw = tnuw();
 
-    // Turbulent viscosity
-    const scalarField & nutw = *this;
-
     // Computed uTau
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
     scalarField & uTau = tuTau.ref();
@@ -95,18 +92,9 @@ calcUTau(const scalarField & magGradU) const
             db().lookupObject<volScalarField>("uTauPredicted")
         );
 
-    const scalarListIOList & sampledU =
-        sampler_().db().lookupObject<scalarListIOList>("U");
-
     // Compute uTau for each face
     forAll(uTau, faceI)
     {
-        scalar sampledUI = mag(vector(
-            sampledU[faceI][0],
-            sampledU[faceI][1],
-            sampledU[faceI][2])
-        );
-
         scalar nuwI = nuw[faceI];
 
         // Compute uTau

@@ -24,7 +24,6 @@ License
 #include "scalarListIOList.H"
 #include "helpers.H"
 #include "AdaptiveIntegrator.hpp"
-#include "EquilibriumODEExplicitLawOfTheWall.H"
 #include <functional>
 
 typedef std::function<Foam::scalar(const Foam::scalar)> IntegrandFunc;
@@ -115,7 +114,7 @@ calcUTau(const scalarField & magGradU) const
     // Turbulent viscosity
     const scalarField & nutw = *this;
 
-    // Computed uTau
+    // Computed friction velocity
     tmp<scalarField> tuTau(new scalarField(patchSize, 0.0));
 
     scalarField & uTau = tuTau.ref();
@@ -152,8 +151,10 @@ calcUTau(const scalarField & magGradU) const
                 return y/(nuwI + eddyViscosity(y));
             };
 
-            scalar integral1 = quad.integrate(integrand1, 0.0, sampler().h()[faceI], 1e-6);
-            scalar integral2 = quad.integrate(integrand2, 0.0, sampler().h()[faceI], 1e-6);
+            scalar integral1 =
+                quad.integrate(integrand1, 0.0, sampler().h()[faceI], 1e-6);
+            scalar integral2 =
+                quad.integrate(integrand2, 0.0, sampler().h()[faceI], 1e-6);
 
             vector UFaceI(U[faceI][0], U[faceI][1], U[faceI][2]);
 
@@ -163,13 +164,13 @@ calcUTau(const scalarField & magGradU) const
 
             newTau  = sqrt(newTau)/(integral1 + VSMALL);
 
-            scalar error = mag((tau - newTau) / tau);
+            scalar error = mag(tau - newTau)/(mag(tau) + ROOTVSMALL);
 
             tau = newTau;
+            uTau[faceI] = sqrt(max(tau, scalar(0)));
 
             if (error < eps())
             {
-                uTau[faceI] = tau;
                 break;
             }
 
@@ -263,7 +264,11 @@ ODEWallModelFvPatchScalarField
             averagingTime(),
             dict.lookupOrDefault<word>("interpolationType", "cell"),
             dict.lookupOrDefault<word>("sampler", "Tree"),
-            dict.lookupOrDefault<word>("lengthScaleType", "CubeRootVol"),
+            dict.lookupOrDefault<word>
+            (
+                "lengthScale",
+                dict.lookupOrDefault<word>("lengthScaleType", "CubeRootVol")
+            ),
             dict.lookupOrDefault<bool>("hIsIndex", false)
         )
     ),

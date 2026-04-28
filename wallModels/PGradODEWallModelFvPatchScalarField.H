@@ -21,7 +21,8 @@ Class
 
 @brief
     ODE wall model with the source term equal to the wall-parallel pressure
-    gradient.
+    gradient sampled at the wall-model height. The source term is projected on
+    the patch plane before solving the ODE.
 
     Usage
     \verbatim
@@ -31,7 +32,10 @@ Class
         value               uniform 0;
         maxIter             value; (default 10)
         eps                 value; (default 1e-3)
-        nMeshY              value; (default 30)
+        interpolationType   value; (default cell)
+        sampler             value; (default Tree)
+        lengthScale         value; (default CubeRootVol)
+        hIsIndex            value; (default false)
 
         EddyViscosity 
         {
@@ -42,7 +46,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2016-2019 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles

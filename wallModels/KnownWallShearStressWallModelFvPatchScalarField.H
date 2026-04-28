@@ -25,10 +25,25 @@ Class
     solution.
 
     Requires field tauWall with the values of the magnitude of the mean wall
-    shear stress to be present.
+    shear stress to be present. The model converts that prescribed stress into
+    the wall eddy viscosity needed to realize the same stress with the current
+    wall-normal velocity gradient.
+
+    Usage
+    \verbatim
+    patchName
+    {
+        type                KnownWallShearStressWallModel;
+        value               uniform 0;
+        interpolationType   value; (default cell)
+        sampler             value; (default Tree)
+        lengthScale         value; (default CubeRootVol)
+        hIsIndex            value; (default false)
+    }
+    \endverbatim
 
 Contributors/Copyright:
-    2016-2024 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 SourceFiles
@@ -127,6 +142,8 @@ public:
         {
             return sampler_();
         }
+
+        virtual void updateCoeffs();
 
         //- Write
         virtual void write(Ostream& os) const;
