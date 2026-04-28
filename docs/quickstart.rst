@@ -4,48 +4,50 @@ Quick start
 Case setup
 ----------
 
-Assume that you've already set up a case for the classical wall-resolved LES. To convert it to WMLES you need to do the
-following:
+Assume that you've already set up a case for the classical wall-resolved LES. To
+convert it to WMLES you need to do the following:
 
 * Add :code:`libWallModelledLES.so` to the loaded libraries in the :code:`controlDict`.
-* Go into the :code:`nut` file, and set up wall models as the boundary conditions at the walls.
-  A minimalistic setup for a Spaling law-based algebraic wall model is given below.
+* Go into the :code:`nut` file, and set up wall models as the boundary
+  conditions at the walls. A minimalistic setup for an explicit Spalding
+  law-based algebraic wall model is given below.
 
 .. code-block::
   :linenos:
 
-  type           LOTWWallModel;
-  RootFinder
-  {
-    type         Newton;
-  }
+  type           ExplicitWallModel;
   Law
   {
     type         Spalding;
   }
 
-  The :code:`RootFinder` sub-dictionary controls the algorithm and optional
-  :code:`maxIter` only. Algebraic root-finder tolerances are fixed internally
-  and are not user-configurable.
+* In your :code:`0` directory, you should add a new volScalarField,
+  :code:`hSampler`, see the :ref:`sampling` section for details. For a quick
+  start, set the value of :code:`hSampler` to :code:`uniform 0` at the wall, and
+  use :code:`zeroGradient` at all non-wall patch boundaries. This will lead to
+  sampling from the wall adjacent-cell, which is very robust, but inaccurate.
 
-* In your :code:`0` directory, you should add a new volScalarField, :code:`hSampler`, see the :ref:`sampling` section for details.
-  For a quick start, set the value of :code:`hSampler` to :code:`uniform 0` at the wall, and use :code:`zeroGradient` at all
-  non-wall patch boundaries.
-  This will lead to sampling from the wall adjacent-cell, which is very robust, but inaccurate.
-
-The settings above are not optimal, but should get your case running.
-Of course, you should never run your WMLES on a wall-resolving mesh.
-Instead, we recommend using a meshing strategy presented in :ref:`grid-construction`.
+The settings above are not optimal, but should get your case running. Of course,
+you should never run your WMLES on a wall-resolving mesh. Instead, we recommend
+using a meshing strategy presented in :ref:`grid-construction`.
 
 Miscellaneous tips
 ------------------
 
-* In regions where the TBL is attached, set :code:`hSampler` to be the distance to the second consecutive off-the-wall cell centre.
-  In other regions, set it to 0, i.e. sample from the wall-adjacent cell.
-* Use a mildly diffusive numerical scheme, e.g. :code:`LUST`. Tips regarding what other schemes worked well are welcome :).
-* The WALE model is a good first choice for SGS modelling. Don't use implicit LES on a WMLES mesh.
-* If you use :math:`h = 0`, use an algebraic wall model in integral formulation, i.e. the :code:`LOTWWallModel` with e.g.
-  the :code:`IntegratedReichardt` law.
+* In regions where the TBL is attached, set :code:`hSampler` to be the distance
+  to the second consecutive off-the-wall cell centre. In other regions, set it
+  to 0, i.e. sample from the wall-adjacent cell.
+* Use a mildly diffusive numerical scheme. One can consider :code:`LUST` as a
+  conservative option, but it is still very diffusive. On a good mesh, running
+  with `linear` is a good option, as long as the simulation is stable.
+* The WALE model is a good first choice for SGS modelling. Don't use implicit
+  LES on a WMLES mesh.
+* If you use :math:`h = 0`, use an algebraic wall model in integral formulation,
+  i.e. the :code:`LOTWWallModel` with e.g. the :code:`IntegratedReichardt` law.
+* Prefer explicit variations of wall models when they exist, e.g.
+  :code:`ExplicitWallModel` subclasses. They are more robust and cannot fail
+  inside a root-finder iteration.
+
 
 Publically available cases
 --------------------------
