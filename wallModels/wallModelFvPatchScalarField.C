@@ -26,7 +26,6 @@ License
 #include "IncompressibleTurbulenceModel.H"
 #include "transportModel.H"
 #include "turbulentFluidThermoModel.H"
-#include "Indicator.H"
 
 
 
@@ -228,8 +227,6 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             )
         );
     }
-
-    Indicator indicator(patch());
 
     if (debug)
     {

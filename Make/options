@@ -29,7 +29,6 @@ $(COMPRESSIBLE_TRANSPORT_INC) \
 -IexplicitLawsOfTheWall/ExplicitLawOfTheWall \
 -IeddyViscosities/EddyViscosity \
 -Isamplers/Sampler \
--Iindicators \
 -Ihelpers \
 -Isamplers/SampledField \
 -IcellFinders/CellFinder \

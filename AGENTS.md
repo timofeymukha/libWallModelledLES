@@ -25,8 +25,6 @@ such that the desired stress is realized.
   into the wall model.
 - `eddyViscosities`, 1D RANS models for ODE-based wall models. NB: *not* LES
   SGS models.
-- `indicators`, transition sensors attempting to tell whether the flow is
-  turbulent or not.
 - `lawsOfTheWall`, velocity profiles in inner scaling underpinning algebraic
   wall models.
 - `rootFinding`, algebraic equation solvers used in algebraic wall models.
@@ -68,4 +66,3 @@ such that the desired stress is realized.
 
 ## Misc rules
 - Never stage or commit code to git. This will be done manually.
-

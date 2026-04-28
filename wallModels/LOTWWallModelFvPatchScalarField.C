@@ -27,7 +27,6 @@ License
 #include "LawOfTheWall.H"
 #include "RootFinder.H"
 #include "SingleCellSampler.H"
-#include "Indicator.H"
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
@@ -48,17 +47,6 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     }
 
     const label patchi = patch().index();
-    const labelList & indexList = sampler().indexList();
-
-    // Grab indicator field
-    const auto & indicatorField =
-        db().lookupObject<volScalarField>("wmlesIndicator");
-
-    Indicator indicator(patch());
-    indicator.compute(this->nu(), indexList);
-
-    const scalarField & patchIndicator = indicatorField.boundaryField()[patchi];
-
     tmp<scalarField> nuw = this->nu(patchi);
 
     const scalarListIOList & wallGradU =
@@ -69,7 +57,6 @@ Foam::LOTWWallModelFvPatchScalarField::calcNut() const
     return max
     (
         scalar(0),
-        //(sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw) * patchIndicator
         (sqr(calcUTau(magGradU))/(magGradU + ROOTVSMALL) - nuw)
     );
 }
