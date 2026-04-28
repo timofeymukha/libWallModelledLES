@@ -66,3 +66,6 @@ such that the desired stress is realized.
 - Always prefer using OpenFOAM-internal types, e.g. smart pointers, containers,
   etc.
 
+## Misc rules
+- Never stage or commit code to git. This will be done manually.
+
