@@ -39,6 +39,7 @@ SourceFiles
 #include "fixedValueFvPatchFields.H"
 #include "runTimeSelectionTables.H"
 #include "addToRunTimeSelectionTable.H"
+#include "OSspecific.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -84,6 +85,9 @@ protected:
 
         //- Whether to exclude wall-adjacent cell from the sampling cells
         bool excludeWallAdjacent_;
+
+        //- Whether sampling-cell setup is skipped, e.g. for mesh utilities
+        bool skipSamplingSetup_;
 
 
     // Protected Member Functions
@@ -217,6 +221,12 @@ public:
         bool hIsIndex() const
         {
             return hIsIndex_;
+        }
+
+        //- Whether sampling-cell setup is skipped
+        bool skipSamplingSetup() const
+        {
+            return skipSamplingSetup_;
         }
 
         //- Recompute fields to be sampled

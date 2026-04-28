@@ -48,18 +48,18 @@ namespace Foam
                 Sampler(p, averagingTime, interpolationType, cellFinderType,
                         lengthScaleType, hIsIndex, excludeWallAdjacent)
             {}
-            
+
             DummySampler(const DummySampler &) = default;
 
             void sample() const override
-            {} 
+            {}
 
             void createIndexList() override
             {}
 
             void createLengthList(const word lengthScaleType) override
             {}
-            
+
         // Destructor
             virtual ~DummySampler()
             {}
@@ -257,6 +257,38 @@ TEST_F(SamplerTest, CreateFields)
 }
 
 
+TEST_F(SamplerTest, SkipSamplingSetupEnvBypassesSamplingCells)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    setEnv("LIBWMLES_SKIP_SAMPLING_SETUP", "true", true);
+
+    DummySampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "crawling",
+        "CubeRootVol",
+        false,
+        false
+    );
+
+    setEnv("LIBWMLES_SKIP_SAMPLING_SETUP", "false", true);
+
+    ASSERT_TRUE(sampler.skipSamplingSetup());
+    ASSERT_FALSE(mesh.foundObject<volScalarField>("samplingCells"));
+}
+
+
 TEST_F(SamplerTest, Copy)
 {
     extern argList * mainArgs;
@@ -336,7 +368,7 @@ TEST_F(SamplerTest, AddField)
         false,
         false
     );
-    
+
     sampler.addField(new SampledVelocityField(patch));
     ASSERT_EQ(sampler.Sampler::nSampledFields(), 1);
 }

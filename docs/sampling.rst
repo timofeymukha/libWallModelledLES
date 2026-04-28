@@ -23,7 +23,7 @@ in the case.
 The :code:`Crawling` sampler, by contrast, relies on the presence of prismatic mesh layers adjacent to the wall.
 Starting from the wall face, it searches for the opposite face within the current cell, and continues going
 in the wall-normal direction cell by cell, until the cell centre of the cell it is currently in is located at a distance
-:math:`\geq h`. 
+:math:`\geq h`.
 The :code:`Crawling` sampler is the recommended choice if prismatic layers are present in the mesh, because it is
 significantly faster for large cases, and allows more flexibility in how to prescribe :math:`h`, see next section for
 details.
@@ -35,11 +35,24 @@ For multi-cell sampling, it will return the cells intersected by the wall-normal
 The :code:`Crawling` sampler will simply continue to crawl up cell by cell until it hits a patch (typically a boundary
 between processors) and then take the last valid cell's centre to use for sampling.
 
-When solution data is written to disk, the library will write out a field called :code:`SamplingCells`, which can be
+When solution data is written to disk, the library will write out a field called :code:`samplingCells`, which can be
 examined in order to see, which cells are used for sampling.
 The default value of this field is -1, but the cells, which are used for sampling the value will be set to the index of
 the corresponding patch.
-We encourage the users to examine :code:`SamplingCells` to confirm that the cell selection worked as expected.
+We encourage the users to examine :code:`samplingCells` to confirm that the cell selection worked as expected.
+
+Bypassing Sampling Setup
+------------------------
+
+Some OpenFOAM utilities, such as :code:`decomposePar`, construct the wall
+model boundary condition without evaluating it.  For very large cases the
+sampling-cell search can dominate the utility runtime even though the result is
+not used.  This setup can be skipped by setting the environment variable
+:code:`LIBWMLES_SKIP_SAMPLING_SETUP=true` before running the utility.
+
+This switch must not be used for solver runs.  If a wall model tries to sample
+while the switch is enabled, the library exits with an error instead of using
+uninitialized sampling data.
 
 
 Prescribing :math:`h`
@@ -54,10 +67,10 @@ On other boundaries of type :code:`patch`, the :code:`zeroGradient` boundary con
 
 When the :code:`Tree` sampler is used, the values in the :code:`hSampler` will be interpreted as the desired distance to the
 sampling point.
-Note, that the value 0 is reserved for sampling from the wall-adjacent cell. 
+Note, that the value 0 is reserved for sampling from the wall-adjacent cell.
 By default, the same will be done by the :code:`Crawling` sampler, however alternatively one can let the sampler interpret
 the set values as the index of the consecutive off-wall cell, from which to do the sampling.
-So, for example, :code:`hSampler` equal to 2 will refer to sampling from the second off-wall cell. 
+So, for example, :code:`hSampler` equal to 2 will refer to sampling from the second off-wall cell.
 In order to do this, the :code:`hIsIndex` keyword should be set to :code:`yes` in the dictionary of the wall model in
 :code:`nut`.
 

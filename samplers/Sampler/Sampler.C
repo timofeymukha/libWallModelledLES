@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -40,9 +40,9 @@ namespace Foam
 }
 #endif
 
-// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //  
+// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::Sampler> Foam::Sampler::New 
+Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
 (
     const word & samplerName,
     const fvPatch & p,
@@ -62,7 +62,7 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         FatalErrorIn
         (
             "Sampler::New(const word&, const fvPatch & p, scalar averagingTime"
-            
+
         )   << "Unknown Sampler type "
             << samplerName << nl << nl
             << "Valid Sampler types are :" << nl
@@ -81,9 +81,9 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         hIsIndex,
         excludeWallAdjacent
     );
-}  
+}
 
-Foam::autoPtr<Foam::Sampler> Foam::Sampler::New 
+Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
 (
     const dictionary & dict,
     const fvPatch & p
@@ -113,7 +113,7 @@ Foam::autoPtr<Foam::Sampler> Foam::Sampler::New
         hIsIndex,
         excludeWallAdjacent
     );
-}  
+}
 
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
@@ -185,7 +185,17 @@ Foam::Sampler::Sampler
     cellFinderType_(cellFinderType),
     lengthScaleType_(lengthScaleType),
     hIsIndex_(hIsIndex),
-    excludeWallAdjacent_(excludeWallAdjacent)
+    excludeWallAdjacent_(excludeWallAdjacent),
+    skipSamplingSetup_
+    (
+        static_cast<bool>
+        (
+            Switch::find
+            (
+                Foam::getEnv("LIBWMLES_SKIP_SAMPLING_SETUP")
+            )
+        )
+    )
 {
     if (debug)
     {
@@ -230,7 +240,18 @@ Foam::Sampler::Sampler
         subObr->store();
     }
 
-    createFields();
+    if (!skipSamplingSetup_)
+    {
+        createFields();
+    }
+    else
+    {
+        if (debug)
+        {
+            Info << "Sampler: Skipping sampling setup because "
+                 << "LIBWMLES_SKIP_SAMPLING_SETUP is enabled" << nl;
+        }
+    }
 }
 
 Foam::Sampler::Sampler
@@ -268,7 +289,8 @@ Foam::Sampler::Sampler(const Sampler & copy)
     cellFinderType_(copy.cellFinderType_),
     lengthScaleType_(copy.lengthScaleType_),
     hIsIndex_(copy.hIsIndex_),
-    excludeWallAdjacent_(copy.excludeWallAdjacent_)
+    excludeWallAdjacent_(copy.excludeWallAdjacent_),
+    skipSamplingSetup_(copy.skipSamplingSetup_)
 {
     if (debug)
     {
@@ -292,13 +314,21 @@ void Foam::Sampler::addField(SampledField * field)
     sampledFields_.set(sampledFields_.size() -1, field);
 }
 
-
 void Foam::Sampler::recomputeFields() const
-{  
+{
+    if (skipSamplingSetup_)
+    {
+        FatalErrorInFunction
+            << "Sampling setup was skipped because "
+            << "LIBWMLES_SKIP_SAMPLING_SETUP is enabled. "
+            << "Unset it before running a solver that evaluates wall models."
+            << exit(FatalError);
+    }
+
     forAll(sampledFields_, i)
     {
         sampledFields_[i].recompute();
-    } 
+    }
 }
 
 void Foam::Sampler::write(Ostream & os) const

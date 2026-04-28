@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -66,8 +66,8 @@ void Foam::MultiCellSampler::createIndexList()
     {
         hName = "h";
     }
-    
-    volScalarField & hField = 
+
+    volScalarField & hField =
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> (hName));
 
     scalarField hPatch = hField.boundaryField()[patchIndex];
@@ -126,14 +126,14 @@ void Foam::MultiCellSampler::createIndexList()
     {
         hField.boundaryFieldRef()[patch().index()] == hTop;
     }
-    
+
     // Grab samplingCells field
-    volScalarField & samplingCells = 
+    volScalarField & samplingCells =
         const_cast<volScalarField &>
         (
             mesh_.lookupObject<volScalarField> ("samplingCells")
         );
-    
+
 
     label totalSize = 0;
     forAll(indexList_, i)
@@ -145,7 +145,7 @@ void Foam::MultiCellSampler::createIndexList()
             samplingCells[indexList_[i][j]] = patchIndex;
         }
     }
-    
+
     label totalPatchSize =  patch().size();
     reduce(totalPatchSize, sumOp<label>());
     reduce(totalSize, sumOp<label>());
@@ -164,7 +164,7 @@ void Foam::MultiCellSampler::createLengthList(const word lengthScaleType)
     }
     else if (lengthScaleType == "WallNormalDistance")
     {
-        createLengthListWallNormalDistance(); 
+        createLengthListWallNormalDistance();
     }
     else
     {
@@ -180,11 +180,11 @@ void Foam::MultiCellSampler::createLengthListCubeRootVol()
 {
     // Cell volumes
     const scalarField & V = mesh_.V();
-    
+
     forAll(lengthList_, i)
     {
         lengthList_[i] = scalarList(indexList_[i].size());
-        
+
         forAll(lengthList_[i], j)
         {
             lengthList_[i][j] = pow(V[indexList_[i][j]], 1.0/3.0);
@@ -222,13 +222,13 @@ void Foam::MultiCellSampler::createLengthListWallNormalDistance()
                     minDistFace = cellI[k];
                 }
             }
-            
-            label opposingFace = 
+
+            label opposingFace =
                 cellI.opposingFaceLabel(minDistFace, faces);
             vector opposingFaceCentre = faceCentres[opposingFace];
             vector minDistFaceCentre = faceCentres[minDistFace];
 
-            lengthList_[i][j] = mag(opposingFaceCentre - minDistFaceCentre); 
+            lengthList_[i][j] = mag(opposingFaceCentre - minDistFaceCentre);
         }
 
     }
@@ -262,20 +262,23 @@ Foam::MultiCellSampler::MultiCellSampler
             "MultiCellSampler::MultiCellSampler"
         )   << "MultiCellSampler: interpolation is not supported "
             << " for multicell sampling. Use 'cell'"
-            << exit(FatalError); 
+            << exit(FatalError);
     }
 
-    createIndexList();
-    createLengthList(lengthScaleType);
-    
+    if (!skipSamplingSetup())
+    {
+        createIndexList();
+        createLengthList(lengthScaleType);
+    }
+
     addField
     (
-            new SampledVelocityField(patch_)     
+            new SampledVelocityField(patch_)
     );
-    
+
     addField
     (
-            new SampledWallGradUField(patch_)     
+            new SampledWallGradUField(patch_)
     );
 }
 
@@ -309,12 +312,21 @@ Foam::MultiCellSampler::MultiCellSampler
 
 void Foam::MultiCellSampler::sample() const
 {
+    if (skipSamplingSetup())
+    {
+        FatalErrorInFunction
+            << "Sampling setup was skipped because "
+            << "LIBWMLES_SKIP_SAMPLING_SETUP is enabled. "
+            << "Unset it before running a solver that evaluates wall models."
+            << exit(FatalError);
+    }
+
     // Ensure this processor has part of the patch
     if (!patch().size())
     {
         return;
-    }    
-    
+    }
+
     // Weight for time-averaging, default to 1 i.e no averaging.
     scalar eps = 1;
     if (averagingTime_ > mesh_.time().deltaTValue())
@@ -327,7 +339,7 @@ void Foam::MultiCellSampler::sample() const
 
         scalarListListList sampledList(patch().size());
         sampledFields_[fieldI].sample(sampledList, indexList());
-        
+
         scalarListListIOList & storedValues = const_cast<scalarListListIOList & >
         (
             db().lookupObject<scalarListListIOList>(sampledFields_[fieldI].name())
@@ -350,7 +362,11 @@ void Foam::MultiCellSampler::sample() const
 void Foam::MultiCellSampler::addField(SampledField * field)
 {
     Sampler::addField(field);
-    field->registerFields(indexList());
+
+    if (!skipSamplingSetup())
+    {
+        field->registerFields(indexList());
+    }
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

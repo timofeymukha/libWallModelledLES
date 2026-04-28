@@ -13,7 +13,7 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with libWallModelledLES. 
+    along with libWallModelledLES.
     If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -65,10 +65,10 @@ void Foam::SingleCellSampler::createIndexList()
     }
 
     // Grab h for the current patch
-    volScalarField & h = 
+    volScalarField & h =
         const_cast<volScalarField &>(mesh_.lookupObject<volScalarField> (hName));
 
-    
+
     scalarField hPatch = h.boundaryField()[patchIndex];
 
     if (hIsIndex_ && interpolationType_ != "cell")
@@ -146,7 +146,7 @@ void Foam::SingleCellSampler::createIndexList()
     {
         Info << "SingleCellSampler: Done" << nl;
     }
-    
+
     // If the global h field holds the distance, reassign the real distance used
     if (!hIsIndex())
     {
@@ -154,15 +154,15 @@ void Foam::SingleCellSampler::createIndexList()
     }
 
     // Grab samplingCells field
-    volScalarField & samplingCells = 
+    volScalarField & samplingCells =
         const_cast<volScalarField &>
         (
             mesh_.lookupObject<volScalarField> ("samplingCells")
         );
-    
+
     forAll(indexList_, i)
     {
-        samplingCells[indexList_[i]] = patchIndex; 
+        samplingCells[indexList_[i]] = patchIndex;
     }
 }
 
@@ -175,7 +175,7 @@ void Foam::SingleCellSampler::createLengthList(const word lengthScaleType)
     }
     else if (lengthScaleType == "WallNormalDistance")
     {
-        createLengthListWallNormalDistance(); 
+        createLengthListWallNormalDistance();
     }
     else
     {
@@ -192,7 +192,7 @@ void Foam::SingleCellSampler::createLengthListCubeRootVol()
 {
     // Cell volumes
     const scalarField & V = mesh_.V();
-    
+
     forAll(lengthList_, i)
     {
         lengthList_[i] = pow(V[indexList_[i]], 1.0/3.0);
@@ -212,7 +212,7 @@ void Foam::SingleCellSampler::createLengthListWallNormalDistance()
     {
         const label index = indexList_[i];
         const cell cellI = cells[index];
-        
+
         const vector patchFaceI = patchFaceCentres[i];
 
         // Find face with min distance from the wall face
@@ -229,13 +229,13 @@ void Foam::SingleCellSampler::createLengthListWallNormalDistance()
                 minDistFace = cellI[j];
             }
         }
-        
-        label opposingFace = 
+
+        label opposingFace =
             cellI.opposingFaceLabel(minDistFace, faces);
         vector opposingFaceCentre = faceCentres[opposingFace];
         vector minDistFaceCentre = faceCentres[minDistFace];
 
-        lengthList_[i] = mag(opposingFaceCentre - minDistFaceCentre); 
+        lengthList_[i] = mag(opposingFaceCentre - minDistFaceCentre);
 
     }
 }
@@ -260,14 +260,17 @@ Foam::SingleCellSampler::SingleCellSampler
     lengthList_(p.size()),
     h_(p.size(), 0)
 {
-    createIndexList();
-    createLengthList(lengthScaleType);
-    
+    if (!skipSamplingSetup())
+    {
+        createIndexList();
+        createLengthList(lengthScaleType);
+    }
+
     addField
     (
             new SampledVelocityField(patch_, interpolationType_)
     );
-    
+
     addField
     (
             new SampledWallGradUField(patch_, interpolationType_)
@@ -309,12 +312,21 @@ Foam::SingleCellSampler::~SingleCellSampler()
 
 void Foam::SingleCellSampler::sample() const
 {
+    if (skipSamplingSetup())
+    {
+        FatalErrorInFunction
+            << "Sampling setup was skipped because "
+            << "LIBWMLES_SKIP_SAMPLING_SETUP is enabled. "
+            << "Unset it before running a solver that evaluates wall models."
+            << exit(FatalError);
+    }
+
     // Ensure this processor has part of the patch
     if (!patch().size())
     {
         return;
-    }    
-    
+    }
+
     // Weight for time-averaging, default to 1 i.e no averaging.
     scalar eps = 1;
     if (averagingTime_ > mesh_.time().deltaTValue())
@@ -327,7 +339,7 @@ void Foam::SingleCellSampler::sample() const
 
         scalarListList sampledList(patch().size());
         sampledFields_[fieldI].sample(sampledList, indexList(), h_);
-        
+
         scalarListIOList & storedValues = const_cast<scalarListIOList & >
         (
             db().lookupObject<scalarListIOList>(sampledFields_[fieldI].name())
@@ -349,7 +361,11 @@ void Foam::SingleCellSampler::sample() const
 void Foam::SingleCellSampler::addField(SampledField * field)
 {
     Sampler::addField(field);
-    field->registerFields(indexList());
+
+    if (!skipSamplingSetup())
+    {
+        field->registerFields(indexList());
+    }
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

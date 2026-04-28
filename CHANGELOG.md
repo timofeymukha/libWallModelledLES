@@ -18,6 +18,10 @@
   digit target, roughly equivalent to single-precision relative accuracy in the
   root estimate. Users can still set `maxIter`.
 
+- The LIBWALLMODELLEDLES_SKIP_SAMPLING_SETUP=true can be prepended to utilities
+  where the boundary conditions are not used to avoid setting up the samplers.
+  This is particularly useful for decomposePar.
+
 ### For developers
 
 - The root finders now return an `std::pair` with the root and iteration count.
