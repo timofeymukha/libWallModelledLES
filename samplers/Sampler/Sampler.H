@@ -23,7 +23,7 @@ Class
     Class for sampling data to the wall models.
 
 Contributors/Copyright:
-    2016-2021 Timofey Mukha
+    2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
 
 
@@ -92,7 +92,7 @@ protected:
         virtual void createIndexList() = 0;
 
         //- Compute the length-scales
-        virtual void createLengthList(const word lengthScaleType){}
+        virtual void createLengthList(const word lengthScaleType) = 0;
 
         //- Create fields
         virtual void createFields();
@@ -148,7 +148,7 @@ public:
             const word cellFinderType,
             const word lengthScaleType,
             bool hIsIndex,
-            bool excludeWallAjdacent
+            bool excludeWallAdjacent
         );
 
         static autoPtr<Sampler> New
@@ -272,4 +272,3 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
-

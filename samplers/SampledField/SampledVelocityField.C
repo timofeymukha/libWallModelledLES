@@ -87,7 +87,10 @@ void Foam::SampledVelocityField::sample
     const Foam::labelListList & indexList
 ) const
 {
-    Info<< "Sampling velocity for patch " << patch().name() << nl;
+    if (debug)
+    {
+        Info<< "Sampling velocity for patch " << patch().name() << nl;
+    }
     
     const volVectorField & UField = mesh().lookupObject<volVectorField>("U");
     const vectorField & Uwall = UField.boundaryField()[patch().index()];

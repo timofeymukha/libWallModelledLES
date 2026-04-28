@@ -177,7 +177,14 @@ void Foam::SingleCellSampler::createLengthList(const word lengthScaleType)
     {
         createLengthListWallNormalDistance(); 
     }
-
+    else
+    {
+        FatalErrorInFunction
+            << "SingleCellSampler: invalid length scale type, choose "
+            << "CubeRootVol or WallNormalDistance. Current choice is "
+            << lengthScaleType
+            << abort(FatalError);
+    }
 }
 
 

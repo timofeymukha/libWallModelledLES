@@ -23,7 +23,7 @@ Class
     Class for sampling data to the wall models for a single cell per face.
 
 Contributors/Copyright:
-    2018-2021 Timofey Mukha
+    2018-2026 Timofey Mukha
 
 SourceFiles
     SingleCellSampler.C
@@ -153,4 +153,3 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
-

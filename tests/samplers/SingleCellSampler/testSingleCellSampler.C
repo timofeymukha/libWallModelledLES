@@ -290,6 +290,37 @@ TEST_F(SingleCellSamplerTest, ConstructorCellTreeHIsIndex)
 }
 
 
+TEST_F(SingleCellSamplerTest, AttemptInvalidLengthScaleName)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    ASSERT_DEATH
+    (
+        {
+            SingleCellSampler sampler
+            (
+                "SingleCellSampler",
+                patch,
+                3.0,
+                "cell",
+                "Tree",
+                "RandomName",
+                false
+            );
+        },
+        "FATAL ERROR"
+    );
+}
+
+
 TEST_F(SingleCellSamplerTest, ConstructorCellTreeHIsDistance)
 {
     extern argList * mainArgs;

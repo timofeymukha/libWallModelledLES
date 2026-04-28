@@ -97,7 +97,7 @@ public:
             const scalarField & h
         ) const override;
 
-        //- Sample the velocity value from multile cellss
+        //- Sample the velocity values from multiple cells
         void sample
         (
             scalarListListList &,
@@ -131,7 +131,7 @@ public:
         //- Recompute the field
         void recompute() const override {}
 
-        //- Create the field. Redunant, U should be created by the solver.
+        //- Create the field. Redundant, U should be created by the solver.
         void createField() const override {}
 };
 
@@ -143,4 +143,3 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
-

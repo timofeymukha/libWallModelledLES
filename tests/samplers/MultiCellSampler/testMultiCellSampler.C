@@ -258,11 +258,52 @@ TEST_F(MultiCellSamplerTest, AttemptInvalidLengthScaleName)
                 "cell",
                 "Tree",
                 "RandomName",
-                true
+                false
             );
         },
         "FATAL ERROR"
     );
+}
+
+
+TEST_F(MultiCellSamplerTest, Copy)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    volScalarField & h = const_cast<volScalarField &>
+    (
+        mesh.thisDb().lookupObject<volScalarField>("hSampler")
+    );
+
+    h.boundaryFieldRef()[patch.index()] == 0.5;
+
+    MultiCellSampler sampler
+    (
+        "MultiCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "Tree",
+        "WallNormalDistance",
+        false,
+        true
+    );
+
+    MultiCellSampler sampler2(sampler);
+
+    ASSERT_EQ(sampler2.indexList(), sampler.indexList());
+    ASSERT_EQ(sampler2.h(), sampler.h());
+    ASSERT_EQ(sampler2.lengthList(), sampler.lengthList());
+    ASSERT_EQ(sampler2.lengthScaleType(), "WallNormalDistance");
+    ASSERT_EQ(sampler2.excludeWallAdjacent(), true);
 }
 TEST_F(MultiCellSamplerTest, Sample)
 {

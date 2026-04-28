@@ -85,7 +85,10 @@ Foam::SampledPGradField::sample
     const Foam::labelListList & indexList
 ) const
 {
-    Info<< "Sampling pressure gradient for patch " << patch().name() << nl;
+    if (debug)
+    {
+        Info<< "Sampling pressure gradient for patch " << patch().name() << nl;
+    }
     
     const volVectorField & pGradField =
         mesh().lookupObject<volVectorField>("pGrad");
@@ -135,7 +138,7 @@ void Foam::SampledPGradField::registerFields
     }
 
     
-    if (!db().foundObject<scalarListIOList>("pGrad"))
+    if (!db().foundObject<scalarListListIOList>("pGrad"))
     {
         mesh().thisDb().store
         (          

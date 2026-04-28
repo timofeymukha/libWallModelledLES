@@ -2,6 +2,7 @@
 #include "fvCFD.H"
 #include "SingleCellSampler.H"
 #include "SampledVelocityField.H"
+#include <string>
 #undef Log
 #include "gtest.h"
 #include "gmock/gmock.h"
@@ -54,6 +55,9 @@ namespace Foam
             {} 
 
             void createIndexList() override
+            {}
+
+            void createLengthList(const word lengthScaleType) override
             {}
             
         // Destructor
@@ -167,6 +171,7 @@ TEST_F(SamplerTest, NewDictionaryPatch)
     dict.lookupOrAddDefault(word("type"), word("DummySampler"));
     dict.lookupOrAddDefault(word("interpolationType"), word("cell"));
     dict.lookupOrAddDefault(word("sampler"), word("Crawling"));
+    dict.lookupOrAddDefault(word("lengthScale"), word("WallNormalDistance"));
     dict.lookupOrAddDefault(word("hIsIndex"), false);
     dict.lookupOrAddDefault(word("excludeWallAdjacent"), true);
 
@@ -178,6 +183,7 @@ TEST_F(SamplerTest, NewDictionaryPatch)
     ASSERT_EQ(sampler().Sampler::averagingTime(), 3.0);
     ASSERT_EQ(sampler().Sampler::interpolationType(), "cell");
     ASSERT_EQ(sampler().Sampler::cellFinderType(), "Crawling");
+    ASSERT_EQ(sampler().Sampler::lengthScaleType(), "WallNormalDistance");
     ASSERT_EQ(sampler().Sampler::hIsIndex(), false);
     ASSERT_EQ(&sampler().Sampler::mesh(), &mesh);
     ASSERT_EQ(sampler().Sampler::nSampledFields(), 0);
@@ -187,6 +193,41 @@ TEST_F(SamplerTest, NewDictionaryPatch)
     (
         mesh.subRegistry("wallModelSampling").foundObject<objectRegistry>(patch.name())
     );
+}
+
+
+TEST_F(SamplerTest, WriteIncludesAllDictionaryOptions)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    DummySampler sampler
+    (
+        "SingleCellSampler",
+        patch,
+        3.0,
+        "cell",
+        "Crawling",
+        "WallNormalDistance",
+        false,
+        true
+    );
+
+    OStringStream os;
+    sampler.write(os);
+
+    const std::string output(os.str().c_str());
+
+    ASSERT_NE(output.find("interpolationType"), std::string::npos);
+    ASSERT_NE(output.find("sampler"), std::string::npos);
+    ASSERT_NE(output.find("lengthScale"), std::string::npos);
+    ASSERT_NE(output.find("hIsIndex"), std::string::npos);
+    ASSERT_NE(output.find("excludeWallAdjacent"), std::string::npos);
 }
 
 
@@ -299,4 +340,3 @@ TEST_F(SamplerTest, AddField)
     sampler.addField(new SampledVelocityField(patch));
     ASSERT_EQ(sampler.Sampler::nSampledFields(), 1);
 }
-

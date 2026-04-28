@@ -307,8 +307,12 @@ void Foam::Sampler::write(Ostream & os) const
         << interpolationType_ << token::END_STATEMENT << endl;
     os.writeKeyword("sampler")
         << cellFinderType_ << token::END_STATEMENT << endl;
+    os.writeKeyword("lengthScale")
+        << lengthScaleType_ << token::END_STATEMENT << endl;
     os.writeKeyword("hIsIndex")
         << hIsIndex_ << token::END_STATEMENT << endl;
+    os.writeKeyword("excludeWallAdjacent")
+        << excludeWallAdjacent_ << token::END_STATEMENT << endl;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

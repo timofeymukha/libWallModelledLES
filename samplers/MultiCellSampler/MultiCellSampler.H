@@ -23,7 +23,7 @@ Class
     Class for sampling from several consecutive cells per wall face.
 
 Contributors/Copyright:
-    2018-2021 Timofey Mukha
+    2018-2026 Timofey Mukha
 
 SourceFiles
     MultiCellSampler.C
@@ -116,7 +116,10 @@ public:
         //- Copy constructor
         MultiCellSampler(const MultiCellSampler & orig)
         :
-        Sampler(orig)
+            Sampler(orig),
+            indexList_(orig.indexList_),
+            h_(orig.h_),
+            lengthList_(orig.lengthList_)
         {}
 
 
@@ -127,7 +130,7 @@ public:
     // Member functions
 
         //- Add field for sampling
-        virtual void addField(SampledField *);
+        void addField(SampledField *) override;
 
         //- Return the list of lists of cell-indices that are used to sample data
         const labelListList & indexList() const
@@ -137,14 +140,14 @@ public:
 
 
         //- Return h
-        virtual const scalarListList & h() const
+        const scalarListList & h() const
         {
             return h_;
         }
 
                 
         //- Return the length-list
-        virtual const scalarListList & lengthList() const
+        const scalarListList & lengthList() const
         {
             return lengthList_;
         }
@@ -156,7 +159,7 @@ public:
         }
         
         //- Sample the fields
-        virtual void sample() const; 
+        void sample() const override; 
 };
 
 
@@ -167,4 +170,3 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
-

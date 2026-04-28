@@ -146,14 +146,13 @@ void Foam::MultiCellSampler::createIndexList()
         }
     }
     
-    //TODO parallel
     label totalPatchSize =  patch().size();
     reduce(totalPatchSize, sumOp<label>());
-    reduce(totalSize, sumOp<scalar>());
-    if (totalPatchSize > 0)
+    reduce(totalSize, sumOp<label>());
+    if (debug && totalPatchSize > 0)
     {
         Info<< "Average number of sampling cells per face is " <<
-                totalSize/totalPatchSize << nl;
+                scalar(totalSize)/totalPatchSize << nl;
     }
 }
 
@@ -167,7 +166,14 @@ void Foam::MultiCellSampler::createLengthList(const word lengthScaleType)
     {
         createLengthListWallNormalDistance(); 
     }
-    
+    else
+    {
+        FatalErrorInFunction
+            << "MultiCellSampler: invalid length scale type, choose "
+            << "CubeRootVol or WallNormalDistance. Current choice is "
+            << lengthScaleType
+            << abort(FatalError);
+    }
 }
 
 void Foam::MultiCellSampler::createLengthListCubeRootVol()
@@ -251,10 +257,10 @@ Foam::MultiCellSampler::MultiCellSampler
 
     if (interpolationType != "cell")
     {
-        FatalErrorIn 
+        FatalErrorIn
         (
             "MultiCellSampler::MultiCellSampler"
-        )   << "MulticellSmapler: interpolation is not supported "
+        )   << "MultiCellSampler: interpolation is not supported "
             << " for multicell sampling. Use 'cell'"
             << exit(FatalError); 
     }
