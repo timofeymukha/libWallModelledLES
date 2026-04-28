@@ -50,11 +50,11 @@ Miscellaneous tips
   inside a root-finder iteration.
 
 
-Publically available cases
+Publicly available cases
 --------------------------
 
 There is a number of cases that use the library available on the web.
-These can serve as good examples on how to setup your simulation!
+These can serve as good examples on how to set up your simulation!
 
 - WMLES of channel and flat-plate TBL flow on unstructured grids.
   https://doi.org/10.6084/m9.figshare.12482438.v2

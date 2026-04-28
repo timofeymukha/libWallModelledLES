@@ -6,7 +6,7 @@
 libWMLES: An OpenFOAM\ :sup:`®` Library for Wall-Modelled Large-Eddy Simulation
 ===============================================================================
 
-The libWallModelledLES library, or libWMLES for short, enhaces OpenFOAM with state-of-the-art wall modelling capability.
+The libWallModelledLES library, or libWMLES for short, enhances OpenFOAM with state-of-the-art wall modelling capability.
 This documentation portal provides a brief guide to WMLES and detailed instructions on how to install and use the
 library.
 

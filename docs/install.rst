@@ -5,12 +5,12 @@ OpenFOAM version compatibility
 ------------------------------
 
 The libWMLES library supports the OpenFOAM fork developed by `OpenCFD
-<https://openfoam.com/>`_. Curently, releases from OpenCFD from v1806 and above
+<https://openfoam.com/>`_. Currently, releases from OpenCFD from v1806 and above
 are supported. There is desire to support the Foundation and foam-extend forks
-as well, but cannot due to lack of time. Please open an issue if you would be
+as well, but cannot do so due to lack of time. Please open an issue if you would be
 willing to work on maintaining compatibility with these forks!
 
-The best level of testing is done for latest available release from OpenCFD, for
+The best level of testing is done for the latest available release from OpenCFD, for
 which the test harness is run. This consists of unit and integration tests that
 aim to cover all the functionality of the library. A single system test is also
 run, which is a simulation of channel flow on a coarse grid, using the
@@ -39,10 +39,10 @@ particular, take notice of the first couple of lines in the output for
 
 As you can see, they state which version of OpenFOAM the install script has
 picked up. If it doesn't correspond to your expectations, there is almost surely
-something fishy with you setup.
+something fishy with your setup.
 
 When recompiling for a different version of OpenFOAM than what was previously
-used, you should frist run ``Àllwclean``. If you make several compilation
+used, you should first run ``Allwclean``. If you make several compilation
 attempts and things don't work, it can be a good idea to delete ``Make/linux*``
 and ``lnInclude`` to make sure you start from a clean slate.
 
@@ -52,7 +52,7 @@ Running tests
 To run the tests, Google Test and Google Mock should first be installed, see
 https://github.com/google/googletest. The environmental variable
 :code:`GTEST_DIR` should point to the root directory containing both Google Test
-and Google Mock (i.e. the directory to which you've clone the `googletest`
+and Google Mock (i.e. the directory to which you've cloned the `googletest`
 repo). Don't forget to copy the compiled libraries to your
 :code:`FOAM_USER_LIBBIN`.
 
