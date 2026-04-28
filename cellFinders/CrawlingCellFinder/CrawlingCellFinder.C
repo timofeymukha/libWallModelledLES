@@ -22,7 +22,7 @@ License
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "codeRules.H"
-#include <math.h>
+#include <cmath>
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -83,24 +83,11 @@ void Foam::CrawlingCellFinder::findCellIndices
     const List<cell> & cells = mesh().cells();
 
     const vectorField & patchFaceCentres = patch().Cf();
-    const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField faceNormals = tfaceNormals();
-    const tmp<vectorField> tcellCentres = patch().Cn();
-    const vectorField cellCentres = tcellCentres();
     const volVectorField & C = mesh_.C();
     const UList<label> & faceCells = patch().faceCells();
     const List<face> & faces = mesh().faces();
     const label patchStart = patch().start();
     const polyBoundaryMesh & boundaryMesh = mesh().boundaryMesh();
-
-    if (hIsIndex)
-    {
-        Info<< "CrawlingCellFinder: Treating h as indices!" << nl;
-    }
-    else
-    {
-        Info<< "CrawlingCellFinder: Treating h as distances!" << nl;
-    }
 
     forAll(patch(), patchFaceI)
     {
@@ -171,7 +158,7 @@ void Foam::CrawlingCellFinder::findCellIndices
                 indexList[patchFaceI] = startCellIndex;
                 break;
             }
-            else if (opposingFace > mesh().nInternalFaces())
+            else if (opposingFace >= mesh().nInternalFaces())
             {
                 label opposingPatchInd = boundaryMesh.whichPatch(opposingFace);
                 const fvPatch & opposingPatch =
@@ -245,24 +232,11 @@ void Foam::CrawlingCellFinder::findCellIndices
     const List<cell> & cells = mesh().cells();
 
     const vectorField & patchFaceCentres = patch().Cf();
-    const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField faceNormals = tfaceNormals();
-    const tmp<vectorField> tcellCentres = patch().Cn();
-    const vectorField cellCentres = tcellCentres();
     const volVectorField & C = mesh_.C();
     const UList<label> & faceCells = patch().faceCells();
     const List<face> & faces = mesh().faces();
     const label patchStart = patch().start();
     const polyBoundaryMesh & boundaryMesh = mesh().boundaryMesh();
-
-    if (hIsIndex)
-    {
-        Info<< "CrawlingCellFinder: Treating h as indices!" << nl;
-    }
-    else
-    {
-        Info<< "CrawlingCellFinder: Treating h as distances!" << nl;
-    }
 
     forAll(patch(), patchFaceI)
     {
@@ -340,7 +314,7 @@ void Foam::CrawlingCellFinder::findCellIndices
                 break;
             }
             // if we hit a patch
-            else if (opposingFace > mesh().nInternalFaces())
+            else if (opposingFace >= mesh().nInternalFaces())
             {
                 label opposingPatchInd = boundaryMesh.whichPatch(opposingFace);
                 const fvPatch & opposingPatch =

@@ -32,7 +32,7 @@ There is one situation in which the :code:`Tree` and :code:`Crawling` samplers b
 :math:`h` is set too large and the point lies outside the domain.
 For single-cell sampling, the :code:`Tree` sampler will revert to using the wall-adjacent cell in this case.
 For multi-cell sampling, it will return the cells intersected by the wall-normal search line before it exits the domain.
-The :code:`Crawling` sampler will simply continue to crawl up cell by cell until it it hits a patch (typically a boundary
+The :code:`Crawling` sampler will simply continue to crawl up cell by cell until it hits a patch (typically a boundary
 between processors) and then take the last valid cell's centre to use for sampling.
 
 When solution data is written to disk, the library will write out a field called :code:`SamplingCells`, which can be

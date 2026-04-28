@@ -22,8 +22,27 @@ Class
 @brief
     Class for searching for sampling cells by crawling through opposite faces.
 
+    Starting from the wall-adjacent cell, the finder repeatedly identifies the
+    face opposite to the incoming face and crosses it to the next cell. This is
+    intended for meshes with reasonably aligned near-wall layers, where
+    following opposite faces approximates the wall-normal direction.
+
+    The sampling height \f$h\f$ can be interpreted either as a physical
+    distance from the wall face or as a consecutive off-wall cell index. In
+    distance mode, crawling stops when the next opposing face is farther from
+    the wall face than \f$h\f$, and the current cell is used. In index mode,
+    \f$h\f$ is rounded to the requested layer index.
+
+    For multi-cell sampling, every crawled cell is retained up to the requested
+    distance or layer index. If the crawl reaches a boundary patch before the
+    requested target is reached, the last valid cells are retained. The optional
+    \c excludeWallAdjacent argument removes the wall-adjacent cell only when at
+    least one further cell remains.
+
+    Invalid distances or indices fall back to the wall-adjacent cell.
+
 Contributors/Copyright:
-    2019-2021 Timofey Mukha
+    2019-2026 Timofey Mukha
 
 
 SourceFiles
@@ -113,4 +132,3 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
-
