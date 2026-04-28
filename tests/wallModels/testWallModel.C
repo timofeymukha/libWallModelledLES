@@ -2,6 +2,7 @@
 #include "fvCFD.H"
 #include "wallModelFvPatchScalarField.H"
 #include "directFvPatchFieldMapper.H"
+#include "addToRunTimeSelectionTable.H"
 #undef Log
 #include "gtest.h"
 #include "gmock/gmock.h"
@@ -63,7 +64,7 @@ namespace Foam
 
             virtual tmp<scalarField> calcNut() const
             {
-                return tmp<scalarField>(new scalarField(patch().size(), 0.0));
+                return tmp<scalarField>(new scalarField(patch().size(), 2.0));
             }
             
     };
@@ -108,6 +109,7 @@ TEST_F(WallModelTest, ConstructorW1)
     ASSERT_FLOAT_EQ(model.averagingTime(), 0.0);
     ASSERT_FLOAT_EQ(model.consumedTime(), 0.0);
     ASSERT_EQ(model.copyToPatchInternalField(), false);
+    ASSERT_EQ(model.silent(), false);
     ASSERT_TRUE(mesh.foundObject<volScalarField>("hSampler"));
     ASSERT_TRUE(mesh.foundObject<volVectorField>("wallShearStress"));
     ASSERT_TRUE(mesh.foundObject<volScalarField>("uTauPredicted"));
@@ -168,6 +170,7 @@ TEST_F(WallModelTest, ConstructorW3)
     ASSERT_FLOAT_EQ(model.averagingTime(), 0.1);
     ASSERT_FLOAT_EQ(model.consumedTime(), 0.0);
     ASSERT_EQ(model.copyToPatchInternalField(), true);
+    ASSERT_EQ(model.silent(), false);
 
     ASSERT_TRUE(mesh.foundObject<volScalarField>("hSampler"));
     ASSERT_TRUE(mesh.foundObject<volVectorField>("wallShearStress"));
@@ -199,6 +202,7 @@ TEST_F(WallModelTest, CopyConstructorW4)
     ASSERT_DOUBLE_EQ(model2.averagingTime(), 0.1);
     ASSERT_DOUBLE_EQ(model2.consumedTime(), 0.0);
     ASSERT_EQ(model2.copyToPatchInternalField(), true);
+    ASSERT_EQ(model2.silent(), false);
 }
 
 TEST_F(WallModelTest, CopyConstructorW5)
@@ -223,6 +227,34 @@ TEST_F(WallModelTest, CopyConstructorW5)
     ASSERT_DOUBLE_EQ(model2.averagingTime(), 0.1);
     ASSERT_DOUBLE_EQ(model2.consumedTime(), 0.0);
     ASSERT_EQ(model2.copyToPatchInternalField(), false);
+    ASSERT_EQ(model2.silent(), false);
+}
+
+TEST_F(WallModelTest, ConstructorPreservesRegisteredHSampler)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createNutField(mesh);
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    volScalarField & h = mesh.lookupObjectRef<volScalarField>("hSampler");
+    h.boundaryFieldRef()[patch.index()] == 42.0;
+
+    const volScalarField & nutField = mesh.lookupObject<volScalarField>("nut");
+
+    DummyWallModel model(patch, nutField);
+
+    const volScalarField & hAfter =
+        mesh.lookupObject<volScalarField>("hSampler");
+
+    forAll(hAfter.boundaryField()[patch.index()], i)
+    {
+        ASSERT_DOUBLE_EQ(hAfter.boundaryField()[patch.index()][i], 42.0);
+    }
 }
 
 TEST_F(WallModelTest, UpdateCoeffs)
@@ -233,44 +265,33 @@ TEST_F(WallModelTest, UpdateCoeffs)
     autoPtr<fvMesh> meshPtr = createMesh(runTime);
     const fvMesh & mesh = meshPtr();
     createNutField(mesh);
-    const volScalarField & nutField =  mesh.lookupObject<volScalarField>("nut");
-    createNuField(mesh, nutField);
-    createVelocityField(mesh);
+    const volScalarField & nutField = mesh.lookupObject<volScalarField>("nut");
 
     dictionary dict;
     dict.add("averagingTime", 0.1);
+    dict.add("copyToPatchInternalField", true);
+    dict.add("silent", true);
     dict.add("value", "uniform 0.0");
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
         
     DummyWallModel model(patch, nutField, dict);
-    volScalarField & nuField = const_cast<volScalarField &>
-    (
-        mesh.lookupObject<volScalarField>("nu")
-    );
-
-    volVectorField & wallGradUField = const_cast<volVectorField &>
-    (
-        mesh.lookupObject<volVectorField>("wallGradU")
-    );
-
-    volVectorField & wssField = const_cast<volVectorField &>
-    (
-        mesh.lookupObject<volVectorField>("wallShearStress")
-    );
-    nuField.boundaryFieldRef()[patch.index()] == 2;
-    wallGradUField.boundaryFieldRef()[patch.index()] == vector(1, 2, 3);
 
     model.wallModelFvPatchScalarField::updateCoeffs();
-    
-    const vectorField & wss = wssField.boundaryFieldRef()[patch.index()];
 
-    forAll(wss, i)
+    const scalarField & patchNut = model;
+    forAll(patchNut, i)
     {
-        ASSERT_DOUBLE_EQ(wss[i][0], 2);
-        ASSERT_DOUBLE_EQ(wss[i][1], 4);
-        ASSERT_DOUBLE_EQ(wss[i][2], 6);
+        ASSERT_DOUBLE_EQ(patchNut[i], 2.0);
     }
+
+    const labelUList faceCells = patch.faceCells();
+    forAll(faceCells, i)
+    {
+        ASSERT_DOUBLE_EQ(nutField[faceCells[i]], 2.0);
+    }
+
     ASSERT_DOUBLE_EQ(model.averagingTime(), 0.1);
-    ASSERT_DOUBLE_EQ(model.copyToPatchInternalField(), false);
-}      
+    ASSERT_DOUBLE_EQ(model.copyToPatchInternalField(), true);
+    ASSERT_EQ(model.silent(), true);
+}

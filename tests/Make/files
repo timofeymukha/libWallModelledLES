@@ -22,6 +22,7 @@ fixtures.C
 ./eddyViscosities/VanDriestEddyViscosity/testVanDriestEddyViscosity.C
 ./eddyViscosities/DupratEddyViscosity/testDupratEddyViscosity.C
 ./eddyViscosities/EddyViscosity/testEddyViscosity.C
+./wallModels/testWallModel.C
 ./scalarListListIOList/testScalarListListIOList.C
 ./cellFinders/Compatibility/testCellFinderCompatibility.C
 ./cellFinders/CrawlingCellFinder/testCrawlingCellFinder.C

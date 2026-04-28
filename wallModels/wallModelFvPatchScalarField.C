@@ -75,7 +75,7 @@ void Foam::wallModelFvPatchScalarField::createFields() const
     // Name of the h field, default to hSampler
     word hName = "hSampler";
 
-    // Check if hSampler exists
+    // Check if hSampler is already registered or exists on disk.
     IOobject hHeader
     (
         "hSampler",
@@ -84,8 +84,9 @@ void Foam::wallModelFvPatchScalarField::createFields() const
         IOobject::NO_READ
     );
 
-    bool foundhSampler = hHeader.typeHeaderOk<volScalarField>();
-    db().checkOut("hSampler");
+    bool foundhSampler =
+        db().foundObject<volScalarField>("hSampler")
+     || hHeader.typeHeaderOk<volScalarField>();
 
     if (debug)
     {
@@ -109,7 +110,11 @@ void Foam::wallModelFvPatchScalarField::createFields() const
             IOobject::NO_READ
         );
 
-        if (hHeader.typeHeaderOk<volScalarField>())
+        if
+        (
+            db().foundObject<volScalarField>("h")
+         || hHeader.typeHeaderOk<volScalarField>()
+        )
         {
             hName = "h";
             if (debug)
@@ -117,11 +122,18 @@ void Foam::wallModelFvPatchScalarField::createFields() const
                 Info<< "wallModelFvPatchScalarField: Found field h" << nl;
             }
         }
-        db().checkOut("h");
     }
 
-    if (!db().found(hName))
+    if (!db().foundObject<volScalarField>(hName))
     {
+        if (db().found(hName))
+        {
+            FatalErrorInFunction
+                << "Object " << hName << " is registered, but is not a "
+                << "volScalarField" << nl
+                << abort(FatalError);
+        }
+
         db().store
         (
             new volScalarField
@@ -514,5 +526,3 @@ void Foam::wallModelFvPatchScalarField::write(Ostream& os) const
     writeLocalEntries(os);
     writeEntry("value", os);
 }
-
-

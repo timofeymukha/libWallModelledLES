@@ -22,11 +22,11 @@ Class
 @brief
     Base abstract class for explicit laws of the wall.
 
-    It is to be used in conjuction with the ExplicitLOTW wall model.
-     The law of the wall provides an expression
+    It is to be used in conjuction with the ExplicitWallModel wall model.
+    The law of the wall provides an expression to compute the wall stress.
 
 Contributors/Copyright:
-    2024 Timofey Mukha
+    2024-2026 Timofey Mukha
 
 
 \*---------------------------------------------------------------------------*/

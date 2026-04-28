@@ -30,7 +30,7 @@ Class
     \verbatim
     patchName
     {
-        type                ExpliciWallModel;
+        type                ExplicitWallModel;
         value               uniform 0;
 
         Law
@@ -42,7 +42,7 @@ Class
     \endverbatim
 
 Contributors/Copyright:
-    2024-2025 Timofey Mukha
+    2024-2026 Timofey Mukha
 
 SourceFiles
     ExplicitWallModelFvPatchScalarField.C
