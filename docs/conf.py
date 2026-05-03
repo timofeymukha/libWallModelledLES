@@ -34,7 +34,7 @@ author = 'Timofey Mukha'
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = 'v0.5.0'
+release = 'v0.8.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -206,7 +206,7 @@ exhale_args = {
     # TIP: if using the sphinx-bootstrap-theme, you need
     # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": True,
-    "exhaleUseDoxyfile": True, 
+    "exhaleUseDoxyfile": True,
     "unabridgedOrphanKinds": {"define", "dir", "typedef", "function"},
     "minifyTreeView": False,
     "doxygenStripFromPath": "../"

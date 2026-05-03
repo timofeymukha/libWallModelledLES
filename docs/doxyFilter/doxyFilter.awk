@@ -49,23 +49,23 @@ BEGIN {
     indent = ""
 }
 
-/^\s*\/\/-/ {
+/^[[:space:]]*\/\/-/ {
     if (state == 0)
     {
         # Changed from normal to brief (start of comment block)
         ## indent = substr($0, 1, index($0, "/")-1)
         indent = $0
-        sub(/\S.*/, "", indent)
+        sub(/[^[:space:]].*/, "", indent)
         printf indent "/*!\n"
         printf indent " * \\brief "
-        sub(/^\s*\/\/-\s*/, "")
+        sub(/^[[:space:]]*\/\/-[[:space:]]*/, "")
         state = 1
     }
     else
     {
         # Within brief: replace leading space with proper indent amount
         printf indent
-        sub(/^\s*\/\/-\s*/, " * ")
+        sub(/^[[:space:]]*\/\/-[[:space:]]*/, " * ")
     }
 
     print
@@ -73,7 +73,7 @@ BEGIN {
 }
 
 
-/^\s*\/\// {
+/^[[:space:]]*\/\// {
     if (state == 1)
     {
         # Change from brief to details. Extra line to start new paragraph.
@@ -87,13 +87,13 @@ BEGIN {
         printf indent
 
         # '//' with 4 spaces or more - assume indent is intentional
-        if (match($0, /^\s*\/\/(    )+/))
+        if (match($0, /^[[:space:]]*\/\/(    )+/))
         {
-            sub(/^\s*\/\/\s/, " *")
+            sub(/^[[:space:]]*\/\/[[:space:]]/, " *")
         }
         else
         {
-            sub(/^\s*\/\/\s*/, " * ")
+            sub(/^[[:space:]]*\/\/[[:space:]]*/, " * ")
         }
     }
 
