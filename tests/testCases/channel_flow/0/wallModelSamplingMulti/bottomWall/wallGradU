@@ -12,7 +12,7 @@ FoamFile
     arch        "LSB;label=32;scalar=64";
     class       scalarListListList;
     location    "0.01/wallModelSampling/bottomWall";
-    object      U;
+    object      wallGradU;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
