@@ -107,7 +107,7 @@ void Foam::ExplicitLawOfTheWall::write(Foam::Ostream & os) const
     for (int i=0; i<dictSize; i++)
     {
         os.writeKeyword(keys[i])
-            << constDict_[keys[i]][0] << token::END_STATEMENT << nl;
+            << constDict_.lookup(keys[i])[0] << token::END_STATEMENT << nl;
     }
 
     os  << decrIndent;
