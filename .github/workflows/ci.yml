@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: latest
+            image: opencfd/openfoam-dev:latest
+            build_args: -j
+          - name: v2206
+            image: opencfd/openfoam-dev:2206
+            build_args: ""
+          - name: v2112
+            image: opencfd/openfoam-dev:2112
+            build_args: ""
+          - name: v2106
+            image: opencfd/openfoam-dev:2106
+            build_args: ""
+
+    name: OpenFOAM ${{ matrix.name }}
+    container:
+      image: ${{ matrix.image }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CI dependencies
+        run: |
+          apt-get update
+          apt-get install -y python3 python-is-python3
+
+      - name: Build
+        shell: bash
+        run: |
+          /usr/bin/openfoam ./Allwclean
+          /usr/bin/openfoam ./Allwmake ${{ matrix.build_args }}
