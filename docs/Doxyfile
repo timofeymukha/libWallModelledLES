@@ -1062,7 +1062,7 @@ IMAGE_PATH             =
 # need to set EXTENSION_MAPPING for the extension otherwise the files are not
 # properly processed by doxygen.
 
-INPUT_FILTER           = doxyFilter/doxyFilter
+INPUT_FILTER           = $(DOCS_DIR)/doxyFilter/doxyFilter
 
 # The FILTER_PATTERNS tag can be used to specify filters on a per file pattern
 # basis. Doxygen will compare the file name with each pattern and apply the

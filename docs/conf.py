@@ -13,6 +13,10 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+
+# Set DOCS_DIR so the Doxyfile can reference the filter with an absolute path
+os.environ['DOCS_DIR'] = os.path.dirname(os.path.abspath(__file__))
+
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
