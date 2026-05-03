@@ -50,8 +50,9 @@ if versionRules/createVersionRules.sh >| "$versionFile.tmp"
 then
     :  # Generated with script from WM_PROJECT_DIR information
 else
-    # Fallback to python and generate from WM_PROJECT_VERSION information
-    versionRules/makeFoamVersionHeader.py $WM_PROJECT_VERSION >| $versionFile.tmp
+    echo "Failed to generate $versionFile from the active OpenFOAM environment." 1>&2
+    echo "Python fallback has been removed; the shell generator expects an OpenCFD version." 1>&2
+    exit 1
 fi
 
 
