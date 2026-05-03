@@ -1,13 +1,18 @@
 # README #
 
-libWallModelledLES is a library based on OpenFOAM® technology, extending the capabilities of OpenFOAM in the area of wall-modelled LES (WMLES).
-This is a turbulence modelling methodology, which allows to make LES cheaper by not resolving the inner region of turbulent boundary layers.
+libWallModelledLES is a library based on OpenFOAM® technology, extending the
+capabilities of OpenFOAM in the area of wall-modelled LES (WMLES). This is a
+turbulence modelling methodology, which allows to make LES cheaper by not
+resolving the inner region of turbulent boundary layers.
 
-If you use the library, please cite the following publication. This is also a good source for understanding the theory behind the models.
+If you use the library, please cite the following publication. This is also a
+good source for understanding the theory behind the models.
 
 https://doi.org/10.1016/j.cpc.2019.01.016
 
-**This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM(R) and OpenCFD(R) trademarks.**
+**This offering is not approved or endorsed by OpenCFD Limited, producer and
+distributor of the OpenFOAM software via www.openfoam.com, and owner of the
+OPENFOAM(R) and OpenCFD(R) trademarks.**
 
 ## News ##
 

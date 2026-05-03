@@ -26,11 +26,16 @@ Compilation
 
 Clone the repository with git or download it as an archive by navigating to the
 releases on GitHub. A prerequisite for installing is having Python installed,
-but no packages are needed and any modern Python version should do. To compile,
-run ``Allwmake``. Consider using the ``-j`` flag with a number of processors, to
-speed up the process. If you get compilation errors, please make sure your
-OpenFOAM environment is properly set up before opening a Github  issue. In
-particular, take notice of the first couple of lines in the output for
+but no packages are needed and any modern Python version should do.
+Additionally, the library relies on the ``boost`` library, which is shipped with
+OpenFOAM under ``ThirdParty`` but can also be installed separately. Like
+OpenFOAM itself, the ``BOOST_ARCH_PATH`` environmental variable is used to locate
+the ``boost`` headers.
+
+To compile, run ``Allwmake``. Consider using the ``-j`` flag with a number of
+processors, to speed up the process. If you get compilation errors, please make
+sure your OpenFOAM environment is properly set up before opening a Github
+issue. In particular, take notice of the first couple of lines in the output for
 ``Allwmake``, which are of the following form::
 
    Current OpenFOAM version is v1806.
