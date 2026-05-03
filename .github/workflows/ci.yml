@@ -14,13 +14,10 @@ jobs:
         include:
           - name: latest
             image: opencfd/openfoam-dev:latest
-            build_args: -j
           - name: v2412
             image: opencfd/openfoam-dev:2412
-            build_args: ""
           - name: v2506
             image: opencfd/openfoam-dev:2506
-            build_args: ""
 
     name: OpenFOAM ${{ matrix.name }}
     container:
@@ -37,4 +34,4 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          openfoam -c 'cd "$GITHUB_WORKSPACE"; export BOOST_ARCH_PATH=/usr/include; ./Allwclean; ./Allwmake ${{ matrix.build_args }}'
+          openfoam -c 'cd "$GITHUB_WORKSPACE"; export BOOST_ARCH_PATH=/usr/include; ./Allwclean; ./Allwmake -j"$(nproc)"'
