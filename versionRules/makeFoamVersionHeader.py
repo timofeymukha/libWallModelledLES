@@ -1,4 +1,14 @@
-#! /usr/bin/env python
+#!/bin/sh
+""":"
+if command -v python >/dev/null 2>&1; then
+    exec python "$0" "$@"
+elif command -v python3 >/dev/null 2>&1; then
+    exec python3 "$0" "$@"
+else
+    echo "Error: neither python nor python3 was found in PATH" >&2
+    exit 127
+fi
+":"""
 
 # This script processses $WM_PRJECT_VERSION and outputs the result to 
 # foamVersion4wmles.H
