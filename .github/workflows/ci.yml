@@ -37,6 +37,4 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          export BOOST_ARCH_PATH=/usr/include
-          ./Allwclean
-          ./Allwmake ${{ matrix.build_args }}
+          openfoam -c 'cd "$GITHUB_WORKSPACE"; export BOOST_ARCH_PATH=/usr/include; ./Allwclean; ./Allwmake ${{ matrix.build_args }}'
