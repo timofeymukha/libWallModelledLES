@@ -31,19 +31,24 @@ OPENFOAM(R) and OpenCFD(R) trademarks.**
 ## Compatibility ##
 
 See "Installation" section on the documentation portal. In short: the latest ESI
-versions should work, Foundation version 7  and below should work.
+versions should work.
 
 ## Getting help
 
-Please first read the troubleshooting section in the documentation.
-If that does not help, please open [an issue on Github](https://github.com/timofeymukha/libWallModelledLES/issues)!
+Please first read the troubleshooting section in the documentation. If that does
+not help, please open [an issue on
+Github](https://github.com/timofeymukha/libWallModelledLES/issues)!
 
 ## Where this code lives
 This code is available on several public repositories:
-- [Github](https://github.com/timofeymukha/libWallModelledLES) --- the main repository, where all the development happens, and where you should open issues to get help.
-- [Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/) --- mirror, which only gets update upon new releases.
+- [Github](https://github.com/timofeymukha/libWallModelledLES) --- the main
+  repository, where all the development happens, and where you should open
+  issues to get help.
+- [Bitbucket](https://bitbucket.org/lesituu/libwallmodelledles/) --- mirror,
+  which only gets update upon new releases.
 
-- [Gitlab](https://gitlab.com/chalmers-marine-technology/libwallmodelledles) --- mirror, which only gets updated upon new releases.
+- [Gitlab](https://gitlab.com/chalmers-marine-technology/libwallmodelledles) ---
+  mirror, which only gets updated upon new releases.
 
 ## Published works using the library
 
