@@ -36,8 +36,7 @@ jobs:
 
       - name: Build
         shell: bash
-        env:
-          BOOST_ARCH_PATH: /usr/include
         run: |
-          /usr/bin/openfoam ./Allwclean
-          /usr/bin/openfoam ./Allwmake ${{ matrix.build_args }}
+          export BOOST_ARCH_PATH=/usr/include
+          ./Allwclean
+          ./Allwmake ${{ matrix.build_args }}
