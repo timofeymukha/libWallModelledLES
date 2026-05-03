@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## Unreleased
+
+### For developers
+- `Allwmake` now supports a Python-free version-header generation path for
+  ESI/OpenCFD builds by inferring release information from
+  `WM_PROJECT_VERSION` when `META-INFO` is unavailable.
+
 ## v0.8.0
 
 ### For users
@@ -28,6 +35,8 @@
 
 - The Newton, Bisection and TOMS748 root finders now use `boost`
   implementations behind the scenes.
+
+- Switched CI provider to Github Actions.
 
 
 ## v0.7.0
