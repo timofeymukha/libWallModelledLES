@@ -51,6 +51,39 @@ used, you should first run ``Allwclean``. If you make several compilation
 attempts and things don't work, it can be a good idea to delete ``Make/linux*``
 and ``lnInclude`` to make sure you start from a clean slate.
 
+Compiling documentation
+-----------------------
+
+The documentation is built in two stages. First, Doxygen parses the source tree
+and generates XML under :code:`docs/xml`. Then Exhale and Sphinx consume that
+XML and produce the final documentation under :code:`docs/build/html`.
+
+To build the documentation, install the documentation dependencies from
+:code:`docs/environment.yaml` or :code:`docs/requirements.txt`. At minimum you
+need Doxygen together with Sphinx, Breathe, Exhale, the Read the Docs theme,
+and :code:`sphinxcontrib-bibtex`.
+
+For the Doxygen stage, change to :code:`docs` and run::
+
+   doxygen Doxyfile
+
+This generates the XML used by Breathe and Exhale in :code:`docs/xml`. Since
+the Doxygen input path is configured as :code:`../`, the command should be run
+from the :code:`docs` directory.
+
+For the Exhale and Sphinx stage, also run from :code:`docs`::
+
+   make html
+
+This produces the rendered HTML documentation in
+:code:`docs/build/html/index.html`. The Sphinx configuration sets
+:code:`exhaleExecutesDoxygen = True`, so :code:`make html` will also run
+Doxygen automatically if you prefer to build everything in one step.
+
+To remove generated documentation artifacts before a rebuild, run::
+
+   make clean
+
 Running tests
 -------------
 
