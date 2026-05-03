@@ -25,9 +25,10 @@
   digit target, roughly equivalent to single-precision relative accuracy in the
   root estimate. Users can still set `maxIter`.
 
-- The LIBWALLMODELLEDLES_SKIP_SAMPLING_SETUP=true can be prepended to utilities
+- The LIBWMLES_SKIP_SAMPLING_SETUP=true can be prepended to utilities
   where the boundary conditions are not used to avoid setting up the samplers.
-  This is particularly useful for decomposePar.
+  This is particularly useful for decomposePar. This makes running
+  `renumberMesh` possible.
 
 ### For developers
 
@@ -36,8 +37,7 @@
 - The Newton, Bisection and TOMS748 root finders now use `boost`
   implementations behind the scenes.
 
-- Switched CI provider to Github Actions.
-
+- Switched CI provider to Github Actions and bumped tested versions.
 
 ## v0.7.0
 

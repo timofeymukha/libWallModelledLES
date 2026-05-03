@@ -50,11 +50,12 @@ the cell selection worked as expected.
 Bypassing Sampling Setup
 ------------------------
 
-Some OpenFOAM utilities, such as :code:`decomposePar`, construct the wall model
-boundary condition without evaluating it.  For very large cases the
-sampling-cell search can dominate the utility runtime even though the result is
-not used.  This setup can be skipped by setting the environment variable
-:code:`LIBWMLES_SKIP_SAMPLING_SETUP=true` before running the utility.
+Some OpenFOAM utilities, such as :code:`decomposePar`, and :code:`renumberMesh`,
+construct the wall model boundary condition without evaluating it.  For very
+large cases the sampling-cell search can dominate the utility runtime even
+though the result is not used.  This setup can be skipped by setting the
+environment variable :code:`LIBWMLES_SKIP_SAMPLING_SETUP=true` before running
+the utility. **For renumberMesh setting this is mandatory**.
 
 This switch must not be used for solver runs.  If a wall model tries to sample
 while the switch is enabled, the library exits with an error instead of using
