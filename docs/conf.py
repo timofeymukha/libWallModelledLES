@@ -32,7 +32,7 @@ copyright = 'Timofey Mukha'
 author = 'Timofey Mukha'
 
 # The short X.Y version
-version = ''
+version = '0.8'
 # The full version, including alpha/beta/rc tags
 release = 'v0.8.0'
 
