@@ -56,7 +56,10 @@
 
 - `SingleCellSampler` now interpolates the fields at the sampling cells and
   distributes the values to the wall faces with the map. `sample()` must
-  therefore be called on all processors, which the wall models do.
+  therefore be called on all processors, which the wall models do. The values
+  are distributed component-wise as contiguous fields, so at each time step
+  only processors sharing sampling cells communicate, without global
+  collectives.
 
 - `SampledField` has new virtual functions `sampledFromCells`, `interpolate`
   and `postProcess`, which split sampling into interpolation at arbitrary

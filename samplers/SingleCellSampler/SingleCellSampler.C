@@ -250,6 +250,36 @@ Foam::scalar Foam::SingleCellSampler::wallNormalDistance
 }
 
 
+void Foam::SingleCellSampler::distribute
+(
+    scalarListList & values,
+    const label nDims
+) const
+{
+    scalarListList faceValues(map_.constructSize(), scalarList(nDims));
+    scalarField component(values.size());
+
+    for (label dimI = 0; dimI < nDims; dimI++)
+    {
+        component.setSize(values.size());
+
+        forAll(values, i)
+        {
+            component[i] = values[i][dimI];
+        }
+
+        map_.distribute(component);
+
+        forAll(faceValues, faceI)
+        {
+            faceValues[faceI][dimI] = component[faceI];
+        }
+    }
+
+    values.transfer(faceValues);
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::SingleCellSampler::SingleCellSampler
@@ -356,7 +386,7 @@ void Foam::SingleCellSampler::sample() const
             // values to the processors holding the wall faces
             scalarListList values(sampledCells_.size());
             field.interpolate(values, sampledCells_, sampledPoints_);
-            map_.distribute(values);
+            distribute(values, field.nDims());
             field.postProcess(values);
             sampledList.transfer(values);
         }

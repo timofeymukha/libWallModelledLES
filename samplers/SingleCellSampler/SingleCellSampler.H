@@ -107,6 +107,12 @@ protected:
             const label cellI,
             const point & wallFaceCentre
         ) const;
+
+        //- Distribute the values sampled at the sampled cells, nDims
+        //- components each, to the wall faces. The components are
+        //- distributed as separate contiguous fields, so that only the
+        //- processors sharing sampling cells communicate.
+        void distribute(scalarListList & values, const label nDims) const;
         
 public:
 
