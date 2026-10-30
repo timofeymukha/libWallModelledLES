@@ -50,31 +50,55 @@ void Foam::SampledPGradField::sample
     const vectorField & faceCentres = patch().Cf();
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField & faceNormals = tfaceNormals();
-    
+
+    pointField points(indexList.size());
+
+    forAll(points, i)
+    {
+        points[i] = faceCentres[i] - h[i]*faceNormals[i];
+    }
+
+    interpolate(sampledValues, indexList, points);
+    postProcess(sampledValues);
+}
+
+
+void Foam::SampledPGradField::interpolate
+(
+    Foam::scalarListList & values,
+    const Foam::labelList & cells,
+    const Foam::pointField & points
+) const
+{
     const volVectorField & pGradField =
         mesh().lookupObject<volVectorField>("pGrad");
+
     autoPtr<interpolation<vector> > interpolator;
     interpolator.operator=
     (
         interpolation<vector>::New(interpolationType(), pGradField)
     );
 
-    vectorField sampledPGrad(indexList.size());
-    
-    for (int i=0; i<indexList.size(); i++)
+    forAll(cells, i)
     {
-        point p = faceCentres[i] - h[i]*faceNormals[i];
-        const vector interp = interpolator->interpolate(p, indexList[i]);
-        sampledPGrad[i] = interp;
+        const vector interp = interpolator->interpolate(points[i], cells[i]);
         scalarList temp(3, 0.0);
-        
+
         for (int j=0; j<3; j++)
         {
-            temp[j] = sampledPGrad[i][j]; 
+            temp[j] = interp[j];
         }
-        sampledValues[i] = temp;
+        values[i] = temp;
     }
-    Helpers::projectOnPatch(patch().nf(), sampledValues);
+}
+
+
+void Foam::SampledPGradField::postProcess
+(
+    Foam::scalarListList & values
+) const
+{
+    Helpers::projectOnPatch(patch().nf(), values);
 }
 
 

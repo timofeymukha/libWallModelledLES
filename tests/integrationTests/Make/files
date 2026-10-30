@@ -2,5 +2,6 @@ testIntegration.C
 testIntegrationLOTW.C
 testIntegrationODE.C
 testIntegrationKnownWallShearStress.C
+testIntegrationParallelSampler.C
 EXE=./testIntegration
 

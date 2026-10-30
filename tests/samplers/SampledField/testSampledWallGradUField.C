@@ -553,3 +553,32 @@ TEST_F(SampledWallGradUTest, Recompute)
     }
 
 }
+
+
+TEST_F(SampledWallGradUTest, NotSampledFromCells)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    SampledWallGradUField sampledField(patch);
+
+    ASSERT_FALSE(sampledField.sampledFromCells());
+
+    scalarListList values(patch.size());
+    labelList cells(patch.faceCells());
+    pointField points(patch.Cf());
+
+    ASSERT_DEATH
+    (
+        {
+            sampledField.interpolate(values, cells, points);
+        },
+        "FATAL ERROR"
+    );
+}

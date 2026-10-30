@@ -148,7 +148,31 @@ public:
             scalarListListList & sampledValues,
             const labelListList & indexListList
         ) const = 0;
-        
+
+        //- Whether the values are sampled from cells, as opposed to being
+        //- taken directly from the patch. Only fields sampled from cells
+        //- support interpolate() and postProcess().
+        virtual bool sampledFromCells() const
+        {
+            return false;
+        }
+
+        //- Interpolate the raw field values at the given points within the
+        //- given cells. Unlike sample(), no patch-local processing is
+        //- applied, so the cells and points need not correspond to the faces
+        //- of the patch, which allows evaluation on another processor.
+        virtual void interpolate
+        (
+            scalarListList & values,
+            const labelList & cells,
+            const pointField & points
+        ) const;
+
+        //- Apply patch-local processing to raw values obtained with
+        //- interpolate(), one per patch face, e.g. subtraction of the wall
+        //- velocity and projection onto the patch.
+        virtual void postProcess(scalarListList & values) const;
+
         //- Register appropriate fields in the object registry
         virtual void registerFields
         (

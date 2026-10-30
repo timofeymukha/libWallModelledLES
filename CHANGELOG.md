@@ -2,7 +2,35 @@
 
 ## Unreleased
 
+### For users
+- Added the `CrawlingParallel` and `TreeParallel` options for the `sampler`
+  keyword of the single-cell wall models. These communicate across processor
+  boundaries, so that the requested sampling cell is used regardless of the
+  decomposition, at the cost of additional parallel communication.
+
+- Fixed out-of-bounds access when computing the `WallNormalDistance` length
+  scale for cells with boundary faces, which could produce wrong length scales.
+
 ### For developers
+- Cell finders now share a common virtual interface, `CellFinder::findCells`,
+  which returns the sampling locations on the processor together with a
+  `mapDistributeBase` to the wall faces. The `SingleCellSampler` selects the
+  cell finder through the run-time selection table, by appending
+  `CellFinder` to the value of the `sampler` keyword. The `MultiCellSampler`
+  does not use this interface yet.
+
+- Added the `CrawlingParallelCellFinder` and `TreeParallelCellFinder`, which
+  search for sampling cells across processor boundaries.
+
+- `SingleCellSampler` now interpolates the fields at the sampled cells and
+  distributes the values to the wall faces with the map, also for the serial
+  cell finders, where the map does not involve communication. `sample()`
+  must therefore be called on all processors, which the wall models do.
+
+- `SampledField` has new virtual functions `sampledFromCells`, `interpolate`
+  and `postProcess`, which split sampling into interpolation at arbitrary
+  cells and patch-local processing.
+
 - `Allwmake` now supports a Python-free version-header generation path for
   ESI/OpenCFD builds by inferring release information from
   `WM_PROJECT_VERSION` when `META-INFO` is unavailable.

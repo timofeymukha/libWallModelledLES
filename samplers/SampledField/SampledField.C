@@ -28,4 +28,28 @@ namespace Foam
 }
 #endif
 
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::SampledField::interpolate
+(
+    scalarListList & values,
+    const labelList & cells,
+    const pointField & points
+) const
+{
+    FatalErrorInFunction
+        << "The sampled field " << name() << " does not support "
+        << "interpolation at arbitrary cells and points."
+        << exit(FatalError);
+}
+
+
+void Foam::SampledField::postProcess(scalarListList & values) const
+{
+    FatalErrorInFunction
+        << "The sampled field " << name() << " does not support "
+        << "post-processing of interpolated values."
+        << exit(FatalError);
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

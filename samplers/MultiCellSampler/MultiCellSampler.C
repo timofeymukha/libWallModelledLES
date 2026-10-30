@@ -194,7 +194,7 @@ void Foam::MultiCellSampler::createLengthListCubeRootVol()
 
 void Foam::MultiCellSampler::createLengthListWallNormalDistance()
 {
-    const vectorField & faceCentres = mesh().Cf().primitiveField();
+    const vectorField & faceCentres = mesh().faceCentres();
     const List<cell> & cells = mesh().cells();
     const vectorField & patchFaceCentres = patch().Cf();
     const List<face> & faces = mesh().faces();

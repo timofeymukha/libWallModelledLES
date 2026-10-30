@@ -107,6 +107,16 @@ public:
 
     // Member functions
 
+        //- Find a sampling cell for each face of the patch on this
+        //- processor, see CellFinder
+        void findCells
+        (
+            List<samplingLocation> & locations,
+            mapDistributeBase & map,
+            const scalarField & h,
+            const bool hIsIndex
+        ) const override;
+
         void findCellIndices
         (
             labelList & indexList,

@@ -648,3 +648,111 @@ TEST_F(SampledVelocityTest, CheckInterpolationPointOutside)
     }
 
 }
+
+TEST_F(SampledVelocityTest, SampledFromCells)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    SampledVelocityField sampledField(patch);
+
+    ASSERT_TRUE(sampledField.sampledFromCells());
+}
+
+
+TEST_F(SampledVelocityTest, InterpolateAndPostProcess)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
+    createVelocityField(mesh);
+    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
+    U.primitiveFieldRef() = mesh.C();
+    U.boundaryFieldRef()[patch.index()] == vector(1, 2, 3);
+
+    SampledVelocityField sampledField(patch, "cell");
+
+    // Cells and points unrelated to the patch faces
+    labelList cells(patch.size());
+    pointField points(patch.size());
+
+    forAll(cells, i)
+    {
+        cells[i] = mesh.nCells() - 1 - i;
+        points[i] = mesh.C()[cells[i]];
+    }
+
+    scalarListList values(patch.size());
+    sampledField.interpolate(values, cells, points);
+
+    forAll(values, i)
+    {
+        ASSERT_EQ(values[i].size(), 3);
+
+        forAll(values[i], j)
+        {
+            ASSERT_FLOAT_EQ(values[i][j], U[cells[i]][j]);
+        }
+    }
+
+    sampledField.postProcess(values);
+
+    forAll(values, i)
+    {
+        ASSERT_FLOAT_EQ(values[i][0], U[cells[i]][0] - 1);
+        ASSERT_EQ(values[i][1], 0);
+        ASSERT_FLOAT_EQ(values[i][2], U[cells[i]][2] - 3);
+    }
+}
+
+
+TEST_F(SampledVelocityTest, SampleEqualsInterpolateAndPostProcess)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+
+    createVelocityField(mesh);
+    volVectorField & U = mesh.lookupObjectRef<volVectorField>("U");
+    U.primitiveFieldRef() = mesh.C();
+    U.boundaryFieldRef()[patch.index()] == vector(1, 2, 3);
+
+    SampledVelocityField sampledField(patch, "cellPoint");
+
+    labelList indexList(patch.faceCells());
+    scalarField h(patch.size(), 0.15);
+
+    scalarListList sampledValues(patch.size());
+    sampledField.sample(sampledValues, indexList, h);
+
+    pointField points(patch.Cf() - h*patch.nf());
+    scalarListList values(patch.size());
+    sampledField.interpolate(values, indexList, points);
+    sampledField.postProcess(values);
+
+    forAll(values, i)
+    {
+        forAll(values[i], j)
+        {
+            ASSERT_EQ(values[i][j], sampledValues[i][j]);
+        }
+    }
+}

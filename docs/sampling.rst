@@ -40,6 +40,46 @@ before it exits the domain. The :code:`Crawling` sampler will simply continue to
 crawl up cell by cell until it hits a patch (typically a boundary between
 processors) and then take the last valid cell's centre to use for sampling.
 
+Sampling Across Processor Boundaries
+------------------------------------
+
+In parallel runs, the samplers described above only search among the cells of
+the processor that holds the wall face. If the requested cell is located on
+another processor, the :code:`Crawling` sampler stops at the processor boundary
+and the :code:`Tree` sampler falls back to the wall-adjacent cell, in both cases
+with a warning. The selected sampling cells thus depend on the decomposition.
+
+To guarantee that the requested cell is used, the :code:`sampler` keyword can be
+set to :code:`CrawlingParallel` or :code:`TreeParallel` instead.
+
+.. code-block::
+
+  sampler CrawlingParallel; // TreeParallel
+  hIsIndex 1;
+
+These behave as their counterparts :code:`Crawling` and :code:`Tree`, and the
+rest of the settings are the same. With :code:`CrawlingParallel`, the crawl is
+handed over to the neighbouring processor whenever it reaches a processor
+boundary. With :code:`TreeParallel`, the point at the distance :math:`h` is
+searched for on all processors whose bounding box contains it, and the cell
+containing the point is selected. The field values are interpolated on the
+processor holding the sampling cell and sent to the processor holding the wall
+face at each time step. The selected cells are then independent of the
+decomposition and the same as in a serial run. The price is additional
+communication, both during the setup and at each time step.
+
+Note the following.
+
+- Processor boundaries originating from cyclic patches are not crossed, the same
+  as cyclic patches are not crossed in serial.
+- Utilities that run in serial on the decomposed case, such as
+  :code:`reconstructPar`, construct the boundary condition separately for each
+  processor, where the processor boundaries cannot be crossed. It is
+  recommended to set :code:`LIBWMLES_SKIP_SAMPLING_SETUP=true` for these, see
+  below.
+- These options are only available for wall models that sample from a single
+  cell, i.e. not for :code:`MulticellLOTWWallModel`.
+
 When solution data is written to disk, the library will write out a field called
 :code:`samplingCells`, which can be examined in order to see, which cells are
 used for sampling. The default value of this field is -1, but the cells, which
@@ -103,6 +143,6 @@ A summary of the parameters pertaining to sampling are given below.
 .. code-block::
   :linenos:
 
-  sampler Tree; //Crawling
+  sampler Tree; //Crawling, TreeParallel, CrawlingParallel
   hIsIndex 0; // 1
   interpolation cell; // cellPoint, cellPointFace ...

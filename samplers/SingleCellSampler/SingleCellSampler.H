@@ -22,6 +22,18 @@ Class
 @brief
     Class for sampling data to the wall models for a single cell per face.
 
+    The sampling cells are found by the CellFinder selected with the sampler
+    keyword. With the Tree and Crawling cell finders, the search is
+    restricted to the processor holding the wall face. With TreeParallel and
+    CrawlingParallel, the sampling cells may be located on other processors.
+    Then, at each time step, the fields are interpolated on the processors
+    holding the sampling cells and the values are sent to the processors
+    holding the wall faces.
+
+    The cell indices returned by indexList() refer to the cells on this
+    processor. The index is -1 for wall faces with a sampling cell on
+    another processor.
+
 Contributors/Copyright:
     2018-2026 Timofey Mukha
 
@@ -35,6 +47,7 @@ SourceFiles
 
 #include "fixedValueFvPatchFields.H"
 #include "Sampler.H"
+#include "mapDistributeBase.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -61,6 +74,19 @@ protected:
         
         //- The distance from the wall that data is sampled from
         scalarField h_;
+
+        //- The cells on this processor that data is sampled from, for wall
+        //- faces on any processor
+        labelList sampledCells_;
+
+        //- The points within the sampled cells, at which data is sampled
+        pointField sampledPoints_;
+
+        //- The centres of the wall faces the sampled cells correspond to
+        pointField sampledWallCentres_;
+
+        //- Map from the sampled cells to the wall faces
+        mapDistributeBase map_;
         
     // Protected Member Functions
                     
@@ -75,6 +101,14 @@ protected:
         
         //- Compute length-scales as distance across wall-normal direction
         void createLengthListWallNormalDistance();
+
+        //- Distance across a cell in the wall-normal direction, i.e.
+        //- between the face closest to the wall face and its opposing face
+        scalar wallNormalDistance
+        (
+            const label cellI,
+            const point & wallFaceCentre
+        ) const;
         
 public:
 
@@ -134,6 +168,18 @@ public:
         {
             return lengthList_;
         }
+
+        //- Return the cells on this processor that data is sampled from
+        const labelList & sampledCells() const
+        {
+            return sampledCells_;
+        }
+
+        //- Return the map from the sampled cells to the wall faces
+        const mapDistributeBase & map() const
+        {
+            return map_;
+        }
         
         //- Element access operator
         inline label operator[](const label i) const
@@ -141,7 +187,7 @@ public:
             return indexList_[i];
         }
         
-        //- Sample the fields
+        //- Sample the fields. Must be called on all processors.
         void sample() const override; 
 };
 

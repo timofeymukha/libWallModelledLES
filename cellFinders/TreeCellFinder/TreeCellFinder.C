@@ -72,6 +72,29 @@ Foam::TreeCellFinder::TreeCellFinder
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void Foam::TreeCellFinder::findCells
+(
+    List<samplingLocation> & locations,
+    mapDistributeBase & map,
+    const scalarField & h,
+    const bool hIsIndex
+) const
+{
+    if (hIsIndex)
+    {
+        FatalErrorInFunction
+            << "TreeCellFinder: hIsIndex is not supported by the Tree "
+            << "sampler. Please use the Crawling sampler or provide h as "
+            << "distances."
+            <<  abort(FatalError);
+    }
+
+    labelList cells(patch().size(), -1);
+    findCellIndices(cells, h);
+    createLocalLocations(cells, h, locations, map);
+}
+
+
 
 void Foam::TreeCellFinder::findCellIndices
 (

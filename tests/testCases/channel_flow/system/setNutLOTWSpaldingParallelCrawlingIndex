@@ -1,0 +1,55 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.3.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      changeDictionaryDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Sample from the 7th off-wall cell, the cell centre is at y = 1.3.
+// The decomposition places a processor boundary at the centre of the channel,
+// so the sampling cells of bottomWall are on another processor.
+
+nut
+{
+    boundaryField
+    {
+        bottomWall
+        {
+            type            LOTWWallModel;
+            value           uniform 0;
+            sampler         CrawlingParallel;
+            hIsIndex        1;
+            RootFinder
+            {
+                type    Newton;
+            }
+            Law
+            {
+                type    Spalding;
+            }
+        }
+    }
+}
+
+hSampler
+{
+    boundaryField
+    {
+        bottomWall
+        {
+            type            fixedValue;
+            value           uniform 7;
+        }
+    }
+}
+
+// ************************************************************************* //

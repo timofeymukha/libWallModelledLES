@@ -588,3 +588,55 @@ TEST_F(SampledPGradTest, CheckInterpolationWorks)
     }
 
 }
+
+TEST_F(SampledPGradTest, InterpolateAndPostProcess)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    createWallModelSubregistry(mesh, patch);
+    createPGradField(mesh);
+
+    volVectorField & pGrad = mesh.lookupObjectRef<volVectorField>("pGrad");
+    pGrad.primitiveFieldRef() = mesh.C();
+
+    SampledPGradField sampledField(patch);
+
+    ASSERT_TRUE(sampledField.sampledFromCells());
+
+    labelList cells(patch.size());
+    pointField points(patch.size());
+
+    forAll(cells, i)
+    {
+        cells[i] = mesh.nCells() - 1 - i;
+        points[i] = mesh.C()[cells[i]];
+    }
+
+    scalarListList values(patch.size());
+    sampledField.interpolate(values, cells, points);
+
+    forAll(values, i)
+    {
+        forAll(values[i], j)
+        {
+            ASSERT_FLOAT_EQ(values[i][j], pGrad[cells[i]][j]);
+        }
+    }
+
+    sampledField.postProcess(values);
+
+    forAll(values, i)
+    {
+        ASSERT_FLOAT_EQ(values[i][0], pGrad[cells[i]][0]);
+        ASSERT_EQ(values[i][1], 0);
+        ASSERT_FLOAT_EQ(values[i][2], pGrad[cells[i]][2]);
+    }
+}

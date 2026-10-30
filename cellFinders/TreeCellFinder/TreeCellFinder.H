@@ -114,6 +114,16 @@ public:
         //- Compute distance field
         tmp<volScalarField> distanceField() const;
 
+        //- Find a sampling cell for each face of the patch on this
+        //- processor, see CellFinder
+        void findCells
+        (
+            List<samplingLocation> & locations,
+            mapDistributeBase & map,
+            const scalarField & h,
+            const bool hIsIndex
+        ) const override;
+
         //- Find the sampling cell indices for a single cell sampler
         void findCellIndices
         (

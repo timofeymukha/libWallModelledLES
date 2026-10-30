@@ -69,6 +69,20 @@ Foam::CrawlingCellFinder::CrawlingCellFinder
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void Foam::CrawlingCellFinder::findCells
+(
+    List<samplingLocation> & locations,
+    mapDistributeBase & map,
+    const scalarField & h,
+    const bool hIsIndex
+) const
+{
+    labelList cells(patch().size(), -1);
+    findCellIndices(cells, h, hIsIndex);
+    createLocalLocations(cells, h, locations, map);
+}
+
+
 
 void Foam::CrawlingCellFinder::findCellIndices
 (

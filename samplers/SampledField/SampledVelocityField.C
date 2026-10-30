@@ -51,10 +51,26 @@ void Foam::SampledVelocityField::sample
     const tmp<vectorField> tfaceNormals = patch().nf();
     const vectorField & faceNormals = tfaceNormals();
 
-    const volVectorField & UField = mesh().lookupObject<volVectorField>("U");
-    const vectorField & Uwall = UField.boundaryField()[patch().index()];
+    pointField points(indexList.size());
 
-    vectorField sampledU(indexList.size());
+    forAll(points, i)
+    {
+        points[i] = faceCentres[i] - h[i]*faceNormals[i];
+    }
+
+    interpolate(sampledValues, indexList, points);
+    postProcess(sampledValues);
+}
+
+
+void Foam::SampledVelocityField::interpolate
+(
+    Foam::scalarListList & values,
+    const Foam::labelList & cells,
+    const Foam::pointField & points
+) const
+{
+    const volVectorField & UField = mesh().lookupObject<volVectorField>("U");
 
     autoPtr<interpolation<vector> > interpolator;
     interpolator.operator=
@@ -62,22 +78,37 @@ void Foam::SampledVelocityField::sample
         interpolation<vector>::New(interpolationType(), UField)
     );
 
-    for (int i=0; i<indexList.size(); i++)
+    forAll(cells, i)
     {
-
-        point p = faceCentres[i] - h[i]*faceNormals[i];
-        const vector interp = interpolator->interpolate(p, indexList[i]);
-        sampledU[i] = interp - Uwall[i];
+        const vector interp = interpolator->interpolate(points[i], cells[i]);
         scalarList temp(3, 0.0);
-        
+
         for (int j=0; j<3; j++)
         {
-            temp[j] = sampledU[i][j]; 
+            temp[j] = interp[j];
         }
-        sampledValues[i] = temp;
+        values[i] = temp;
+    }
+}
+
+
+void Foam::SampledVelocityField::postProcess
+(
+    Foam::scalarListList & values
+) const
+{
+    const volVectorField & UField = mesh().lookupObject<volVectorField>("U");
+    const vectorField & Uwall = UField.boundaryField()[patch().index()];
+
+    forAll(values, i)
+    {
+        for (int j=0; j<3; j++)
+        {
+            values[i][j] -= Uwall[i][j];
+        }
     }
 
-    Helpers::projectOnPatch(patch().nf(), sampledValues);
+    Helpers::projectOnPatch(patch().nf(), values);
 }
 
 

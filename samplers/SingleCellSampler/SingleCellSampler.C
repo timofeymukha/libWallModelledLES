@@ -30,8 +30,7 @@ License
 #include "codeRules.H"
 #include "patchDistMethod.H"
 #include "scalarListIOList.H"
-#include "CrawlingCellFinder.H"
-#include "TreeCellFinder.H"
+#include "CellFinder.H"
 #include "surfaceMesh.H"
 
 
@@ -83,64 +82,73 @@ void Foam::SingleCellSampler::createIndexList()
         interpolationType_ = "cell";
     }
 
-    if (cellFinderType() == "Crawling")
-    {
-        CrawlingCellFinder cellFinder(patch());
-        cellFinder.findCellIndices(indexList_, hPatch, hIsIndex_);
-    }
-    else if (cellFinderType() == word("Tree"))
-    {
-        if (hIsIndex_)
-        {
-            FatalErrorInFunction
-                << "SingleCellSampler: hIsIndex is not supported by the Tree "
-                << "sampler. Please use the Crawling sampler or provide h as "
-                << "distances."
-                <<  abort(FatalError);
-        }
-        TreeCellFinder cellFinder(patch());
-        cellFinder.findCellIndices(indexList_, hPatch);
-    }
-    else
-    {
-        FatalErrorInFunction
-            << "SingleCellSampler: the sampler should be either Tree or "
-            << "Crawling. Current input is " << cellFinderType()
-            <<  abort(FatalError);
-    }
+    List<CellFinder::samplingLocation> locations;
 
+    autoPtr<CellFinder> cellFinder
+    (
+        CellFinder::New(cellFinderType() + "CellFinder", patch())
+    );
+    cellFinder->findCells(locations, map_, hPatch, hIsIndex_);
 
-    const vectorField & patchFaceCentres = patch().Cf();
-    const volVectorField & C = mesh_.C();
+    const vectorField & C = mesh_.cellCentres();
     const UList<label> & faceCells = patch().faceCells();
+    const label myProc = Pstream::myProcNo();
 
+    // Grab samplingCells field
+    volScalarField & samplingCells =
+        const_cast<volScalarField &>
+        (
+            mesh_.lookupObject<volScalarField> ("samplingCells")
+        );
 
-    // if the h field is an index, compute h_ as distance from the sampling
-    // cell centers.
-    // Same if h is distance, but we do not interpolate within the cell
-    // Otherwise assign h_ to h, excluding when we sample from the wall-adjacent
-    // cell, since it can be used as fall-back when things go wrong.
-    if (hIsIndex_ || (interpolationType() == "cell"))
+    sampledCells_.setSize(locations.size());
+    sampledPoints_.setSize(locations.size());
+    sampledWallCentres_.setSize(locations.size());
+
+    // The distance from the wall used for each sampled cell
+    scalarField sampledH(locations.size());
+
+    indexList_ = -1;
+
+    forAll(locations, i)
     {
-        forAll(patch(), faceI)
+        const CellFinder::samplingLocation & location = locations[i];
+        const label cellI = location.cell;
+
+        const bool wallAdjacent =
+            location.originProc == myProc
+         && cellI == faceCells[location.originFace];
+
+        // if the h field is an index, compute h as distance from the sampling
+        // cell centers.
+        // Same if h is distance, but we do not interpolate within the cell
+        // Otherwise use the prescribed h, excluding when we sample from the
+        // wall-adjacent cell, since it can be used as fall-back when things
+        // go wrong.
+        if (hIsIndex_ || (interpolationType() == "cell") || wallAdjacent)
         {
-            h_[faceI] = mag(C[indexList_[faceI]] - patchFaceCentres[faceI]);
+            sampledH[i] = mag(C[cellI] - location.wallCentre);
         }
-    }
-    else
-    {
-        forAll(patch(), faceI)
+        else
         {
-            if (indexList_[faceI] == faceCells[faceI])
-            {
-                h_[faceI] = mag(C[indexList_[faceI]] - patchFaceCentres[faceI]);
-            }
-            else
-            {
-                h_[faceI] = hPatch[faceI];
-            }
+            sampledH[i] = location.h;
         }
+
+        sampledCells_[i] = cellI;
+        sampledWallCentres_[i] = location.wallCentre;
+        sampledPoints_[i] =
+            location.wallCentre - sampledH[i]*location.wallNormal;
+
+        if (location.originProc == myProc)
+        {
+            indexList_[location.originFace] = cellI;
+        }
+
+        samplingCells[cellI] = patchIndex;
     }
+
+    map_.distribute(sampledH);
+    h_ = sampledH;
 
     if (debug)
     {
@@ -151,18 +159,6 @@ void Foam::SingleCellSampler::createIndexList()
     if (!hIsIndex())
     {
         h.boundaryFieldRef()[patch().index()] == h_;
-    }
-
-    // Grab samplingCells field
-    volScalarField & samplingCells =
-        const_cast<volScalarField &>
-        (
-            mesh_.lookupObject<volScalarField> ("samplingCells")
-        );
-
-    forAll(indexList_, i)
-    {
-        samplingCells[indexList_[i]] = patchIndex;
     }
 }
 
@@ -193,51 +189,64 @@ void Foam::SingleCellSampler::createLengthListCubeRootVol()
     // Cell volumes
     const scalarField & V = mesh_.V();
 
-    forAll(lengthList_, i)
+    scalarField sampledLengths(sampledCells_.size());
+
+    forAll(sampledLengths, i)
     {
-        lengthList_[i] = pow(V[indexList_[i]], 1.0/3.0);
+        sampledLengths[i] = pow(V[sampledCells_[i]], 1.0/3.0);
     }
+
+    map_.distribute(sampledLengths);
+    lengthList_ = sampledLengths;
 }
 
 
 void Foam::SingleCellSampler::createLengthListWallNormalDistance()
 {
+    scalarField sampledLengths(sampledCells_.size());
 
-    const vectorField & faceCentres = mesh().Cf().primitiveField();
-    const List<cell> & cells = mesh().cells();
-    const vectorField & patchFaceCentres = patch().Cf();
-    const List<face> & faces = mesh().faces();
-
-    forAll(lengthList_, i)
+    forAll(sampledLengths, i)
     {
-        const label index = indexList_[i];
-        const cell cellI = cells[index];
-
-        const vector patchFaceI = patchFaceCentres[i];
-
-        // Find face with min distance from the wall face
-        scalar minDist = GREAT;
-        label minDistFace = 0;
-        for (int j=0; j<cellI.nFaces(); j++)
-        {
-            const vector faceJ = faceCentres[cellI[j]];
-
-            const scalar dist = mag(faceJ - patchFaceI);
-            if (dist < minDist)
-            {
-                minDist = dist;
-                minDistFace = cellI[j];
-            }
-        }
-
-        label opposingFace =
-            cellI.opposingFaceLabel(minDistFace, faces);
-        vector opposingFaceCentre = faceCentres[opposingFace];
-        vector minDistFaceCentre = faceCentres[minDistFace];
-
-        lengthList_[i] = mag(opposingFaceCentre - minDistFaceCentre);
-
+        sampledLengths[i] =
+            wallNormalDistance(sampledCells_[i], sampledWallCentres_[i]);
     }
+
+    map_.distribute(sampledLengths);
+    lengthList_ = sampledLengths;
+}
+
+
+Foam::scalar Foam::SingleCellSampler::wallNormalDistance
+(
+    const label index,
+    const point & wallFaceCentre
+) const
+{
+    const vectorField & faceCentres = mesh().faceCentres();
+    const List<face> & faces = mesh().faces();
+    const cell & cellI = mesh().cells()[index];
+
+    // Find face with min distance from the wall face
+    scalar minDist = GREAT;
+    label minDistFace = 0;
+    for (int j=0; j<cellI.nFaces(); j++)
+    {
+        const vector faceJ = faceCentres[cellI[j]];
+
+        const scalar dist = mag(faceJ - wallFaceCentre);
+        if (dist < minDist)
+        {
+            minDist = dist;
+            minDistFace = cellI[j];
+        }
+    }
+
+    label opposingFace =
+        cellI.opposingFaceLabel(minDistFace, faces);
+    vector opposingFaceCentre = faceCentres[opposingFace];
+    vector minDistFaceCentre = faceCentres[minDistFace];
+
+    return mag(opposingFaceCentre - minDistFaceCentre);
 }
 
 
@@ -258,7 +267,11 @@ Foam::SingleCellSampler::SingleCellSampler
             lengthScaleType, hIsIndex, excludeWallAdjacent),
     indexList_(p.size()),
     lengthList_(p.size()),
-    h_(p.size(), 0)
+    h_(p.size(), 0),
+    sampledCells_(),
+    sampledPoints_(),
+    sampledWallCentres_(),
+    map_()
 {
     if (!skipSamplingSetup())
     {
@@ -321,11 +334,8 @@ void Foam::SingleCellSampler::sample() const
             << exit(FatalError);
     }
 
-    // Ensure this processor has part of the patch
-    if (!patch().size())
-    {
-        return;
-    }
+    // No early return for empty patches, since this processor may hold
+    // sampling cells for other processors.
 
     // Weight for time-averaging, default to 1 i.e no averaging.
     scalar eps = 1;
@@ -336,13 +346,28 @@ void Foam::SingleCellSampler::sample() const
 
     forAll(sampledFields_, fieldI)
     {
+        const SampledField & field = sampledFields_[fieldI];
 
         scalarListList sampledList(patch().size());
-        sampledFields_[fieldI].sample(sampledList, indexList(), h_);
+
+        if (field.sampledFromCells())
+        {
+            // Interpolate at the sampled cells on this processor and send the
+            // values to the processors holding the wall faces
+            scalarListList values(sampledCells_.size());
+            field.interpolate(values, sampledCells_, sampledPoints_);
+            map_.distribute(values);
+            field.postProcess(values);
+            sampledList.transfer(values);
+        }
+        else
+        {
+            field.sample(sampledList, indexList(), h_);
+        }
 
         scalarListIOList & storedValues = const_cast<scalarListIOList & >
         (
-            db().lookupObject<scalarListIOList>(sampledFields_[fieldI].name())
+            db().lookupObject<scalarListIOList>(field.name())
         );
 
         forAll(storedValues, i)
@@ -353,7 +378,6 @@ void Foam::SingleCellSampler::sample() const
                                      (1 - eps)*storedValues[i][j];
             }
         }
-
     }
 }
 
@@ -364,7 +388,20 @@ void Foam::SingleCellSampler::addField(SampledField * field)
 
     if (!skipSamplingSetup())
     {
-        field->registerFields(indexList());
+        // The values are initialised from local cells, so use the
+        // wall-adjacent cell for wall faces sampled from other processors.
+        labelList cells(indexList());
+        const UList<label> & faceCells = patch().faceCells();
+
+        forAll(cells, i)
+        {
+            if (cells[i] == -1)
+            {
+                cells[i] = faceCells[i];
+            }
+        }
+
+        field->registerFields(cells);
     }
 }
 

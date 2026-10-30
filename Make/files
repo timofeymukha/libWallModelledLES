@@ -3,6 +3,8 @@ scalarListListIOList/scalarListListIOList.C
 cellFinders/CellFinder/CellFinder.C
 cellFinders/CrawlingCellFinder/CrawlingCellFinder.C
 cellFinders/TreeCellFinder/TreeCellFinder.C
+cellFinders/CrawlingParallelCellFinder/CrawlingParallelCellFinder.C
+cellFinders/TreeParallelCellFinder/TreeParallelCellFinder.C
 
 helpers/helpers.C
 

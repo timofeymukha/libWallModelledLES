@@ -103,7 +103,24 @@ public:
             scalarListListList &,
             const labelListList &
         ) const override;
-                
+
+        //- The velocity is sampled from cells
+        bool sampledFromCells() const override
+        {
+            return true;
+        }
+
+        //- Interpolate the velocity at given points within given cells
+        void interpolate
+        (
+            scalarListList & values,
+            const labelList & cells,
+            const pointField & points
+        ) const override;
+
+        //- Subtract the wall velocity and project onto the patch
+        void postProcess(scalarListList & values) const override;
+
         //- The number of dimensions of the field
         label nDims() const override
         {
