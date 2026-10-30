@@ -28,10 +28,13 @@ Class
 
     The common interface, findCells(), returns the sampling locations found
     on this processor together with a map, which distributes values computed
-    at these locations to the faces of the patch. Cell finders that only
-    search on the processor holding the wall face return a map without
-    communication, while others may return sampling locations for the wall
-    faces of other processors.
+    at these locations to the faces of the patch. The sampling locations may
+    belong to the wall faces of other processors.
+
+    The search for each location starts in the wall-adjacent cell and is
+    advanced cell by cell by the derived classes, see advance(). When the
+    search reaches a processor boundary, it is handed over to the
+    neighbouring processor, see search().
 
 Contributors/Copyright:
     2019-2026 Timofey Mukha
@@ -81,7 +84,7 @@ public:
         //- The cell, local to the current processor
         label cell;
 
-        //- The face through which the cell is entered when crawling. When
+        //- The face through which the cell is entered. When
         //- passed between processors, the index of the face in the
         //- processor patch.
         label face;
@@ -164,17 +167,6 @@ protected:
             const vectorField & faceNormals
         ) const;
 
-        //- Create sampling locations on this processor for the given cells,
-        //- one per face of the patch, and the corresponding map, which does
-        //- not involve communication
-        void createLocalLocations
-        (
-            const labelList & cells,
-            const scalarField & h,
-            List<samplingLocation> & locations,
-            mapDistributeBase & map
-        ) const;
-
         //- Construct the map from sampling locations, which may correspond
         //- to faces on any processor, to the faces of the patch. Must be
         //- called on all processors.
@@ -182,6 +174,33 @@ protected:
         (
             const UList<samplingLocation> & locations,
             mapDistributeBase & map
+        ) const;
+
+        //- Advance the search for a sampling location on this processor.
+        //- Returns -1 if the search is complete, otherwise the neighbouring
+        //- processor, to which the search should be handed over. In the
+        //- latter case, location.face is set to the index of the face in the
+        //- processor patch shared with that processor.
+        virtual label advance
+        (
+            samplingLocation & location,
+            const bool hIsIndex
+        ) const = 0;
+
+        //- For each processor, the index of the processor patch shared
+        //- with it, or -1. Processor patches stemming from cyclics are
+        //- not considered. All -1 outside a parallel run.
+        labelList processorPatches() const;
+
+        //- Advance the active locations, handing them over between the
+        //- processors, until the search is complete for all of them. On
+        //- output, the completed locations on this processor are appended to
+        //- found. Must be called on all processors.
+        void search
+        (
+            DynamicList<samplingLocation> & active,
+            DynamicList<samplingLocation> & found,
+            const bool hIsIndex
         ) const;
 
         //- Send each list to the respective processor and receive the lists

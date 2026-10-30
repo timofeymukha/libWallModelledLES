@@ -3,10 +3,30 @@
 ## Unreleased
 
 ### For users
-- Added the `CrawlingParallel` and `TreeParallel` options for the `sampler`
-  keyword of the single-cell wall models. These communicate across processor
-  boundaries, so that the requested sampling cell is used regardless of the
-  decomposition, at the cost of additional parallel communication.
+- **Breaking:** The `Tree` sampler has been removed. It is replaced by the new
+  `NormalRay` sampler. It traces the wall normal from each wall face cell by
+  cell, and selects the cell containing the point at the distance `h`, as the
+  `Tree` sampler did. It works on arbitrary polyhedral meshes and is much
+  faster than the `Tree` sampler, roughly as fast as the `Crawling` sampler.
+  It does not support `hIsIndex`. Cases with `sampler Tree;` stop with an
+  error asking to remove the keyword.
+
+- The `sampler` keyword is now optional, and normally not needed. By default,
+  the sampler is selected by `hIsIndex`: `NormalRay` for distances and
+  `Crawling` for cell indices. The keyword is only written out if it was given.
+
+- The `NormalRay` and `Crawling` samplers now continue the search across
+  processor boundaries for the single-cell wall models, so that the requested
+  sampling cell is used regardless of the decomposition, at the cost of some
+  additional parallel communication. The `MulticellLOTWWallModel` still
+  searches only on the processor holding the wall face.
+
+- If the wall-normal line leaves the domain before reaching `h`, the
+  `NormalRay` sampler uses the last cell inside the domain and reduces the
+  sampling distance to lie within that cell. The `Tree` sampler fell back to
+  the wall-adjacent cell in this case. If `h` lies exactly on a face between
+  two cells, the cell further away from the wall is used, the same as by the
+  `Crawling` sampler.
 
 - Fixed out-of-bounds access when computing the `WallNormalDistance` length
   scale for cells with boundary faces, which could produce wrong length scales.
@@ -23,15 +43,20 @@
   `mapDistributeBase` to the wall faces. The `SingleCellSampler` selects the
   cell finder through the run-time selection table, by appending
   `CellFinder` to the value of the `sampler` keyword. The `MultiCellSampler`
-  does not use this interface yet.
+  does not use this interface yet, but the local multi-cell search
+  `findCellIndices(labelListList&, ...)` of the cell finders.
 
-- Added the `CrawlingParallelCellFinder` and `TreeParallelCellFinder`, which
-  search for sampling cells across processor boundaries.
+- The search is advanced cell by cell by the virtual `CellFinder::advance`,
+  and `CellFinder::search` hands it over between the processors.
 
-- `SingleCellSampler` now interpolates the fields at the sampled cells and
-  distributes the values to the wall faces with the map, also for the serial
-  cell finders, where the map does not involve communication. `sample()`
-  must therefore be called on all processors, which the wall models do.
+- Removed the `TreeCellFinder`. Added the `NormalRayCellFinder`. The
+  `CrawlingCellFinder` searches across processor boundaries, and its
+  single-cell `findCellIndices(labelList&, ...)` has been removed in favour
+  of `findCells`.
+
+- `SingleCellSampler` now interpolates the fields at the sampling cells and
+  distributes the values to the wall faces with the map. `sample()` must
+  therefore be called on all processors, which the wall models do.
 
 - `SampledField` has new virtual functions `sampledFromCells`, `interpolate`
   and `postProcess`, which split sampling into interpolation at arbitrary

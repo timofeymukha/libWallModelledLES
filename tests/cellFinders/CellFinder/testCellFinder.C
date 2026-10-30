@@ -1,7 +1,7 @@
 #include "fvCFD.H"
 #include "CellFinder.H"
 #include "CrawlingCellFinder.H"
-#include "TreeCellFinder.H"
+#include "NormalRayCellFinder.H"
 #include "gtest.h"
 #undef Log
 #include "fixtures.H"
@@ -23,13 +23,7 @@ TEST_F(CellFinderTest, RunTimeSelection)
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
-    const wordList names
-    ({
-        "CrawlingCellFinder",
-        "TreeCellFinder",
-        "CrawlingParallelCellFinder",
-        "TreeParallelCellFinder"
-    });
+    const wordList names({"CrawlingCellFinder", "NormalRayCellFinder"});
 
     forAll(names, i)
     {
@@ -45,10 +39,19 @@ TEST_F(CellFinderTest, RunTimeSelection)
         },
         "FATAL ERROR"
     );
+
+    // The removed Tree sampler points to the NormalRay sampler
+    ASSERT_DEATH
+    (
+        {
+            CellFinder::New("TreeCellFinder", patch);
+        },
+        "NormalRay"
+    );
 }
 
 
-TEST_F(CellFinderTest, LocalFindCells)
+TEST_F(CellFinderTest, FindCellsSerial)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -62,41 +65,51 @@ TEST_F(CellFinderTest, LocalFindCells)
     const scalarField h(patch.size(), 0.45);
 
     CrawlingCellFinder crawlingFinder(patch);
-    TreeCellFinder treeFinder(patch);
+    NormalRayCellFinder normalRayFinder(patch);
 
-    labelList crawlingCells(patch.size(), -1);
-    crawlingFinder.findCellIndices(crawlingCells, h, false);
-
-    labelList treeCells(patch.size(), -1);
-    treeFinder.findCellIndices(treeCells, h);
-
-    auto check = [&](const CellFinder & finder, const labelList & expected)
+    auto check = [&](const CellFinder & finder)
     {
         List<CellFinder::samplingLocation> locations;
         mapDistributeBase map;
         finder.findCells(locations, map, h, false);
 
-        // The map does not involve other processors
-        ASSERT_EQ(map.comm(), UPstream::commSelf());
+        // In serial, all locations are on this processor
         ASSERT_EQ(map.constructSize(), patch.size());
         ASSERT_EQ(locations.size(), patch.size());
 
+        labelList cells(locations.size());
+
         forAll(locations, i)
         {
+            const label faceI = locations[i].originFace;
+
             ASSERT_EQ(locations[i].originProc, Pstream::myProcNo());
-            ASSERT_EQ(locations[i].originFace, i);
-            ASSERT_EQ(locations[i].cell, expected[i]);
-            ASSERT_EQ(locations[i].wallCentre, patch.Cf()[i]);
+            ASSERT_EQ(locations[i].wallCentre, patch.Cf()[faceI]);
             ASSERT_FLOAT_EQ(locations[i].h, 0.45);
+            ASSERT_FLOAT_EQ(mesh.C()[locations[i].cell][1], 0.5);
+            cells[i] = locations[i].cell;
+        }
+
+        // The map sends the values to the corresponding faces
+        map.distribute(cells);
+
+        forAll(cells, faceI)
+        {
+            ASSERT_FLOAT_EQ(mesh.C()[cells[faceI]][1], 0.5);
+            ASSERT_FLOAT_EQ
+            (
+                mesh.C()[cells[faceI]][0],
+                patch.Cf()[faceI][0]
+            );
         }
     };
 
-    check(crawlingFinder, crawlingCells);
-    check(treeFinder, treeCells);
+    check(crawlingFinder);
+    check(normalRayFinder);
 }
 
 
-TEST_F(CellFinderTest, TreeHIsIndex)
+TEST_F(CellFinderTest, NormalRayHIsIndex)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -107,7 +120,7 @@ TEST_F(CellFinderTest, TreeHIsIndex)
     createSamplingHeightField(mesh);
 
     const fvPatch & patch = mesh.boundary()["bottomWall"];
-    TreeCellFinder finder(patch);
+    autoPtr<CellFinder> finder(CellFinder::New("NormalRayCellFinder", patch));
 
     List<CellFinder::samplingLocation> locations;
     mapDistributeBase map;
@@ -115,7 +128,7 @@ TEST_F(CellFinderTest, TreeHIsIndex)
     ASSERT_DEATH
     (
         {
-            finder.findCells
+            finder->findCells
             (
                 locations,
                 map,

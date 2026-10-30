@@ -48,8 +48,9 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedBottomWall)
     labelList indexList(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == 1;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         true
@@ -61,8 +62,9 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedBottomWall)
     }
 
     h.boundaryFieldRef()[patch.index()] == 2;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         true
@@ -74,8 +76,9 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedBottomWall)
     }
 
     h.boundaryFieldRef()[patch.index()] == 10;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         true
@@ -108,8 +111,9 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedTopWall)
     labelList indexList(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == 1;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         true
@@ -121,8 +125,9 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedTopWall)
     }
 
     h.boundaryFieldRef()[patch.index()] == 2;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         true
@@ -134,8 +139,9 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedTopWall)
     }
 
     h.boundaryFieldRef()[patch.index()] == 10;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         true
@@ -169,8 +175,9 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedInvalidIndex)
     labelList indexList(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == -1;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         true
@@ -204,8 +211,9 @@ TEST_F(CrawlingCellFinderTest, FindIndexBasedTooLargeIndex)
     labelList indexList(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == 100;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         true
@@ -239,8 +247,9 @@ TEST_F(CrawlingCellFinderTest, FindDistanceBasedBottomWall)
     labelList indexList(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == 0.1;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         false
@@ -252,8 +261,9 @@ TEST_F(CrawlingCellFinderTest, FindDistanceBasedBottomWall)
     }
 
     h.boundaryFieldRef()[patch.index()] == 0.32;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         false
@@ -265,8 +275,9 @@ TEST_F(CrawlingCellFinderTest, FindDistanceBasedBottomWall)
     }
 
     h.boundaryFieldRef()[patch.index()] == 1.9;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         false
@@ -300,8 +311,9 @@ TEST_F(CrawlingCellFinderTest, FindDistanceBasedTopWall)
     labelList indexList(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == 0.1;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         false
@@ -313,8 +325,9 @@ TEST_F(CrawlingCellFinderTest, FindDistanceBasedTopWall)
     }
 
     h.boundaryFieldRef()[patch.index()] == 0.32;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         false
@@ -326,8 +339,9 @@ TEST_F(CrawlingCellFinderTest, FindDistanceBasedTopWall)
     }
 
     h.boundaryFieldRef()[patch.index()] == 1.9;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         false
@@ -361,8 +375,9 @@ TEST_F(CrawlingCellFinderTest, FindDistanceInvalidDistance)
     labelList indexList(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == -0.1;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         false
@@ -395,8 +410,9 @@ TEST_F(CrawlingCellFinderTest, FindDistanceZeroDistance)
     labelList indexList(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == 0.0;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         false
@@ -430,8 +446,9 @@ TEST_F(CrawlingCellFinderTest, FindDistanceTooLargeDistance)
     labelList indexList(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == 10.0;
-    finder.findCellIndices
+    findCellIndices
     (
+        finder,
         indexList,
         h.boundaryFieldRef()[patch.index()],
         false
@@ -877,5 +894,53 @@ TEST_F(CrawlingCellFinderTest, ExcludeWallAdjacentOneCellMulticell)
     {
         ASSERT_EQ(indexList[i].size(), 1);
         ASSERT_FLOAT_EQ(C[indexList[i][0]][1], 0.1);
+    }
+}
+
+
+TEST_F(CrawlingCellFinderTest, Locations)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+    const vectorField & faceCentres = patch.Cf();
+    const tmp<vectorField> tfaceNormals = patch.nf();
+
+    CrawlingCellFinder finder(patch);
+
+    List<CellFinder::samplingLocation> locations;
+    mapDistributeBase map;
+
+    finder.findCells
+    (
+        locations,
+        map,
+        scalarField(patch.size(), 3),
+        true
+    );
+
+    ASSERT_EQ(locations.size(), patch.size());
+    ASSERT_EQ(map.constructSize(), patch.size());
+
+    boolList foundFace(patch.size(), false);
+
+    forAll(locations, i)
+    {
+        const CellFinder::samplingLocation & location = locations[i];
+        const label faceI = location.originFace;
+
+        ASSERT_EQ(location.originProc, Pstream::myProcNo());
+        ASSERT_EQ(location.layer, 3);
+        ASSERT_EQ(location.wallCentre, faceCentres[faceI]);
+        ASSERT_EQ(location.wallNormal, tfaceNormals()[faceI]);
+        ASSERT_FLOAT_EQ(location.h, 3);
+        ASSERT_FALSE(foundFace[faceI]);
+        foundFace[faceI] = true;
     }
 }

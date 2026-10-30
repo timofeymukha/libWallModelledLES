@@ -36,7 +36,7 @@ Class
         type                KnownWallShearStressWallModel;
         value               uniform 0;
         interpolationType   value; (default cell)
-        sampler             value; (default Tree)
+        sampler             value; (optional, selected by hIsIndex by default)
         lengthScale         value; (default CubeRootVol)
         hIsIndex            value; (default false)
     }

@@ -31,7 +31,7 @@ TEST_F(MultiCellSamplerTest, ConstructorDefaults)
     ASSERT_EQ(&sampler.patch(), &patch);
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cell");
-    ASSERT_EQ(sampler.cellFinderType(), "Tree");
+    ASSERT_EQ(sampler.cellFinderType(), "NormalRay");
     ASSERT_EQ(sampler.lengthScaleType(), "CubeRootVol");
     ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(sampler.excludeWallAdjacent(), false);
@@ -121,7 +121,7 @@ TEST_F(MultiCellSamplerTest, ConstructorAttemptCellPoint)
 }
 
 
-TEST_F(MultiCellSamplerTest, ConstructorAttemptTreeHIsIndex)
+TEST_F(MultiCellSamplerTest, ConstructorAttemptNormalRayHIsIndex)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -142,7 +142,7 @@ TEST_F(MultiCellSamplerTest, ConstructorAttemptTreeHIsIndex)
                 patch,
                 3.0,
                 "cell",
-                "Tree",
+                "NormalRay",
                 "CubeRootVol",
                 true
             );
@@ -154,7 +154,7 @@ TEST_F(MultiCellSamplerTest, ConstructorAttemptTreeHIsIndex)
 }
 
 
-TEST_F(MultiCellSamplerTest, ConstructorTree)
+TEST_F(MultiCellSamplerTest, ConstructorNormalRay)
 {
     extern argList * mainArgs;
     const argList & args = *mainArgs;
@@ -178,7 +178,7 @@ TEST_F(MultiCellSamplerTest, ConstructorTree)
         patch,
         3.0,
         "cell",
-        "Tree",
+        "NormalRay",
         "CubeRootVol",
         false
     );
@@ -186,7 +186,7 @@ TEST_F(MultiCellSamplerTest, ConstructorTree)
     ASSERT_EQ(&sampler.patch(), &patch);
     ASSERT_EQ(sampler.averagingTime(), 3.0);
     ASSERT_EQ(sampler.interpolationType(), "cell");
-    ASSERT_EQ(sampler.cellFinderType(), "Tree");
+    ASSERT_EQ(sampler.cellFinderType(), "NormalRay");
     ASSERT_EQ(sampler.hIsIndex(), false);
     ASSERT_EQ(sampler.excludeWallAdjacent(), false);
     ASSERT_EQ(&sampler.mesh(), &mesh);
@@ -256,7 +256,7 @@ TEST_F(MultiCellSamplerTest, AttemptInvalidLengthScaleName)
                 patch,
                 3.0,
                 "cell",
-                "Tree",
+                "NormalRay",
                 "RandomName",
                 false
             );
@@ -291,7 +291,7 @@ TEST_F(MultiCellSamplerTest, Copy)
         patch,
         3.0,
         "cell",
-        "Tree",
+        "NormalRay",
         "WallNormalDistance",
         false,
         true

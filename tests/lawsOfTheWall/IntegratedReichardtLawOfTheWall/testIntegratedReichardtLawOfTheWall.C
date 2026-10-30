@@ -255,7 +255,7 @@ TEST_F(IntegratedReichardtLawOfTheWallTest, DerivativeSampler)
         patch,
         3.0,
         "cell",
-        "Tree",
+        "NormalRay",
         "CubeRootVol",
         false
     );

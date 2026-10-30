@@ -161,7 +161,7 @@ ExplicitWallModelFvPatchScalarField
             p,
             averagingTime(),
             dict.lookupOrDefault<word>("interpolationType", "cell"),
-            dict.lookupOrDefault<word>("sampler", "Tree"),
+            dict.lookupOrDefault<word>("sampler", word::null),
             dict.lookupOrDefault<word>("lengthScale", "CubeRootVol"),
             dict.lookupOrDefault<bool>("hIsIndex", false)
         )

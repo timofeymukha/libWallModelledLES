@@ -23,12 +23,10 @@ Class
     Class for sampling data to the wall models for a single cell per face.
 
     The sampling cells are found by the CellFinder selected with the sampler
-    keyword. With the Tree and Crawling cell finders, the search is
-    restricted to the processor holding the wall face. With TreeParallel and
-    CrawlingParallel, the sampling cells may be located on other processors.
-    Then, at each time step, the fields are interpolated on the processors
-    holding the sampling cells and the values are sent to the processors
-    holding the wall faces.
+    keyword. The sampling cells may be located on other processors than the
+    wall faces. Then, at each time step, the fields are interpolated on the
+    processors holding the sampling cells and the values are sent to the
+    processors holding the wall faces.
 
     The cell indices returned by indexList() refer to the cells on this
     processor. The index is -1 for wall faces with a sampling cell on
@@ -124,7 +122,7 @@ public:
             const fvPatch&,
             scalar averagingTime,
             const word interpolationType="cell",
-            const word cellFinderType="Tree",
+            const word cellFinderType=word::null,
             const word lengthScaleType="CubeRootVol",
             bool hIsIndex=false,
             bool excludeWallAdjacent=false
@@ -136,7 +134,7 @@ public:
             const fvPatch & p,
             scalar averagingTime,
             const word interpolationType="cell",
-            const word cellFinderType="Tree",
+            const word cellFinderType=word::null,
             const word lengthScaleType="CubeRootVol",
             bool hIsIndex=false,
             bool excludeWallAdjacent=false

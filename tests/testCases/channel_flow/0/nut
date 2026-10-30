@@ -41,7 +41,6 @@ boundaryField
             B       5.5;
        }
 
-       sampler Crawling;
        interpolationType cell;
        hIsIndex false;
        silent false;

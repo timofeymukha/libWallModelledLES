@@ -7,9 +7,9 @@
 #include <iostream>
 #include <string>
 
-// Runs the channel flow in serial and in parallel with the
-// ParallelSingleCellSampler, where the sampling cells are located on another
-// processor than the wall faces, and checks that the results are the same.
+// Runs the channel flow in serial and in parallel, where the sampling cells are
+// located on another processor than the wall faces, and checks that the
+// results are the same.
 
 // The number of cells and bottomWall faces in the channel flow mesh
 const Foam::label nCells = 90;
@@ -156,9 +156,9 @@ TEST_F(ParallelSamplerIntegrationTest, CrawlingDistanceSerialEqualsParallel)
 }
 
 
-TEST_F(ParallelSamplerIntegrationTest, TreeSerialEqualsParallel)
+TEST_F(ParallelSamplerIntegrationTest, NormalRaySerialEqualsParallel)
 {
-    runAndCompare("setNutLOTWSpaldingParallelTree");
+    runAndCompare("setNutLOTWSpaldingParallelNormalRay");
 }
 
 
@@ -170,7 +170,7 @@ TEST_F(ParallelSamplerIntegrationTest, CrawlingIndexSerialEqualsFourProcessors)
 }
 
 
-TEST_F(ParallelSamplerIntegrationTest, TreeSerialEqualsFourProcessors)
+TEST_F(ParallelSamplerIntegrationTest, NormalRaySerialEqualsFourProcessors)
 {
-    runAndCompare("setNutLOTWSpaldingParallelTree", 4);
+    runAndCompare("setNutLOTWSpaldingParallelNormalRay", 4);
 }

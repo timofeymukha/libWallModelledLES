@@ -22,6 +22,13 @@ Class
 @brief
     Class for sampling data to the wall models.
 
+    The sampling cells are found by the cell finder given by the optional
+    sampler keyword. If it is not given, the cell finder is selected by
+    hIsIndex: the NormalRayCellFinder for distances and the
+    CrawlingCellFinder for cell indices. The sampler keyword is only written
+    if it was given, so that the selection is the same after the boundary
+    condition is written and read back, e.g. by decomposePar.
+
 Contributors/Copyright:
     2016-2026 Timofey Mukha
     2017      Saleh Rezaeiravesh
@@ -74,7 +81,8 @@ protected:
         //- cell, cellPoint or cellPointFace. Defaults to cell.
         word interpolationType_;
 
-        //- Type of cellFinder to use for finding sampling cells.
+        //- Type of cellFinder to use for finding sampling cells. Empty if
+        //- selected by hIsIndex.
         word cellFinderType_;
 
         //- Way to compute the length-scale for the cells
@@ -199,9 +207,14 @@ public:
             return interpolationType_;
         }
 
-        //- Get the cell finder type
+        //- Get the cell finder type, selected by hIsIndex if not given
         word cellFinderType() const
         {
+            if (cellFinderType_.empty())
+            {
+                return hIsIndex_ ? "Crawling" : "NormalRay";
+            }
+
             return cellFinderType_;
         }
         

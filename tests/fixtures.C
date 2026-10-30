@@ -137,6 +137,29 @@ Foam::autoPtr<Foam::fvMesh> createMesh(const Foam::Time & runTime)
 }
 
 
+void findCellIndices
+(
+    const Foam::CellFinder & finder,
+    Foam::labelList & indexList,
+    const Foam::scalarField & h,
+    const bool hIsIndex
+)
+{
+    Foam::List<Foam::CellFinder::samplingLocation> locations;
+    Foam::mapDistributeBase map;
+    finder.findCells(locations, map, h, hIsIndex);
+
+    indexList.setSize(locations.size());
+
+    forAll(locations, i)
+    {
+        indexList[i] = locations[i].cell;
+    }
+
+    map.distribute(indexList);
+}
+
+
 void createWallModelSubregistry(const fvMesh & mesh, const fvPatch & patch)
 {
     if (!mesh.foundObject<objectRegistry>("wallModelSampling"))

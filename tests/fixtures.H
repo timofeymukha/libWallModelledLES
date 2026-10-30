@@ -31,6 +31,7 @@ SourceFiles
 #include "fvCFD.H"
 #include "OTstream.H"
 #include "ITstream.H"
+#include "CellFinder.H"
 #undef Log
 #include "gtest.h"
 
@@ -56,6 +57,16 @@ void createNuField
 
 // Create a fvMesh
 Foam::autoPtr<Foam::fvMesh> createMesh(const Foam::Time & runTime);
+
+// Find a sampling cell for each face of the patch with the given cell finder,
+// in the order of the patch faces. Only meaningful in serial runs.
+void findCellIndices
+(
+    const Foam::CellFinder & finder,
+    Foam::labelList & indexList,
+    const Foam::scalarField & h,
+    const bool hIsIndex
+);
 
 // Create subregistry for sampled fields for a given patch
 void createWallModelSubregistry(const fvMesh & mesh, const fvPatch & patch);

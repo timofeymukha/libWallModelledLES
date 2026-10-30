@@ -94,7 +94,7 @@ public:
             const fvPatch&,
             scalar averagingTime,
             const word interpolationType="cell",
-            const word cellFinderType="Tree",
+            const word cellFinderType=word::null,
             const word lengthScaleType="CubeRootVol",
             bool hIsIndex=false,
             bool excludeWallAdjacent=false
@@ -107,7 +107,7 @@ public:
             const fvPatch & p,
             scalar averagingTime,
             const word interpolationType="cell",
-            const word cellFinderType="Tree",
+            const word cellFinderType=word::null,
             const word lengthScaleType="CubeRootVol",
             bool hIsIndex=false,
             bool excludeWallAdjacent=false

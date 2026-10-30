@@ -136,7 +136,7 @@ TEST_F(VanDriestEddyViscosityTest, ValueSampler)
         patch,
         3.0,
         "cell",
-        "Tree",
+        "NormalRay",
         "CubeRootVol",
         false
     );

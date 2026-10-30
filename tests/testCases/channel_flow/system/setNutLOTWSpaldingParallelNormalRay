@@ -26,7 +26,6 @@ nut
         {
             type            LOTWWallModel;
             value           uniform 0;
-            sampler         TreeParallel;
             hIsIndex        0;
             RootFinder
             {

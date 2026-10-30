@@ -5,7 +5,6 @@ fixtures.C
 ./samplers/Sampler/testSampler.C
 ./samplers/SingleCellSampler/testSingleCellSampler.C
 ./samplers/MultiCellSampler/testMultiCellSampler.C
-./samplers/SingleCellSampler/testSingleCellSamplerParallel.C
 ./samplers/SampledField/testSampledVelocityField.C
 ./samplers/SampledField/testSampledWallGradUField.C
 ./samplers/SampledField/testSampledPGradField.C
@@ -27,8 +26,6 @@ fixtures.C
 ./scalarListListIOList/testScalarListListIOList.C
 ./cellFinders/Compatibility/testCellFinderCompatibility.C
 ./cellFinders/CrawlingCellFinder/testCrawlingCellFinder.C
-./cellFinders/TreeCellFinder/testTreeCellFinder.C
+./cellFinders/NormalRayCellFinder/testNormalRayCellFinder.C
 ./cellFinders/CellFinder/testCellFinder.C
-./cellFinders/CrawlingParallelCellFinder/testCrawlingParallelCellFinder.C
-./cellFinders/TreeParallelCellFinder/testTreeParallelCellFinder.C
 EXE=./testRunner

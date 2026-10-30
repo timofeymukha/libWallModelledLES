@@ -33,8 +33,8 @@ License
 #include "patchDistMethod.H"
 #include "scalarListIOList.H"
 #include "scalarListListIOList.H"
-#include "TreeCellFinder.H"
 #include "CrawlingCellFinder.H"
+#include "NormalRayCellFinder.H"
 #include "Sampler.H"
 #include "surfaceMesh.H"
 
@@ -77,25 +77,26 @@ void Foam::MultiCellSampler::createIndexList()
         CrawlingCellFinder cellFinder(patch());
         cellFinder.findCellIndices(indexList_, hPatch, hIsIndex_, excludeWallAdjacent_);
     }
-    else if (cellFinderType() == "Tree")
+    else if (cellFinderType() == "NormalRay")
     {
         if (hIsIndex_)
         {
             FatalErrorInFunction
-                << "MultiCellSampler: hIsIndex is not supported by the Tree "
-                << "sampler. Please use the Crawling sampler or provide h as "
-                << "distances."
+                << "MultiCellSampler: hIsIndex is not supported by the "
+                << "NormalRay sampler. Please use the Crawling sampler or "
+                << "provide h as distances."
                 <<  abort(FatalError);
         }
 
-        TreeCellFinder cellFinder(patch());
+        NormalRayCellFinder cellFinder(patch());
         cellFinder.findCellIndices(indexList_, hPatch, excludeWallAdjacent_);
     }
     else
     {
         FatalErrorInFunction
             << "MultiCellSampler: invalid sampler finder name, choose "
-            << "Tree or Crawling. Current choice is " << cellFinderType()
+            << "NormalRay or Crawling, or remove the sampler keyword to "
+            << "select it by hIsIndex. Current choice is " << cellFinderType()
             <<  abort(FatalError);
     }
 

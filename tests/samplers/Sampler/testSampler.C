@@ -231,6 +231,69 @@ TEST_F(SamplerTest, WriteIncludesAllDictionaryOptions)
 }
 
 
+// Without the sampler keyword, the cell finder is selected by hIsIndex, and
+// the keyword is not written, so that it is selected the same way when the
+// boundary condition is read back
+TEST_F(SamplerTest, CellFinderSelectedByHIsIndex)
+{
+    extern argList * mainArgs;
+    const argList & args = *mainArgs;
+    Time runTime(Foam::Time::controlDictName, args);
+    autoPtr<fvMesh> meshPtr = createMesh(runTime);
+    const fvMesh & mesh = meshPtr();
+    createSamplingHeightField(mesh);
+
+    const fvPatch & patch = mesh.boundary()["bottomWall"];
+
+    for (const bool hIsIndex : {false, true})
+    {
+        dictionary dict;
+        dict.add("type", word("DummySampler"));
+        dict.add("hIsIndex", hIsIndex);
+
+        autoPtr<Sampler> sampler(Sampler::New(dict, patch));
+
+        ASSERT_EQ
+        (
+            sampler().cellFinderType(),
+            hIsIndex ? "Crawling" : "NormalRay"
+        );
+
+        OStringStream os;
+        sampler().write(os);
+        const std::string output(os.str().c_str());
+        ASSERT_EQ(output.find("sampler"), std::string::npos);
+
+        // Read back with the opposite hIsIndex, the selection follows
+        dictionary written(IStringStream(os.str())());
+        written.set("type", word("DummySampler"));
+        written.set("hIsIndex", !hIsIndex);
+
+        autoPtr<Sampler> readSampler(Sampler::New(written, patch));
+        ASSERT_EQ
+        (
+            readSampler().cellFinderType(),
+            hIsIndex ? "NormalRay" : "Crawling"
+        );
+    }
+
+    // A given sampler is kept and written
+    dictionary dict;
+    dict.add("type", word("DummySampler"));
+    dict.add("sampler", word("Crawling"));
+    dict.add("hIsIndex", false);
+
+    autoPtr<Sampler> sampler(Sampler::New(dict, patch));
+    ASSERT_EQ(sampler().cellFinderType(), "Crawling");
+
+    const dictionary written(tokenStreamRoundTrip(sampler()));
+    ASSERT_EQ(written.get<word>("sampler"), "Crawling");
+
+    const DummySampler copied(refCast<const DummySampler>(sampler()));
+    ASSERT_EQ(copied.cellFinderType(), "Crawling");
+}
+
+
 TEST_F(SamplerTest, CreateFields)
 {
     extern argList * mainArgs;

@@ -26,6 +26,8 @@ License
 #include "objectRegistry.H"
 #include "IOField.H"
 #include "codeRules.H"
+#include "processorPolyPatch.H"
+#include "processorCyclicPolyPatch.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -46,6 +48,16 @@ Foam::autoPtr<Foam::CellFinder> Foam::CellFinder::New
     const fvPatch & p
 )
 {
+    if (CellFinderName == "TreeCellFinder")
+    {
+        FatalErrorInFunction
+            << "The Tree sampler has been removed. Remove the sampler "
+            << "keyword, then the NormalRay sampler is used for distances, "
+            << "which, like the Tree sampler, finds the cell at distance h "
+            << "along the wall normal."
+            << exit(FatalError);
+    }
+
     auto cstrIter =
     PatchConstructorTablePtr_->find(CellFinderName);
 
@@ -106,39 +118,99 @@ Foam::CellFinder::samplingLocation Foam::CellFinder::wallLocation
 }
 
 
-void Foam::CellFinder::createLocalLocations
-(
-    const labelList & cells,
-    const scalarField & h,
-    List<samplingLocation> & locations,
-    mapDistributeBase & map
-) const
+Foam::labelList Foam::CellFinder::processorPatches() const
 {
-    const tmp<vectorField> tfaceNormals = patch().nf();
-    const vectorField & faceNormals = tfaceNormals();
+    const polyBoundaryMesh & boundaryMesh = mesh_.boundaryMesh();
 
-    locations.setSize(patch().size());
+    labelList patches(Pstream::nProcs(), -1);
 
-    forAll(locations, i)
+    if (!Pstream::parRun())
     {
-        locations[i] = wallLocation(i, h[i], faceNormals);
-        locations[i].cell = cells[i];
+        return patches;
     }
 
-    // The map only involves this processor, use the self-communicator to
-    // ensure that no communication with other processors is done.
-    labelListList subMap(1, identity(patch().size()));
-    labelListList constructMap(1, identity(patch().size()));
+    forAll(boundaryMesh, patchI)
+    {
+        const polyPatch & pp = boundaryMesh[patchI];
 
-    map = mapDistributeBase
-    (
-        patch().size(),
-        std::move(subMap),
-        std::move(constructMap),
-        false,
-        false,
-        UPstream::commSelf()
-    );
+        if (isA<processorPolyPatch>(pp) && !isA<processorCyclicPolyPatch>(pp))
+        {
+            patches[refCast<const processorPolyPatch>(pp).neighbProcNo()] =
+                patchI;
+        }
+    }
+
+    return patches;
+}
+
+
+void Foam::CellFinder::search
+(
+    DynamicList<samplingLocation> & active,
+    DynamicList<samplingLocation> & found,
+    const bool hIsIndex
+) const
+{
+    const labelList procPatches(processorPatches());
+    const polyBoundaryMesh & boundaryMesh = mesh_.boundaryMesh();
+    const labelList & owner = mesh_.faceOwner();
+
+    while (true)
+    {
+        // Searches to be handed over to the neighbouring processors
+        List<DynamicList<samplingLocation>> handovers(Pstream::nProcs());
+
+        forAll(active, i)
+        {
+            const label nbrProc = advance(active[i], hIsIndex);
+
+            if (nbrProc == -1)
+            {
+                found.append(active[i]);
+            }
+            else
+            {
+                handovers[nbrProc].append(active[i]);
+            }
+        }
+
+        active.clear();
+
+        if (!Pstream::parRun())
+        {
+            break;
+        }
+
+        List<List<samplingLocation>> received;
+        exchange(handovers, received);
+
+        forAll(received, proci)
+        {
+            if (received[proci].size() && procPatches[proci] == -1)
+            {
+                FatalErrorInFunction
+                    << "CellFinder: Received searches from processor "
+                    << proci << ", which is not a neighbour."
+                    << exit(FatalError);
+            }
+
+            // The face is entered from the neighbouring processor, continue
+            // in the cell on this side
+            forAll(received[proci], i)
+            {
+                samplingLocation & location = received[proci][i];
+
+                location.face += boundaryMesh[procPatches[proci]].start();
+                location.cell = owner[location.face];
+                active.append(location);
+            }
+        }
+
+        if (returnReduce(active.size(), sumOp<label>()) == 0)
+        {
+            break;
+        }
+    }
 }
 
 

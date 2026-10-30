@@ -1,6 +1,6 @@
 #include "fvCFD.H"
 #include "CrawlingCellFinder.H"
-#include "TreeCellFinder.H"
+#include "NormalRayCellFinder.H"
 #include "gtest.h"
 #undef Log
 #include "fixtures.H"
@@ -27,66 +27,75 @@ TEST_F(CellFinderCompatibilityTest, ExactDistance)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     CrawlingCellFinder finderCrawling(patch);
-    TreeCellFinder finderTree(patch);
+    NormalRayCellFinder finderNormalRay(patch);
 
     labelList indexListCrawling(patch.size(), 0);
-    labelList indexListTree(patch.size(), 0);
+    labelList indexListNormalRay(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == 0.1;
-    finderCrawling.findCellIndices
+    findCellIndices
     (
+        finderCrawling,
         indexListCrawling,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
-    finderTree.findCellIndices
+    findCellIndices
     (
-        indexListTree,
-        h.boundaryFieldRef()[patch.index()]
+        finderNormalRay,
+        indexListNormalRay,
+        h.boundaryFieldRef()[patch.index()],
+        false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListTree[i]);
+        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListNormalRay[i]);
     }
 
     h.boundaryFieldRef()[patch.index()] == 0.3;
-    finderCrawling.findCellIndices
+    findCellIndices
     (
+        finderCrawling,
         indexListCrawling,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
-    finderTree.findCellIndices
+    findCellIndices
     (
-        indexListTree,
-        h.boundaryFieldRef()[patch.index()]
+        finderNormalRay,
+        indexListNormalRay,
+        h.boundaryFieldRef()[patch.index()],
+        false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListTree[i]);
+        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListNormalRay[i]);
     }
 
     h.boundaryFieldRef()[patch.index()] == 1.9;
-    finderCrawling.findCellIndices
+    findCellIndices
     (
+        finderCrawling,
         indexListCrawling,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
-    finderTree.findCellIndices
+    findCellIndices
     (
-        indexListTree,
-        h.boundaryFieldRef()[patch.index()]
+        finderNormalRay,
+        indexListNormalRay,
+        h.boundaryFieldRef()[patch.index()],
+        false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListTree[i]);
+        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListNormalRay[i]);
     }
 
 }
@@ -109,34 +118,37 @@ TEST_F(CellFinderCompatibilityTest, NegativeDistance)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     CrawlingCellFinder finderCrawling(patch);
-    TreeCellFinder finderTree(patch);
+    NormalRayCellFinder finderNormalRay(patch);
 
     labelList indexListCrawling(patch.size(), 0);
-    labelList indexListTree(patch.size(), 0);
+    labelList indexListNormalRay(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == -0.1;
-    finderCrawling.findCellIndices
+    findCellIndices
     (
+        finderCrawling,
         indexListCrawling,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
-    finderTree.findCellIndices
+    findCellIndices
     (
-        indexListTree,
-        h.boundaryFieldRef()[patch.index()]
+        finderNormalRay,
+        indexListNormalRay,
+        h.boundaryFieldRef()[patch.index()],
+        false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListTree[i]);
+        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListNormalRay[i]);
     }
 
 }
 
 
-// WE EXPECT DIFFERENCE BEHAVIOUR IN THIS CASE
+// Both use the last cell before the opposite wall
 TEST_F(CellFinderCompatibilityTest, TooLargeDistance)
 {
     extern argList * mainArgs;
@@ -154,28 +166,31 @@ TEST_F(CellFinderCompatibilityTest, TooLargeDistance)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     CrawlingCellFinder finderCrawling(patch);
-    TreeCellFinder finderTree(patch);
+    NormalRayCellFinder finderNormalRay(patch);
 
     labelList indexListCrawling(patch.size(), 0);
-    labelList indexListTree(patch.size(), 0);
+    labelList indexListNormalRay(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == 3.1;
-    finderCrawling.findCellIndices
+    findCellIndices
     (
+        finderCrawling,
         indexListCrawling,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
-    finderTree.findCellIndices
+    findCellIndices
     (
-        indexListTree,
-        h.boundaryFieldRef()[patch.index()]
+        finderNormalRay,
+        indexListNormalRay,
+        h.boundaryFieldRef()[patch.index()],
+        false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_NE(indexListCrawling[i], indexListTree[i]);
+        ASSERT_EQ(indexListCrawling[i], indexListNormalRay[i]);
     }
 
 }
@@ -198,85 +213,97 @@ TEST_F(CellFinderCompatibilityTest, InexactDistance)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     CrawlingCellFinder finderCrawling(patch);
-    TreeCellFinder finderTree(patch);
+    NormalRayCellFinder finderNormalRay(patch);
 
     labelList indexListCrawling(patch.size(), 0);
-    labelList indexListTree(patch.size(), 0);
+    labelList indexListNormalRay(patch.size(), 0);
 
     h.boundaryFieldRef()[patch.index()] == 0.05;
-    finderCrawling.findCellIndices
+    findCellIndices
     (
+        finderCrawling,
         indexListCrawling,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
-    finderTree.findCellIndices
+    findCellIndices
     (
-        indexListTree,
-        h.boundaryFieldRef()[patch.index()]
+        finderNormalRay,
+        indexListNormalRay,
+        h.boundaryFieldRef()[patch.index()],
+        false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListTree[i]);
+        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListNormalRay[i]);
     }
 
     h.boundaryFieldRef()[patch.index()] == 0.15;
-    finderCrawling.findCellIndices
+    findCellIndices
     (
+        finderCrawling,
         indexListCrawling,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
-    finderTree.findCellIndices
+    findCellIndices
     (
-        indexListTree,
-        h.boundaryFieldRef()[patch.index()]
+        finderNormalRay,
+        indexListNormalRay,
+        h.boundaryFieldRef()[patch.index()],
+        false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListTree[i]);
+        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListNormalRay[i]);
     }
 
     h.boundaryFieldRef()[patch.index()] == 1.85;
-    finderCrawling.findCellIndices
+    findCellIndices
     (
+        finderCrawling,
         indexListCrawling,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
-    finderTree.findCellIndices
+    findCellIndices
     (
-        indexListTree,
-        h.boundaryFieldRef()[patch.index()]
+        finderNormalRay,
+        indexListNormalRay,
+        h.boundaryFieldRef()[patch.index()],
+        false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListTree[i]);
+        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListNormalRay[i]);
     }
 
     h.boundaryFieldRef()[patch.index()] == 1.95;
-    finderCrawling.findCellIndices
+    findCellIndices
     (
+        finderCrawling,
         indexListCrawling,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
-    finderTree.findCellIndices
+    findCellIndices
     (
-        indexListTree,
-        h.boundaryFieldRef()[patch.index()]
+        finderNormalRay,
+        indexListNormalRay,
+        h.boundaryFieldRef()[patch.index()],
+        false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListTree[i]);
+        ASSERT_FLOAT_EQ(indexListCrawling[i], indexListNormalRay[i]);
     }
 }
 
@@ -298,10 +325,10 @@ TEST_F(CellFinderCompatibilityTest, ExactDistanceMulticell)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     CrawlingCellFinder finderCrawling(patch);
-    TreeCellFinder finderTree(patch);
+    NormalRayCellFinder finderNormalRay(patch);
 
     labelListList indexListCrawling(patch.size());
-    labelListList indexListTree(patch.size());
+    labelListList indexListNormalRay(patch.size());
 
     h.boundaryFieldRef()[patch.index()] == 0.1;
     finderCrawling.findCellIndices
@@ -312,19 +339,19 @@ TEST_F(CellFinderCompatibilityTest, ExactDistanceMulticell)
         false
     );
 
-    finderTree.findCellIndices
+    finderNormalRay.findCellIndices
     (
-        indexListTree,
+        indexListNormalRay,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_EQ(indexListCrawling[i].size(), indexListTree[i].size());
+        ASSERT_EQ(indexListCrawling[i].size(), indexListNormalRay[i].size());
         forAll(indexListCrawling[i], j)
         {
-            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListTree[i][j]);
+            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListNormalRay[i][j]);
         }
     }
 
@@ -337,19 +364,19 @@ TEST_F(CellFinderCompatibilityTest, ExactDistanceMulticell)
         false
     );
 
-    finderTree.findCellIndices
+    finderNormalRay.findCellIndices
     (
-        indexListTree,
+        indexListNormalRay,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_EQ(indexListCrawling[i].size(), indexListTree[i].size());
+        ASSERT_EQ(indexListCrawling[i].size(), indexListNormalRay[i].size());
         forAll(indexListCrawling[i], j)
         {
-            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListTree[i][j]);
+            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListNormalRay[i][j]);
         }
     }
 
@@ -362,19 +389,19 @@ TEST_F(CellFinderCompatibilityTest, ExactDistanceMulticell)
         false
     );
 
-    finderTree.findCellIndices
+    finderNormalRay.findCellIndices
     (
-        indexListTree,
+        indexListNormalRay,
         h.boundaryFieldRef()[patch.index()],
         false
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_EQ(indexListCrawling[i].size(), indexListTree[i].size());
+        ASSERT_EQ(indexListCrawling[i].size(), indexListNormalRay[i].size());
         forAll(indexListCrawling[i], j)
         {
-            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListTree[i][j]);
+            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListNormalRay[i][j]);
         }
     }
 }
@@ -396,10 +423,10 @@ TEST_F(CellFinderCompatibilityTest, ExactDistanceExcludeMulticell)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     CrawlingCellFinder finderCrawling(patch);
-    TreeCellFinder finderTree(patch);
+    NormalRayCellFinder finderNormalRay(patch);
 
     labelListList indexListCrawling(patch.size());
-    labelListList indexListTree(patch.size());
+    labelListList indexListNormalRay(patch.size());
 
     h.boundaryFieldRef()[patch.index()] == 0.1;
     finderCrawling.findCellIndices
@@ -410,19 +437,19 @@ TEST_F(CellFinderCompatibilityTest, ExactDistanceExcludeMulticell)
         true
     );
 
-    finderTree.findCellIndices
+    finderNormalRay.findCellIndices
     (
-        indexListTree,
+        indexListNormalRay,
         h.boundaryFieldRef()[patch.index()],
         true
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_EQ(indexListCrawling[i].size(), indexListTree[i].size());
+        ASSERT_EQ(indexListCrawling[i].size(), indexListNormalRay[i].size());
         forAll(indexListCrawling[i], j)
         {
-            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListTree[i][j]);
+            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListNormalRay[i][j]);
         }
     }
 
@@ -435,19 +462,19 @@ TEST_F(CellFinderCompatibilityTest, ExactDistanceExcludeMulticell)
         true 
     );
 
-    finderTree.findCellIndices
+    finderNormalRay.findCellIndices
     (
-        indexListTree,
+        indexListNormalRay,
         h.boundaryFieldRef()[patch.index()],
         true
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_EQ(indexListCrawling[i].size(), indexListTree[i].size());
+        ASSERT_EQ(indexListCrawling[i].size(), indexListNormalRay[i].size());
         forAll(indexListCrawling[i], j)
         {
-            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListTree[i][j]);
+            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListNormalRay[i][j]);
         }
     }
 
@@ -460,19 +487,19 @@ TEST_F(CellFinderCompatibilityTest, ExactDistanceExcludeMulticell)
         true
     );
 
-    finderTree.findCellIndices
+    finderNormalRay.findCellIndices
     (
-        indexListTree,
+        indexListNormalRay,
         h.boundaryFieldRef()[patch.index()],
         true
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_EQ(indexListCrawling[i].size(), indexListTree[i].size());
+        ASSERT_EQ(indexListCrawling[i].size(), indexListNormalRay[i].size());
         forAll(indexListCrawling[i], j)
         {
-            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListTree[i][j]);
+            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListNormalRay[i][j]);
         }
     }
 }
@@ -495,10 +522,10 @@ TEST_F(CellFinderCompatibilityTest, NegativeDistanceMulticell)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     CrawlingCellFinder finderCrawling(patch);
-    TreeCellFinder finderTree(patch);
+    NormalRayCellFinder finderNormalRay(patch);
 
     labelListList indexListCrawling(patch.size());
-    labelListList indexListTree(patch.size());
+    labelListList indexListNormalRay(patch.size());
 
     h.boundaryFieldRef()[patch.index()] == -1;
     finderCrawling.findCellIndices
@@ -509,19 +536,19 @@ TEST_F(CellFinderCompatibilityTest, NegativeDistanceMulticell)
         true
     );
 
-    finderTree.findCellIndices
+    finderNormalRay.findCellIndices
     (
-        indexListTree,
+        indexListNormalRay,
         h.boundaryFieldRef()[patch.index()],
         true
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_EQ(indexListCrawling[i].size(), indexListTree[i].size());
+        ASSERT_EQ(indexListCrawling[i].size(), indexListNormalRay[i].size());
         forAll(indexListCrawling[i], j)
         {
-            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListTree[i][j]);
+            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListNormalRay[i][j]);
         }
     }
 
@@ -545,10 +572,10 @@ TEST_F(CellFinderCompatibilityTest, TooLargeDistanceMulticell)
     const fvPatch & patch = mesh.boundary()["bottomWall"];
 
     CrawlingCellFinder finderCrawling(patch);
-    TreeCellFinder finderTree(patch);
+    NormalRayCellFinder finderNormalRay(patch);
 
     labelListList indexListCrawling(patch.size());
-    labelListList indexListTree(patch.size());
+    labelListList indexListNormalRay(patch.size());
 
     h.boundaryFieldRef()[patch.index()] == 10;
     finderCrawling.findCellIndices
@@ -559,19 +586,19 @@ TEST_F(CellFinderCompatibilityTest, TooLargeDistanceMulticell)
         true
     );
 
-    finderTree.findCellIndices
+    finderNormalRay.findCellIndices
     (
-        indexListTree,
+        indexListNormalRay,
         h.boundaryFieldRef()[patch.index()],
         true
     );
 
     forAll(indexListCrawling, i)
     {
-        ASSERT_EQ(indexListCrawling[i].size(), indexListTree[i].size());
+        ASSERT_EQ(indexListCrawling[i].size(), indexListNormalRay[i].size());
         forAll(indexListCrawling[i], j)
         {
-            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListTree[i][j]);
+            ASSERT_FLOAT_EQ(indexListCrawling[i][j], indexListNormalRay[i][j]);
         }
     }
 
