@@ -4,6 +4,7 @@
 #include "gtest.h"
 #undef Log
 #include "gmock/gmock.h"
+#include "fixtures.H"
 
 using std::placeholders::_1;
 
@@ -64,6 +65,22 @@ TEST(NetwonRootFinder, DictDefaultValues)
 
     NewtonRootFinder newton = NewtonRootFinder(dict);
     ASSERT_EQ(newton.maxIter(), 30);
+}
+
+
+TEST(NewtonRootFinder, WriteTokenStream)
+{
+    dictionary dict = dictionary();
+    dict.add("maxIter", 10);
+
+    NewtonRootFinder newton = NewtonRootFinder(dict);
+
+    dictionary written = tokenStreamRoundTrip(newton);
+    ASSERT_TRUE(written.isDict("RootFinder"));
+
+    const dictionary & rootFinderDict = written.subDict("RootFinder");
+    ASSERT_EQ(rootFinderDict.get<word>("type"), word("Newton"));
+    ASSERT_EQ(rootFinderDict.get<label>("maxIter"), 10);
 }
 
 

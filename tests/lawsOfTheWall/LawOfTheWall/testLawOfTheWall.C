@@ -126,3 +126,19 @@ TEST_F(LawOfTheWallTest, NewDict)
     ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("Test2", 0.0), 4);
     ASSERT_EQ(law->type(), word("DummyLawOfTheWall"));
 }
+
+TEST_F(LawOfTheWallTest, WriteTokenStream)
+{
+    dictionary dict = dictionary();
+    dict.add("Test1", 0.395);
+    dict.add("Test2", 4);
+    DummyLawOfTheWall law = DummyLawOfTheWall(dict);
+
+    dictionary written = tokenStreamRoundTrip(law);
+    ASSERT_TRUE(written.isDict("Law"));
+
+    const dictionary & lawDict = written.subDict("Law");
+    ASSERT_EQ(lawDict.get<word>("type"), word("DummyLawOfTheWall"));
+    ASSERT_DOUBLE_EQ(lawDict.get<scalar>("Test1"), 0.395);
+    ASSERT_DOUBLE_EQ(lawDict.get<scalar>("Test2"), 4);
+}

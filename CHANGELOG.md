@@ -11,6 +11,12 @@
 - Fixed out-of-bounds access when computing the `WallNormalDistance` length
   scale for cells with boundary faces, which could produce wrong length scales.
 
+- Fixed a crash in `redistributePar` (e.g. `-decompose -parallel`) for wall
+  models with a `RootFinder`, `Law` or `EddyViscosity` sub-dictionary. The
+  braces of these sub-dictionaries were written as words instead of
+  punctuation, so they were not recognised as dictionaries when the boundary
+  condition was sent between processors (issue #2).
+
 ### For developers
 - Cell finders now share a common virtual interface, `CellFinder::findCells`,
   which returns the sampling locations on the processor together with a

@@ -99,7 +99,7 @@ void Foam::LawOfTheWall::write(Foam::Ostream & os) const
     
     os.writeKeyword("Law") 
         << nl;
-    os.writeKeyword("{")
+    os  << indent << token::BEGIN_BLOCK
         << incrIndent << nl;
     os.writeKeyword("type")
         << type() << token::END_STATEMENT << nl;
@@ -111,7 +111,7 @@ void Foam::LawOfTheWall::write(Foam::Ostream & os) const
     }
    
     os  << decrIndent;
-    os.writeKeyword("}")
+    os  << indent << token::END_BLOCK
         << nl;
 }
 

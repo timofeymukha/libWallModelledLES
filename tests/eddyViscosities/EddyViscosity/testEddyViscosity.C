@@ -140,3 +140,19 @@ TEST_F(EddyViscosityTest, NewDict)
     ASSERT_DOUBLE_EQ(dict.lookupOrDefault<scalar>("Test2", 0.0), 4);
     ASSERT_EQ(law->type(), word("DummyEddyViscosity"));
 }
+
+TEST_F(EddyViscosityTest, WriteTokenStream)
+{
+    dictionary dict = dictionary();
+    dict.add("Test1", 0.395);
+    dict.add("Test2", 4);
+    DummyEddyViscosity eddyViscosity = DummyEddyViscosity(dict);
+
+    dictionary written = tokenStreamRoundTrip(eddyViscosity);
+    ASSERT_TRUE(written.isDict("EddyViscosity"));
+
+    const dictionary & eddyViscosityDict = written.subDict("EddyViscosity");
+    ASSERT_EQ(eddyViscosityDict.get<word>("type"), word("DummyEddyViscosity"));
+    ASSERT_DOUBLE_EQ(eddyViscosityDict.get<scalar>("Test1"), 0.395);
+    ASSERT_DOUBLE_EQ(eddyViscosityDict.get<scalar>("Test2"), 4);
+}

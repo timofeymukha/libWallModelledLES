@@ -4,6 +4,7 @@
 #include <functional>
 #include "gtest.h"
 #undef Log
+#include "fixtures.H"
 
 using std::placeholders::_1;
 
@@ -123,4 +124,20 @@ TEST(BisectionRootFinder, RuntimeSelectionTable)
     std::pair<scalar, label> result = rootFinder->root(1, 1, 2);
 
     ASSERT_NEAR(result.first, cubicRootOfFour, rootTolerance);
+}
+
+
+TEST(BisectionRootFinder, WriteTokenStream)
+{
+    dictionary dict = dictionary();
+    dict.add("maxIter", 10);
+
+    BisectionRootFinder bisection = BisectionRootFinder(dict);
+
+    dictionary written = tokenStreamRoundTrip(bisection);
+    ASSERT_TRUE(written.isDict("RootFinder"));
+
+    const dictionary & rootFinderDict = written.subDict("RootFinder");
+    ASSERT_EQ(rootFinderDict.get<word>("type"), word("Bisection"));
+    ASSERT_EQ(rootFinderDict.get<label>("maxIter"), 10);
 }

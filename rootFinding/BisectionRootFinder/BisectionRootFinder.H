@@ -129,7 +129,7 @@ public:
         {
             RootFinder::write(os);
             os  << decrIndent;
-            os.writeKeyword("}")
+            os  << indent << token::END_BLOCK
                 << endl;
         }
 };

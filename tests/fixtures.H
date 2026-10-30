@@ -29,6 +29,8 @@ SourceFiles
 
 #include "codeRules.H"
 #include "fvCFD.H"
+#include "OTstream.H"
+#include "ITstream.H"
 #undef Log
 #include "gtest.h"
 
@@ -57,6 +59,19 @@ Foam::autoPtr<Foam::fvMesh> createMesh(const Foam::Time & runTime);
 
 // Create subregistry for sampled fields for a given patch
 void createWallModelSubregistry(const fvMesh & mesh, const fvPatch & patch);
+
+// Write an object to a token stream and parse it back into a dictionary.
+// Token types are preserved, as when a boundary condition is sent between
+// processors, e.g. by redistributePar.
+template<class Type>
+Foam::dictionary tokenStreamRoundTrip(const Type & object)
+{
+    Foam::OTstream os;
+    object.write(os);
+
+    Foam::ITstream is("tokenStreamRoundTrip", os.tokens());
+    return Foam::dictionary(is);
+}
 
 class ChannelFlow : public ::testing::Test
 {

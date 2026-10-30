@@ -154,3 +154,18 @@ TEST_F
         ASSERT_LT(relativeError, testCase.tolerance);
     }
 }
+
+
+TEST_F(SpaldingExplicitLawOfTheWallTest, WriteTokenStream)
+{
+    SpaldingExplicitLawOfTheWall law(0.387, 4.21);
+
+    dictionary written = tokenStreamRoundTrip(law);
+    ASSERT_TRUE(written.isDict("Law"));
+
+    const dictionary & lawDict = written.subDict("Law");
+    ASSERT_EQ(lawDict.get<word>("type"), word("Spalding"));
+    ASSERT_DOUBLE_EQ(lawDict.get<scalar>("kappa"), 0.387);
+    ASSERT_DOUBLE_EQ(lawDict.get<scalar>("B"), 4.21);
+    ASSERT_EQ(lawDict.get<word>("approximant"), word("highRe"));
+}

@@ -92,14 +92,14 @@ void Foam::EddyViscosity::write(Ostream & os) const
 {
     os.writeKeyword("EddyViscosity")
         << nl;
-    os.writeKeyword("{")
+    os  << indent << token::BEGIN_BLOCK
         << incrIndent << nl;
 
     os.writeEntry("type", type());
     constDict_.writeEntries(os);
 
     os  << decrIndent;
-    os.writeKeyword("}")
+    os  << indent << token::END_BLOCK
         << nl;
 }
 

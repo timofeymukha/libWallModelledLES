@@ -123,7 +123,7 @@ Foam::autoPtr<Foam::RootFinder> Foam::RootFinder::New
 void Foam::RootFinder::write(Foam::Ostream & os) const
 {
     os.writeKeyword("RootFinder") << nl;
-    os.writeKeyword("{")
+    os  << indent << token::BEGIN_BLOCK
         << incrIndent << nl;
     os.writeKeyword("type")
         << type() << token::END_STATEMENT << nl;
